@@ -1,0 +1,14 @@
+All files in 'Chapter*' folder are once compiled, and all passed.
+
+To run executable already exists, type 'Exercise.out' in terminal with right directory.
+
+To remake, type 'makefile' in terminal with right directory.
+
+Note:	files with file extension ".tig" are files containing codes wiritten in tiger language (for more detail, see tiger book).
+
+Compile information:
+	1.Compiler:	gcc (GCC) 4.8.5 20150623 (Red Hat 4.8.5-4).
+	2.OS:		centos-release-7-1.1503.e17.centos.2.8.x86_64 (In virtual machine).
+	3.Kernel:	3.10.0-229.20.1.e17.x86_64
+
+Apologize for my poor english.
