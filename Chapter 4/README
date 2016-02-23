@@ -1,0 +1,21 @@
+To run these tests, you need to install cunit first.
+
+Each folder ended with '_Test' is a test folder. Inside each test folder:
+	1.'makefile'	---------	makefile.
+	2.'*.out'	---------	executable file.
+	3.'Test_*.*'	---------	main source file for test purpose.
+	4.'*.o'		---------	other object files.
+
+Attentions:
+	There is not wrong if you see no memory free either in some source
+files or test files, becausethe first part of tiger compiler do not
+implement GC. 
+
+Each set of tests are stored inside one folder.
+	1.To run tests:
+		a.type 'export LD_LIBRARY_LIB=PATH', which PATH is your own
+cuint library path.
+		b.you may also need to change cunit lib path and headers
+path in the makefile correspodingly.
+		c.type every '*.out' inside each folder in you terminal.
+	2.To compile tests, type 'make' in your terminal.

@@ -1,0 +1,136 @@
+#include "../myTable.h"
+#include <CUnit/CUnit.h>
+#include <CUnit/Basic.h>
+#include <assert.h>
+#include <string.h>
+
+//	NOTE:
+//		To run this test, remove 'static' key word in myTable.c,
+//	uncomment following test functions and uncomment coresponding test
+//	adding block.
+//		After testing, you must rewrite 'static' back.
+//
+//		To test, uncomment function prototypes below also.
+//
+//	int hashFunc_MyTable(void* const key);
+//	myBinder makeMyBinder(void* key, void* value, myBinder next, void* prevTop);
+/*
+void hashFunc_ShouldWorkRight(void)
+{
+	//	test invalid string
+	CU_ASSERT_EQUAL(hashFunc_MyTable((void*)NULL), -1);
+	//	test null string
+	CU_ASSERT_EQUAL(hashFunc_MyTable(""), -1);
+	//	test valid string
+	CU_ASSERT(hashFunc_MyTable("valid") != -1);
+}
+
+
+void makeMyBinder_ShouldWorkRight(void)
+{
+	//	test valid key
+	CU_ASSERT_NOT_EQUAL(makeMyBinder("valid", "valid", NULL, NULL), NULL);
+	//	test NULL key
+	CU_ASSERT_EQUAL(makeMyBinder(NULL, "valid", NULL, NULL), NULL);
+	//	test "" key
+	CU_ASSERT_EQUAL(makeMyBinder("", "valid", NULL, NULL), NULL);
+	//	because function tested just set member to params inside
+	//	so skipped to test its members
+}
+
+*/
+
+void MyTable_MakeEmptyTable_ShouldWorkRight(void)
+{
+	//	fixture setup and system under control
+	myTable table = MyTable_MakeEmptyTable_();
+	//	test, should not return NULL unless no enough memory
+	CU_ASSERT_NOT_EQUAL(table, NULL);
+	//	members should be initialized with NULL
+	CU_ASSERT_EQUAL(table->top, NULL)
+	for (int i = 0; i < TAB_SIZE; ++i)
+		CU_ASSERT_EQUAL(table->binder[i], NULL);
+}
+
+
+void MyTable_Enter_ShouldChangeOnValidParam(void)
+{
+	//	fixture setup
+	int value = 0;
+	myTable	table = MyTable_MakeEmptyTable_();
+
+	//	test initial value
+	CU_ASSERT_EQUAL(table->top, NULL);
+
+	//	run testing function and verify
+	CU_ASSERT_EQUAL(MyTable_Enter_(table, "id", &value), true);
+	//	verify
+	CU_ASSERT(strcmp(table->top, "id") == 0);
+	
+	//	test
+	CU_ASSERT_EQUAL(MyTable_Enter_(table, "id2", &value), true);
+	//	verify (should change top key)
+	CU_ASSERT(strcmp(table->top, "id2") == 0);
+}
+
+void MyTable_Enter_ShouldNotChangeOnInvalidParam(void)
+{
+	//	fixture setup
+	const	int	value = 1;
+	myTable	table = MyTable_MakeEmptyTable_();
+	//	guard conditions
+	CU_ASSERT_EQUAL(table->top, NULL);
+
+	//	system under control (invalid null string)
+	CU_ASSERT_EQUAL(MyTable_Enter_(table, "", &value), false);
+	//	verify
+	CU_ASSERT_EQUAL(table->top, NULL);
+
+	//	system under control (invalid null pointer)
+	CU_ASSERT_EQUAL(MyTable_Enter_(table, (void*)NULL, &value),false);
+	//	verify
+	CU_ASSERT_EQUAL(table->top, NULL);
+
+	//	system under control (invalid null value)
+	CU_ASSERT_EQUAL(MyTable_Enter_(table, "valid", NULL), false);
+	//	verify
+	CU_ASSERT_EQUAL(table->top, NULL);
+}
+
+void MyTable_Look_XXX(void)
+{
+	//	todo:
+}
+
+int main ()
+{
+	if (CU_initialize_registry() != CUE_SUCCESS)
+	{
+		printf("initial registry error!\n");
+		exit(-1);
+	}
+
+	CU_pSuite suite = CU_add_suite("test suite ==== myTable", NULL, NULL);
+	if (suite == NULL)
+	{
+		printf("suite add error!\n");
+		CU_cleanup_registry();
+		exit(-1);
+	}
+
+	//assert(CU_add_test(suite, "test func----hashFunc_MyTable()", hashFunc_ShouldWorkRight));
+	//assert(CU_add_test(suite, "test func----makeMyBinder()", makeMyBinder_ShouldWorkRight));
+	assert(CU_add_test(suite, "test func----MyTable_MakeEmptyTable()",
+MyTable_MakeEmptyTable_ShouldWorkRight));
+	assert(CU_add_test(suite, "test func----MyTable_Enter_()", MyTable_Enter_ShouldNotChangeOnInvalidParam));
+	assert(CU_add_test(suite, "test func----MyTable_Enter_", MyTable_Enter_ShouldChangeOnValidParam));
+
+	if (CU_basic_run_suite(suite) != CUE_SUCCESS)
+	{
+		printf("attempt to run, failed!\n");
+		CU_cleanup_registry();
+		exit(-1);
+	}
+
+	CU_cleanup_registry();
+}

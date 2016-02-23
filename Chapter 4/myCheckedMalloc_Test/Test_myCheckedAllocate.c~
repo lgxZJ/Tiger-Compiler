@@ -1,0 +1,29 @@
+#include "../myCheckedAllocate.h"
+#include "CUnit/CUnit.h"
+#include "CUnit/Basic.h"
+
+void myCheckedAllocate_NoNeed(void)
+{
+  //	no need to test for assert() inside it
+}
+
+int main ()
+{
+  //	initial test registry
+  if (CU_initialize_registry() == CUE_NOMEMORY)
+  {
+	printf("no enough memory!\n");
+	exit(-1);
+  }
+
+  //	add suits to the former registry
+  CU_pSuite suitePtr = CU_add_suite("myCheckedAllocate.c test suite", NULL, NULL);
+  if (suitePtr == NULL)
+  {
+	printf("suite add failed!\n");
+	exit(-1);
+  }
+
+  //	add tests to the former suite
+  CU_pTest testPtr = CU_add_test(suitePtr, "myCheckedAllocate(size_t sizeInBytes)", 
+}

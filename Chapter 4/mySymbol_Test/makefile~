@@ -1,0 +1,5 @@
+Test_mySymbol.out: Test_mySymbol.o myTable.o myCheckedMalloc.o
+	cc -g -L/home/gaoxin/etc/cunit/lib -o Test_mySymbol.out Test_mySymbol.o mySymbol.o myCheckedMalloc.o
+
+Test_mySymbol.o: Test_mySymbol.c ../mySymbol.h
+	cc -g -I/home/gaoxin/etc/cunit/include -lcunit -c Test_
