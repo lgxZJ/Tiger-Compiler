@@ -274,7 +274,7 @@ void MySymbol_BeginScope_ShouldReturnTrueOnValidParam()
 
   //	verify
   CU_ASSERT_EQUAL(actual, true);
-  CU_ASSERT_EQUAL(strcmp(table->top, "scope"), 0);
+  CU_ASSERT_EQUAL(strcmp(MySymbol_GetName(table->top), "scope"), 0);
 }
 
 void MyTable_EndScope_ShouldDoNothingOnInvalidParam()
@@ -288,7 +288,7 @@ void MyTable_EndScope_ShouldDoNothingOnInvalidParam()
   MySymbol_EndScope((myTable)NULL);
 
   //	verify
-  CU_ASSERT_EQUAL(strcmp(table->top, "scope"), 0);
+  CU_ASSERT_EQUAL(strcmp(MySymbol_GetName(table->top), "scope"), 0);
 }
 
 void MyTable_EndScope_ShouldRemoveBindersWithinCurrentScopeOnValidParam()
@@ -315,6 +315,18 @@ void MyTable_EndScope_ShouldRemoveBindersWithinCurrentScopeOnValidParam()
 
   //	verify
   CU_ASSERT_EQUAL(strcmp(table->top, "symbol"), 0);
+}
+
+void invalidSymbol_ShouldWorkRight(void)
+{
+    //	fixture setup
+    mySymbol symbol_null = MySymbol_MakeSymbol("");
+    mySymbol symbol_valid = MySymbol_MakeSymbol("valid");
+
+    //	system under control
+    CU_ASSERT_EQUAL(invalidSymbol((mySymbol)NULL), true);
+    CU_ASSERT_EQUAL(invalidSymbol(symbol_null), true);
+    CU_ASSERT_EQUAL(invalidSymbol(symbol_valid), false);
 }
 
 
@@ -354,6 +366,7 @@ int main (int argc, char *argv[])
   assert(CU_add_test(suite, "test func----MySymbol_BeginScope()", MySymbol_BeginScope_ShouldReturnFalseOnInvalidParam));
   assert(CU_add_test(suite, "test func----MySymbol_BeginScope()", MySymbol_BeginScope_ShouldReturnTrueOnValidParam));
   assert(CU_add_test(suite, "test func---MySymbol_EndScope()", MyTable_EndScope_ShouldDoNothingOnInvalidParam));
+  assert(CU_add_test(suite, "test func---invalidSymbol()", invalidSymbol_ShouldWorkRight));
 
   if (CU_basic_run_suite(suite) != CUE_SUCCESS)
   {

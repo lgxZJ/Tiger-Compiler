@@ -1,5 +1,4 @@
 #include "myTable.h"
-#include "myCheckedMalloc.h"
 #include <assert.h>
 #include <string.h>
 

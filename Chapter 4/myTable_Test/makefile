@@ -1,8 +1,8 @@
 Test_myTable.out: Test_myTable.o myTable.o myCheckedMalloc.o
-	cc -g -L/home/gaoxin/etc/cunit/lib -lcunit -o Test_myTable.out Test_myTable.o myTable.o myCheckedMalloc.o
+	cc -g -L/home/lgxZJ/Libraries/CUnit/lib -lcunit -o Test_myTable.out Test_myTable.o myTable.o myCheckedMalloc.o
 
 Test_myTable.o: Test_myTable.c ../myTable.h
-	cc -g -std=c99 -I/home/gaoxin/etc/cunit/include -c Test_myTable.c
+	cc -g -std=c99 -I/home/lgxZJ/Libraries/CUnit/include -c Test_myTable.c
 
 myTable.o: ../myTable.c ../myTable.h ../myCheckedMalloc.h
 	cc -g -std=c99 -c ../myTable.c

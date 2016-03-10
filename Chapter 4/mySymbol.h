@@ -19,6 +19,9 @@ typedef struct mySymbol_
 	struct mySymbol_*	next;
 }* mySymbol;
 
+//	check symbol's validity
+bool invalidSymbol(mySymbol symbol);
+
 //	make a symbol from a string and add
 mySymbol MySymbol_MakeSymbol(myString str);
 

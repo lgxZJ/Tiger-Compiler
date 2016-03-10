@@ -49,9 +49,6 @@
 #endif
 #ifndef YYSTYPE_IS_DECLARED
 #define YYSTYPE_IS_DECLARED 1
-
-#include "myAbstractSyntax.h"
-
 typedef union	{
 	int				int_val;
 	myString			myString_val;

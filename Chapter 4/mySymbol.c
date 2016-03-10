@@ -1,6 +1,4 @@
 #include "mySymbol.h"
-#include "myCheckedMalloc.h"
-#include "myTable.h"
 
 #include <string.h>
 
@@ -8,6 +6,20 @@
 
 /* The hash table holding all symbols (used internally) */
 static mySymbol	hashTable[HASH_SIZE] = {0};
+
+/*
+ *	NOTE:
+ *	Because any symbol be of NULL or "" is not a valid symbol
+ *	and makes no meanings when making structures, so check this
+ *	circustoms first.
+ *	(Used internally)
+ */
+bool invalidSymbol(mySymbol symbol)
+{
+    return (symbol == (mySymbol)NULL) || (*((char*)symbol) == '\0')
+	? true
+	: false;
+}
 
 /*
  *	Make a symbol (used internally)
@@ -81,13 +93,13 @@ myTable MySymbol_MakeNewTable()
 /*	make a binder enter into a table	*/
 bool MySymbol_Enter(myTable table, const mySymbol symbol, void* const value)
 {
-	return MyTable_Enter_(table, symbol, value);
+    return MyTable_Enter_(table, symbol, value);
 }
 
 /*	return value of key "symbol", or NULL */
 void* MySymbol_Look(const myTable table, const mySymbol symbol)
 {
-	return MyTable_Look_(table, symbol);
+    return MyTable_Look_(table, symbol);
 }
 
 
@@ -98,7 +110,7 @@ static const mySymbol scopeMark = &scopeMark_;
 /*	start a new scope	*/
 bool MySymbol_BeginScope(myTable table)
 {
-  return  MySymbol_Enter(table, scopeMark->name, scopeMark);
+    return  MySymbol_Enter(table, scopeMark, scopeMark);
 }
 
 /*	end the current scope (including remove binders)	*/
