@@ -1,0 +1,4 @@
+myFunctionDec(
+  name,
+  symbol_record : symbol_record,  returnType,
+  myExp(    myNoValueExp()))

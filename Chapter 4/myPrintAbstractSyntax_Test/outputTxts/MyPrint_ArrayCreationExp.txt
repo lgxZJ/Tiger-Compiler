@@ -1,0 +1,4 @@
+myArrayCreationExp(
+  tyepeName,
+  myExp(    myIntegerLiteralExp(1)),
+  myExp(    myIntegerLiteralExp(2)))

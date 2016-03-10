@@ -1,0 +1,10 @@
+myDec(
+  myVarDec(
+    myShortFormVar(
+      name,
+      myExp(        myNoValueExp())))),
+myDec(
+  myVarDec(
+    myShortFormVar(
+      name,
+      myExp(        myNoValueExp())))),

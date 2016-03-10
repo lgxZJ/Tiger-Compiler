@@ -1,0 +1,4 @@
+myLongFormVar(
+  name,
+  type,
+  myExp(    myNoValueExp()))

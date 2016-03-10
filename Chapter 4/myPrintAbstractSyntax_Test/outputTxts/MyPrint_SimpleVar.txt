@@ -1,0 +1,10 @@
+myLValueExp(
+  mySimpleVar(id))
+myLValueExp(
+  myRecordField(
+    id,
+    id))
+myLValueExp(
+  myArraySubscript(
+    id,
+    myExp(      myNoValueExp())))
