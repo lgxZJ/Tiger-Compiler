@@ -2,7 +2,7 @@ Exercise.out: myDriver.o myReport.o myTiger.o
 	cc -g -o Exercise.out myDriver.o myReport.o myTiger.o
 
 myDriver.o: myDriver.c myTokens.h myReport.h
-	cc -g -c myDriver.c
+	cc -g -c -std=c99  myDriver.c
 
 myReport.o: myReport.c myReport.h
 	cc -g -c myReport.c

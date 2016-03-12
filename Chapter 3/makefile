@@ -2,7 +2,7 @@ Exercise.out : y.tab.o lex.yy.o myReport.o
 	cc -g -o Exercise.out y.tab.o lex.yy.o myReport.o
 
 y.tab.o : y.tab.c 
-	cc -g -c y.tab.c
+	cc -g -std=c99 -c y.tab.c
 
 y.tab.c : myTiger.y
 	yacc -d -v myTiger.y

@@ -7,6 +7,12 @@ extern char* yytext;
 //	initial to zero
 PosInfo	g_posInfo = { 1, 0 };
 
+void resetPos()
+{
+    g_posInfo.line = 1;
+    g_posInfo.column = 0;
+}
+
 void recordTokenPos (bool newLine, int textLength)
 {
   g_posInfo.column += textLength;

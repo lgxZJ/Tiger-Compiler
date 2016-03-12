@@ -1,13 +1,15 @@
 %{
 
-  #include "stdio.h"
-  #include "y.tab.h"
-  #include "myReport.h"
-  extern FILE* yyin;
-  extern char* yytext;
-  extern PosInfo	g_posInfo;
+#include "stdio.h"
+#include "y.tab.h"
+#include "myReport.h"
+#include <string.h>
 
-%}
+    extern FILE* yyin;
+    extern char* yytext;
+    extern PosInfo	g_posInfo;
+
+    %}
 
 %token	TYPE	ARRAY	OF	ID	INT	STRING	VAR	FUNCTION
 %token	NIL	LET	IN	END	STRING_LITERAL	INTEGER_LITERAL
@@ -203,27 +205,68 @@ program		: exp;
 
 %%
 
+		  /*int main (int argc, char* argv[])
+		    {
+		    if (argc != 2)
+		    {
+		    printf("Usage a.out filename\n");
+		    exit(1);
+		    }
+		    else
+		    {
+		    yyin = fopen(argv[1], "r");
+		    }
+
+		    int result = yyparse();
+		    switch (result)
+		    {
+		    case 0:	printf("parse succeed!\n");				break;
+		    case 1:	printf("invalid input, possible wrong syntax.\n");	break;
+		    case 2:	printf("memory exhaustion!\n");				break;
+		    }
+
+		    return 0;
+		    }*/
+
 int main (int argc, char* argv[])
 {
-  if (argc != 2)
-  {
-    printf("Usage a.out filename\n");
-    exit(1);
-  }
-  else
-  {
-    yyin = fopen(argv[1], "r");
-  }
+    printf("Useage a.out single-filename;\nOtherwise use files in testcase fold.\n\n");
 
-  int result = yyparse();
-  switch (result)
-  {
-  case 0:	printf("parse succeed!\n");				break;
-  case 1:	printf("invalid input, possible wrong syntax.\n");	break;
-  case 2:	printf("memory exhaustion!\n");				break;
-  }
+    if (argc == 2)
+    {
+	int result = yyparse();
+	switch (result)
+	{
+	case 0:	printf("parse succeed!\n");				break;
+	case 1:	printf("invalid input, possible wrong syntax.\n");	break;
+	case 2:	printf("memory exhaustion!\n");				break;
+	}
+    }
+    else
+    {
+	char	filename[256] = {0};
+	for (unsigned i = 1; i < 50; ++i)
+	{
+	    sprintf(filename, "testcases/test%i.tig", i);
+	    yyin = fopen(filename, "r");
+	
+	    if (yyin == NULL)
+	    {
+		printf("No.%i file open error!\n", i);
+		perror(NULL);
+		exit(-1);
+	    }
 
-  return 0;
+	    if (yyparse() != 0)
+	    {
+		printf("No.%i parse error!\n", i);
+		exit(-1);
+	    }
+
+	    fclose(yyin);
+	    resetPos();
+	}
+    }
 }
 
 void yyerror()
