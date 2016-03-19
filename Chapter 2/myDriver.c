@@ -16,7 +16,7 @@ int oneParse(char* filename)
     ++count;
 
     printf("-----------Begin Parse----------\n");
-    printf("No.%i", count);
+    printf("No.%i\n", count);
 
     yyin = fopen(filename, "r");
     if ((yyin == NULL))
@@ -80,6 +80,6 @@ int main (int argc, char* argv[])
 	}
     }
 
-    printf("====All files passed!====\n");
+    printf("====All files parsed!====\n");
     return 0;
 }

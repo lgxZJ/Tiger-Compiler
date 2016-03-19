@@ -20,4 +20,4 @@ myReport.o : myReport.c myReport.h y.tab.h
 	cc -g -c myReport.c
 
 clean :
-	 rm -f myReport.o lex.yy.c lex.yy.o y.tab.h y.tab.c  y.tab.o Exercise
+	 rm -f myReport.o lex.yy.c lex.yy.o y.tab.h y.tab.c  y.tab.o Exercise.out

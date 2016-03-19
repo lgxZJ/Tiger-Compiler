@@ -1,5 +1,5 @@
 %{
-
+ 
 #include "myTokens.h"
 #include "myReport.h"
 
@@ -8,8 +8,7 @@
 %option noyywrap
 %x C_COMMENT
 
-none-print-chars	[ \\t\\f]*
-sting-chars		\\n|\\t|[ ]|[a-zA-Z0-9]*|\\\^[A-Z]|\\[0-9]{3}|\\\"|\\\\
+valid_string_line	[\]a-zA-Z0-9~`!@#$%^&*()_+=|{}\[,./<>?;': -]|\\\\|\\\"|\\n|\\t|\t|(\\^(@|[A-Z]|\[|\\\\|\]|^|_))|\\(0[0-9]{2}|11[0-9]|12[0-7])
 
 %%
 
@@ -61,8 +60,10 @@ string          { recordTokenPos(false, yyleng);        return STRING; }
 
 [a-zA-Z][a-zA-Z0-9_]*	{ recordTokenPos(false, yyleng);        return ID; }
 [0-9]+			{ recordTokenPos(false, yyleng);        return INTEGER_LITERAL; }
-\"(\\n|\\t|[ ]|[a-zA-Z0-9!"#$%&'()*+,.\/:;<=>?@\[\] ^_`{|}~-]*|\\\^[A-Z]|\\[0-9]{3}|\\\"|\\\\|\\[ \t\n]*\r\n[ \t\f]*\\)*\"	{ recordTokenPos(false, yyleng);        return STRING_LITERAL; }
-
+ /*	under Windows, use below	*/
+ /*\"({valid_string_line}|\\[\t ]*\r\n[\t ]*\\)*\"	{ recordTokenPos(false, yyleng);*/
+ /*	under Linux, use below	*/
+\"({valid_string_line}|\\[\t ]*\n[\t ]*\\)*\"	{ recordTokenPos(false, yyleng);        return STRING_LITERAL; }
 
 "/*"                   	{ BEGIN(C_COMMENT); }
 <C_COMMENT>"*/"		{ BEGIN(INITIAL); }
@@ -70,5 +71,8 @@ string          { recordTokenPos(false, yyleng);        return STRING; }
 <C_COMMENT>.            { recordTokenPos(false, yyleng); }
 
 [ \t\f]			{ recordTokenPos(false, yyleng); }
-\r\n	       		{ recordTokenPos(true, yyleng); }
+ /*	under linux, use the line below to detect newline	*/
+\n	       		{ recordTokenPos(true, yyleng); }
+ /*	under window, use the line below to detect newline	*/
+ /*\r\n	       		{ recordTokenPos(true, yyleng); }*/
 .			{ recordTokenPos(false, yyleng); errorReport(); }

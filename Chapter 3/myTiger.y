@@ -9,6 +9,8 @@
     extern char* yytext;
     extern PosInfo	g_posInfo;
 
+    extern int yylex();
+
     %}
 
 %token	TYPE	ARRAY	OF	ID	INT	STRING	VAR	FUNCTION
@@ -205,41 +207,34 @@ program		: exp;
 
 %%
 
-		  /*int main (int argc, char* argv[])
-		    {
-		    if (argc != 2)
-		    {
-		    printf("Usage a.out filename\n");
-		    exit(1);
-		    }
-		    else
-		    {
-		    yyin = fopen(argv[1], "r");
-		    }
 
-		    int result = yyparse();
-		    switch (result)
-		    {
-		    case 0:	printf("parse succeed!\n");				break;
-		    case 1:	printf("invalid input, possible wrong syntax.\n");	break;
-		    case 2:	printf("memory exhaustion!\n");				break;
-		    }
+//	return 0 for success, others for error
+int oneParse(char* filename)
+{
+    yyin = fopen(filename, "r");
+    if (yyin == NULL)
+    {
+	printf("File open error!\n");
+        return -1;
+    }
 
-		    return 0;
-		    }*/
+    int ret = yyparse();
+
+    fclose(yyin);
+    return ret;
+}
+
 
 int main (int argc, char* argv[])
 {
-    printf("Useage a.out single-filename;\nOtherwise use files in testcase fold.\n\n");
+    printf("Useage a.out single-filename;\n\
+Otherwise use files in testcases fold.\n\n");
 
     if (argc == 2)
     {
-	int result = yyparse();
-	switch (result)
+	if (oneParse(argv[1]) == -1)
 	{
-	case 0:	printf("parse succeed!\n");				break;
-	case 1:	printf("invalid input, possible wrong syntax.\n");	break;
-	case 2:	printf("memory exhaustion!\n");				break;
+	    return -1;
 	}
     }
     else
@@ -248,30 +243,26 @@ int main (int argc, char* argv[])
 	for (unsigned i = 1; i < 50; ++i)
 	{
 	    sprintf(filename, "testcases/test%i.tig", i);
-	    yyin = fopen(filename, "r");
-	
-	    if (yyin == NULL)
+	    printf("No.%i\t", i);
+
+	    if (oneParse(filename) != 0)
 	    {
-		printf("No.%i file open error!\n", i);
-		perror(NULL);
-		exit(-1);
+		return -1;
 	    }
 
-	    if (yyparse() != 0)
-	    {
-		printf("No.%i parse error!\n", i);
-		exit(-1);
-	    }
-
-	    fclose(yyin);
+	    printf("passed!\n");
 	    resetPos();
 	}
     }
+
+    printf("====All files passed!====\n");
+    return 0;
 }
 
 void yyerror()
 {
   printf("parse error:%s\tline:%i\tcolunm:%i\n",
-     yytext, g_posInfo.line, g_posInfo.column);
+	 yytext, getCurrentPosInfo().line,
+	 getCurrentPosInfo().column);
 }
  

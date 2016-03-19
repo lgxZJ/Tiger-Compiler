@@ -1,0 +1,130 @@
+/*	correct string format	*/
+
+/*	basic single character	*/
+"a"
+"g"
+"z"
+"A"
+"G"
+"Z"
+"0"
+"6"
+"9"
+"~"
+"`"
+"!"
+"@"
+"#"
+"$"
+"%"
+"^"
+"&"
+"*"
+"("
+")"
+"_"
+"-"
+"="
+"+"
+"{"
+"}"
+"|"
+"["
+"]"
+","
+"."
+"/"
+"<"
+">"
+"?"
+";"
+"'"
+":"
+" "
+"	"
+
+/*	escape sequence	*/
+
+"\n"
+"\t"
+"\^@"
+"\^A"
+"\^G"
+"\^Z"
+"\^["
+"\^\\"
+"\^]"
+"\^^"
+"\^_"
+"\""
+"\\"
+"\000"
+"\056"
+"\127"
+
+"\ 
+\"
+
+"\	
+\"
+
+"\	
+	\"
+
+"\
+\string"
+
+"\ 
+\string"
+
+"\	
+\string"
+
+"\
+ \string"
+
+"\
+	\string"
+
+"string\
+\string"
+
+"string\ 
+\string"
+
+"string\	
+\string"
+
+"string\
+ \string"
+
+"string\
+	\string"
+
+"string\
+\\
+\string"
+
+"string\
+\ \
+\string"
+
+"string\
+\	\
+\string"
+
+"string\
+\	\	
+\string"
+
+"string\
+\	\	
+	\string"
+
+/*	wrong character format	*/
+
+"\a"
+"\g"
+"\z"
+"string\
+invalid\string"
