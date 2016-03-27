@@ -8,7 +8,7 @@
 void registerMemoryType_ShouldReturnMinusOninvalidParam(void)
 {
     //	fixture setup
-    int invalid_type = -1;
+    MemoryType invalid_type = -1;
     //	test
     int actual = registerMemoryType(invalid_type);
     //iverify
@@ -18,7 +18,7 @@ void registerMemoryType_ShouldReturnMinusOninvalidParam(void)
 void registerMemoryType_ShouldReturnPositiveOnSuccess(void)
 {
     //	fixture setup
-    int int_type = 1;
+    MemoryType int_type = 1;
     //	test
     int actual = registerMemoryType(int_type);
     //	verify
@@ -28,7 +28,7 @@ void registerMemoryType_ShouldReturnPositiveOnSuccess(void)
 void registerMemoryType_ShouldReturnZeroOnSameType(void)
 {
     //	fixture setup
-    int new_type = 1234;
+    MemoryType new_type = 1234;
     int actual = registerMemoryType(new_type);
     CU_ASSERT_EQUAL(actual, 1);
 
@@ -57,7 +57,7 @@ void registryMemoryType_ShouldRegisterOnExceedsSize(void)
 void registerMemoryType_ShouldInAscendentOrder(void)
 {
     //	fxture setup and test
-    int register_error = -1;
+    MemoryType register_error = -1;
     CU_ASSERT_NOT_EQUAL_FATAL(registerMemoryType(1), register_error);
     CU_ASSERT_NOT_EQUAL_FATAL(registerMemoryType(2), register_error);
     CU_ASSERT_NOT_EQUAL_FATAL(registerMemoryType(3), register_error);
@@ -71,7 +71,7 @@ void registerMemoryType_ShouldInAscendentOrder(void)
 void registerUniqueType_ShouldWorkRight(void)
 {
     //	fixture setup and test function
-    int unique_type = registerUniqueType();
+    MemoryType unique_type = registerUniqueType();
 
     //	vieryf
     int expected_failure = -1;
@@ -82,7 +82,7 @@ void makeMemoryBlock_ShouldReturnNullOnNegativeBytes(void)
 {
     //	fixture setup
     unsigned bytes = 2;
-    int valid_type = 2;
+    MemoryType valid_type = 2;
     //	test
     void* ptr = makeMemoryBlock(bytes, valid_type);
     //	verify
@@ -92,7 +92,7 @@ void makeMemoryBlock_ShouldReturnNullOnNegativeBytes(void)
 void makeMemoryBlock_ShouldSetHeadToFormer(void)
 {
     //	fixture setup
-    int memory_type = 1;
+    MemoryType memory_type = 1;
     MemoryChainPtr former = getMemoryChain();
 
     //	system under control
@@ -136,7 +136,7 @@ void freeMemoryChain_ShouldHaveNoSideEffectOnTwiceFree(void)
 void findMemoryBlock_ShouldReturnNullForNonePositiveParam(void)
 {
     //	fixture setup
-    int invalid_type_one = 0, invalid_type_two = -1;
+    MemoryType invalid_type_one = 0, invalid_type_two = -1;
     //	system under control
     void* actual_one = findMemoryBlock(invalid_type_one);
     void* actual_two = findMemoryBlock(invalid_type_two);
@@ -149,7 +149,7 @@ void findMemoryBlock_ShouldReturnNullForNonePositiveParam(void)
 void findMemoryBlock_ShouldReturnNullForTypeNotContained(void)
 {
     //	fixture setup
-    int type_not_contained = 12345;
+    MemoryType type_not_contained = 12345;
     //	system under control
     void* actual = findMemoryBlock(type_not_contained);
     //	verify
@@ -160,7 +160,7 @@ void findMemoryBlock_ShouldReturnNullForTypeNotContained(void)
 void findMemoryBlock_ShouldFindNextMemoryBlockOfType(void)
 {
     //	fixture setup
-    int type = 321;
+    MemoryType type = 321;
 
     void* expected_one = makeMemoryBlock(12, type);
     CU_ASSERT_NOT_EQUAL_FATAL(expected_one, NULL);

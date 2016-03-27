@@ -1,4 +1,4 @@
-#ifdef STRING_ESCAPE_H
+#ifndef STRING_ESCAPE_H
 #define STRING_ESCAPE_H
 
 /*

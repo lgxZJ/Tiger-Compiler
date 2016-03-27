@@ -9,7 +9,7 @@
 //static const unsigned MEMORY_TYPE_NONE = 0;//	used internally
 
 static MemoryChainPtr	g_head = NULL;
-static int*	g_memoryTypes = NULL;
+static MemoryType*	g_memoryTypes = NULL;
 
 unsigned	g_memoryTypeSize = 0;
 unsigned	g_currentTypeNum = 0;
@@ -18,7 +18,7 @@ unsigned	g_currentTypeNum = 0;
 /*------------------------------------------------------------------*/
 
 
-inline const int* getRegisteredTypeArray(void)
+inline const MemoryType* getRegisteredTypeArray(void)
 {
     return g_memoryTypes;
 }
@@ -37,18 +37,18 @@ inline MemoryChainPtr getMemoryChain(void)
 
 int int_compare(const void* lhs, const void* rhs)
 {
-    return (*(int*)lhs) - (*(int*)rhs);
+    return (*(MemoryType*)lhs) - (*(MemoryType*)rhs);
 }
 
 /*	return 1 for success, -1 for error, 0 for exists	*/
-int registerMemoryType(int type)
+int registerMemoryType(MemoryType type)
 {
     //	invalid type
-    if (type < 0)	return -1;
+    if (type < 0)	return MT_ERROR;
 
     for (unsigned i = 0; i < g_currentTypeNum; ++i)
     {
-	if (g_memoryTypes[i] == type)	return 0;
+	if (g_memoryTypes[i] == type)	return MT_EXISTS;
 	//	others are larger then `type`, skip compare
 	if (g_memoryTypes[i] > type)	break;
     }
@@ -58,13 +58,13 @@ int registerMemoryType(int type)
     {
 	//	add capacity
 	g_memoryTypeSize += 10;
-	void* tmp = makeMemoryBlock(sizeof(int) * g_memoryTypeSize,
+	void* tmp = makeMemoryBlock(sizeof(MemoryType) * g_memoryTypeSize,
 				    MEMORY_TYPE_NONE);
 	assert(tmp);
 
 	//	copy 
 	memcpy(tmp, g_memoryTypes,
-	       sizeof(int) * (g_memoryTypeSize - 10));
+	       sizeof(MemoryType) * (g_memoryTypeSize - 10));
 
 	//		No needs to free memory because of using
 	//	`makeMemoryBlock`, memorys can be freed at one
@@ -77,10 +77,10 @@ int registerMemoryType(int type)
     ++g_currentTypeNum;
 
     //	sort in ascendent order
-    qsort(g_memoryTypes, g_currentTypeNum, sizeof(int),
+    qsort(g_memoryTypes, g_currentTypeNum, sizeof(MemoryType),
 	  int_compare);
 
-    return 1;
+    return MT_SUCCESS;
 }
 
 /*-------------------------------------------------------------------*/
@@ -88,15 +88,15 @@ int registerMemoryType(int type)
 /*
  *	RETURN:	-1 for error, positive for successfully registered type
  */
-int registerUniqueType(void)
+UserMemoryType registerUniqueType(void)
 {
     for (unsigned i = 1; i < (unsigned)-1; ++i)
     {
 	switch (registerMemoryType(i))
 	{
-	case -1:	return -1;	//	if error
-	case 1:		return i;	//	if succeed
-	case 0:		continue;	//	if exists
+	case MT_ERROR:		return MT_ERROR;//	if error
+	case MT_SUCCESS:	return i;	//	if succeed
+	case MT_EXISTS:		continue;	//	if exists
 	}
 	
 	//	never goes here
@@ -104,7 +104,7 @@ int registerUniqueType(void)
     }
 
     //	can not find appropriate types which hasn't been used
-    return -1;
+    return MT_ERROR;
 }
 
 /*-------------------------------------------------------------------*/
@@ -114,7 +114,7 @@ int registerUniqueType(void)
  *	NOTE:	It's caller's responsibility to make sure type's
  *	uniqueness.
  */
-void* makeMemoryBlock(unsigned bytes, int type)
+void* makeMemoryBlock(unsigned bytes, MemoryType type)
 {
     //	allocate chain memory holding data
     MemoryChainPtr chainPtr =
@@ -145,12 +145,12 @@ void* makeMemoryBlock(unsigned bytes, int type)
  *
  *	RETURN:	NULL for not found, not NULL for found
  */
-void* findMemoryBlock(unsigned type)
+void* findMemoryBlock(UserMemoryType type)
 {
     /*  This variavle stands for the current searching node	*/
     static MemoryChainPtr current_ = NULL;
     /*  This variable is used to keep the type of former finding */
-    static int type_ = MEMORY_TYPE_NONE;
+    static MemoryType type_ = MEMORY_TYPE_NONE;
 
 
     /*	if another traversal, set head node first;

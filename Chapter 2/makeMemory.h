@@ -19,11 +19,28 @@ typedef struct MemoryChain_
     struct MemoryChain_*	next;
 }*	MemoryChainPtr;
 
+
 /*
+ *	NOTE:		The only difference between `MemoryType` and
+ *	`UserMemoryType` is that `MemoryType` contains MEMORY_TYPE_NONE
+ *	but `UserMemoryType` not.
+ *
  *	Memory Type:	Content type in memory block. 0 for none-type,
  *			positive for user-type. (No predefined types!)
+ *
+ *	User Memory Type:   An unsigned number representing user-type.
  */
+
+typedef int		MemoryType;
+typedef unsigned        UserMemoryType;
+
 #define MEMORY_TYPE_NONE	0
+
+/*	Macros for module using	*/
+#define MT_ERROR	-1
+#define MT_SUCCESS	1
+#define MT_EXISTS	0
+
 
 /*
  *	Register Memory Type:	Make sure the Type of Memory you are
@@ -32,20 +49,20 @@ typedef struct MemoryChain_
 
 
 /*	get array address containing memory types	*/
-const int* getRegisteredTypeArray(void);
+const MemoryType* getRegisteredTypeArray(void);
 /*	get registryed memory type	*/
 unsigned getRegisteredTypeNum(void);
 /*	get the head node of memory chain	*/
 
 /*	register `Memory Type` for later allocating (user should not use this)	*/
-int registerMemoryType(int type);
+int registerMemoryType(MemoryType type);
 /*	register a unique type which has't been used	*/
-int registerUniqueType(void);
+UserMemoryType registerUniqueType(void);
 
 /*	allocate memory	with certain Memory Type	*/
-void* makeMemoryBlock(unsigned bytes, int type);
+void* makeMemoryBlock(unsigned bytes, MemoryType type);
 /*	list all blocks of certain Memory Type	*/
-void* findMemoryBlock(unsigned type);
+void* findMemoryBlock(UserMemoryType type);
 
 /*	free all allocated memory	*/
 void freeMemoryChain(void);
