@@ -3,6 +3,7 @@
 #include <CUnit/Basic.h>
 #include <assert.h>
 #include <string.h>
+#include <stdlib.h>
 
 //	NOTE:
 //		To run this test, remove 'static' key word in myTable.c,
@@ -84,7 +85,6 @@ void MyTable_Enter_ShouldChangeOnValidParam(void)
 	CU_ASSERT(strcmp(table->top, "id2") == 0);
 
 	//	teardown
-	free(table);
 }
 
 void MyTable_Enter_ShouldNotChangeOnInvalidParam(void)
@@ -93,11 +93,6 @@ void MyTable_Enter_ShouldNotChangeOnInvalidParam(void)
 	int	value = 1;
 	myTable	table = MyTable_MakeEmptyTable_();
 	//	guard conditions
-	CU_ASSERT_EQUAL(table->top, NULL);
-
-	//	system under control (invalid null string)
-	CU_ASSERT_EQUAL(MyTable_Enter_(table, "", &value), false);
-	//	verify
 	CU_ASSERT_EQUAL(table->top, NULL);
 
 	//	system under control (invalid null pointer)
@@ -111,7 +106,6 @@ void MyTable_Enter_ShouldNotChangeOnInvalidParam(void)
 	CU_ASSERT_EQUAL(table->top, NULL);
 
 	//	teardown
-	free(table);
 }
 
 void MyTable_Look_ShouldReturnNullOnInvalidParams(void)
@@ -136,7 +130,6 @@ void MyTable_Look_ShouldReturnNullOnInvalidParams(void)
   CU_ASSERT_EQUAL(actual, expected);
 
   //	teardown
-  free(table);
 }
 
 void MyTable_ShouldReturnRightOnValidParams(void)
@@ -172,7 +165,6 @@ void MyTable_ShouldReturnRightOnValidParams(void)
   CU_ASSERT_EQUAL(actual, expected);
 
   //	teardown
-  free(table);
 }
 
 void MyTable_Pop_ShouldReturnNULLOnEmptyTable(void)
@@ -192,7 +184,6 @@ void MyTable_Pop_ShouldReturnNULLOnEmptyTable(void)
   CU_ASSERT_EQUAL(actual, expected);
 
   //	teardown
-  free(table);
 }
 
 void MyTable_Pop_ShouldReturnCorrectlyOnNonEmptyTable(void)
@@ -218,7 +209,6 @@ void MyTable_Pop_ShouldReturnCorrectlyOnNonEmptyTable(void)
   CU_ASSERT_EQUAL(table->top, NULL);
 
   //	teardown
-  free(table);
 }
 
 //	NOTE:
@@ -248,7 +238,6 @@ void MyTable_Dump_SeeOutPut(void)
   MyTable_Dump_(table, dumpShower);
 
   //	teardown
-  free(table);
 }
 
 

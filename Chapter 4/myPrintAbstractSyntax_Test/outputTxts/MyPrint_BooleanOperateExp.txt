@@ -1,8 +1,14 @@
 myBooleanOperateExp(
-  myExp(    myIntegerLiteralExp(1)),
+  myExp(    myIntegerLiteralExp(1)
+  ),
   opBooleanOr,
-  myExp(    myIntegerLiteralExp(1))),
+  myExp(    myIntegerLiteralExp(1)
+  )
+),
 myBooleanOperateExp(
-  myExp(    myIntegerLiteralExp(1)),
+  myExp(    myIntegerLiteralExp(1)
+  ),
   opBooleanAnd,
-  myExp(    myIntegerLiteralExp(1)))
+  myExp(    myIntegerLiteralExp(1)
+  )
+)

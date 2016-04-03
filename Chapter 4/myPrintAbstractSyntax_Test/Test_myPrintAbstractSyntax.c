@@ -1,6 +1,7 @@
 #include "../myPrintAbstractSyntax.h"
 #include <CUnit/CUnit.h>
 #include <CUnit/Basic.h>
+#include <stdlib.h>
 
 /*--------------------------test functions---------------------------*/
 
@@ -26,7 +27,7 @@ FILE* openFile(char* filename)
     if (output == NULL)	return (FILE*)NULL;
 
     //	allocate memory for next structure
-    g_FileListPtr = (struct FileList*)myCheckedMalloc(sizeof(struct FileList));
+    g_FileListPtr = (struct FileList*)makeMemoryBlock(sizeof(struct FileList), MEMORY_TYPE_NONE);
     if (g_FileListPtr == NULL)
     {
 	fclose(output);
@@ -39,7 +40,7 @@ FILE* openFile(char* filename)
     return output;
 }
 
-int globalTeardown(void)
+/*int globalTeardown(void)
 {
     struct FileList* ptr = g_FileListHead;
     struct FileList* former = NULL;
@@ -57,7 +58,7 @@ int globalTeardown(void)
 
     //	former must be valid
     free(former);
-}
+    }*/
 
 void MyPrint_TyFieldList_ShouldHaveCorrectLineFeed(void)
 {
@@ -821,7 +822,7 @@ void MyPrint_ExpList_RightOutput(void)
     CU_ASSERT_NOT_EQUAL_FATAL(expList, NULL);
 
     //	test and verify
-    MyPrint_ExpList(output, exp, 0);
+    MyPrint_ExpList(output, expList, 0);
 }
 
 
@@ -838,7 +839,7 @@ int main (int argc, char* argv[])
 	exit(-1);
     }
 
-    CU_pSuite suite = CU_add_suite("suite for myPrintXXX", NULL, globalTeardown);
+    CU_pSuite suite = CU_add_suite("suite for myPrintXXX", NULL, NULL);
     if (suite == NULL)
     {
 	printf("Failed to add suite!\n");

@@ -1,0 +1,8 @@
+myExp(  myArithmeticExp(
+    myExp(      myIntegerLiteralExp(3)
+    ),
+    opPlus,
+    myExp(      myStringLiteralExp("var")
+    )
+  )
+)

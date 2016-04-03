@@ -1,0 +1,4704 @@
+   0  $accept : program $end
+
+   1  decs : dec decs
+   2       |
+
+   3  dec : tydec
+   4      | vardec
+   5      | fundec
+
+   6  tydec : TYPE build_in_type EQUAL_SIGN ID
+   7        | TYPE ID EQUAL_SIGN ID
+   8        | TYPE build_in_type EQUAL_SIGN ty
+   9        | TYPE ID EQUAL_SIGN ty
+
+  10  build_in_type : INT
+  11                | STRING
+
+  12  ty : build_in_type
+  13     | LEFT_CURLY_BRACE tyfields RIGHT_CURLY_BRACE
+  14     | ARRAY OF build_in_type
+  15     | ARRAY OF ID
+
+  16  tyfields : ID COLON build_in_type tyfields_aux
+  17           | ID COLON ID tyfields_aux
+  18           |
+
+  19  tyfields_aux : COMMA ID COLON build_in_type tyfields_aux
+  20               | COMMA ID COLON ID tyfields_aux
+  21               |
+
+  22  vardec : VAR ID ASSIGNMENT_SIGN exp
+  23         | VAR ID COLON build_in_type ASSIGNMENT_SIGN exp
+  24         | VAR ID COLON ID ASSIGNMENT_SIGN exp
+
+  25  fundec : FUNCTION ID LEFT_PARENTHESIS tyfields RIGHT_PARENTHESIS EQUAL_SIGN exp
+  26         | FUNCTION ID LEFT_PARENTHESIS tyfields RIGHT_PARENTHESIS COLON build_in_type EQUAL_SIGN exp
+  27         | FUNCTION ID LEFT_PARENTHESIS tyfields RIGHT_PARENTHESIS COLON ID EQUAL_SIGN exp
+
+  28  l_value : ID l_value_aux
+
+  29  l_value_aux : DOT ID l_value_aux
+  30              | LEFT_BRACKET exp RIGHT_BRACKET l_value_aux
+  31              |
+
+  32  function_call : ID LEFT_PARENTHESIS RIGHT_PARENTHESIS
+  33                | ID LEFT_PARENTHESIS exp function_call_aux RIGHT_PARENTHESIS
+
+  34  function_call_aux : COMMA exp function_call_aux
+  35                    |
+
+  36  nil : NIL
+
+  37  integer_literal : INTEGER_LITERAL
+
+  38  string_literal : STRING_LITERAL
+
+  39  array_creation : build_in_type LEFT_BRACKET exp RIGHT_BRACKET OF exp
+  40                 | ID LEFT_BRACKET exp RIGHT_BRACKET OF exp
+
+  41  record_creation : build_in_type LEFT_CURLY_BRACE ID EQUAL_SIGN exp record_creation_aux RIGHT_CURLY_BRACE
+  42                  | ID LEFT_CURLY_BRACE ID EQUAL_SIGN exp record_creation_aux RIGHT_CURLY_BRACE
+  43                  | build_in_type LEFT_CURLY_BRACE RIGHT_CURLY_BRACE
+  44                  | ID LEFT_CURLY_BRACE RIGHT_CURLY_BRACE
+
+  45  record_creation_aux : COMMA ID EQUAL_SIGN exp record_creation_aux
+  46                      |
+
+  47  arithmetic : exp ADD_SIGN exp
+  48             | exp MINUS_SIGN exp
+  49             | exp MULTIPLY_SIGN exp
+  50             | exp DIVIDE_SIGN exp
+
+  51  parentheses : LEFT_PARENTHESIS exp RIGHT_PARENTHESIS
+
+  52  no_value : LEFT_PARENTHESIS RIGHT_PARENTHESIS
+
+  53  sequencing : LEFT_PARENTHESIS exp SEMICOLON exp sequencing_aux RIGHT_PARENTHESIS
+
+  54  sequencing_aux : SEMICOLON exp sequencing_aux
+  55                 |
+
+  56  for : FOR ID ASSIGNMENT_SIGN exp TO exp DO exp
+
+  57  if_then_else : IF exp THEN exp ELSE exp
+
+  58  if_then : IF exp THEN exp
+
+  59  comparison : exp EQUAL_SIGN exp
+  60             | exp NOT_EQUAL_SIGN exp
+  61             | exp LESS_SIGN exp
+  62             | exp LESS_EQUAL_SIGN exp
+  63             | exp GREATER_SIGN exp
+  64             | exp GREATER_EQUAL_SIGN exp
+
+  65  boolean_operate : exp LOGICAL_AND exp
+  66                  | exp LOGICAL_OR exp
+
+  67  assignment : l_value ASSIGNMENT_SIGN exp
+
+  68  let : LET decs IN expseq END
+
+  69  expseq : exp let_aux
+  70         |
+
+  71  let_aux : SEMICOLON exp let_aux
+  72          |
+
+  73  while : WHILE exp DO exp
+
+  74  negation : MINUS_SIGN exp
+
+  75  break : BREAK
+
+  76  exp : l_value
+  77      | function_call
+  78      | nil
+  79      | integer_literal
+  80      | string_literal
+  81      | array_creation
+  82      | record_creation
+  83      | arithmetic
+  84      | parentheses
+  85      | no_value
+  86      | sequencing
+  87      | for
+  88      | if_then_else
+  89      | if_then
+  90      | comparison
+  91      | boolean_operate
+  92      | assignment
+  93      | let
+  94      | while
+  95      | negation
+  96      | break
+
+  97  program : exp
+
+state 0
+	$accept : . program $end  (0)
+
+	INTEGER_LITERAL  shift 1
+	ID  shift 2
+	STRING_LITERAL  shift 3
+	INT  shift 4
+	STRING  shift 5
+	NIL  shift 6
+	LET  shift 7
+	IF  shift 8
+	WHILE  shift 9
+	FOR  shift 10
+	BREAK  shift 11
+	LEFT_PARENTHESIS  shift 12
+	MINUS_SIGN  shift 13
+	.  error
+
+	program  goto 14
+	exp  goto 15
+	build_in_type  goto 16
+	l_value  goto 17
+	function_call  goto 18
+	nil  goto 19
+	integer_literal  goto 20
+	string_literal  goto 21
+	array_creation  goto 22
+	record_creation  goto 23
+	arithmetic  goto 24
+	parentheses  goto 25
+	no_value  goto 26
+	sequencing  goto 27
+	for  goto 28
+	if_then_else  goto 29
+	if_then  goto 30
+	comparison  goto 31
+	boolean_operate  goto 32
+	assignment  goto 33
+	let  goto 34
+	while  goto 35
+	negation  goto 36
+	break  goto 37
+
+
+state 1
+	integer_literal : INTEGER_LITERAL .  (37)
+
+	.  reduce 37
+
+
+state 2
+	l_value : ID . l_value_aux  (28)
+	function_call : ID . LEFT_PARENTHESIS RIGHT_PARENTHESIS  (32)
+	function_call : ID . LEFT_PARENTHESIS exp function_call_aux RIGHT_PARENTHESIS  (33)
+	array_creation : ID . LEFT_BRACKET exp RIGHT_BRACKET OF exp  (40)
+	record_creation : ID . LEFT_CURLY_BRACE ID EQUAL_SIGN exp record_creation_aux RIGHT_CURLY_BRACE  (42)
+	record_creation : ID . LEFT_CURLY_BRACE RIGHT_CURLY_BRACE  (44)
+	l_value_aux : .  (31)
+
+	LEFT_CURLY_BRACE  shift 38
+	LEFT_PARENTHESIS  shift 39
+	DOT  shift 40
+	LEFT_BRACKET  shift 41
+	$end  reduce 31
+	TYPE  reduce 31
+	VAR  reduce 31
+	FUNCTION  reduce 31
+	IN  reduce 31
+	END  reduce 31
+	THEN  reduce 31
+	ELSE  reduce 31
+	DO  reduce 31
+	TO  reduce 31
+	RIGHT_CURLY_BRACE  reduce 31
+	COMMA  reduce 31
+	RIGHT_PARENTHESIS  reduce 31
+	SEMICOLON  reduce 31
+	RIGHT_BRACKET  reduce 31
+	ASSIGNMENT_SIGN  reduce 31
+	LOGICAL_AND  reduce 31
+	LOGICAL_OR  reduce 31
+	EQUAL_SIGN  reduce 31
+	NOT_EQUAL_SIGN  reduce 31
+	LESS_SIGN  reduce 31
+	GREATER_SIGN  reduce 31
+	LESS_EQUAL_SIGN  reduce 31
+	GREATER_EQUAL_SIGN  reduce 31
+	ADD_SIGN  reduce 31
+	MINUS_SIGN  reduce 31
+	MULTIPLY_SIGN  reduce 31
+	DIVIDE_SIGN  reduce 31
+
+	l_value_aux  goto 42
+
+
+state 3
+	string_literal : STRING_LITERAL .  (38)
+
+	.  reduce 38
+
+
+state 4
+	build_in_type : INT .  (10)
+
+	.  reduce 10
+
+
+state 5
+	build_in_type : STRING .  (11)
+
+	.  reduce 11
+
+
+state 6
+	nil : NIL .  (36)
+
+	.  reduce 36
+
+
+state 7
+	let : LET . decs IN expseq END  (68)
+	decs : .  (2)
+
+	TYPE  shift 43
+	VAR  shift 44
+	FUNCTION  shift 45
+	IN  reduce 2
+
+	decs  goto 46
+	dec  goto 47
+	tydec  goto 48
+	vardec  goto 49
+	fundec  goto 50
+
+
+state 8
+	if_then_else : IF . exp THEN exp ELSE exp  (57)
+	if_then : IF . exp THEN exp  (58)
+
+	INTEGER_LITERAL  shift 1
+	ID  shift 2
+	STRING_LITERAL  shift 3
+	INT  shift 4
+	STRING  shift 5
+	NIL  shift 6
+	LET  shift 7
+	IF  shift 8
+	WHILE  shift 9
+	FOR  shift 10
+	BREAK  shift 11
+	LEFT_PARENTHESIS  shift 12
+	MINUS_SIGN  shift 13
+	.  error
+
+	exp  goto 51
+	build_in_type  goto 16
+	l_value  goto 17
+	function_call  goto 18
+	nil  goto 19
+	integer_literal  goto 20
+	string_literal  goto 21
+	array_creation  goto 22
+	record_creation  goto 23
+	arithmetic  goto 24
+	parentheses  goto 25
+	no_value  goto 26
+	sequencing  goto 27
+	for  goto 28
+	if_then_else  goto 29
+	if_then  goto 30
+	comparison  goto 31
+	boolean_operate  goto 32
+	assignment  goto 33
+	let  goto 34
+	while  goto 35
+	negation  goto 36
+	break  goto 37
+
+
+state 9
+	while : WHILE . exp DO exp  (73)
+
+	INTEGER_LITERAL  shift 1
+	ID  shift 2
+	STRING_LITERAL  shift 3
+	INT  shift 4
+	STRING  shift 5
+	NIL  shift 6
+	LET  shift 7
+	IF  shift 8
+	WHILE  shift 9
+	FOR  shift 10
+	BREAK  shift 11
+	LEFT_PARENTHESIS  shift 12
+	MINUS_SIGN  shift 13
+	.  error
+
+	exp  goto 52
+	build_in_type  goto 16
+	l_value  goto 17
+	function_call  goto 18
+	nil  goto 19
+	integer_literal  goto 20
+	string_literal  goto 21
+	array_creation  goto 22
+	record_creation  goto 23
+	arithmetic  goto 24
+	parentheses  goto 25
+	no_value  goto 26
+	sequencing  goto 27
+	for  goto 28
+	if_then_else  goto 29
+	if_then  goto 30
+	comparison  goto 31
+	boolean_operate  goto 32
+	assignment  goto 33
+	let  goto 34
+	while  goto 35
+	negation  goto 36
+	break  goto 37
+
+
+state 10
+	for : FOR . ID ASSIGNMENT_SIGN exp TO exp DO exp  (56)
+
+	ID  shift 53
+	.  error
+
+
+state 11
+	break : BREAK .  (75)
+
+	.  reduce 75
+
+
+state 12
+	parentheses : LEFT_PARENTHESIS . exp RIGHT_PARENTHESIS  (51)
+	no_value : LEFT_PARENTHESIS . RIGHT_PARENTHESIS  (52)
+	sequencing : LEFT_PARENTHESIS . exp SEMICOLON exp sequencing_aux RIGHT_PARENTHESIS  (53)
+
+	INTEGER_LITERAL  shift 1
+	ID  shift 2
+	STRING_LITERAL  shift 3
+	INT  shift 4
+	STRING  shift 5
+	NIL  shift 6
+	LET  shift 7
+	IF  shift 8
+	WHILE  shift 9
+	FOR  shift 10
+	BREAK  shift 11
+	LEFT_PARENTHESIS  shift 12
+	RIGHT_PARENTHESIS  shift 54
+	MINUS_SIGN  shift 13
+	.  error
+
+	exp  goto 55
+	build_in_type  goto 16
+	l_value  goto 17
+	function_call  goto 18
+	nil  goto 19
+	integer_literal  goto 20
+	string_literal  goto 21
+	array_creation  goto 22
+	record_creation  goto 23
+	arithmetic  goto 24
+	parentheses  goto 25
+	no_value  goto 26
+	sequencing  goto 27
+	for  goto 28
+	if_then_else  goto 29
+	if_then  goto 30
+	comparison  goto 31
+	boolean_operate  goto 32
+	assignment  goto 33
+	let  goto 34
+	while  goto 35
+	negation  goto 36
+	break  goto 37
+
+
+state 13
+	negation : MINUS_SIGN . exp  (74)
+
+	INTEGER_LITERAL  shift 1
+	ID  shift 2
+	STRING_LITERAL  shift 3
+	INT  shift 4
+	STRING  shift 5
+	NIL  shift 6
+	LET  shift 7
+	IF  shift 8
+	WHILE  shift 9
+	FOR  shift 10
+	BREAK  shift 11
+	LEFT_PARENTHESIS  shift 12
+	MINUS_SIGN  shift 13
+	.  error
+
+	exp  goto 56
+	build_in_type  goto 16
+	l_value  goto 17
+	function_call  goto 18
+	nil  goto 19
+	integer_literal  goto 20
+	string_literal  goto 21
+	array_creation  goto 22
+	record_creation  goto 23
+	arithmetic  goto 24
+	parentheses  goto 25
+	no_value  goto 26
+	sequencing  goto 27
+	for  goto 28
+	if_then_else  goto 29
+	if_then  goto 30
+	comparison  goto 31
+	boolean_operate  goto 32
+	assignment  goto 33
+	let  goto 34
+	while  goto 35
+	negation  goto 36
+	break  goto 37
+
+
+state 14
+	$accept : program . $end  (0)
+
+	$end  accept
+
+
+state 15
+	arithmetic : exp . ADD_SIGN exp  (47)
+	arithmetic : exp . MINUS_SIGN exp  (48)
+	arithmetic : exp . MULTIPLY_SIGN exp  (49)
+	arithmetic : exp . DIVIDE_SIGN exp  (50)
+	comparison : exp . EQUAL_SIGN exp  (59)
+	comparison : exp . NOT_EQUAL_SIGN exp  (60)
+	comparison : exp . LESS_SIGN exp  (61)
+	comparison : exp . LESS_EQUAL_SIGN exp  (62)
+	comparison : exp . GREATER_SIGN exp  (63)
+	comparison : exp . GREATER_EQUAL_SIGN exp  (64)
+	boolean_operate : exp . LOGICAL_AND exp  (65)
+	boolean_operate : exp . LOGICAL_OR exp  (66)
+	program : exp .  (97)
+
+	LOGICAL_AND  shift 57
+	LOGICAL_OR  shift 58
+	EQUAL_SIGN  shift 59
+	NOT_EQUAL_SIGN  shift 60
+	LESS_SIGN  shift 61
+	GREATER_SIGN  shift 62
+	LESS_EQUAL_SIGN  shift 63
+	GREATER_EQUAL_SIGN  shift 64
+	ADD_SIGN  shift 65
+	MINUS_SIGN  shift 66
+	MULTIPLY_SIGN  shift 67
+	DIVIDE_SIGN  shift 68
+	$end  reduce 97
+
+
+state 16
+	array_creation : build_in_type . LEFT_BRACKET exp RIGHT_BRACKET OF exp  (39)
+	record_creation : build_in_type . LEFT_CURLY_BRACE ID EQUAL_SIGN exp record_creation_aux RIGHT_CURLY_BRACE  (41)
+	record_creation : build_in_type . LEFT_CURLY_BRACE RIGHT_CURLY_BRACE  (43)
+
+	LEFT_CURLY_BRACE  shift 69
+	LEFT_BRACKET  shift 70
+	.  error
+
+
+state 17
+	assignment : l_value . ASSIGNMENT_SIGN exp  (67)
+	exp : l_value .  (76)
+
+	ASSIGNMENT_SIGN  shift 71
+	$end  reduce 76
+	TYPE  reduce 76
+	VAR  reduce 76
+	FUNCTION  reduce 76
+	IN  reduce 76
+	END  reduce 76
+	THEN  reduce 76
+	ELSE  reduce 76
+	DO  reduce 76
+	TO  reduce 76
+	RIGHT_CURLY_BRACE  reduce 76
+	COMMA  reduce 76
+	RIGHT_PARENTHESIS  reduce 76
+	SEMICOLON  reduce 76
+	RIGHT_BRACKET  reduce 76
+	LOGICAL_AND  reduce 76
+	LOGICAL_OR  reduce 76
+	EQUAL_SIGN  reduce 76
+	NOT_EQUAL_SIGN  reduce 76
+	LESS_SIGN  reduce 76
+	GREATER_SIGN  reduce 76
+	LESS_EQUAL_SIGN  reduce 76
+	GREATER_EQUAL_SIGN  reduce 76
+	ADD_SIGN  reduce 76
+	MINUS_SIGN  reduce 76
+	MULTIPLY_SIGN  reduce 76
+	DIVIDE_SIGN  reduce 76
+
+
+state 18
+	exp : function_call .  (77)
+
+	.  reduce 77
+
+
+state 19
+	exp : nil .  (78)
+
+	.  reduce 78
+
+
+state 20
+	exp : integer_literal .  (79)
+
+	.  reduce 79
+
+
+state 21
+	exp : string_literal .  (80)
+
+	.  reduce 80
+
+
+state 22
+	exp : array_creation .  (81)
+
+	.  reduce 81
+
+
+state 23
+	exp : record_creation .  (82)
+
+	.  reduce 82
+
+
+state 24
+	exp : arithmetic .  (83)
+
+	.  reduce 83
+
+
+state 25
+	exp : parentheses .  (84)
+
+	.  reduce 84
+
+
+state 26
+	exp : no_value .  (85)
+
+	.  reduce 85
+
+
+state 27
+	exp : sequencing .  (86)
+
+	.  reduce 86
+
+
+state 28
+	exp : for .  (87)
+
+	.  reduce 87
+
+
+state 29
+	exp : if_then_else .  (88)
+
+	.  reduce 88
+
+
+state 30
+	exp : if_then .  (89)
+
+	.  reduce 89
+
+
+state 31
+	exp : comparison .  (90)
+
+	.  reduce 90
+
+
+state 32
+	exp : boolean_operate .  (91)
+
+	.  reduce 91
+
+
+state 33
+	exp : assignment .  (92)
+
+	.  reduce 92
+
+
+state 34
+	exp : let .  (93)
+
+	.  reduce 93
+
+
+state 35
+	exp : while .  (94)
+
+	.  reduce 94
+
+
+state 36
+	exp : negation .  (95)
+
+	.  reduce 95
+
+
+state 37
+	exp : break .  (96)
+
+	.  reduce 96
+
+
+state 38
+	record_creation : ID LEFT_CURLY_BRACE . ID EQUAL_SIGN exp record_creation_aux RIGHT_CURLY_BRACE  (42)
+	record_creation : ID LEFT_CURLY_BRACE . RIGHT_CURLY_BRACE  (44)
+
+	ID  shift 72
+	RIGHT_CURLY_BRACE  shift 73
+	.  error
+
+
+state 39
+	function_call : ID LEFT_PARENTHESIS . RIGHT_PARENTHESIS  (32)
+	function_call : ID LEFT_PARENTHESIS . exp function_call_aux RIGHT_PARENTHESIS  (33)
+
+	INTEGER_LITERAL  shift 1
+	ID  shift 2
+	STRING_LITERAL  shift 3
+	INT  shift 4
+	STRING  shift 5
+	NIL  shift 6
+	LET  shift 7
+	IF  shift 8
+	WHILE  shift 9
+	FOR  shift 10
+	BREAK  shift 11
+	LEFT_PARENTHESIS  shift 12
+	RIGHT_PARENTHESIS  shift 74
+	MINUS_SIGN  shift 13
+	.  error
+
+	exp  goto 75
+	build_in_type  goto 16
+	l_value  goto 17
+	function_call  goto 18
+	nil  goto 19
+	integer_literal  goto 20
+	string_literal  goto 21
+	array_creation  goto 22
+	record_creation  goto 23
+	arithmetic  goto 24
+	parentheses  goto 25
+	no_value  goto 26
+	sequencing  goto 27
+	for  goto 28
+	if_then_else  goto 29
+	if_then  goto 30
+	comparison  goto 31
+	boolean_operate  goto 32
+	assignment  goto 33
+	let  goto 34
+	while  goto 35
+	negation  goto 36
+	break  goto 37
+
+
+state 40
+	l_value_aux : DOT . ID l_value_aux  (29)
+
+	ID  shift 76
+	.  error
+
+
+state 41
+	l_value_aux : LEFT_BRACKET . exp RIGHT_BRACKET l_value_aux  (30)
+	array_creation : ID LEFT_BRACKET . exp RIGHT_BRACKET OF exp  (40)
+
+	INTEGER_LITERAL  shift 1
+	ID  shift 2
+	STRING_LITERAL  shift 3
+	INT  shift 4
+	STRING  shift 5
+	NIL  shift 6
+	LET  shift 7
+	IF  shift 8
+	WHILE  shift 9
+	FOR  shift 10
+	BREAK  shift 11
+	LEFT_PARENTHESIS  shift 12
+	MINUS_SIGN  shift 13
+	.  error
+
+	exp  goto 77
+	build_in_type  goto 16
+	l_value  goto 17
+	function_call  goto 18
+	nil  goto 19
+	integer_literal  goto 20
+	string_literal  goto 21
+	array_creation  goto 22
+	record_creation  goto 23
+	arithmetic  goto 24
+	parentheses  goto 25
+	no_value  goto 26
+	sequencing  goto 27
+	for  goto 28
+	if_then_else  goto 29
+	if_then  goto 30
+	comparison  goto 31
+	boolean_operate  goto 32
+	assignment  goto 33
+	let  goto 34
+	while  goto 35
+	negation  goto 36
+	break  goto 37
+
+
+state 42
+	l_value : ID l_value_aux .  (28)
+
+	.  reduce 28
+
+
+state 43
+	tydec : TYPE . build_in_type EQUAL_SIGN ID  (6)
+	tydec : TYPE . ID EQUAL_SIGN ID  (7)
+	tydec : TYPE . build_in_type EQUAL_SIGN ty  (8)
+	tydec : TYPE . ID EQUAL_SIGN ty  (9)
+
+	ID  shift 78
+	INT  shift 4
+	STRING  shift 5
+	.  error
+
+	build_in_type  goto 79
+
+
+state 44
+	vardec : VAR . ID ASSIGNMENT_SIGN exp  (22)
+	vardec : VAR . ID COLON build_in_type ASSIGNMENT_SIGN exp  (23)
+	vardec : VAR . ID COLON ID ASSIGNMENT_SIGN exp  (24)
+
+	ID  shift 80
+	.  error
+
+
+state 45
+	fundec : FUNCTION . ID LEFT_PARENTHESIS tyfields RIGHT_PARENTHESIS EQUAL_SIGN exp  (25)
+	fundec : FUNCTION . ID LEFT_PARENTHESIS tyfields RIGHT_PARENTHESIS COLON build_in_type EQUAL_SIGN exp  (26)
+	fundec : FUNCTION . ID LEFT_PARENTHESIS tyfields RIGHT_PARENTHESIS COLON ID EQUAL_SIGN exp  (27)
+
+	ID  shift 81
+	.  error
+
+
+state 46
+	let : LET decs . IN expseq END  (68)
+
+	IN  shift 82
+	.  error
+
+
+state 47
+	decs : dec . decs  (1)
+	decs : .  (2)
+
+	TYPE  shift 43
+	VAR  shift 44
+	FUNCTION  shift 45
+	IN  reduce 2
+
+	decs  goto 83
+	dec  goto 47
+	tydec  goto 48
+	vardec  goto 49
+	fundec  goto 50
+
+
+state 48
+	dec : tydec .  (3)
+
+	.  reduce 3
+
+
+state 49
+	dec : vardec .  (4)
+
+	.  reduce 4
+
+
+state 50
+	dec : fundec .  (5)
+
+	.  reduce 5
+
+
+state 51
+	arithmetic : exp . ADD_SIGN exp  (47)
+	arithmetic : exp . MINUS_SIGN exp  (48)
+	arithmetic : exp . MULTIPLY_SIGN exp  (49)
+	arithmetic : exp . DIVIDE_SIGN exp  (50)
+	if_then_else : IF exp . THEN exp ELSE exp  (57)
+	if_then : IF exp . THEN exp  (58)
+	comparison : exp . EQUAL_SIGN exp  (59)
+	comparison : exp . NOT_EQUAL_SIGN exp  (60)
+	comparison : exp . LESS_SIGN exp  (61)
+	comparison : exp . LESS_EQUAL_SIGN exp  (62)
+	comparison : exp . GREATER_SIGN exp  (63)
+	comparison : exp . GREATER_EQUAL_SIGN exp  (64)
+	boolean_operate : exp . LOGICAL_AND exp  (65)
+	boolean_operate : exp . LOGICAL_OR exp  (66)
+
+	THEN  shift 84
+	LOGICAL_AND  shift 57
+	LOGICAL_OR  shift 58
+	EQUAL_SIGN  shift 59
+	NOT_EQUAL_SIGN  shift 60
+	LESS_SIGN  shift 61
+	GREATER_SIGN  shift 62
+	LESS_EQUAL_SIGN  shift 63
+	GREATER_EQUAL_SIGN  shift 64
+	ADD_SIGN  shift 65
+	MINUS_SIGN  shift 66
+	MULTIPLY_SIGN  shift 67
+	DIVIDE_SIGN  shift 68
+	.  error
+
+
+state 52
+	arithmetic : exp . ADD_SIGN exp  (47)
+	arithmetic : exp . MINUS_SIGN exp  (48)
+	arithmetic : exp . MULTIPLY_SIGN exp  (49)
+	arithmetic : exp . DIVIDE_SIGN exp  (50)
+	comparison : exp . EQUAL_SIGN exp  (59)
+	comparison : exp . NOT_EQUAL_SIGN exp  (60)
+	comparison : exp . LESS_SIGN exp  (61)
+	comparison : exp . LESS_EQUAL_SIGN exp  (62)
+	comparison : exp . GREATER_SIGN exp  (63)
+	comparison : exp . GREATER_EQUAL_SIGN exp  (64)
+	boolean_operate : exp . LOGICAL_AND exp  (65)
+	boolean_operate : exp . LOGICAL_OR exp  (66)
+	while : WHILE exp . DO exp  (73)
+
+	DO  shift 85
+	LOGICAL_AND  shift 57
+	LOGICAL_OR  shift 58
+	EQUAL_SIGN  shift 59
+	NOT_EQUAL_SIGN  shift 60
+	LESS_SIGN  shift 61
+	GREATER_SIGN  shift 62
+	LESS_EQUAL_SIGN  shift 63
+	GREATER_EQUAL_SIGN  shift 64
+	ADD_SIGN  shift 65
+	MINUS_SIGN  shift 66
+	MULTIPLY_SIGN  shift 67
+	DIVIDE_SIGN  shift 68
+	.  error
+
+
+state 53
+	for : FOR ID . ASSIGNMENT_SIGN exp TO exp DO exp  (56)
+
+	ASSIGNMENT_SIGN  shift 86
+	.  error
+
+
+state 54
+	no_value : LEFT_PARENTHESIS RIGHT_PARENTHESIS .  (52)
+
+	.  reduce 52
+
+
+state 55
+	arithmetic : exp . ADD_SIGN exp  (47)
+	arithmetic : exp . MINUS_SIGN exp  (48)
+	arithmetic : exp . MULTIPLY_SIGN exp  (49)
+	arithmetic : exp . DIVIDE_SIGN exp  (50)
+	parentheses : LEFT_PARENTHESIS exp . RIGHT_PARENTHESIS  (51)
+	sequencing : LEFT_PARENTHESIS exp . SEMICOLON exp sequencing_aux RIGHT_PARENTHESIS  (53)
+	comparison : exp . EQUAL_SIGN exp  (59)
+	comparison : exp . NOT_EQUAL_SIGN exp  (60)
+	comparison : exp . LESS_SIGN exp  (61)
+	comparison : exp . LESS_EQUAL_SIGN exp  (62)
+	comparison : exp . GREATER_SIGN exp  (63)
+	comparison : exp . GREATER_EQUAL_SIGN exp  (64)
+	boolean_operate : exp . LOGICAL_AND exp  (65)
+	boolean_operate : exp . LOGICAL_OR exp  (66)
+
+	RIGHT_PARENTHESIS  shift 87
+	SEMICOLON  shift 88
+	LOGICAL_AND  shift 57
+	LOGICAL_OR  shift 58
+	EQUAL_SIGN  shift 59
+	NOT_EQUAL_SIGN  shift 60
+	LESS_SIGN  shift 61
+	GREATER_SIGN  shift 62
+	LESS_EQUAL_SIGN  shift 63
+	GREATER_EQUAL_SIGN  shift 64
+	ADD_SIGN  shift 65
+	MINUS_SIGN  shift 66
+	MULTIPLY_SIGN  shift 67
+	DIVIDE_SIGN  shift 68
+	.  error
+
+
+state 56
+	arithmetic : exp . ADD_SIGN exp  (47)
+	arithmetic : exp . MINUS_SIGN exp  (48)
+	arithmetic : exp . MULTIPLY_SIGN exp  (49)
+	arithmetic : exp . DIVIDE_SIGN exp  (50)
+	comparison : exp . EQUAL_SIGN exp  (59)
+	comparison : exp . NOT_EQUAL_SIGN exp  (60)
+	comparison : exp . LESS_SIGN exp  (61)
+	comparison : exp . LESS_EQUAL_SIGN exp  (62)
+	comparison : exp . GREATER_SIGN exp  (63)
+	comparison : exp . GREATER_EQUAL_SIGN exp  (64)
+	boolean_operate : exp . LOGICAL_AND exp  (65)
+	boolean_operate : exp . LOGICAL_OR exp  (66)
+	negation : MINUS_SIGN exp .  (74)
+
+	.  reduce 74
+
+
+state 57
+	boolean_operate : exp LOGICAL_AND . exp  (65)
+
+	INTEGER_LITERAL  shift 1
+	ID  shift 2
+	STRING_LITERAL  shift 3
+	INT  shift 4
+	STRING  shift 5
+	NIL  shift 6
+	LET  shift 7
+	IF  shift 8
+	WHILE  shift 9
+	FOR  shift 10
+	BREAK  shift 11
+	LEFT_PARENTHESIS  shift 12
+	MINUS_SIGN  shift 13
+	.  error
+
+	exp  goto 89
+	build_in_type  goto 16
+	l_value  goto 17
+	function_call  goto 18
+	nil  goto 19
+	integer_literal  goto 20
+	string_literal  goto 21
+	array_creation  goto 22
+	record_creation  goto 23
+	arithmetic  goto 24
+	parentheses  goto 25
+	no_value  goto 26
+	sequencing  goto 27
+	for  goto 28
+	if_then_else  goto 29
+	if_then  goto 30
+	comparison  goto 31
+	boolean_operate  goto 32
+	assignment  goto 33
+	let  goto 34
+	while  goto 35
+	negation  goto 36
+	break  goto 37
+
+
+state 58
+	boolean_operate : exp LOGICAL_OR . exp  (66)
+
+	INTEGER_LITERAL  shift 1
+	ID  shift 2
+	STRING_LITERAL  shift 3
+	INT  shift 4
+	STRING  shift 5
+	NIL  shift 6
+	LET  shift 7
+	IF  shift 8
+	WHILE  shift 9
+	FOR  shift 10
+	BREAK  shift 11
+	LEFT_PARENTHESIS  shift 12
+	MINUS_SIGN  shift 13
+	.  error
+
+	exp  goto 90
+	build_in_type  goto 16
+	l_value  goto 17
+	function_call  goto 18
+	nil  goto 19
+	integer_literal  goto 20
+	string_literal  goto 21
+	array_creation  goto 22
+	record_creation  goto 23
+	arithmetic  goto 24
+	parentheses  goto 25
+	no_value  goto 26
+	sequencing  goto 27
+	for  goto 28
+	if_then_else  goto 29
+	if_then  goto 30
+	comparison  goto 31
+	boolean_operate  goto 32
+	assignment  goto 33
+	let  goto 34
+	while  goto 35
+	negation  goto 36
+	break  goto 37
+
+
+state 59
+	comparison : exp EQUAL_SIGN . exp  (59)
+
+	INTEGER_LITERAL  shift 1
+	ID  shift 2
+	STRING_LITERAL  shift 3
+	INT  shift 4
+	STRING  shift 5
+	NIL  shift 6
+	LET  shift 7
+	IF  shift 8
+	WHILE  shift 9
+	FOR  shift 10
+	BREAK  shift 11
+	LEFT_PARENTHESIS  shift 12
+	MINUS_SIGN  shift 13
+	.  error
+
+	exp  goto 91
+	build_in_type  goto 16
+	l_value  goto 17
+	function_call  goto 18
+	nil  goto 19
+	integer_literal  goto 20
+	string_literal  goto 21
+	array_creation  goto 22
+	record_creation  goto 23
+	arithmetic  goto 24
+	parentheses  goto 25
+	no_value  goto 26
+	sequencing  goto 27
+	for  goto 28
+	if_then_else  goto 29
+	if_then  goto 30
+	comparison  goto 31
+	boolean_operate  goto 32
+	assignment  goto 33
+	let  goto 34
+	while  goto 35
+	negation  goto 36
+	break  goto 37
+
+
+state 60
+	comparison : exp NOT_EQUAL_SIGN . exp  (60)
+
+	INTEGER_LITERAL  shift 1
+	ID  shift 2
+	STRING_LITERAL  shift 3
+	INT  shift 4
+	STRING  shift 5
+	NIL  shift 6
+	LET  shift 7
+	IF  shift 8
+	WHILE  shift 9
+	FOR  shift 10
+	BREAK  shift 11
+	LEFT_PARENTHESIS  shift 12
+	MINUS_SIGN  shift 13
+	.  error
+
+	exp  goto 92
+	build_in_type  goto 16
+	l_value  goto 17
+	function_call  goto 18
+	nil  goto 19
+	integer_literal  goto 20
+	string_literal  goto 21
+	array_creation  goto 22
+	record_creation  goto 23
+	arithmetic  goto 24
+	parentheses  goto 25
+	no_value  goto 26
+	sequencing  goto 27
+	for  goto 28
+	if_then_else  goto 29
+	if_then  goto 30
+	comparison  goto 31
+	boolean_operate  goto 32
+	assignment  goto 33
+	let  goto 34
+	while  goto 35
+	negation  goto 36
+	break  goto 37
+
+
+state 61
+	comparison : exp LESS_SIGN . exp  (61)
+
+	INTEGER_LITERAL  shift 1
+	ID  shift 2
+	STRING_LITERAL  shift 3
+	INT  shift 4
+	STRING  shift 5
+	NIL  shift 6
+	LET  shift 7
+	IF  shift 8
+	WHILE  shift 9
+	FOR  shift 10
+	BREAK  shift 11
+	LEFT_PARENTHESIS  shift 12
+	MINUS_SIGN  shift 13
+	.  error
+
+	exp  goto 93
+	build_in_type  goto 16
+	l_value  goto 17
+	function_call  goto 18
+	nil  goto 19
+	integer_literal  goto 20
+	string_literal  goto 21
+	array_creation  goto 22
+	record_creation  goto 23
+	arithmetic  goto 24
+	parentheses  goto 25
+	no_value  goto 26
+	sequencing  goto 27
+	for  goto 28
+	if_then_else  goto 29
+	if_then  goto 30
+	comparison  goto 31
+	boolean_operate  goto 32
+	assignment  goto 33
+	let  goto 34
+	while  goto 35
+	negation  goto 36
+	break  goto 37
+
+
+state 62
+	comparison : exp GREATER_SIGN . exp  (63)
+
+	INTEGER_LITERAL  shift 1
+	ID  shift 2
+	STRING_LITERAL  shift 3
+	INT  shift 4
+	STRING  shift 5
+	NIL  shift 6
+	LET  shift 7
+	IF  shift 8
+	WHILE  shift 9
+	FOR  shift 10
+	BREAK  shift 11
+	LEFT_PARENTHESIS  shift 12
+	MINUS_SIGN  shift 13
+	.  error
+
+	exp  goto 94
+	build_in_type  goto 16
+	l_value  goto 17
+	function_call  goto 18
+	nil  goto 19
+	integer_literal  goto 20
+	string_literal  goto 21
+	array_creation  goto 22
+	record_creation  goto 23
+	arithmetic  goto 24
+	parentheses  goto 25
+	no_value  goto 26
+	sequencing  goto 27
+	for  goto 28
+	if_then_else  goto 29
+	if_then  goto 30
+	comparison  goto 31
+	boolean_operate  goto 32
+	assignment  goto 33
+	let  goto 34
+	while  goto 35
+	negation  goto 36
+	break  goto 37
+
+
+state 63
+	comparison : exp LESS_EQUAL_SIGN . exp  (62)
+
+	INTEGER_LITERAL  shift 1
+	ID  shift 2
+	STRING_LITERAL  shift 3
+	INT  shift 4
+	STRING  shift 5
+	NIL  shift 6
+	LET  shift 7
+	IF  shift 8
+	WHILE  shift 9
+	FOR  shift 10
+	BREAK  shift 11
+	LEFT_PARENTHESIS  shift 12
+	MINUS_SIGN  shift 13
+	.  error
+
+	exp  goto 95
+	build_in_type  goto 16
+	l_value  goto 17
+	function_call  goto 18
+	nil  goto 19
+	integer_literal  goto 20
+	string_literal  goto 21
+	array_creation  goto 22
+	record_creation  goto 23
+	arithmetic  goto 24
+	parentheses  goto 25
+	no_value  goto 26
+	sequencing  goto 27
+	for  goto 28
+	if_then_else  goto 29
+	if_then  goto 30
+	comparison  goto 31
+	boolean_operate  goto 32
+	assignment  goto 33
+	let  goto 34
+	while  goto 35
+	negation  goto 36
+	break  goto 37
+
+
+state 64
+	comparison : exp GREATER_EQUAL_SIGN . exp  (64)
+
+	INTEGER_LITERAL  shift 1
+	ID  shift 2
+	STRING_LITERAL  shift 3
+	INT  shift 4
+	STRING  shift 5
+	NIL  shift 6
+	LET  shift 7
+	IF  shift 8
+	WHILE  shift 9
+	FOR  shift 10
+	BREAK  shift 11
+	LEFT_PARENTHESIS  shift 12
+	MINUS_SIGN  shift 13
+	.  error
+
+	exp  goto 96
+	build_in_type  goto 16
+	l_value  goto 17
+	function_call  goto 18
+	nil  goto 19
+	integer_literal  goto 20
+	string_literal  goto 21
+	array_creation  goto 22
+	record_creation  goto 23
+	arithmetic  goto 24
+	parentheses  goto 25
+	no_value  goto 26
+	sequencing  goto 27
+	for  goto 28
+	if_then_else  goto 29
+	if_then  goto 30
+	comparison  goto 31
+	boolean_operate  goto 32
+	assignment  goto 33
+	let  goto 34
+	while  goto 35
+	negation  goto 36
+	break  goto 37
+
+
+state 65
+	arithmetic : exp ADD_SIGN . exp  (47)
+
+	INTEGER_LITERAL  shift 1
+	ID  shift 2
+	STRING_LITERAL  shift 3
+	INT  shift 4
+	STRING  shift 5
+	NIL  shift 6
+	LET  shift 7
+	IF  shift 8
+	WHILE  shift 9
+	FOR  shift 10
+	BREAK  shift 11
+	LEFT_PARENTHESIS  shift 12
+	MINUS_SIGN  shift 13
+	.  error
+
+	exp  goto 97
+	build_in_type  goto 16
+	l_value  goto 17
+	function_call  goto 18
+	nil  goto 19
+	integer_literal  goto 20
+	string_literal  goto 21
+	array_creation  goto 22
+	record_creation  goto 23
+	arithmetic  goto 24
+	parentheses  goto 25
+	no_value  goto 26
+	sequencing  goto 27
+	for  goto 28
+	if_then_else  goto 29
+	if_then  goto 30
+	comparison  goto 31
+	boolean_operate  goto 32
+	assignment  goto 33
+	let  goto 34
+	while  goto 35
+	negation  goto 36
+	break  goto 37
+
+
+state 66
+	arithmetic : exp MINUS_SIGN . exp  (48)
+
+	INTEGER_LITERAL  shift 1
+	ID  shift 2
+	STRING_LITERAL  shift 3
+	INT  shift 4
+	STRING  shift 5
+	NIL  shift 6
+	LET  shift 7
+	IF  shift 8
+	WHILE  shift 9
+	FOR  shift 10
+	BREAK  shift 11
+	LEFT_PARENTHESIS  shift 12
+	MINUS_SIGN  shift 13
+	.  error
+
+	exp  goto 98
+	build_in_type  goto 16
+	l_value  goto 17
+	function_call  goto 18
+	nil  goto 19
+	integer_literal  goto 20
+	string_literal  goto 21
+	array_creation  goto 22
+	record_creation  goto 23
+	arithmetic  goto 24
+	parentheses  goto 25
+	no_value  goto 26
+	sequencing  goto 27
+	for  goto 28
+	if_then_else  goto 29
+	if_then  goto 30
+	comparison  goto 31
+	boolean_operate  goto 32
+	assignment  goto 33
+	let  goto 34
+	while  goto 35
+	negation  goto 36
+	break  goto 37
+
+
+state 67
+	arithmetic : exp MULTIPLY_SIGN . exp  (49)
+
+	INTEGER_LITERAL  shift 1
+	ID  shift 2
+	STRING_LITERAL  shift 3
+	INT  shift 4
+	STRING  shift 5
+	NIL  shift 6
+	LET  shift 7
+	IF  shift 8
+	WHILE  shift 9
+	FOR  shift 10
+	BREAK  shift 11
+	LEFT_PARENTHESIS  shift 12
+	MINUS_SIGN  shift 13
+	.  error
+
+	exp  goto 99
+	build_in_type  goto 16
+	l_value  goto 17
+	function_call  goto 18
+	nil  goto 19
+	integer_literal  goto 20
+	string_literal  goto 21
+	array_creation  goto 22
+	record_creation  goto 23
+	arithmetic  goto 24
+	parentheses  goto 25
+	no_value  goto 26
+	sequencing  goto 27
+	for  goto 28
+	if_then_else  goto 29
+	if_then  goto 30
+	comparison  goto 31
+	boolean_operate  goto 32
+	assignment  goto 33
+	let  goto 34
+	while  goto 35
+	negation  goto 36
+	break  goto 37
+
+
+state 68
+	arithmetic : exp DIVIDE_SIGN . exp  (50)
+
+	INTEGER_LITERAL  shift 1
+	ID  shift 2
+	STRING_LITERAL  shift 3
+	INT  shift 4
+	STRING  shift 5
+	NIL  shift 6
+	LET  shift 7
+	IF  shift 8
+	WHILE  shift 9
+	FOR  shift 10
+	BREAK  shift 11
+	LEFT_PARENTHESIS  shift 12
+	MINUS_SIGN  shift 13
+	.  error
+
+	exp  goto 100
+	build_in_type  goto 16
+	l_value  goto 17
+	function_call  goto 18
+	nil  goto 19
+	integer_literal  goto 20
+	string_literal  goto 21
+	array_creation  goto 22
+	record_creation  goto 23
+	arithmetic  goto 24
+	parentheses  goto 25
+	no_value  goto 26
+	sequencing  goto 27
+	for  goto 28
+	if_then_else  goto 29
+	if_then  goto 30
+	comparison  goto 31
+	boolean_operate  goto 32
+	assignment  goto 33
+	let  goto 34
+	while  goto 35
+	negation  goto 36
+	break  goto 37
+
+
+state 69
+	record_creation : build_in_type LEFT_CURLY_BRACE . ID EQUAL_SIGN exp record_creation_aux RIGHT_CURLY_BRACE  (41)
+	record_creation : build_in_type LEFT_CURLY_BRACE . RIGHT_CURLY_BRACE  (43)
+
+	ID  shift 101
+	RIGHT_CURLY_BRACE  shift 102
+	.  error
+
+
+state 70
+	array_creation : build_in_type LEFT_BRACKET . exp RIGHT_BRACKET OF exp  (39)
+
+	INTEGER_LITERAL  shift 1
+	ID  shift 2
+	STRING_LITERAL  shift 3
+	INT  shift 4
+	STRING  shift 5
+	NIL  shift 6
+	LET  shift 7
+	IF  shift 8
+	WHILE  shift 9
+	FOR  shift 10
+	BREAK  shift 11
+	LEFT_PARENTHESIS  shift 12
+	MINUS_SIGN  shift 13
+	.  error
+
+	exp  goto 103
+	build_in_type  goto 16
+	l_value  goto 17
+	function_call  goto 18
+	nil  goto 19
+	integer_literal  goto 20
+	string_literal  goto 21
+	array_creation  goto 22
+	record_creation  goto 23
+	arithmetic  goto 24
+	parentheses  goto 25
+	no_value  goto 26
+	sequencing  goto 27
+	for  goto 28
+	if_then_else  goto 29
+	if_then  goto 30
+	comparison  goto 31
+	boolean_operate  goto 32
+	assignment  goto 33
+	let  goto 34
+	while  goto 35
+	negation  goto 36
+	break  goto 37
+
+
+state 71
+	assignment : l_value ASSIGNMENT_SIGN . exp  (67)
+
+	INTEGER_LITERAL  shift 1
+	ID  shift 2
+	STRING_LITERAL  shift 3
+	INT  shift 4
+	STRING  shift 5
+	NIL  shift 6
+	LET  shift 7
+	IF  shift 8
+	WHILE  shift 9
+	FOR  shift 10
+	BREAK  shift 11
+	LEFT_PARENTHESIS  shift 12
+	MINUS_SIGN  shift 13
+	.  error
+
+	exp  goto 104
+	build_in_type  goto 16
+	l_value  goto 17
+	function_call  goto 18
+	nil  goto 19
+	integer_literal  goto 20
+	string_literal  goto 21
+	array_creation  goto 22
+	record_creation  goto 23
+	arithmetic  goto 24
+	parentheses  goto 25
+	no_value  goto 26
+	sequencing  goto 27
+	for  goto 28
+	if_then_else  goto 29
+	if_then  goto 30
+	comparison  goto 31
+	boolean_operate  goto 32
+	assignment  goto 33
+	let  goto 34
+	while  goto 35
+	negation  goto 36
+	break  goto 37
+
+
+state 72
+	record_creation : ID LEFT_CURLY_BRACE ID . EQUAL_SIGN exp record_creation_aux RIGHT_CURLY_BRACE  (42)
+
+	EQUAL_SIGN  shift 105
+	.  error
+
+
+state 73
+	record_creation : ID LEFT_CURLY_BRACE RIGHT_CURLY_BRACE .  (44)
+
+	.  reduce 44
+
+
+state 74
+	function_call : ID LEFT_PARENTHESIS RIGHT_PARENTHESIS .  (32)
+
+	.  reduce 32
+
+
+state 75
+	function_call : ID LEFT_PARENTHESIS exp . function_call_aux RIGHT_PARENTHESIS  (33)
+	arithmetic : exp . ADD_SIGN exp  (47)
+	arithmetic : exp . MINUS_SIGN exp  (48)
+	arithmetic : exp . MULTIPLY_SIGN exp  (49)
+	arithmetic : exp . DIVIDE_SIGN exp  (50)
+	comparison : exp . EQUAL_SIGN exp  (59)
+	comparison : exp . NOT_EQUAL_SIGN exp  (60)
+	comparison : exp . LESS_SIGN exp  (61)
+	comparison : exp . LESS_EQUAL_SIGN exp  (62)
+	comparison : exp . GREATER_SIGN exp  (63)
+	comparison : exp . GREATER_EQUAL_SIGN exp  (64)
+	boolean_operate : exp . LOGICAL_AND exp  (65)
+	boolean_operate : exp . LOGICAL_OR exp  (66)
+	function_call_aux : .  (35)
+
+	COMMA  shift 106
+	LOGICAL_AND  shift 57
+	LOGICAL_OR  shift 58
+	EQUAL_SIGN  shift 59
+	NOT_EQUAL_SIGN  shift 60
+	LESS_SIGN  shift 61
+	GREATER_SIGN  shift 62
+	LESS_EQUAL_SIGN  shift 63
+	GREATER_EQUAL_SIGN  shift 64
+	ADD_SIGN  shift 65
+	MINUS_SIGN  shift 66
+	MULTIPLY_SIGN  shift 67
+	DIVIDE_SIGN  shift 68
+	RIGHT_PARENTHESIS  reduce 35
+
+	function_call_aux  goto 107
+
+
+state 76
+	l_value_aux : DOT ID . l_value_aux  (29)
+	l_value_aux : .  (31)
+
+	DOT  shift 40
+	LEFT_BRACKET  shift 108
+	$end  reduce 31
+	TYPE  reduce 31
+	VAR  reduce 31
+	FUNCTION  reduce 31
+	IN  reduce 31
+	END  reduce 31
+	THEN  reduce 31
+	ELSE  reduce 31
+	DO  reduce 31
+	TO  reduce 31
+	RIGHT_CURLY_BRACE  reduce 31
+	COMMA  reduce 31
+	RIGHT_PARENTHESIS  reduce 31
+	SEMICOLON  reduce 31
+	RIGHT_BRACKET  reduce 31
+	ASSIGNMENT_SIGN  reduce 31
+	LOGICAL_AND  reduce 31
+	LOGICAL_OR  reduce 31
+	EQUAL_SIGN  reduce 31
+	NOT_EQUAL_SIGN  reduce 31
+	LESS_SIGN  reduce 31
+	GREATER_SIGN  reduce 31
+	LESS_EQUAL_SIGN  reduce 31
+	GREATER_EQUAL_SIGN  reduce 31
+	ADD_SIGN  reduce 31
+	MINUS_SIGN  reduce 31
+	MULTIPLY_SIGN  reduce 31
+	DIVIDE_SIGN  reduce 31
+
+	l_value_aux  goto 109
+
+
+state 77
+	l_value_aux : LEFT_BRACKET exp . RIGHT_BRACKET l_value_aux  (30)
+	array_creation : ID LEFT_BRACKET exp . RIGHT_BRACKET OF exp  (40)
+	arithmetic : exp . ADD_SIGN exp  (47)
+	arithmetic : exp . MINUS_SIGN exp  (48)
+	arithmetic : exp . MULTIPLY_SIGN exp  (49)
+	arithmetic : exp . DIVIDE_SIGN exp  (50)
+	comparison : exp . EQUAL_SIGN exp  (59)
+	comparison : exp . NOT_EQUAL_SIGN exp  (60)
+	comparison : exp . LESS_SIGN exp  (61)
+	comparison : exp . LESS_EQUAL_SIGN exp  (62)
+	comparison : exp . GREATER_SIGN exp  (63)
+	comparison : exp . GREATER_EQUAL_SIGN exp  (64)
+	boolean_operate : exp . LOGICAL_AND exp  (65)
+	boolean_operate : exp . LOGICAL_OR exp  (66)
+
+	RIGHT_BRACKET  shift 110
+	LOGICAL_AND  shift 57
+	LOGICAL_OR  shift 58
+	EQUAL_SIGN  shift 59
+	NOT_EQUAL_SIGN  shift 60
+	LESS_SIGN  shift 61
+	GREATER_SIGN  shift 62
+	LESS_EQUAL_SIGN  shift 63
+	GREATER_EQUAL_SIGN  shift 64
+	ADD_SIGN  shift 65
+	MINUS_SIGN  shift 66
+	MULTIPLY_SIGN  shift 67
+	DIVIDE_SIGN  shift 68
+	.  error
+
+
+state 78
+	tydec : TYPE ID . EQUAL_SIGN ID  (7)
+	tydec : TYPE ID . EQUAL_SIGN ty  (9)
+
+	EQUAL_SIGN  shift 111
+	.  error
+
+
+state 79
+	tydec : TYPE build_in_type . EQUAL_SIGN ID  (6)
+	tydec : TYPE build_in_type . EQUAL_SIGN ty  (8)
+
+	EQUAL_SIGN  shift 112
+	.  error
+
+
+state 80
+	vardec : VAR ID . ASSIGNMENT_SIGN exp  (22)
+	vardec : VAR ID . COLON build_in_type ASSIGNMENT_SIGN exp  (23)
+	vardec : VAR ID . COLON ID ASSIGNMENT_SIGN exp  (24)
+
+	COLON  shift 113
+	ASSIGNMENT_SIGN  shift 114
+	.  error
+
+
+state 81
+	fundec : FUNCTION ID . LEFT_PARENTHESIS tyfields RIGHT_PARENTHESIS EQUAL_SIGN exp  (25)
+	fundec : FUNCTION ID . LEFT_PARENTHESIS tyfields RIGHT_PARENTHESIS COLON build_in_type EQUAL_SIGN exp  (26)
+	fundec : FUNCTION ID . LEFT_PARENTHESIS tyfields RIGHT_PARENTHESIS COLON ID EQUAL_SIGN exp  (27)
+
+	LEFT_PARENTHESIS  shift 115
+	.  error
+
+
+state 82
+	let : LET decs IN . expseq END  (68)
+	expseq : .  (70)
+
+	INTEGER_LITERAL  shift 1
+	ID  shift 2
+	STRING_LITERAL  shift 3
+	INT  shift 4
+	STRING  shift 5
+	NIL  shift 6
+	LET  shift 7
+	IF  shift 8
+	WHILE  shift 9
+	FOR  shift 10
+	BREAK  shift 11
+	LEFT_PARENTHESIS  shift 12
+	MINUS_SIGN  shift 13
+	END  reduce 70
+
+	exp  goto 116
+	build_in_type  goto 16
+	l_value  goto 17
+	function_call  goto 18
+	expseq  goto 117
+	nil  goto 19
+	integer_literal  goto 20
+	string_literal  goto 21
+	array_creation  goto 22
+	record_creation  goto 23
+	arithmetic  goto 24
+	parentheses  goto 25
+	no_value  goto 26
+	sequencing  goto 27
+	for  goto 28
+	if_then_else  goto 29
+	if_then  goto 30
+	comparison  goto 31
+	boolean_operate  goto 32
+	assignment  goto 33
+	let  goto 34
+	while  goto 35
+	negation  goto 36
+	break  goto 37
+
+
+state 83
+	decs : dec decs .  (1)
+
+	.  reduce 1
+
+
+state 84
+	if_then_else : IF exp THEN . exp ELSE exp  (57)
+	if_then : IF exp THEN . exp  (58)
+
+	INTEGER_LITERAL  shift 1
+	ID  shift 2
+	STRING_LITERAL  shift 3
+	INT  shift 4
+	STRING  shift 5
+	NIL  shift 6
+	LET  shift 7
+	IF  shift 8
+	WHILE  shift 9
+	FOR  shift 10
+	BREAK  shift 11
+	LEFT_PARENTHESIS  shift 12
+	MINUS_SIGN  shift 13
+	.  error
+
+	exp  goto 118
+	build_in_type  goto 16
+	l_value  goto 17
+	function_call  goto 18
+	nil  goto 19
+	integer_literal  goto 20
+	string_literal  goto 21
+	array_creation  goto 22
+	record_creation  goto 23
+	arithmetic  goto 24
+	parentheses  goto 25
+	no_value  goto 26
+	sequencing  goto 27
+	for  goto 28
+	if_then_else  goto 29
+	if_then  goto 30
+	comparison  goto 31
+	boolean_operate  goto 32
+	assignment  goto 33
+	let  goto 34
+	while  goto 35
+	negation  goto 36
+	break  goto 37
+
+
+state 85
+	while : WHILE exp DO . exp  (73)
+
+	INTEGER_LITERAL  shift 1
+	ID  shift 2
+	STRING_LITERAL  shift 3
+	INT  shift 4
+	STRING  shift 5
+	NIL  shift 6
+	LET  shift 7
+	IF  shift 8
+	WHILE  shift 9
+	FOR  shift 10
+	BREAK  shift 11
+	LEFT_PARENTHESIS  shift 12
+	MINUS_SIGN  shift 13
+	.  error
+
+	exp  goto 119
+	build_in_type  goto 16
+	l_value  goto 17
+	function_call  goto 18
+	nil  goto 19
+	integer_literal  goto 20
+	string_literal  goto 21
+	array_creation  goto 22
+	record_creation  goto 23
+	arithmetic  goto 24
+	parentheses  goto 25
+	no_value  goto 26
+	sequencing  goto 27
+	for  goto 28
+	if_then_else  goto 29
+	if_then  goto 30
+	comparison  goto 31
+	boolean_operate  goto 32
+	assignment  goto 33
+	let  goto 34
+	while  goto 35
+	negation  goto 36
+	break  goto 37
+
+
+state 86
+	for : FOR ID ASSIGNMENT_SIGN . exp TO exp DO exp  (56)
+
+	INTEGER_LITERAL  shift 1
+	ID  shift 2
+	STRING_LITERAL  shift 3
+	INT  shift 4
+	STRING  shift 5
+	NIL  shift 6
+	LET  shift 7
+	IF  shift 8
+	WHILE  shift 9
+	FOR  shift 10
+	BREAK  shift 11
+	LEFT_PARENTHESIS  shift 12
+	MINUS_SIGN  shift 13
+	.  error
+
+	exp  goto 120
+	build_in_type  goto 16
+	l_value  goto 17
+	function_call  goto 18
+	nil  goto 19
+	integer_literal  goto 20
+	string_literal  goto 21
+	array_creation  goto 22
+	record_creation  goto 23
+	arithmetic  goto 24
+	parentheses  goto 25
+	no_value  goto 26
+	sequencing  goto 27
+	for  goto 28
+	if_then_else  goto 29
+	if_then  goto 30
+	comparison  goto 31
+	boolean_operate  goto 32
+	assignment  goto 33
+	let  goto 34
+	while  goto 35
+	negation  goto 36
+	break  goto 37
+
+
+state 87
+	parentheses : LEFT_PARENTHESIS exp RIGHT_PARENTHESIS .  (51)
+
+	.  reduce 51
+
+
+state 88
+	sequencing : LEFT_PARENTHESIS exp SEMICOLON . exp sequencing_aux RIGHT_PARENTHESIS  (53)
+
+	INTEGER_LITERAL  shift 1
+	ID  shift 2
+	STRING_LITERAL  shift 3
+	INT  shift 4
+	STRING  shift 5
+	NIL  shift 6
+	LET  shift 7
+	IF  shift 8
+	WHILE  shift 9
+	FOR  shift 10
+	BREAK  shift 11
+	LEFT_PARENTHESIS  shift 12
+	MINUS_SIGN  shift 13
+	.  error
+
+	exp  goto 121
+	build_in_type  goto 16
+	l_value  goto 17
+	function_call  goto 18
+	nil  goto 19
+	integer_literal  goto 20
+	string_literal  goto 21
+	array_creation  goto 22
+	record_creation  goto 23
+	arithmetic  goto 24
+	parentheses  goto 25
+	no_value  goto 26
+	sequencing  goto 27
+	for  goto 28
+	if_then_else  goto 29
+	if_then  goto 30
+	comparison  goto 31
+	boolean_operate  goto 32
+	assignment  goto 33
+	let  goto 34
+	while  goto 35
+	negation  goto 36
+	break  goto 37
+
+
+state 89
+	arithmetic : exp . ADD_SIGN exp  (47)
+	arithmetic : exp . MINUS_SIGN exp  (48)
+	arithmetic : exp . MULTIPLY_SIGN exp  (49)
+	arithmetic : exp . DIVIDE_SIGN exp  (50)
+	comparison : exp . EQUAL_SIGN exp  (59)
+	comparison : exp . NOT_EQUAL_SIGN exp  (60)
+	comparison : exp . LESS_SIGN exp  (61)
+	comparison : exp . LESS_EQUAL_SIGN exp  (62)
+	comparison : exp . GREATER_SIGN exp  (63)
+	comparison : exp . GREATER_EQUAL_SIGN exp  (64)
+	boolean_operate : exp . LOGICAL_AND exp  (65)
+	boolean_operate : exp LOGICAL_AND exp .  (65)
+	boolean_operate : exp . LOGICAL_OR exp  (66)
+
+	EQUAL_SIGN  shift 59
+	NOT_EQUAL_SIGN  shift 60
+	LESS_SIGN  shift 61
+	GREATER_SIGN  shift 62
+	LESS_EQUAL_SIGN  shift 63
+	GREATER_EQUAL_SIGN  shift 64
+	ADD_SIGN  shift 65
+	MINUS_SIGN  shift 66
+	MULTIPLY_SIGN  shift 67
+	DIVIDE_SIGN  shift 68
+	$end  reduce 65
+	TYPE  reduce 65
+	VAR  reduce 65
+	FUNCTION  reduce 65
+	IN  reduce 65
+	END  reduce 65
+	THEN  reduce 65
+	ELSE  reduce 65
+	DO  reduce 65
+	TO  reduce 65
+	RIGHT_CURLY_BRACE  reduce 65
+	COMMA  reduce 65
+	RIGHT_PARENTHESIS  reduce 65
+	SEMICOLON  reduce 65
+	RIGHT_BRACKET  reduce 65
+	LOGICAL_AND  reduce 65
+	LOGICAL_OR  reduce 65
+
+
+state 90
+	arithmetic : exp . ADD_SIGN exp  (47)
+	arithmetic : exp . MINUS_SIGN exp  (48)
+	arithmetic : exp . MULTIPLY_SIGN exp  (49)
+	arithmetic : exp . DIVIDE_SIGN exp  (50)
+	comparison : exp . EQUAL_SIGN exp  (59)
+	comparison : exp . NOT_EQUAL_SIGN exp  (60)
+	comparison : exp . LESS_SIGN exp  (61)
+	comparison : exp . LESS_EQUAL_SIGN exp  (62)
+	comparison : exp . GREATER_SIGN exp  (63)
+	comparison : exp . GREATER_EQUAL_SIGN exp  (64)
+	boolean_operate : exp . LOGICAL_AND exp  (65)
+	boolean_operate : exp . LOGICAL_OR exp  (66)
+	boolean_operate : exp LOGICAL_OR exp .  (66)
+
+	EQUAL_SIGN  shift 59
+	NOT_EQUAL_SIGN  shift 60
+	LESS_SIGN  shift 61
+	GREATER_SIGN  shift 62
+	LESS_EQUAL_SIGN  shift 63
+	GREATER_EQUAL_SIGN  shift 64
+	ADD_SIGN  shift 65
+	MINUS_SIGN  shift 66
+	MULTIPLY_SIGN  shift 67
+	DIVIDE_SIGN  shift 68
+	$end  reduce 66
+	TYPE  reduce 66
+	VAR  reduce 66
+	FUNCTION  reduce 66
+	IN  reduce 66
+	END  reduce 66
+	THEN  reduce 66
+	ELSE  reduce 66
+	DO  reduce 66
+	TO  reduce 66
+	RIGHT_CURLY_BRACE  reduce 66
+	COMMA  reduce 66
+	RIGHT_PARENTHESIS  reduce 66
+	SEMICOLON  reduce 66
+	RIGHT_BRACKET  reduce 66
+	LOGICAL_AND  reduce 66
+	LOGICAL_OR  reduce 66
+
+
+state 91
+	arithmetic : exp . ADD_SIGN exp  (47)
+	arithmetic : exp . MINUS_SIGN exp  (48)
+	arithmetic : exp . MULTIPLY_SIGN exp  (49)
+	arithmetic : exp . DIVIDE_SIGN exp  (50)
+	comparison : exp . EQUAL_SIGN exp  (59)
+	comparison : exp EQUAL_SIGN exp .  (59)
+	comparison : exp . NOT_EQUAL_SIGN exp  (60)
+	comparison : exp . LESS_SIGN exp  (61)
+	comparison : exp . LESS_EQUAL_SIGN exp  (62)
+	comparison : exp . GREATER_SIGN exp  (63)
+	comparison : exp . GREATER_EQUAL_SIGN exp  (64)
+	boolean_operate : exp . LOGICAL_AND exp  (65)
+	boolean_operate : exp . LOGICAL_OR exp  (66)
+
+	ADD_SIGN  shift 65
+	MINUS_SIGN  shift 66
+	MULTIPLY_SIGN  shift 67
+	DIVIDE_SIGN  shift 68
+	$end  reduce 59
+	TYPE  reduce 59
+	VAR  reduce 59
+	FUNCTION  reduce 59
+	IN  reduce 59
+	END  reduce 59
+	THEN  reduce 59
+	ELSE  reduce 59
+	DO  reduce 59
+	TO  reduce 59
+	RIGHT_CURLY_BRACE  reduce 59
+	COMMA  reduce 59
+	RIGHT_PARENTHESIS  reduce 59
+	SEMICOLON  reduce 59
+	RIGHT_BRACKET  reduce 59
+	LOGICAL_AND  reduce 59
+	LOGICAL_OR  reduce 59
+
+
+state 92
+	arithmetic : exp . ADD_SIGN exp  (47)
+	arithmetic : exp . MINUS_SIGN exp  (48)
+	arithmetic : exp . MULTIPLY_SIGN exp  (49)
+	arithmetic : exp . DIVIDE_SIGN exp  (50)
+	comparison : exp . EQUAL_SIGN exp  (59)
+	comparison : exp . NOT_EQUAL_SIGN exp  (60)
+	comparison : exp NOT_EQUAL_SIGN exp .  (60)
+	comparison : exp . LESS_SIGN exp  (61)
+	comparison : exp . LESS_EQUAL_SIGN exp  (62)
+	comparison : exp . GREATER_SIGN exp  (63)
+	comparison : exp . GREATER_EQUAL_SIGN exp  (64)
+	boolean_operate : exp . LOGICAL_AND exp  (65)
+	boolean_operate : exp . LOGICAL_OR exp  (66)
+
+	ADD_SIGN  shift 65
+	MINUS_SIGN  shift 66
+	MULTIPLY_SIGN  shift 67
+	DIVIDE_SIGN  shift 68
+	$end  reduce 60
+	TYPE  reduce 60
+	VAR  reduce 60
+	FUNCTION  reduce 60
+	IN  reduce 60
+	END  reduce 60
+	THEN  reduce 60
+	ELSE  reduce 60
+	DO  reduce 60
+	TO  reduce 60
+	RIGHT_CURLY_BRACE  reduce 60
+	COMMA  reduce 60
+	RIGHT_PARENTHESIS  reduce 60
+	SEMICOLON  reduce 60
+	RIGHT_BRACKET  reduce 60
+	LOGICAL_AND  reduce 60
+	LOGICAL_OR  reduce 60
+
+
+state 93
+	arithmetic : exp . ADD_SIGN exp  (47)
+	arithmetic : exp . MINUS_SIGN exp  (48)
+	arithmetic : exp . MULTIPLY_SIGN exp  (49)
+	arithmetic : exp . DIVIDE_SIGN exp  (50)
+	comparison : exp . EQUAL_SIGN exp  (59)
+	comparison : exp . NOT_EQUAL_SIGN exp  (60)
+	comparison : exp . LESS_SIGN exp  (61)
+	comparison : exp LESS_SIGN exp .  (61)
+	comparison : exp . LESS_EQUAL_SIGN exp  (62)
+	comparison : exp . GREATER_SIGN exp  (63)
+	comparison : exp . GREATER_EQUAL_SIGN exp  (64)
+	boolean_operate : exp . LOGICAL_AND exp  (65)
+	boolean_operate : exp . LOGICAL_OR exp  (66)
+
+	ADD_SIGN  shift 65
+	MINUS_SIGN  shift 66
+	MULTIPLY_SIGN  shift 67
+	DIVIDE_SIGN  shift 68
+	$end  reduce 61
+	TYPE  reduce 61
+	VAR  reduce 61
+	FUNCTION  reduce 61
+	IN  reduce 61
+	END  reduce 61
+	THEN  reduce 61
+	ELSE  reduce 61
+	DO  reduce 61
+	TO  reduce 61
+	RIGHT_CURLY_BRACE  reduce 61
+	COMMA  reduce 61
+	RIGHT_PARENTHESIS  reduce 61
+	SEMICOLON  reduce 61
+	RIGHT_BRACKET  reduce 61
+	LOGICAL_AND  reduce 61
+	LOGICAL_OR  reduce 61
+
+
+state 94
+	arithmetic : exp . ADD_SIGN exp  (47)
+	arithmetic : exp . MINUS_SIGN exp  (48)
+	arithmetic : exp . MULTIPLY_SIGN exp  (49)
+	arithmetic : exp . DIVIDE_SIGN exp  (50)
+	comparison : exp . EQUAL_SIGN exp  (59)
+	comparison : exp . NOT_EQUAL_SIGN exp  (60)
+	comparison : exp . LESS_SIGN exp  (61)
+	comparison : exp . LESS_EQUAL_SIGN exp  (62)
+	comparison : exp . GREATER_SIGN exp  (63)
+	comparison : exp GREATER_SIGN exp .  (63)
+	comparison : exp . GREATER_EQUAL_SIGN exp  (64)
+	boolean_operate : exp . LOGICAL_AND exp  (65)
+	boolean_operate : exp . LOGICAL_OR exp  (66)
+
+	ADD_SIGN  shift 65
+	MINUS_SIGN  shift 66
+	MULTIPLY_SIGN  shift 67
+	DIVIDE_SIGN  shift 68
+	$end  reduce 63
+	TYPE  reduce 63
+	VAR  reduce 63
+	FUNCTION  reduce 63
+	IN  reduce 63
+	END  reduce 63
+	THEN  reduce 63
+	ELSE  reduce 63
+	DO  reduce 63
+	TO  reduce 63
+	RIGHT_CURLY_BRACE  reduce 63
+	COMMA  reduce 63
+	RIGHT_PARENTHESIS  reduce 63
+	SEMICOLON  reduce 63
+	RIGHT_BRACKET  reduce 63
+	LOGICAL_AND  reduce 63
+	LOGICAL_OR  reduce 63
+
+
+state 95
+	arithmetic : exp . ADD_SIGN exp  (47)
+	arithmetic : exp . MINUS_SIGN exp  (48)
+	arithmetic : exp . MULTIPLY_SIGN exp  (49)
+	arithmetic : exp . DIVIDE_SIGN exp  (50)
+	comparison : exp . EQUAL_SIGN exp  (59)
+	comparison : exp . NOT_EQUAL_SIGN exp  (60)
+	comparison : exp . LESS_SIGN exp  (61)
+	comparison : exp . LESS_EQUAL_SIGN exp  (62)
+	comparison : exp LESS_EQUAL_SIGN exp .  (62)
+	comparison : exp . GREATER_SIGN exp  (63)
+	comparison : exp . GREATER_EQUAL_SIGN exp  (64)
+	boolean_operate : exp . LOGICAL_AND exp  (65)
+	boolean_operate : exp . LOGICAL_OR exp  (66)
+
+	ADD_SIGN  shift 65
+	MINUS_SIGN  shift 66
+	MULTIPLY_SIGN  shift 67
+	DIVIDE_SIGN  shift 68
+	$end  reduce 62
+	TYPE  reduce 62
+	VAR  reduce 62
+	FUNCTION  reduce 62
+	IN  reduce 62
+	END  reduce 62
+	THEN  reduce 62
+	ELSE  reduce 62
+	DO  reduce 62
+	TO  reduce 62
+	RIGHT_CURLY_BRACE  reduce 62
+	COMMA  reduce 62
+	RIGHT_PARENTHESIS  reduce 62
+	SEMICOLON  reduce 62
+	RIGHT_BRACKET  reduce 62
+	LOGICAL_AND  reduce 62
+	LOGICAL_OR  reduce 62
+
+
+state 96
+	arithmetic : exp . ADD_SIGN exp  (47)
+	arithmetic : exp . MINUS_SIGN exp  (48)
+	arithmetic : exp . MULTIPLY_SIGN exp  (49)
+	arithmetic : exp . DIVIDE_SIGN exp  (50)
+	comparison : exp . EQUAL_SIGN exp  (59)
+	comparison : exp . NOT_EQUAL_SIGN exp  (60)
+	comparison : exp . LESS_SIGN exp  (61)
+	comparison : exp . LESS_EQUAL_SIGN exp  (62)
+	comparison : exp . GREATER_SIGN exp  (63)
+	comparison : exp . GREATER_EQUAL_SIGN exp  (64)
+	comparison : exp GREATER_EQUAL_SIGN exp .  (64)
+	boolean_operate : exp . LOGICAL_AND exp  (65)
+	boolean_operate : exp . LOGICAL_OR exp  (66)
+
+	ADD_SIGN  shift 65
+	MINUS_SIGN  shift 66
+	MULTIPLY_SIGN  shift 67
+	DIVIDE_SIGN  shift 68
+	$end  reduce 64
+	TYPE  reduce 64
+	VAR  reduce 64
+	FUNCTION  reduce 64
+	IN  reduce 64
+	END  reduce 64
+	THEN  reduce 64
+	ELSE  reduce 64
+	DO  reduce 64
+	TO  reduce 64
+	RIGHT_CURLY_BRACE  reduce 64
+	COMMA  reduce 64
+	RIGHT_PARENTHESIS  reduce 64
+	SEMICOLON  reduce 64
+	RIGHT_BRACKET  reduce 64
+	LOGICAL_AND  reduce 64
+	LOGICAL_OR  reduce 64
+
+
+state 97
+	arithmetic : exp . ADD_SIGN exp  (47)
+	arithmetic : exp ADD_SIGN exp .  (47)
+	arithmetic : exp . MINUS_SIGN exp  (48)
+	arithmetic : exp . MULTIPLY_SIGN exp  (49)
+	arithmetic : exp . DIVIDE_SIGN exp  (50)
+	comparison : exp . EQUAL_SIGN exp  (59)
+	comparison : exp . NOT_EQUAL_SIGN exp  (60)
+	comparison : exp . LESS_SIGN exp  (61)
+	comparison : exp . LESS_EQUAL_SIGN exp  (62)
+	comparison : exp . GREATER_SIGN exp  (63)
+	comparison : exp . GREATER_EQUAL_SIGN exp  (64)
+	boolean_operate : exp . LOGICAL_AND exp  (65)
+	boolean_operate : exp . LOGICAL_OR exp  (66)
+
+	MULTIPLY_SIGN  shift 67
+	DIVIDE_SIGN  shift 68
+	$end  reduce 47
+	TYPE  reduce 47
+	VAR  reduce 47
+	FUNCTION  reduce 47
+	IN  reduce 47
+	END  reduce 47
+	THEN  reduce 47
+	ELSE  reduce 47
+	DO  reduce 47
+	TO  reduce 47
+	RIGHT_CURLY_BRACE  reduce 47
+	COMMA  reduce 47
+	RIGHT_PARENTHESIS  reduce 47
+	SEMICOLON  reduce 47
+	RIGHT_BRACKET  reduce 47
+	LOGICAL_AND  reduce 47
+	LOGICAL_OR  reduce 47
+	EQUAL_SIGN  reduce 47
+	NOT_EQUAL_SIGN  reduce 47
+	LESS_SIGN  reduce 47
+	GREATER_SIGN  reduce 47
+	LESS_EQUAL_SIGN  reduce 47
+	GREATER_EQUAL_SIGN  reduce 47
+	ADD_SIGN  reduce 47
+	MINUS_SIGN  reduce 47
+
+
+state 98
+	arithmetic : exp . ADD_SIGN exp  (47)
+	arithmetic : exp . MINUS_SIGN exp  (48)
+	arithmetic : exp MINUS_SIGN exp .  (48)
+	arithmetic : exp . MULTIPLY_SIGN exp  (49)
+	arithmetic : exp . DIVIDE_SIGN exp  (50)
+	comparison : exp . EQUAL_SIGN exp  (59)
+	comparison : exp . NOT_EQUAL_SIGN exp  (60)
+	comparison : exp . LESS_SIGN exp  (61)
+	comparison : exp . LESS_EQUAL_SIGN exp  (62)
+	comparison : exp . GREATER_SIGN exp  (63)
+	comparison : exp . GREATER_EQUAL_SIGN exp  (64)
+	boolean_operate : exp . LOGICAL_AND exp  (65)
+	boolean_operate : exp . LOGICAL_OR exp  (66)
+
+	MULTIPLY_SIGN  shift 67
+	DIVIDE_SIGN  shift 68
+	$end  reduce 48
+	TYPE  reduce 48
+	VAR  reduce 48
+	FUNCTION  reduce 48
+	IN  reduce 48
+	END  reduce 48
+	THEN  reduce 48
+	ELSE  reduce 48
+	DO  reduce 48
+	TO  reduce 48
+	RIGHT_CURLY_BRACE  reduce 48
+	COMMA  reduce 48
+	RIGHT_PARENTHESIS  reduce 48
+	SEMICOLON  reduce 48
+	RIGHT_BRACKET  reduce 48
+	LOGICAL_AND  reduce 48
+	LOGICAL_OR  reduce 48
+	EQUAL_SIGN  reduce 48
+	NOT_EQUAL_SIGN  reduce 48
+	LESS_SIGN  reduce 48
+	GREATER_SIGN  reduce 48
+	LESS_EQUAL_SIGN  reduce 48
+	GREATER_EQUAL_SIGN  reduce 48
+	ADD_SIGN  reduce 48
+	MINUS_SIGN  reduce 48
+
+
+state 99
+	arithmetic : exp . ADD_SIGN exp  (47)
+	arithmetic : exp . MINUS_SIGN exp  (48)
+	arithmetic : exp . MULTIPLY_SIGN exp  (49)
+	arithmetic : exp MULTIPLY_SIGN exp .  (49)
+	arithmetic : exp . DIVIDE_SIGN exp  (50)
+	comparison : exp . EQUAL_SIGN exp  (59)
+	comparison : exp . NOT_EQUAL_SIGN exp  (60)
+	comparison : exp . LESS_SIGN exp  (61)
+	comparison : exp . LESS_EQUAL_SIGN exp  (62)
+	comparison : exp . GREATER_SIGN exp  (63)
+	comparison : exp . GREATER_EQUAL_SIGN exp  (64)
+	boolean_operate : exp . LOGICAL_AND exp  (65)
+	boolean_operate : exp . LOGICAL_OR exp  (66)
+
+	.  reduce 49
+
+
+state 100
+	arithmetic : exp . ADD_SIGN exp  (47)
+	arithmetic : exp . MINUS_SIGN exp  (48)
+	arithmetic : exp . MULTIPLY_SIGN exp  (49)
+	arithmetic : exp . DIVIDE_SIGN exp  (50)
+	arithmetic : exp DIVIDE_SIGN exp .  (50)
+	comparison : exp . EQUAL_SIGN exp  (59)
+	comparison : exp . NOT_EQUAL_SIGN exp  (60)
+	comparison : exp . LESS_SIGN exp  (61)
+	comparison : exp . LESS_EQUAL_SIGN exp  (62)
+	comparison : exp . GREATER_SIGN exp  (63)
+	comparison : exp . GREATER_EQUAL_SIGN exp  (64)
+	boolean_operate : exp . LOGICAL_AND exp  (65)
+	boolean_operate : exp . LOGICAL_OR exp  (66)
+
+	.  reduce 50
+
+
+state 101
+	record_creation : build_in_type LEFT_CURLY_BRACE ID . EQUAL_SIGN exp record_creation_aux RIGHT_CURLY_BRACE  (41)
+
+	EQUAL_SIGN  shift 122
+	.  error
+
+
+state 102
+	record_creation : build_in_type LEFT_CURLY_BRACE RIGHT_CURLY_BRACE .  (43)
+
+	.  reduce 43
+
+
+state 103
+	array_creation : build_in_type LEFT_BRACKET exp . RIGHT_BRACKET OF exp  (39)
+	arithmetic : exp . ADD_SIGN exp  (47)
+	arithmetic : exp . MINUS_SIGN exp  (48)
+	arithmetic : exp . MULTIPLY_SIGN exp  (49)
+	arithmetic : exp . DIVIDE_SIGN exp  (50)
+	comparison : exp . EQUAL_SIGN exp  (59)
+	comparison : exp . NOT_EQUAL_SIGN exp  (60)
+	comparison : exp . LESS_SIGN exp  (61)
+	comparison : exp . LESS_EQUAL_SIGN exp  (62)
+	comparison : exp . GREATER_SIGN exp  (63)
+	comparison : exp . GREATER_EQUAL_SIGN exp  (64)
+	boolean_operate : exp . LOGICAL_AND exp  (65)
+	boolean_operate : exp . LOGICAL_OR exp  (66)
+
+	RIGHT_BRACKET  shift 123
+	LOGICAL_AND  shift 57
+	LOGICAL_OR  shift 58
+	EQUAL_SIGN  shift 59
+	NOT_EQUAL_SIGN  shift 60
+	LESS_SIGN  shift 61
+	GREATER_SIGN  shift 62
+	LESS_EQUAL_SIGN  shift 63
+	GREATER_EQUAL_SIGN  shift 64
+	ADD_SIGN  shift 65
+	MINUS_SIGN  shift 66
+	MULTIPLY_SIGN  shift 67
+	DIVIDE_SIGN  shift 68
+	.  error
+
+
+state 104
+	arithmetic : exp . ADD_SIGN exp  (47)
+	arithmetic : exp . MINUS_SIGN exp  (48)
+	arithmetic : exp . MULTIPLY_SIGN exp  (49)
+	arithmetic : exp . DIVIDE_SIGN exp  (50)
+	comparison : exp . EQUAL_SIGN exp  (59)
+	comparison : exp . NOT_EQUAL_SIGN exp  (60)
+	comparison : exp . LESS_SIGN exp  (61)
+	comparison : exp . LESS_EQUAL_SIGN exp  (62)
+	comparison : exp . GREATER_SIGN exp  (63)
+	comparison : exp . GREATER_EQUAL_SIGN exp  (64)
+	boolean_operate : exp . LOGICAL_AND exp  (65)
+	boolean_operate : exp . LOGICAL_OR exp  (66)
+	assignment : l_value ASSIGNMENT_SIGN exp .  (67)
+
+	LOGICAL_AND  shift 57
+	LOGICAL_OR  shift 58
+	EQUAL_SIGN  shift 59
+	NOT_EQUAL_SIGN  shift 60
+	LESS_SIGN  shift 61
+	GREATER_SIGN  shift 62
+	LESS_EQUAL_SIGN  shift 63
+	GREATER_EQUAL_SIGN  shift 64
+	ADD_SIGN  shift 65
+	MINUS_SIGN  shift 66
+	MULTIPLY_SIGN  shift 67
+	DIVIDE_SIGN  shift 68
+	$end  reduce 67
+	TYPE  reduce 67
+	VAR  reduce 67
+	FUNCTION  reduce 67
+	IN  reduce 67
+	END  reduce 67
+	THEN  reduce 67
+	ELSE  reduce 67
+	DO  reduce 67
+	TO  reduce 67
+	RIGHT_CURLY_BRACE  reduce 67
+	COMMA  reduce 67
+	RIGHT_PARENTHESIS  reduce 67
+	SEMICOLON  reduce 67
+	RIGHT_BRACKET  reduce 67
+
+
+state 105
+	record_creation : ID LEFT_CURLY_BRACE ID EQUAL_SIGN . exp record_creation_aux RIGHT_CURLY_BRACE  (42)
+
+	INTEGER_LITERAL  shift 1
+	ID  shift 2
+	STRING_LITERAL  shift 3
+	INT  shift 4
+	STRING  shift 5
+	NIL  shift 6
+	LET  shift 7
+	IF  shift 8
+	WHILE  shift 9
+	FOR  shift 10
+	BREAK  shift 11
+	LEFT_PARENTHESIS  shift 12
+	MINUS_SIGN  shift 13
+	.  error
+
+	exp  goto 124
+	build_in_type  goto 16
+	l_value  goto 17
+	function_call  goto 18
+	nil  goto 19
+	integer_literal  goto 20
+	string_literal  goto 21
+	array_creation  goto 22
+	record_creation  goto 23
+	arithmetic  goto 24
+	parentheses  goto 25
+	no_value  goto 26
+	sequencing  goto 27
+	for  goto 28
+	if_then_else  goto 29
+	if_then  goto 30
+	comparison  goto 31
+	boolean_operate  goto 32
+	assignment  goto 33
+	let  goto 34
+	while  goto 35
+	negation  goto 36
+	break  goto 37
+
+
+state 106
+	function_call_aux : COMMA . exp function_call_aux  (34)
+
+	INTEGER_LITERAL  shift 1
+	ID  shift 2
+	STRING_LITERAL  shift 3
+	INT  shift 4
+	STRING  shift 5
+	NIL  shift 6
+	LET  shift 7
+	IF  shift 8
+	WHILE  shift 9
+	FOR  shift 10
+	BREAK  shift 11
+	LEFT_PARENTHESIS  shift 12
+	MINUS_SIGN  shift 13
+	.  error
+
+	exp  goto 125
+	build_in_type  goto 16
+	l_value  goto 17
+	function_call  goto 18
+	nil  goto 19
+	integer_literal  goto 20
+	string_literal  goto 21
+	array_creation  goto 22
+	record_creation  goto 23
+	arithmetic  goto 24
+	parentheses  goto 25
+	no_value  goto 26
+	sequencing  goto 27
+	for  goto 28
+	if_then_else  goto 29
+	if_then  goto 30
+	comparison  goto 31
+	boolean_operate  goto 32
+	assignment  goto 33
+	let  goto 34
+	while  goto 35
+	negation  goto 36
+	break  goto 37
+
+
+state 107
+	function_call : ID LEFT_PARENTHESIS exp function_call_aux . RIGHT_PARENTHESIS  (33)
+
+	RIGHT_PARENTHESIS  shift 126
+	.  error
+
+
+state 108
+	l_value_aux : LEFT_BRACKET . exp RIGHT_BRACKET l_value_aux  (30)
+
+	INTEGER_LITERAL  shift 1
+	ID  shift 2
+	STRING_LITERAL  shift 3
+	INT  shift 4
+	STRING  shift 5
+	NIL  shift 6
+	LET  shift 7
+	IF  shift 8
+	WHILE  shift 9
+	FOR  shift 10
+	BREAK  shift 11
+	LEFT_PARENTHESIS  shift 12
+	MINUS_SIGN  shift 13
+	.  error
+
+	exp  goto 127
+	build_in_type  goto 16
+	l_value  goto 17
+	function_call  goto 18
+	nil  goto 19
+	integer_literal  goto 20
+	string_literal  goto 21
+	array_creation  goto 22
+	record_creation  goto 23
+	arithmetic  goto 24
+	parentheses  goto 25
+	no_value  goto 26
+	sequencing  goto 27
+	for  goto 28
+	if_then_else  goto 29
+	if_then  goto 30
+	comparison  goto 31
+	boolean_operate  goto 32
+	assignment  goto 33
+	let  goto 34
+	while  goto 35
+	negation  goto 36
+	break  goto 37
+
+
+state 109
+	l_value_aux : DOT ID l_value_aux .  (29)
+
+	.  reduce 29
+
+
+state 110
+	l_value_aux : LEFT_BRACKET exp RIGHT_BRACKET . l_value_aux  (30)
+	array_creation : ID LEFT_BRACKET exp RIGHT_BRACKET . OF exp  (40)
+	l_value_aux : .  (31)
+
+	OF  shift 128
+	DOT  shift 40
+	LEFT_BRACKET  shift 108
+	$end  reduce 31
+	TYPE  reduce 31
+	VAR  reduce 31
+	FUNCTION  reduce 31
+	IN  reduce 31
+	END  reduce 31
+	THEN  reduce 31
+	ELSE  reduce 31
+	DO  reduce 31
+	TO  reduce 31
+	RIGHT_CURLY_BRACE  reduce 31
+	COMMA  reduce 31
+	RIGHT_PARENTHESIS  reduce 31
+	SEMICOLON  reduce 31
+	RIGHT_BRACKET  reduce 31
+	ASSIGNMENT_SIGN  reduce 31
+	LOGICAL_AND  reduce 31
+	LOGICAL_OR  reduce 31
+	EQUAL_SIGN  reduce 31
+	NOT_EQUAL_SIGN  reduce 31
+	LESS_SIGN  reduce 31
+	GREATER_SIGN  reduce 31
+	LESS_EQUAL_SIGN  reduce 31
+	GREATER_EQUAL_SIGN  reduce 31
+	ADD_SIGN  reduce 31
+	MINUS_SIGN  reduce 31
+	MULTIPLY_SIGN  reduce 31
+	DIVIDE_SIGN  reduce 31
+
+	l_value_aux  goto 129
+
+
+state 111
+	tydec : TYPE ID EQUAL_SIGN . ID  (7)
+	tydec : TYPE ID EQUAL_SIGN . ty  (9)
+
+	ID  shift 130
+	INT  shift 4
+	STRING  shift 5
+	ARRAY  shift 131
+	LEFT_CURLY_BRACE  shift 132
+	.  error
+
+	build_in_type  goto 133
+	ty  goto 134
+
+
+state 112
+	tydec : TYPE build_in_type EQUAL_SIGN . ID  (6)
+	tydec : TYPE build_in_type EQUAL_SIGN . ty  (8)
+
+	ID  shift 135
+	INT  shift 4
+	STRING  shift 5
+	ARRAY  shift 131
+	LEFT_CURLY_BRACE  shift 132
+	.  error
+
+	build_in_type  goto 133
+	ty  goto 136
+
+
+state 113
+	vardec : VAR ID COLON . build_in_type ASSIGNMENT_SIGN exp  (23)
+	vardec : VAR ID COLON . ID ASSIGNMENT_SIGN exp  (24)
+
+	ID  shift 137
+	INT  shift 4
+	STRING  shift 5
+	.  error
+
+	build_in_type  goto 138
+
+
+state 114
+	vardec : VAR ID ASSIGNMENT_SIGN . exp  (22)
+
+	INTEGER_LITERAL  shift 1
+	ID  shift 2
+	STRING_LITERAL  shift 3
+	INT  shift 4
+	STRING  shift 5
+	NIL  shift 6
+	LET  shift 7
+	IF  shift 8
+	WHILE  shift 9
+	FOR  shift 10
+	BREAK  shift 11
+	LEFT_PARENTHESIS  shift 12
+	MINUS_SIGN  shift 13
+	.  error
+
+	exp  goto 139
+	build_in_type  goto 16
+	l_value  goto 17
+	function_call  goto 18
+	nil  goto 19
+	integer_literal  goto 20
+	string_literal  goto 21
+	array_creation  goto 22
+	record_creation  goto 23
+	arithmetic  goto 24
+	parentheses  goto 25
+	no_value  goto 26
+	sequencing  goto 27
+	for  goto 28
+	if_then_else  goto 29
+	if_then  goto 30
+	comparison  goto 31
+	boolean_operate  goto 32
+	assignment  goto 33
+	let  goto 34
+	while  goto 35
+	negation  goto 36
+	break  goto 37
+
+
+state 115
+	fundec : FUNCTION ID LEFT_PARENTHESIS . tyfields RIGHT_PARENTHESIS EQUAL_SIGN exp  (25)
+	fundec : FUNCTION ID LEFT_PARENTHESIS . tyfields RIGHT_PARENTHESIS COLON build_in_type EQUAL_SIGN exp  (26)
+	fundec : FUNCTION ID LEFT_PARENTHESIS . tyfields RIGHT_PARENTHESIS COLON ID EQUAL_SIGN exp  (27)
+	tyfields : .  (18)
+
+	ID  shift 140
+	RIGHT_PARENTHESIS  reduce 18
+
+	tyfields  goto 141
+
+
+state 116
+	arithmetic : exp . ADD_SIGN exp  (47)
+	arithmetic : exp . MINUS_SIGN exp  (48)
+	arithmetic : exp . MULTIPLY_SIGN exp  (49)
+	arithmetic : exp . DIVIDE_SIGN exp  (50)
+	comparison : exp . EQUAL_SIGN exp  (59)
+	comparison : exp . NOT_EQUAL_SIGN exp  (60)
+	comparison : exp . LESS_SIGN exp  (61)
+	comparison : exp . LESS_EQUAL_SIGN exp  (62)
+	comparison : exp . GREATER_SIGN exp  (63)
+	comparison : exp . GREATER_EQUAL_SIGN exp  (64)
+	boolean_operate : exp . LOGICAL_AND exp  (65)
+	boolean_operate : exp . LOGICAL_OR exp  (66)
+	expseq : exp . let_aux  (69)
+	let_aux : .  (72)
+
+	SEMICOLON  shift 142
+	LOGICAL_AND  shift 57
+	LOGICAL_OR  shift 58
+	EQUAL_SIGN  shift 59
+	NOT_EQUAL_SIGN  shift 60
+	LESS_SIGN  shift 61
+	GREATER_SIGN  shift 62
+	LESS_EQUAL_SIGN  shift 63
+	GREATER_EQUAL_SIGN  shift 64
+	ADD_SIGN  shift 65
+	MINUS_SIGN  shift 66
+	MULTIPLY_SIGN  shift 67
+	DIVIDE_SIGN  shift 68
+	END  reduce 72
+
+	let_aux  goto 143
+
+
+state 117
+	let : LET decs IN expseq . END  (68)
+
+	END  shift 144
+	.  error
+
+
+118: shift/reduce conflict (shift 145, reduce 58) on ELSE
+118: shift/reduce conflict (shift 57, reduce 58) on LOGICAL_AND
+118: shift/reduce conflict (shift 58, reduce 58) on LOGICAL_OR
+118: shift/reduce conflict (shift 59, reduce 58) on EQUAL_SIGN
+118: shift/reduce conflict (shift 60, reduce 58) on NOT_EQUAL_SIGN
+118: shift/reduce conflict (shift 61, reduce 58) on LESS_SIGN
+118: shift/reduce conflict (shift 62, reduce 58) on GREATER_SIGN
+118: shift/reduce conflict (shift 63, reduce 58) on LESS_EQUAL_SIGN
+118: shift/reduce conflict (shift 64, reduce 58) on GREATER_EQUAL_SIGN
+118: shift/reduce conflict (shift 65, reduce 58) on ADD_SIGN
+118: shift/reduce conflict (shift 66, reduce 58) on MINUS_SIGN
+118: shift/reduce conflict (shift 67, reduce 58) on MULTIPLY_SIGN
+118: shift/reduce conflict (shift 68, reduce 58) on DIVIDE_SIGN
+state 118
+	arithmetic : exp . ADD_SIGN exp  (47)
+	arithmetic : exp . MINUS_SIGN exp  (48)
+	arithmetic : exp . MULTIPLY_SIGN exp  (49)
+	arithmetic : exp . DIVIDE_SIGN exp  (50)
+	if_then_else : IF exp THEN exp . ELSE exp  (57)
+	if_then : IF exp THEN exp .  (58)
+	comparison : exp . EQUAL_SIGN exp  (59)
+	comparison : exp . NOT_EQUAL_SIGN exp  (60)
+	comparison : exp . LESS_SIGN exp  (61)
+	comparison : exp . LESS_EQUAL_SIGN exp  (62)
+	comparison : exp . GREATER_SIGN exp  (63)
+	comparison : exp . GREATER_EQUAL_SIGN exp  (64)
+	boolean_operate : exp . LOGICAL_AND exp  (65)
+	boolean_operate : exp . LOGICAL_OR exp  (66)
+
+	ELSE  shift 145
+	LOGICAL_AND  shift 57
+	LOGICAL_OR  shift 58
+	EQUAL_SIGN  shift 59
+	NOT_EQUAL_SIGN  shift 60
+	LESS_SIGN  shift 61
+	GREATER_SIGN  shift 62
+	LESS_EQUAL_SIGN  shift 63
+	GREATER_EQUAL_SIGN  shift 64
+	ADD_SIGN  shift 65
+	MINUS_SIGN  shift 66
+	MULTIPLY_SIGN  shift 67
+	DIVIDE_SIGN  shift 68
+	$end  reduce 58
+	TYPE  reduce 58
+	VAR  reduce 58
+	FUNCTION  reduce 58
+	IN  reduce 58
+	END  reduce 58
+	THEN  reduce 58
+	DO  reduce 58
+	TO  reduce 58
+	RIGHT_CURLY_BRACE  reduce 58
+	COMMA  reduce 58
+	RIGHT_PARENTHESIS  reduce 58
+	SEMICOLON  reduce 58
+	RIGHT_BRACKET  reduce 58
+
+
+119: shift/reduce conflict (shift 57, reduce 73) on LOGICAL_AND
+119: shift/reduce conflict (shift 58, reduce 73) on LOGICAL_OR
+119: shift/reduce conflict (shift 59, reduce 73) on EQUAL_SIGN
+119: shift/reduce conflict (shift 60, reduce 73) on NOT_EQUAL_SIGN
+119: shift/reduce conflict (shift 61, reduce 73) on LESS_SIGN
+119: shift/reduce conflict (shift 62, reduce 73) on GREATER_SIGN
+119: shift/reduce conflict (shift 63, reduce 73) on LESS_EQUAL_SIGN
+119: shift/reduce conflict (shift 64, reduce 73) on GREATER_EQUAL_SIGN
+119: shift/reduce conflict (shift 65, reduce 73) on ADD_SIGN
+119: shift/reduce conflict (shift 66, reduce 73) on MINUS_SIGN
+119: shift/reduce conflict (shift 67, reduce 73) on MULTIPLY_SIGN
+119: shift/reduce conflict (shift 68, reduce 73) on DIVIDE_SIGN
+state 119
+	arithmetic : exp . ADD_SIGN exp  (47)
+	arithmetic : exp . MINUS_SIGN exp  (48)
+	arithmetic : exp . MULTIPLY_SIGN exp  (49)
+	arithmetic : exp . DIVIDE_SIGN exp  (50)
+	comparison : exp . EQUAL_SIGN exp  (59)
+	comparison : exp . NOT_EQUAL_SIGN exp  (60)
+	comparison : exp . LESS_SIGN exp  (61)
+	comparison : exp . LESS_EQUAL_SIGN exp  (62)
+	comparison : exp . GREATER_SIGN exp  (63)
+	comparison : exp . GREATER_EQUAL_SIGN exp  (64)
+	boolean_operate : exp . LOGICAL_AND exp  (65)
+	boolean_operate : exp . LOGICAL_OR exp  (66)
+	while : WHILE exp DO exp .  (73)
+
+	LOGICAL_AND  shift 57
+	LOGICAL_OR  shift 58
+	EQUAL_SIGN  shift 59
+	NOT_EQUAL_SIGN  shift 60
+	LESS_SIGN  shift 61
+	GREATER_SIGN  shift 62
+	LESS_EQUAL_SIGN  shift 63
+	GREATER_EQUAL_SIGN  shift 64
+	ADD_SIGN  shift 65
+	MINUS_SIGN  shift 66
+	MULTIPLY_SIGN  shift 67
+	DIVIDE_SIGN  shift 68
+	$end  reduce 73
+	TYPE  reduce 73
+	VAR  reduce 73
+	FUNCTION  reduce 73
+	IN  reduce 73
+	END  reduce 73
+	THEN  reduce 73
+	ELSE  reduce 73
+	DO  reduce 73
+	TO  reduce 73
+	RIGHT_CURLY_BRACE  reduce 73
+	COMMA  reduce 73
+	RIGHT_PARENTHESIS  reduce 73
+	SEMICOLON  reduce 73
+	RIGHT_BRACKET  reduce 73
+
+
+state 120
+	arithmetic : exp . ADD_SIGN exp  (47)
+	arithmetic : exp . MINUS_SIGN exp  (48)
+	arithmetic : exp . MULTIPLY_SIGN exp  (49)
+	arithmetic : exp . DIVIDE_SIGN exp  (50)
+	for : FOR ID ASSIGNMENT_SIGN exp . TO exp DO exp  (56)
+	comparison : exp . EQUAL_SIGN exp  (59)
+	comparison : exp . NOT_EQUAL_SIGN exp  (60)
+	comparison : exp . LESS_SIGN exp  (61)
+	comparison : exp . LESS_EQUAL_SIGN exp  (62)
+	comparison : exp . GREATER_SIGN exp  (63)
+	comparison : exp . GREATER_EQUAL_SIGN exp  (64)
+	boolean_operate : exp . LOGICAL_AND exp  (65)
+	boolean_operate : exp . LOGICAL_OR exp  (66)
+
+	TO  shift 146
+	LOGICAL_AND  shift 57
+	LOGICAL_OR  shift 58
+	EQUAL_SIGN  shift 59
+	NOT_EQUAL_SIGN  shift 60
+	LESS_SIGN  shift 61
+	GREATER_SIGN  shift 62
+	LESS_EQUAL_SIGN  shift 63
+	GREATER_EQUAL_SIGN  shift 64
+	ADD_SIGN  shift 65
+	MINUS_SIGN  shift 66
+	MULTIPLY_SIGN  shift 67
+	DIVIDE_SIGN  shift 68
+	.  error
+
+
+state 121
+	arithmetic : exp . ADD_SIGN exp  (47)
+	arithmetic : exp . MINUS_SIGN exp  (48)
+	arithmetic : exp . MULTIPLY_SIGN exp  (49)
+	arithmetic : exp . DIVIDE_SIGN exp  (50)
+	sequencing : LEFT_PARENTHESIS exp SEMICOLON exp . sequencing_aux RIGHT_PARENTHESIS  (53)
+	comparison : exp . EQUAL_SIGN exp  (59)
+	comparison : exp . NOT_EQUAL_SIGN exp  (60)
+	comparison : exp . LESS_SIGN exp  (61)
+	comparison : exp . LESS_EQUAL_SIGN exp  (62)
+	comparison : exp . GREATER_SIGN exp  (63)
+	comparison : exp . GREATER_EQUAL_SIGN exp  (64)
+	boolean_operate : exp . LOGICAL_AND exp  (65)
+	boolean_operate : exp . LOGICAL_OR exp  (66)
+	sequencing_aux : .  (55)
+
+	SEMICOLON  shift 147
+	LOGICAL_AND  shift 57
+	LOGICAL_OR  shift 58
+	EQUAL_SIGN  shift 59
+	NOT_EQUAL_SIGN  shift 60
+	LESS_SIGN  shift 61
+	GREATER_SIGN  shift 62
+	LESS_EQUAL_SIGN  shift 63
+	GREATER_EQUAL_SIGN  shift 64
+	ADD_SIGN  shift 65
+	MINUS_SIGN  shift 66
+	MULTIPLY_SIGN  shift 67
+	DIVIDE_SIGN  shift 68
+	RIGHT_PARENTHESIS  reduce 55
+
+	sequencing_aux  goto 148
+
+
+state 122
+	record_creation : build_in_type LEFT_CURLY_BRACE ID EQUAL_SIGN . exp record_creation_aux RIGHT_CURLY_BRACE  (41)
+
+	INTEGER_LITERAL  shift 1
+	ID  shift 2
+	STRING_LITERAL  shift 3
+	INT  shift 4
+	STRING  shift 5
+	NIL  shift 6
+	LET  shift 7
+	IF  shift 8
+	WHILE  shift 9
+	FOR  shift 10
+	BREAK  shift 11
+	LEFT_PARENTHESIS  shift 12
+	MINUS_SIGN  shift 13
+	.  error
+
+	exp  goto 149
+	build_in_type  goto 16
+	l_value  goto 17
+	function_call  goto 18
+	nil  goto 19
+	integer_literal  goto 20
+	string_literal  goto 21
+	array_creation  goto 22
+	record_creation  goto 23
+	arithmetic  goto 24
+	parentheses  goto 25
+	no_value  goto 26
+	sequencing  goto 27
+	for  goto 28
+	if_then_else  goto 29
+	if_then  goto 30
+	comparison  goto 31
+	boolean_operate  goto 32
+	assignment  goto 33
+	let  goto 34
+	while  goto 35
+	negation  goto 36
+	break  goto 37
+
+
+state 123
+	array_creation : build_in_type LEFT_BRACKET exp RIGHT_BRACKET . OF exp  (39)
+
+	OF  shift 150
+	.  error
+
+
+state 124
+	record_creation : ID LEFT_CURLY_BRACE ID EQUAL_SIGN exp . record_creation_aux RIGHT_CURLY_BRACE  (42)
+	arithmetic : exp . ADD_SIGN exp  (47)
+	arithmetic : exp . MINUS_SIGN exp  (48)
+	arithmetic : exp . MULTIPLY_SIGN exp  (49)
+	arithmetic : exp . DIVIDE_SIGN exp  (50)
+	comparison : exp . EQUAL_SIGN exp  (59)
+	comparison : exp . NOT_EQUAL_SIGN exp  (60)
+	comparison : exp . LESS_SIGN exp  (61)
+	comparison : exp . LESS_EQUAL_SIGN exp  (62)
+	comparison : exp . GREATER_SIGN exp  (63)
+	comparison : exp . GREATER_EQUAL_SIGN exp  (64)
+	boolean_operate : exp . LOGICAL_AND exp  (65)
+	boolean_operate : exp . LOGICAL_OR exp  (66)
+	record_creation_aux : .  (46)
+
+	COMMA  shift 151
+	LOGICAL_AND  shift 57
+	LOGICAL_OR  shift 58
+	EQUAL_SIGN  shift 59
+	NOT_EQUAL_SIGN  shift 60
+	LESS_SIGN  shift 61
+	GREATER_SIGN  shift 62
+	LESS_EQUAL_SIGN  shift 63
+	GREATER_EQUAL_SIGN  shift 64
+	ADD_SIGN  shift 65
+	MINUS_SIGN  shift 66
+	MULTIPLY_SIGN  shift 67
+	DIVIDE_SIGN  shift 68
+	RIGHT_CURLY_BRACE  reduce 46
+
+	record_creation_aux  goto 152
+
+
+state 125
+	function_call_aux : COMMA exp . function_call_aux  (34)
+	arithmetic : exp . ADD_SIGN exp  (47)
+	arithmetic : exp . MINUS_SIGN exp  (48)
+	arithmetic : exp . MULTIPLY_SIGN exp  (49)
+	arithmetic : exp . DIVIDE_SIGN exp  (50)
+	comparison : exp . EQUAL_SIGN exp  (59)
+	comparison : exp . NOT_EQUAL_SIGN exp  (60)
+	comparison : exp . LESS_SIGN exp  (61)
+	comparison : exp . LESS_EQUAL_SIGN exp  (62)
+	comparison : exp . GREATER_SIGN exp  (63)
+	comparison : exp . GREATER_EQUAL_SIGN exp  (64)
+	boolean_operate : exp . LOGICAL_AND exp  (65)
+	boolean_operate : exp . LOGICAL_OR exp  (66)
+	function_call_aux : .  (35)
+
+	COMMA  shift 106
+	LOGICAL_AND  shift 57
+	LOGICAL_OR  shift 58
+	EQUAL_SIGN  shift 59
+	NOT_EQUAL_SIGN  shift 60
+	LESS_SIGN  shift 61
+	GREATER_SIGN  shift 62
+	LESS_EQUAL_SIGN  shift 63
+	GREATER_EQUAL_SIGN  shift 64
+	ADD_SIGN  shift 65
+	MINUS_SIGN  shift 66
+	MULTIPLY_SIGN  shift 67
+	DIVIDE_SIGN  shift 68
+	RIGHT_PARENTHESIS  reduce 35
+
+	function_call_aux  goto 153
+
+
+state 126
+	function_call : ID LEFT_PARENTHESIS exp function_call_aux RIGHT_PARENTHESIS .  (33)
+
+	.  reduce 33
+
+
+state 127
+	l_value_aux : LEFT_BRACKET exp . RIGHT_BRACKET l_value_aux  (30)
+	arithmetic : exp . ADD_SIGN exp  (47)
+	arithmetic : exp . MINUS_SIGN exp  (48)
+	arithmetic : exp . MULTIPLY_SIGN exp  (49)
+	arithmetic : exp . DIVIDE_SIGN exp  (50)
+	comparison : exp . EQUAL_SIGN exp  (59)
+	comparison : exp . NOT_EQUAL_SIGN exp  (60)
+	comparison : exp . LESS_SIGN exp  (61)
+	comparison : exp . LESS_EQUAL_SIGN exp  (62)
+	comparison : exp . GREATER_SIGN exp  (63)
+	comparison : exp . GREATER_EQUAL_SIGN exp  (64)
+	boolean_operate : exp . LOGICAL_AND exp  (65)
+	boolean_operate : exp . LOGICAL_OR exp  (66)
+
+	RIGHT_BRACKET  shift 154
+	LOGICAL_AND  shift 57
+	LOGICAL_OR  shift 58
+	EQUAL_SIGN  shift 59
+	NOT_EQUAL_SIGN  shift 60
+	LESS_SIGN  shift 61
+	GREATER_SIGN  shift 62
+	LESS_EQUAL_SIGN  shift 63
+	GREATER_EQUAL_SIGN  shift 64
+	ADD_SIGN  shift 65
+	MINUS_SIGN  shift 66
+	MULTIPLY_SIGN  shift 67
+	DIVIDE_SIGN  shift 68
+	.  error
+
+
+state 128
+	array_creation : ID LEFT_BRACKET exp RIGHT_BRACKET OF . exp  (40)
+
+	INTEGER_LITERAL  shift 1
+	ID  shift 2
+	STRING_LITERAL  shift 3
+	INT  shift 4
+	STRING  shift 5
+	NIL  shift 6
+	LET  shift 7
+	IF  shift 8
+	WHILE  shift 9
+	FOR  shift 10
+	BREAK  shift 11
+	LEFT_PARENTHESIS  shift 12
+	MINUS_SIGN  shift 13
+	.  error
+
+	exp  goto 155
+	build_in_type  goto 16
+	l_value  goto 17
+	function_call  goto 18
+	nil  goto 19
+	integer_literal  goto 20
+	string_literal  goto 21
+	array_creation  goto 22
+	record_creation  goto 23
+	arithmetic  goto 24
+	parentheses  goto 25
+	no_value  goto 26
+	sequencing  goto 27
+	for  goto 28
+	if_then_else  goto 29
+	if_then  goto 30
+	comparison  goto 31
+	boolean_operate  goto 32
+	assignment  goto 33
+	let  goto 34
+	while  goto 35
+	negation  goto 36
+	break  goto 37
+
+
+state 129
+	l_value_aux : LEFT_BRACKET exp RIGHT_BRACKET l_value_aux .  (30)
+
+	.  reduce 30
+
+
+state 130
+	tydec : TYPE ID EQUAL_SIGN ID .  (7)
+
+	.  reduce 7
+
+
+state 131
+	ty : ARRAY . OF build_in_type  (14)
+	ty : ARRAY . OF ID  (15)
+
+	OF  shift 156
+	.  error
+
+
+state 132
+	ty : LEFT_CURLY_BRACE . tyfields RIGHT_CURLY_BRACE  (13)
+	tyfields : .  (18)
+
+	ID  shift 140
+	RIGHT_CURLY_BRACE  reduce 18
+
+	tyfields  goto 157
+
+
+state 133
+	ty : build_in_type .  (12)
+
+	.  reduce 12
+
+
+state 134
+	tydec : TYPE ID EQUAL_SIGN ty .  (9)
+
+	.  reduce 9
+
+
+state 135
+	tydec : TYPE build_in_type EQUAL_SIGN ID .  (6)
+
+	.  reduce 6
+
+
+state 136
+	tydec : TYPE build_in_type EQUAL_SIGN ty .  (8)
+
+	.  reduce 8
+
+
+state 137
+	vardec : VAR ID COLON ID . ASSIGNMENT_SIGN exp  (24)
+
+	ASSIGNMENT_SIGN  shift 158
+	.  error
+
+
+state 138
+	vardec : VAR ID COLON build_in_type . ASSIGNMENT_SIGN exp  (23)
+
+	ASSIGNMENT_SIGN  shift 159
+	.  error
+
+
+state 139
+	vardec : VAR ID ASSIGNMENT_SIGN exp .  (22)
+	arithmetic : exp . ADD_SIGN exp  (47)
+	arithmetic : exp . MINUS_SIGN exp  (48)
+	arithmetic : exp . MULTIPLY_SIGN exp  (49)
+	arithmetic : exp . DIVIDE_SIGN exp  (50)
+	comparison : exp . EQUAL_SIGN exp  (59)
+	comparison : exp . NOT_EQUAL_SIGN exp  (60)
+	comparison : exp . LESS_SIGN exp  (61)
+	comparison : exp . LESS_EQUAL_SIGN exp  (62)
+	comparison : exp . GREATER_SIGN exp  (63)
+	comparison : exp . GREATER_EQUAL_SIGN exp  (64)
+	boolean_operate : exp . LOGICAL_AND exp  (65)
+	boolean_operate : exp . LOGICAL_OR exp  (66)
+
+	LOGICAL_AND  shift 57
+	LOGICAL_OR  shift 58
+	EQUAL_SIGN  shift 59
+	NOT_EQUAL_SIGN  shift 60
+	LESS_SIGN  shift 61
+	GREATER_SIGN  shift 62
+	LESS_EQUAL_SIGN  shift 63
+	GREATER_EQUAL_SIGN  shift 64
+	ADD_SIGN  shift 65
+	MINUS_SIGN  shift 66
+	MULTIPLY_SIGN  shift 67
+	DIVIDE_SIGN  shift 68
+	TYPE  reduce 22
+	VAR  reduce 22
+	FUNCTION  reduce 22
+	IN  reduce 22
+
+
+state 140
+	tyfields : ID . COLON build_in_type tyfields_aux  (16)
+	tyfields : ID . COLON ID tyfields_aux  (17)
+
+	COLON  shift 160
+	.  error
+
+
+state 141
+	fundec : FUNCTION ID LEFT_PARENTHESIS tyfields . RIGHT_PARENTHESIS EQUAL_SIGN exp  (25)
+	fundec : FUNCTION ID LEFT_PARENTHESIS tyfields . RIGHT_PARENTHESIS COLON build_in_type EQUAL_SIGN exp  (26)
+	fundec : FUNCTION ID LEFT_PARENTHESIS tyfields . RIGHT_PARENTHESIS COLON ID EQUAL_SIGN exp  (27)
+
+	RIGHT_PARENTHESIS  shift 161
+	.  error
+
+
+state 142
+	let_aux : SEMICOLON . exp let_aux  (71)
+
+	INTEGER_LITERAL  shift 1
+	ID  shift 2
+	STRING_LITERAL  shift 3
+	INT  shift 4
+	STRING  shift 5
+	NIL  shift 6
+	LET  shift 7
+	IF  shift 8
+	WHILE  shift 9
+	FOR  shift 10
+	BREAK  shift 11
+	LEFT_PARENTHESIS  shift 12
+	MINUS_SIGN  shift 13
+	.  error
+
+	exp  goto 162
+	build_in_type  goto 16
+	l_value  goto 17
+	function_call  goto 18
+	nil  goto 19
+	integer_literal  goto 20
+	string_literal  goto 21
+	array_creation  goto 22
+	record_creation  goto 23
+	arithmetic  goto 24
+	parentheses  goto 25
+	no_value  goto 26
+	sequencing  goto 27
+	for  goto 28
+	if_then_else  goto 29
+	if_then  goto 30
+	comparison  goto 31
+	boolean_operate  goto 32
+	assignment  goto 33
+	let  goto 34
+	while  goto 35
+	negation  goto 36
+	break  goto 37
+
+
+state 143
+	expseq : exp let_aux .  (69)
+
+	.  reduce 69
+
+
+state 144
+	let : LET decs IN expseq END .  (68)
+
+	.  reduce 68
+
+
+state 145
+	if_then_else : IF exp THEN exp ELSE . exp  (57)
+
+	INTEGER_LITERAL  shift 1
+	ID  shift 2
+	STRING_LITERAL  shift 3
+	INT  shift 4
+	STRING  shift 5
+	NIL  shift 6
+	LET  shift 7
+	IF  shift 8
+	WHILE  shift 9
+	FOR  shift 10
+	BREAK  shift 11
+	LEFT_PARENTHESIS  shift 12
+	MINUS_SIGN  shift 13
+	.  error
+
+	exp  goto 163
+	build_in_type  goto 16
+	l_value  goto 17
+	function_call  goto 18
+	nil  goto 19
+	integer_literal  goto 20
+	string_literal  goto 21
+	array_creation  goto 22
+	record_creation  goto 23
+	arithmetic  goto 24
+	parentheses  goto 25
+	no_value  goto 26
+	sequencing  goto 27
+	for  goto 28
+	if_then_else  goto 29
+	if_then  goto 30
+	comparison  goto 31
+	boolean_operate  goto 32
+	assignment  goto 33
+	let  goto 34
+	while  goto 35
+	negation  goto 36
+	break  goto 37
+
+
+state 146
+	for : FOR ID ASSIGNMENT_SIGN exp TO . exp DO exp  (56)
+
+	INTEGER_LITERAL  shift 1
+	ID  shift 2
+	STRING_LITERAL  shift 3
+	INT  shift 4
+	STRING  shift 5
+	NIL  shift 6
+	LET  shift 7
+	IF  shift 8
+	WHILE  shift 9
+	FOR  shift 10
+	BREAK  shift 11
+	LEFT_PARENTHESIS  shift 12
+	MINUS_SIGN  shift 13
+	.  error
+
+	exp  goto 164
+	build_in_type  goto 16
+	l_value  goto 17
+	function_call  goto 18
+	nil  goto 19
+	integer_literal  goto 20
+	string_literal  goto 21
+	array_creation  goto 22
+	record_creation  goto 23
+	arithmetic  goto 24
+	parentheses  goto 25
+	no_value  goto 26
+	sequencing  goto 27
+	for  goto 28
+	if_then_else  goto 29
+	if_then  goto 30
+	comparison  goto 31
+	boolean_operate  goto 32
+	assignment  goto 33
+	let  goto 34
+	while  goto 35
+	negation  goto 36
+	break  goto 37
+
+
+state 147
+	sequencing_aux : SEMICOLON . exp sequencing_aux  (54)
+
+	INTEGER_LITERAL  shift 1
+	ID  shift 2
+	STRING_LITERAL  shift 3
+	INT  shift 4
+	STRING  shift 5
+	NIL  shift 6
+	LET  shift 7
+	IF  shift 8
+	WHILE  shift 9
+	FOR  shift 10
+	BREAK  shift 11
+	LEFT_PARENTHESIS  shift 12
+	MINUS_SIGN  shift 13
+	.  error
+
+	exp  goto 165
+	build_in_type  goto 16
+	l_value  goto 17
+	function_call  goto 18
+	nil  goto 19
+	integer_literal  goto 20
+	string_literal  goto 21
+	array_creation  goto 22
+	record_creation  goto 23
+	arithmetic  goto 24
+	parentheses  goto 25
+	no_value  goto 26
+	sequencing  goto 27
+	for  goto 28
+	if_then_else  goto 29
+	if_then  goto 30
+	comparison  goto 31
+	boolean_operate  goto 32
+	assignment  goto 33
+	let  goto 34
+	while  goto 35
+	negation  goto 36
+	break  goto 37
+
+
+state 148
+	sequencing : LEFT_PARENTHESIS exp SEMICOLON exp sequencing_aux . RIGHT_PARENTHESIS  (53)
+
+	RIGHT_PARENTHESIS  shift 166
+	.  error
+
+
+state 149
+	record_creation : build_in_type LEFT_CURLY_BRACE ID EQUAL_SIGN exp . record_creation_aux RIGHT_CURLY_BRACE  (41)
+	arithmetic : exp . ADD_SIGN exp  (47)
+	arithmetic : exp . MINUS_SIGN exp  (48)
+	arithmetic : exp . MULTIPLY_SIGN exp  (49)
+	arithmetic : exp . DIVIDE_SIGN exp  (50)
+	comparison : exp . EQUAL_SIGN exp  (59)
+	comparison : exp . NOT_EQUAL_SIGN exp  (60)
+	comparison : exp . LESS_SIGN exp  (61)
+	comparison : exp . LESS_EQUAL_SIGN exp  (62)
+	comparison : exp . GREATER_SIGN exp  (63)
+	comparison : exp . GREATER_EQUAL_SIGN exp  (64)
+	boolean_operate : exp . LOGICAL_AND exp  (65)
+	boolean_operate : exp . LOGICAL_OR exp  (66)
+	record_creation_aux : .  (46)
+
+	COMMA  shift 151
+	LOGICAL_AND  shift 57
+	LOGICAL_OR  shift 58
+	EQUAL_SIGN  shift 59
+	NOT_EQUAL_SIGN  shift 60
+	LESS_SIGN  shift 61
+	GREATER_SIGN  shift 62
+	LESS_EQUAL_SIGN  shift 63
+	GREATER_EQUAL_SIGN  shift 64
+	ADD_SIGN  shift 65
+	MINUS_SIGN  shift 66
+	MULTIPLY_SIGN  shift 67
+	DIVIDE_SIGN  shift 68
+	RIGHT_CURLY_BRACE  reduce 46
+
+	record_creation_aux  goto 167
+
+
+state 150
+	array_creation : build_in_type LEFT_BRACKET exp RIGHT_BRACKET OF . exp  (39)
+
+	INTEGER_LITERAL  shift 1
+	ID  shift 2
+	STRING_LITERAL  shift 3
+	INT  shift 4
+	STRING  shift 5
+	NIL  shift 6
+	LET  shift 7
+	IF  shift 8
+	WHILE  shift 9
+	FOR  shift 10
+	BREAK  shift 11
+	LEFT_PARENTHESIS  shift 12
+	MINUS_SIGN  shift 13
+	.  error
+
+	exp  goto 168
+	build_in_type  goto 16
+	l_value  goto 17
+	function_call  goto 18
+	nil  goto 19
+	integer_literal  goto 20
+	string_literal  goto 21
+	array_creation  goto 22
+	record_creation  goto 23
+	arithmetic  goto 24
+	parentheses  goto 25
+	no_value  goto 26
+	sequencing  goto 27
+	for  goto 28
+	if_then_else  goto 29
+	if_then  goto 30
+	comparison  goto 31
+	boolean_operate  goto 32
+	assignment  goto 33
+	let  goto 34
+	while  goto 35
+	negation  goto 36
+	break  goto 37
+
+
+state 151
+	record_creation_aux : COMMA . ID EQUAL_SIGN exp record_creation_aux  (45)
+
+	ID  shift 169
+	.  error
+
+
+state 152
+	record_creation : ID LEFT_CURLY_BRACE ID EQUAL_SIGN exp record_creation_aux . RIGHT_CURLY_BRACE  (42)
+
+	RIGHT_CURLY_BRACE  shift 170
+	.  error
+
+
+state 153
+	function_call_aux : COMMA exp function_call_aux .  (34)
+
+	.  reduce 34
+
+
+state 154
+	l_value_aux : LEFT_BRACKET exp RIGHT_BRACKET . l_value_aux  (30)
+	l_value_aux : .  (31)
+
+	DOT  shift 40
+	LEFT_BRACKET  shift 108
+	$end  reduce 31
+	TYPE  reduce 31
+	VAR  reduce 31
+	FUNCTION  reduce 31
+	IN  reduce 31
+	END  reduce 31
+	THEN  reduce 31
+	ELSE  reduce 31
+	DO  reduce 31
+	TO  reduce 31
+	RIGHT_CURLY_BRACE  reduce 31
+	COMMA  reduce 31
+	RIGHT_PARENTHESIS  reduce 31
+	SEMICOLON  reduce 31
+	RIGHT_BRACKET  reduce 31
+	ASSIGNMENT_SIGN  reduce 31
+	LOGICAL_AND  reduce 31
+	LOGICAL_OR  reduce 31
+	EQUAL_SIGN  reduce 31
+	NOT_EQUAL_SIGN  reduce 31
+	LESS_SIGN  reduce 31
+	GREATER_SIGN  reduce 31
+	LESS_EQUAL_SIGN  reduce 31
+	GREATER_EQUAL_SIGN  reduce 31
+	ADD_SIGN  reduce 31
+	MINUS_SIGN  reduce 31
+	MULTIPLY_SIGN  reduce 31
+	DIVIDE_SIGN  reduce 31
+
+	l_value_aux  goto 129
+
+
+155: shift/reduce conflict (shift 57, reduce 40) on LOGICAL_AND
+155: shift/reduce conflict (shift 58, reduce 40) on LOGICAL_OR
+155: shift/reduce conflict (shift 59, reduce 40) on EQUAL_SIGN
+155: shift/reduce conflict (shift 60, reduce 40) on NOT_EQUAL_SIGN
+155: shift/reduce conflict (shift 61, reduce 40) on LESS_SIGN
+155: shift/reduce conflict (shift 62, reduce 40) on GREATER_SIGN
+155: shift/reduce conflict (shift 63, reduce 40) on LESS_EQUAL_SIGN
+155: shift/reduce conflict (shift 64, reduce 40) on GREATER_EQUAL_SIGN
+155: shift/reduce conflict (shift 65, reduce 40) on ADD_SIGN
+155: shift/reduce conflict (shift 66, reduce 40) on MINUS_SIGN
+155: shift/reduce conflict (shift 67, reduce 40) on MULTIPLY_SIGN
+155: shift/reduce conflict (shift 68, reduce 40) on DIVIDE_SIGN
+state 155
+	array_creation : ID LEFT_BRACKET exp RIGHT_BRACKET OF exp .  (40)
+	arithmetic : exp . ADD_SIGN exp  (47)
+	arithmetic : exp . MINUS_SIGN exp  (48)
+	arithmetic : exp . MULTIPLY_SIGN exp  (49)
+	arithmetic : exp . DIVIDE_SIGN exp  (50)
+	comparison : exp . EQUAL_SIGN exp  (59)
+	comparison : exp . NOT_EQUAL_SIGN exp  (60)
+	comparison : exp . LESS_SIGN exp  (61)
+	comparison : exp . LESS_EQUAL_SIGN exp  (62)
+	comparison : exp . GREATER_SIGN exp  (63)
+	comparison : exp . GREATER_EQUAL_SIGN exp  (64)
+	boolean_operate : exp . LOGICAL_AND exp  (65)
+	boolean_operate : exp . LOGICAL_OR exp  (66)
+
+	LOGICAL_AND  shift 57
+	LOGICAL_OR  shift 58
+	EQUAL_SIGN  shift 59
+	NOT_EQUAL_SIGN  shift 60
+	LESS_SIGN  shift 61
+	GREATER_SIGN  shift 62
+	LESS_EQUAL_SIGN  shift 63
+	GREATER_EQUAL_SIGN  shift 64
+	ADD_SIGN  shift 65
+	MINUS_SIGN  shift 66
+	MULTIPLY_SIGN  shift 67
+	DIVIDE_SIGN  shift 68
+	$end  reduce 40
+	TYPE  reduce 40
+	VAR  reduce 40
+	FUNCTION  reduce 40
+	IN  reduce 40
+	END  reduce 40
+	THEN  reduce 40
+	ELSE  reduce 40
+	DO  reduce 40
+	TO  reduce 40
+	RIGHT_CURLY_BRACE  reduce 40
+	COMMA  reduce 40
+	RIGHT_PARENTHESIS  reduce 40
+	SEMICOLON  reduce 40
+	RIGHT_BRACKET  reduce 40
+
+
+state 156
+	ty : ARRAY OF . build_in_type  (14)
+	ty : ARRAY OF . ID  (15)
+
+	ID  shift 171
+	INT  shift 4
+	STRING  shift 5
+	.  error
+
+	build_in_type  goto 172
+
+
+state 157
+	ty : LEFT_CURLY_BRACE tyfields . RIGHT_CURLY_BRACE  (13)
+
+	RIGHT_CURLY_BRACE  shift 173
+	.  error
+
+
+state 158
+	vardec : VAR ID COLON ID ASSIGNMENT_SIGN . exp  (24)
+
+	INTEGER_LITERAL  shift 1
+	ID  shift 2
+	STRING_LITERAL  shift 3
+	INT  shift 4
+	STRING  shift 5
+	NIL  shift 6
+	LET  shift 7
+	IF  shift 8
+	WHILE  shift 9
+	FOR  shift 10
+	BREAK  shift 11
+	LEFT_PARENTHESIS  shift 12
+	MINUS_SIGN  shift 13
+	.  error
+
+	exp  goto 174
+	build_in_type  goto 16
+	l_value  goto 17
+	function_call  goto 18
+	nil  goto 19
+	integer_literal  goto 20
+	string_literal  goto 21
+	array_creation  goto 22
+	record_creation  goto 23
+	arithmetic  goto 24
+	parentheses  goto 25
+	no_value  goto 26
+	sequencing  goto 27
+	for  goto 28
+	if_then_else  goto 29
+	if_then  goto 30
+	comparison  goto 31
+	boolean_operate  goto 32
+	assignment  goto 33
+	let  goto 34
+	while  goto 35
+	negation  goto 36
+	break  goto 37
+
+
+state 159
+	vardec : VAR ID COLON build_in_type ASSIGNMENT_SIGN . exp  (23)
+
+	INTEGER_LITERAL  shift 1
+	ID  shift 2
+	STRING_LITERAL  shift 3
+	INT  shift 4
+	STRING  shift 5
+	NIL  shift 6
+	LET  shift 7
+	IF  shift 8
+	WHILE  shift 9
+	FOR  shift 10
+	BREAK  shift 11
+	LEFT_PARENTHESIS  shift 12
+	MINUS_SIGN  shift 13
+	.  error
+
+	exp  goto 175
+	build_in_type  goto 16
+	l_value  goto 17
+	function_call  goto 18
+	nil  goto 19
+	integer_literal  goto 20
+	string_literal  goto 21
+	array_creation  goto 22
+	record_creation  goto 23
+	arithmetic  goto 24
+	parentheses  goto 25
+	no_value  goto 26
+	sequencing  goto 27
+	for  goto 28
+	if_then_else  goto 29
+	if_then  goto 30
+	comparison  goto 31
+	boolean_operate  goto 32
+	assignment  goto 33
+	let  goto 34
+	while  goto 35
+	negation  goto 36
+	break  goto 37
+
+
+state 160
+	tyfields : ID COLON . build_in_type tyfields_aux  (16)
+	tyfields : ID COLON . ID tyfields_aux  (17)
+
+	ID  shift 176
+	INT  shift 4
+	STRING  shift 5
+	.  error
+
+	build_in_type  goto 177
+
+
+state 161
+	fundec : FUNCTION ID LEFT_PARENTHESIS tyfields RIGHT_PARENTHESIS . EQUAL_SIGN exp  (25)
+	fundec : FUNCTION ID LEFT_PARENTHESIS tyfields RIGHT_PARENTHESIS . COLON build_in_type EQUAL_SIGN exp  (26)
+	fundec : FUNCTION ID LEFT_PARENTHESIS tyfields RIGHT_PARENTHESIS . COLON ID EQUAL_SIGN exp  (27)
+
+	COLON  shift 178
+	EQUAL_SIGN  shift 179
+	.  error
+
+
+state 162
+	arithmetic : exp . ADD_SIGN exp  (47)
+	arithmetic : exp . MINUS_SIGN exp  (48)
+	arithmetic : exp . MULTIPLY_SIGN exp  (49)
+	arithmetic : exp . DIVIDE_SIGN exp  (50)
+	comparison : exp . EQUAL_SIGN exp  (59)
+	comparison : exp . NOT_EQUAL_SIGN exp  (60)
+	comparison : exp . LESS_SIGN exp  (61)
+	comparison : exp . LESS_EQUAL_SIGN exp  (62)
+	comparison : exp . GREATER_SIGN exp  (63)
+	comparison : exp . GREATER_EQUAL_SIGN exp  (64)
+	boolean_operate : exp . LOGICAL_AND exp  (65)
+	boolean_operate : exp . LOGICAL_OR exp  (66)
+	let_aux : SEMICOLON exp . let_aux  (71)
+	let_aux : .  (72)
+
+	SEMICOLON  shift 142
+	LOGICAL_AND  shift 57
+	LOGICAL_OR  shift 58
+	EQUAL_SIGN  shift 59
+	NOT_EQUAL_SIGN  shift 60
+	LESS_SIGN  shift 61
+	GREATER_SIGN  shift 62
+	LESS_EQUAL_SIGN  shift 63
+	GREATER_EQUAL_SIGN  shift 64
+	ADD_SIGN  shift 65
+	MINUS_SIGN  shift 66
+	MULTIPLY_SIGN  shift 67
+	DIVIDE_SIGN  shift 68
+	END  reduce 72
+
+	let_aux  goto 180
+
+
+163: shift/reduce conflict (shift 57, reduce 57) on LOGICAL_AND
+163: shift/reduce conflict (shift 58, reduce 57) on LOGICAL_OR
+163: shift/reduce conflict (shift 59, reduce 57) on EQUAL_SIGN
+163: shift/reduce conflict (shift 60, reduce 57) on NOT_EQUAL_SIGN
+163: shift/reduce conflict (shift 61, reduce 57) on LESS_SIGN
+163: shift/reduce conflict (shift 62, reduce 57) on GREATER_SIGN
+163: shift/reduce conflict (shift 63, reduce 57) on LESS_EQUAL_SIGN
+163: shift/reduce conflict (shift 64, reduce 57) on GREATER_EQUAL_SIGN
+163: shift/reduce conflict (shift 65, reduce 57) on ADD_SIGN
+163: shift/reduce conflict (shift 66, reduce 57) on MINUS_SIGN
+163: shift/reduce conflict (shift 67, reduce 57) on MULTIPLY_SIGN
+163: shift/reduce conflict (shift 68, reduce 57) on DIVIDE_SIGN
+state 163
+	arithmetic : exp . ADD_SIGN exp  (47)
+	arithmetic : exp . MINUS_SIGN exp  (48)
+	arithmetic : exp . MULTIPLY_SIGN exp  (49)
+	arithmetic : exp . DIVIDE_SIGN exp  (50)
+	if_then_else : IF exp THEN exp ELSE exp .  (57)
+	comparison : exp . EQUAL_SIGN exp  (59)
+	comparison : exp . NOT_EQUAL_SIGN exp  (60)
+	comparison : exp . LESS_SIGN exp  (61)
+	comparison : exp . LESS_EQUAL_SIGN exp  (62)
+	comparison : exp . GREATER_SIGN exp  (63)
+	comparison : exp . GREATER_EQUAL_SIGN exp  (64)
+	boolean_operate : exp . LOGICAL_AND exp  (65)
+	boolean_operate : exp . LOGICAL_OR exp  (66)
+
+	LOGICAL_AND  shift 57
+	LOGICAL_OR  shift 58
+	EQUAL_SIGN  shift 59
+	NOT_EQUAL_SIGN  shift 60
+	LESS_SIGN  shift 61
+	GREATER_SIGN  shift 62
+	LESS_EQUAL_SIGN  shift 63
+	GREATER_EQUAL_SIGN  shift 64
+	ADD_SIGN  shift 65
+	MINUS_SIGN  shift 66
+	MULTIPLY_SIGN  shift 67
+	DIVIDE_SIGN  shift 68
+	$end  reduce 57
+	TYPE  reduce 57
+	VAR  reduce 57
+	FUNCTION  reduce 57
+	IN  reduce 57
+	END  reduce 57
+	THEN  reduce 57
+	ELSE  reduce 57
+	DO  reduce 57
+	TO  reduce 57
+	RIGHT_CURLY_BRACE  reduce 57
+	COMMA  reduce 57
+	RIGHT_PARENTHESIS  reduce 57
+	SEMICOLON  reduce 57
+	RIGHT_BRACKET  reduce 57
+
+
+state 164
+	arithmetic : exp . ADD_SIGN exp  (47)
+	arithmetic : exp . MINUS_SIGN exp  (48)
+	arithmetic : exp . MULTIPLY_SIGN exp  (49)
+	arithmetic : exp . DIVIDE_SIGN exp  (50)
+	for : FOR ID ASSIGNMENT_SIGN exp TO exp . DO exp  (56)
+	comparison : exp . EQUAL_SIGN exp  (59)
+	comparison : exp . NOT_EQUAL_SIGN exp  (60)
+	comparison : exp . LESS_SIGN exp  (61)
+	comparison : exp . LESS_EQUAL_SIGN exp  (62)
+	comparison : exp . GREATER_SIGN exp  (63)
+	comparison : exp . GREATER_EQUAL_SIGN exp  (64)
+	boolean_operate : exp . LOGICAL_AND exp  (65)
+	boolean_operate : exp . LOGICAL_OR exp  (66)
+
+	DO  shift 181
+	LOGICAL_AND  shift 57
+	LOGICAL_OR  shift 58
+	EQUAL_SIGN  shift 59
+	NOT_EQUAL_SIGN  shift 60
+	LESS_SIGN  shift 61
+	GREATER_SIGN  shift 62
+	LESS_EQUAL_SIGN  shift 63
+	GREATER_EQUAL_SIGN  shift 64
+	ADD_SIGN  shift 65
+	MINUS_SIGN  shift 66
+	MULTIPLY_SIGN  shift 67
+	DIVIDE_SIGN  shift 68
+	.  error
+
+
+state 165
+	arithmetic : exp . ADD_SIGN exp  (47)
+	arithmetic : exp . MINUS_SIGN exp  (48)
+	arithmetic : exp . MULTIPLY_SIGN exp  (49)
+	arithmetic : exp . DIVIDE_SIGN exp  (50)
+	sequencing_aux : SEMICOLON exp . sequencing_aux  (54)
+	comparison : exp . EQUAL_SIGN exp  (59)
+	comparison : exp . NOT_EQUAL_SIGN exp  (60)
+	comparison : exp . LESS_SIGN exp  (61)
+	comparison : exp . LESS_EQUAL_SIGN exp  (62)
+	comparison : exp . GREATER_SIGN exp  (63)
+	comparison : exp . GREATER_EQUAL_SIGN exp  (64)
+	boolean_operate : exp . LOGICAL_AND exp  (65)
+	boolean_operate : exp . LOGICAL_OR exp  (66)
+	sequencing_aux : .  (55)
+
+	SEMICOLON  shift 147
+	LOGICAL_AND  shift 57
+	LOGICAL_OR  shift 58
+	EQUAL_SIGN  shift 59
+	NOT_EQUAL_SIGN  shift 60
+	LESS_SIGN  shift 61
+	GREATER_SIGN  shift 62
+	LESS_EQUAL_SIGN  shift 63
+	GREATER_EQUAL_SIGN  shift 64
+	ADD_SIGN  shift 65
+	MINUS_SIGN  shift 66
+	MULTIPLY_SIGN  shift 67
+	DIVIDE_SIGN  shift 68
+	RIGHT_PARENTHESIS  reduce 55
+
+	sequencing_aux  goto 182
+
+
+state 166
+	sequencing : LEFT_PARENTHESIS exp SEMICOLON exp sequencing_aux RIGHT_PARENTHESIS .  (53)
+
+	.  reduce 53
+
+
+state 167
+	record_creation : build_in_type LEFT_CURLY_BRACE ID EQUAL_SIGN exp record_creation_aux . RIGHT_CURLY_BRACE  (41)
+
+	RIGHT_CURLY_BRACE  shift 183
+	.  error
+
+
+168: shift/reduce conflict (shift 57, reduce 39) on LOGICAL_AND
+168: shift/reduce conflict (shift 58, reduce 39) on LOGICAL_OR
+168: shift/reduce conflict (shift 59, reduce 39) on EQUAL_SIGN
+168: shift/reduce conflict (shift 60, reduce 39) on NOT_EQUAL_SIGN
+168: shift/reduce conflict (shift 61, reduce 39) on LESS_SIGN
+168: shift/reduce conflict (shift 62, reduce 39) on GREATER_SIGN
+168: shift/reduce conflict (shift 63, reduce 39) on LESS_EQUAL_SIGN
+168: shift/reduce conflict (shift 64, reduce 39) on GREATER_EQUAL_SIGN
+168: shift/reduce conflict (shift 65, reduce 39) on ADD_SIGN
+168: shift/reduce conflict (shift 66, reduce 39) on MINUS_SIGN
+168: shift/reduce conflict (shift 67, reduce 39) on MULTIPLY_SIGN
+168: shift/reduce conflict (shift 68, reduce 39) on DIVIDE_SIGN
+state 168
+	array_creation : build_in_type LEFT_BRACKET exp RIGHT_BRACKET OF exp .  (39)
+	arithmetic : exp . ADD_SIGN exp  (47)
+	arithmetic : exp . MINUS_SIGN exp  (48)
+	arithmetic : exp . MULTIPLY_SIGN exp  (49)
+	arithmetic : exp . DIVIDE_SIGN exp  (50)
+	comparison : exp . EQUAL_SIGN exp  (59)
+	comparison : exp . NOT_EQUAL_SIGN exp  (60)
+	comparison : exp . LESS_SIGN exp  (61)
+	comparison : exp . LESS_EQUAL_SIGN exp  (62)
+	comparison : exp . GREATER_SIGN exp  (63)
+	comparison : exp . GREATER_EQUAL_SIGN exp  (64)
+	boolean_operate : exp . LOGICAL_AND exp  (65)
+	boolean_operate : exp . LOGICAL_OR exp  (66)
+
+	LOGICAL_AND  shift 57
+	LOGICAL_OR  shift 58
+	EQUAL_SIGN  shift 59
+	NOT_EQUAL_SIGN  shift 60
+	LESS_SIGN  shift 61
+	GREATER_SIGN  shift 62
+	LESS_EQUAL_SIGN  shift 63
+	GREATER_EQUAL_SIGN  shift 64
+	ADD_SIGN  shift 65
+	MINUS_SIGN  shift 66
+	MULTIPLY_SIGN  shift 67
+	DIVIDE_SIGN  shift 68
+	$end  reduce 39
+	TYPE  reduce 39
+	VAR  reduce 39
+	FUNCTION  reduce 39
+	IN  reduce 39
+	END  reduce 39
+	THEN  reduce 39
+	ELSE  reduce 39
+	DO  reduce 39
+	TO  reduce 39
+	RIGHT_CURLY_BRACE  reduce 39
+	COMMA  reduce 39
+	RIGHT_PARENTHESIS  reduce 39
+	SEMICOLON  reduce 39
+	RIGHT_BRACKET  reduce 39
+
+
+state 169
+	record_creation_aux : COMMA ID . EQUAL_SIGN exp record_creation_aux  (45)
+
+	EQUAL_SIGN  shift 184
+	.  error
+
+
+state 170
+	record_creation : ID LEFT_CURLY_BRACE ID EQUAL_SIGN exp record_creation_aux RIGHT_CURLY_BRACE .  (42)
+
+	.  reduce 42
+
+
+state 171
+	ty : ARRAY OF ID .  (15)
+
+	.  reduce 15
+
+
+state 172
+	ty : ARRAY OF build_in_type .  (14)
+
+	.  reduce 14
+
+
+state 173
+	ty : LEFT_CURLY_BRACE tyfields RIGHT_CURLY_BRACE .  (13)
+
+	.  reduce 13
+
+
+state 174
+	vardec : VAR ID COLON ID ASSIGNMENT_SIGN exp .  (24)
+	arithmetic : exp . ADD_SIGN exp  (47)
+	arithmetic : exp . MINUS_SIGN exp  (48)
+	arithmetic : exp . MULTIPLY_SIGN exp  (49)
+	arithmetic : exp . DIVIDE_SIGN exp  (50)
+	comparison : exp . EQUAL_SIGN exp  (59)
+	comparison : exp . NOT_EQUAL_SIGN exp  (60)
+	comparison : exp . LESS_SIGN exp  (61)
+	comparison : exp . LESS_EQUAL_SIGN exp  (62)
+	comparison : exp . GREATER_SIGN exp  (63)
+	comparison : exp . GREATER_EQUAL_SIGN exp  (64)
+	boolean_operate : exp . LOGICAL_AND exp  (65)
+	boolean_operate : exp . LOGICAL_OR exp  (66)
+
+	LOGICAL_AND  shift 57
+	LOGICAL_OR  shift 58
+	EQUAL_SIGN  shift 59
+	NOT_EQUAL_SIGN  shift 60
+	LESS_SIGN  shift 61
+	GREATER_SIGN  shift 62
+	LESS_EQUAL_SIGN  shift 63
+	GREATER_EQUAL_SIGN  shift 64
+	ADD_SIGN  shift 65
+	MINUS_SIGN  shift 66
+	MULTIPLY_SIGN  shift 67
+	DIVIDE_SIGN  shift 68
+	TYPE  reduce 24
+	VAR  reduce 24
+	FUNCTION  reduce 24
+	IN  reduce 24
+
+
+state 175
+	vardec : VAR ID COLON build_in_type ASSIGNMENT_SIGN exp .  (23)
+	arithmetic : exp . ADD_SIGN exp  (47)
+	arithmetic : exp . MINUS_SIGN exp  (48)
+	arithmetic : exp . MULTIPLY_SIGN exp  (49)
+	arithmetic : exp . DIVIDE_SIGN exp  (50)
+	comparison : exp . EQUAL_SIGN exp  (59)
+	comparison : exp . NOT_EQUAL_SIGN exp  (60)
+	comparison : exp . LESS_SIGN exp  (61)
+	comparison : exp . LESS_EQUAL_SIGN exp  (62)
+	comparison : exp . GREATER_SIGN exp  (63)
+	comparison : exp . GREATER_EQUAL_SIGN exp  (64)
+	boolean_operate : exp . LOGICAL_AND exp  (65)
+	boolean_operate : exp . LOGICAL_OR exp  (66)
+
+	LOGICAL_AND  shift 57
+	LOGICAL_OR  shift 58
+	EQUAL_SIGN  shift 59
+	NOT_EQUAL_SIGN  shift 60
+	LESS_SIGN  shift 61
+	GREATER_SIGN  shift 62
+	LESS_EQUAL_SIGN  shift 63
+	GREATER_EQUAL_SIGN  shift 64
+	ADD_SIGN  shift 65
+	MINUS_SIGN  shift 66
+	MULTIPLY_SIGN  shift 67
+	DIVIDE_SIGN  shift 68
+	TYPE  reduce 23
+	VAR  reduce 23
+	FUNCTION  reduce 23
+	IN  reduce 23
+
+
+state 176
+	tyfields : ID COLON ID . tyfields_aux  (17)
+	tyfields_aux : .  (21)
+
+	COMMA  shift 185
+	RIGHT_CURLY_BRACE  reduce 21
+	RIGHT_PARENTHESIS  reduce 21
+
+	tyfields_aux  goto 186
+
+
+state 177
+	tyfields : ID COLON build_in_type . tyfields_aux  (16)
+	tyfields_aux : .  (21)
+
+	COMMA  shift 185
+	RIGHT_CURLY_BRACE  reduce 21
+	RIGHT_PARENTHESIS  reduce 21
+
+	tyfields_aux  goto 187
+
+
+state 178
+	fundec : FUNCTION ID LEFT_PARENTHESIS tyfields RIGHT_PARENTHESIS COLON . build_in_type EQUAL_SIGN exp  (26)
+	fundec : FUNCTION ID LEFT_PARENTHESIS tyfields RIGHT_PARENTHESIS COLON . ID EQUAL_SIGN exp  (27)
+
+	ID  shift 188
+	INT  shift 4
+	STRING  shift 5
+	.  error
+
+	build_in_type  goto 189
+
+
+state 179
+	fundec : FUNCTION ID LEFT_PARENTHESIS tyfields RIGHT_PARENTHESIS EQUAL_SIGN . exp  (25)
+
+	INTEGER_LITERAL  shift 1
+	ID  shift 2
+	STRING_LITERAL  shift 3
+	INT  shift 4
+	STRING  shift 5
+	NIL  shift 6
+	LET  shift 7
+	IF  shift 8
+	WHILE  shift 9
+	FOR  shift 10
+	BREAK  shift 11
+	LEFT_PARENTHESIS  shift 12
+	MINUS_SIGN  shift 13
+	.  error
+
+	exp  goto 190
+	build_in_type  goto 16
+	l_value  goto 17
+	function_call  goto 18
+	nil  goto 19
+	integer_literal  goto 20
+	string_literal  goto 21
+	array_creation  goto 22
+	record_creation  goto 23
+	arithmetic  goto 24
+	parentheses  goto 25
+	no_value  goto 26
+	sequencing  goto 27
+	for  goto 28
+	if_then_else  goto 29
+	if_then  goto 30
+	comparison  goto 31
+	boolean_operate  goto 32
+	assignment  goto 33
+	let  goto 34
+	while  goto 35
+	negation  goto 36
+	break  goto 37
+
+
+state 180
+	let_aux : SEMICOLON exp let_aux .  (71)
+
+	.  reduce 71
+
+
+state 181
+	for : FOR ID ASSIGNMENT_SIGN exp TO exp DO . exp  (56)
+
+	INTEGER_LITERAL  shift 1
+	ID  shift 2
+	STRING_LITERAL  shift 3
+	INT  shift 4
+	STRING  shift 5
+	NIL  shift 6
+	LET  shift 7
+	IF  shift 8
+	WHILE  shift 9
+	FOR  shift 10
+	BREAK  shift 11
+	LEFT_PARENTHESIS  shift 12
+	MINUS_SIGN  shift 13
+	.  error
+
+	exp  goto 191
+	build_in_type  goto 16
+	l_value  goto 17
+	function_call  goto 18
+	nil  goto 19
+	integer_literal  goto 20
+	string_literal  goto 21
+	array_creation  goto 22
+	record_creation  goto 23
+	arithmetic  goto 24
+	parentheses  goto 25
+	no_value  goto 26
+	sequencing  goto 27
+	for  goto 28
+	if_then_else  goto 29
+	if_then  goto 30
+	comparison  goto 31
+	boolean_operate  goto 32
+	assignment  goto 33
+	let  goto 34
+	while  goto 35
+	negation  goto 36
+	break  goto 37
+
+
+state 182
+	sequencing_aux : SEMICOLON exp sequencing_aux .  (54)
+
+	.  reduce 54
+
+
+state 183
+	record_creation : build_in_type LEFT_CURLY_BRACE ID EQUAL_SIGN exp record_creation_aux RIGHT_CURLY_BRACE .  (41)
+
+	.  reduce 41
+
+
+state 184
+	record_creation_aux : COMMA ID EQUAL_SIGN . exp record_creation_aux  (45)
+
+	INTEGER_LITERAL  shift 1
+	ID  shift 2
+	STRING_LITERAL  shift 3
+	INT  shift 4
+	STRING  shift 5
+	NIL  shift 6
+	LET  shift 7
+	IF  shift 8
+	WHILE  shift 9
+	FOR  shift 10
+	BREAK  shift 11
+	LEFT_PARENTHESIS  shift 12
+	MINUS_SIGN  shift 13
+	.  error
+
+	exp  goto 192
+	build_in_type  goto 16
+	l_value  goto 17
+	function_call  goto 18
+	nil  goto 19
+	integer_literal  goto 20
+	string_literal  goto 21
+	array_creation  goto 22
+	record_creation  goto 23
+	arithmetic  goto 24
+	parentheses  goto 25
+	no_value  goto 26
+	sequencing  goto 27
+	for  goto 28
+	if_then_else  goto 29
+	if_then  goto 30
+	comparison  goto 31
+	boolean_operate  goto 32
+	assignment  goto 33
+	let  goto 34
+	while  goto 35
+	negation  goto 36
+	break  goto 37
+
+
+state 185
+	tyfields_aux : COMMA . ID COLON build_in_type tyfields_aux  (19)
+	tyfields_aux : COMMA . ID COLON ID tyfields_aux  (20)
+
+	ID  shift 193
+	.  error
+
+
+state 186
+	tyfields : ID COLON ID tyfields_aux .  (17)
+
+	.  reduce 17
+
+
+state 187
+	tyfields : ID COLON build_in_type tyfields_aux .  (16)
+
+	.  reduce 16
+
+
+state 188
+	fundec : FUNCTION ID LEFT_PARENTHESIS tyfields RIGHT_PARENTHESIS COLON ID . EQUAL_SIGN exp  (27)
+
+	EQUAL_SIGN  shift 194
+	.  error
+
+
+state 189
+	fundec : FUNCTION ID LEFT_PARENTHESIS tyfields RIGHT_PARENTHESIS COLON build_in_type . EQUAL_SIGN exp  (26)
+
+	EQUAL_SIGN  shift 195
+	.  error
+
+
+state 190
+	fundec : FUNCTION ID LEFT_PARENTHESIS tyfields RIGHT_PARENTHESIS EQUAL_SIGN exp .  (25)
+	arithmetic : exp . ADD_SIGN exp  (47)
+	arithmetic : exp . MINUS_SIGN exp  (48)
+	arithmetic : exp . MULTIPLY_SIGN exp  (49)
+	arithmetic : exp . DIVIDE_SIGN exp  (50)
+	comparison : exp . EQUAL_SIGN exp  (59)
+	comparison : exp . NOT_EQUAL_SIGN exp  (60)
+	comparison : exp . LESS_SIGN exp  (61)
+	comparison : exp . LESS_EQUAL_SIGN exp  (62)
+	comparison : exp . GREATER_SIGN exp  (63)
+	comparison : exp . GREATER_EQUAL_SIGN exp  (64)
+	boolean_operate : exp . LOGICAL_AND exp  (65)
+	boolean_operate : exp . LOGICAL_OR exp  (66)
+
+	LOGICAL_AND  shift 57
+	LOGICAL_OR  shift 58
+	EQUAL_SIGN  shift 59
+	NOT_EQUAL_SIGN  shift 60
+	LESS_SIGN  shift 61
+	GREATER_SIGN  shift 62
+	LESS_EQUAL_SIGN  shift 63
+	GREATER_EQUAL_SIGN  shift 64
+	ADD_SIGN  shift 65
+	MINUS_SIGN  shift 66
+	MULTIPLY_SIGN  shift 67
+	DIVIDE_SIGN  shift 68
+	TYPE  reduce 25
+	VAR  reduce 25
+	FUNCTION  reduce 25
+	IN  reduce 25
+
+
+191: shift/reduce conflict (shift 57, reduce 56) on LOGICAL_AND
+191: shift/reduce conflict (shift 58, reduce 56) on LOGICAL_OR
+191: shift/reduce conflict (shift 59, reduce 56) on EQUAL_SIGN
+191: shift/reduce conflict (shift 60, reduce 56) on NOT_EQUAL_SIGN
+191: shift/reduce conflict (shift 61, reduce 56) on LESS_SIGN
+191: shift/reduce conflict (shift 62, reduce 56) on GREATER_SIGN
+191: shift/reduce conflict (shift 63, reduce 56) on LESS_EQUAL_SIGN
+191: shift/reduce conflict (shift 64, reduce 56) on GREATER_EQUAL_SIGN
+191: shift/reduce conflict (shift 65, reduce 56) on ADD_SIGN
+191: shift/reduce conflict (shift 66, reduce 56) on MINUS_SIGN
+191: shift/reduce conflict (shift 67, reduce 56) on MULTIPLY_SIGN
+191: shift/reduce conflict (shift 68, reduce 56) on DIVIDE_SIGN
+state 191
+	arithmetic : exp . ADD_SIGN exp  (47)
+	arithmetic : exp . MINUS_SIGN exp  (48)
+	arithmetic : exp . MULTIPLY_SIGN exp  (49)
+	arithmetic : exp . DIVIDE_SIGN exp  (50)
+	for : FOR ID ASSIGNMENT_SIGN exp TO exp DO exp .  (56)
+	comparison : exp . EQUAL_SIGN exp  (59)
+	comparison : exp . NOT_EQUAL_SIGN exp  (60)
+	comparison : exp . LESS_SIGN exp  (61)
+	comparison : exp . LESS_EQUAL_SIGN exp  (62)
+	comparison : exp . GREATER_SIGN exp  (63)
+	comparison : exp . GREATER_EQUAL_SIGN exp  (64)
+	boolean_operate : exp . LOGICAL_AND exp  (65)
+	boolean_operate : exp . LOGICAL_OR exp  (66)
+
+	LOGICAL_AND  shift 57
+	LOGICAL_OR  shift 58
+	EQUAL_SIGN  shift 59
+	NOT_EQUAL_SIGN  shift 60
+	LESS_SIGN  shift 61
+	GREATER_SIGN  shift 62
+	LESS_EQUAL_SIGN  shift 63
+	GREATER_EQUAL_SIGN  shift 64
+	ADD_SIGN  shift 65
+	MINUS_SIGN  shift 66
+	MULTIPLY_SIGN  shift 67
+	DIVIDE_SIGN  shift 68
+	$end  reduce 56
+	TYPE  reduce 56
+	VAR  reduce 56
+	FUNCTION  reduce 56
+	IN  reduce 56
+	END  reduce 56
+	THEN  reduce 56
+	ELSE  reduce 56
+	DO  reduce 56
+	TO  reduce 56
+	RIGHT_CURLY_BRACE  reduce 56
+	COMMA  reduce 56
+	RIGHT_PARENTHESIS  reduce 56
+	SEMICOLON  reduce 56
+	RIGHT_BRACKET  reduce 56
+
+
+state 192
+	record_creation_aux : COMMA ID EQUAL_SIGN exp . record_creation_aux  (45)
+	arithmetic : exp . ADD_SIGN exp  (47)
+	arithmetic : exp . MINUS_SIGN exp  (48)
+	arithmetic : exp . MULTIPLY_SIGN exp  (49)
+	arithmetic : exp . DIVIDE_SIGN exp  (50)
+	comparison : exp . EQUAL_SIGN exp  (59)
+	comparison : exp . NOT_EQUAL_SIGN exp  (60)
+	comparison : exp . LESS_SIGN exp  (61)
+	comparison : exp . LESS_EQUAL_SIGN exp  (62)
+	comparison : exp . GREATER_SIGN exp  (63)
+	comparison : exp . GREATER_EQUAL_SIGN exp  (64)
+	boolean_operate : exp . LOGICAL_AND exp  (65)
+	boolean_operate : exp . LOGICAL_OR exp  (66)
+	record_creation_aux : .  (46)
+
+	COMMA  shift 151
+	LOGICAL_AND  shift 57
+	LOGICAL_OR  shift 58
+	EQUAL_SIGN  shift 59
+	NOT_EQUAL_SIGN  shift 60
+	LESS_SIGN  shift 61
+	GREATER_SIGN  shift 62
+	LESS_EQUAL_SIGN  shift 63
+	GREATER_EQUAL_SIGN  shift 64
+	ADD_SIGN  shift 65
+	MINUS_SIGN  shift 66
+	MULTIPLY_SIGN  shift 67
+	DIVIDE_SIGN  shift 68
+	RIGHT_CURLY_BRACE  reduce 46
+
+	record_creation_aux  goto 196
+
+
+state 193
+	tyfields_aux : COMMA ID . COLON build_in_type tyfields_aux  (19)
+	tyfields_aux : COMMA ID . COLON ID tyfields_aux  (20)
+
+	COLON  shift 197
+	.  error
+
+
+state 194
+	fundec : FUNCTION ID LEFT_PARENTHESIS tyfields RIGHT_PARENTHESIS COLON ID EQUAL_SIGN . exp  (27)
+
+	INTEGER_LITERAL  shift 1
+	ID  shift 2
+	STRING_LITERAL  shift 3
+	INT  shift 4
+	STRING  shift 5
+	NIL  shift 6
+	LET  shift 7
+	IF  shift 8
+	WHILE  shift 9
+	FOR  shift 10
+	BREAK  shift 11
+	LEFT_PARENTHESIS  shift 12
+	MINUS_SIGN  shift 13
+	.  error
+
+	exp  goto 198
+	build_in_type  goto 16
+	l_value  goto 17
+	function_call  goto 18
+	nil  goto 19
+	integer_literal  goto 20
+	string_literal  goto 21
+	array_creation  goto 22
+	record_creation  goto 23
+	arithmetic  goto 24
+	parentheses  goto 25
+	no_value  goto 26
+	sequencing  goto 27
+	for  goto 28
+	if_then_else  goto 29
+	if_then  goto 30
+	comparison  goto 31
+	boolean_operate  goto 32
+	assignment  goto 33
+	let  goto 34
+	while  goto 35
+	negation  goto 36
+	break  goto 37
+
+
+state 195
+	fundec : FUNCTION ID LEFT_PARENTHESIS tyfields RIGHT_PARENTHESIS COLON build_in_type EQUAL_SIGN . exp  (26)
+
+	INTEGER_LITERAL  shift 1
+	ID  shift 2
+	STRING_LITERAL  shift 3
+	INT  shift 4
+	STRING  shift 5
+	NIL  shift 6
+	LET  shift 7
+	IF  shift 8
+	WHILE  shift 9
+	FOR  shift 10
+	BREAK  shift 11
+	LEFT_PARENTHESIS  shift 12
+	MINUS_SIGN  shift 13
+	.  error
+
+	exp  goto 199
+	build_in_type  goto 16
+	l_value  goto 17
+	function_call  goto 18
+	nil  goto 19
+	integer_literal  goto 20
+	string_literal  goto 21
+	array_creation  goto 22
+	record_creation  goto 23
+	arithmetic  goto 24
+	parentheses  goto 25
+	no_value  goto 26
+	sequencing  goto 27
+	for  goto 28
+	if_then_else  goto 29
+	if_then  goto 30
+	comparison  goto 31
+	boolean_operate  goto 32
+	assignment  goto 33
+	let  goto 34
+	while  goto 35
+	negation  goto 36
+	break  goto 37
+
+
+state 196
+	record_creation_aux : COMMA ID EQUAL_SIGN exp record_creation_aux .  (45)
+
+	.  reduce 45
+
+
+state 197
+	tyfields_aux : COMMA ID COLON . build_in_type tyfields_aux  (19)
+	tyfields_aux : COMMA ID COLON . ID tyfields_aux  (20)
+
+	ID  shift 200
+	INT  shift 4
+	STRING  shift 5
+	.  error
+
+	build_in_type  goto 201
+
+
+state 198
+	fundec : FUNCTION ID LEFT_PARENTHESIS tyfields RIGHT_PARENTHESIS COLON ID EQUAL_SIGN exp .  (27)
+	arithmetic : exp . ADD_SIGN exp  (47)
+	arithmetic : exp . MINUS_SIGN exp  (48)
+	arithmetic : exp . MULTIPLY_SIGN exp  (49)
+	arithmetic : exp . DIVIDE_SIGN exp  (50)
+	comparison : exp . EQUAL_SIGN exp  (59)
+	comparison : exp . NOT_EQUAL_SIGN exp  (60)
+	comparison : exp . LESS_SIGN exp  (61)
+	comparison : exp . LESS_EQUAL_SIGN exp  (62)
+	comparison : exp . GREATER_SIGN exp  (63)
+	comparison : exp . GREATER_EQUAL_SIGN exp  (64)
+	boolean_operate : exp . LOGICAL_AND exp  (65)
+	boolean_operate : exp . LOGICAL_OR exp  (66)
+
+	LOGICAL_AND  shift 57
+	LOGICAL_OR  shift 58
+	EQUAL_SIGN  shift 59
+	NOT_EQUAL_SIGN  shift 60
+	LESS_SIGN  shift 61
+	GREATER_SIGN  shift 62
+	LESS_EQUAL_SIGN  shift 63
+	GREATER_EQUAL_SIGN  shift 64
+	ADD_SIGN  shift 65
+	MINUS_SIGN  shift 66
+	MULTIPLY_SIGN  shift 67
+	DIVIDE_SIGN  shift 68
+	TYPE  reduce 27
+	VAR  reduce 27
+	FUNCTION  reduce 27
+	IN  reduce 27
+
+
+state 199
+	fundec : FUNCTION ID LEFT_PARENTHESIS tyfields RIGHT_PARENTHESIS COLON build_in_type EQUAL_SIGN exp .  (26)
+	arithmetic : exp . ADD_SIGN exp  (47)
+	arithmetic : exp . MINUS_SIGN exp  (48)
+	arithmetic : exp . MULTIPLY_SIGN exp  (49)
+	arithmetic : exp . DIVIDE_SIGN exp  (50)
+	comparison : exp . EQUAL_SIGN exp  (59)
+	comparison : exp . NOT_EQUAL_SIGN exp  (60)
+	comparison : exp . LESS_SIGN exp  (61)
+	comparison : exp . LESS_EQUAL_SIGN exp  (62)
+	comparison : exp . GREATER_SIGN exp  (63)
+	comparison : exp . GREATER_EQUAL_SIGN exp  (64)
+	boolean_operate : exp . LOGICAL_AND exp  (65)
+	boolean_operate : exp . LOGICAL_OR exp  (66)
+
+	LOGICAL_AND  shift 57
+	LOGICAL_OR  shift 58
+	EQUAL_SIGN  shift 59
+	NOT_EQUAL_SIGN  shift 60
+	LESS_SIGN  shift 61
+	GREATER_SIGN  shift 62
+	LESS_EQUAL_SIGN  shift 63
+	GREATER_EQUAL_SIGN  shift 64
+	ADD_SIGN  shift 65
+	MINUS_SIGN  shift 66
+	MULTIPLY_SIGN  shift 67
+	DIVIDE_SIGN  shift 68
+	TYPE  reduce 26
+	VAR  reduce 26
+	FUNCTION  reduce 26
+	IN  reduce 26
+
+
+state 200
+	tyfields_aux : COMMA ID COLON ID . tyfields_aux  (20)
+	tyfields_aux : .  (21)
+
+	COMMA  shift 185
+	RIGHT_CURLY_BRACE  reduce 21
+	RIGHT_PARENTHESIS  reduce 21
+
+	tyfields_aux  goto 202
+
+
+state 201
+	tyfields_aux : COMMA ID COLON build_in_type . tyfields_aux  (19)
+	tyfields_aux : .  (21)
+
+	COMMA  shift 185
+	RIGHT_CURLY_BRACE  reduce 21
+	RIGHT_PARENTHESIS  reduce 21
+
+	tyfields_aux  goto 203
+
+
+state 202
+	tyfields_aux : COMMA ID COLON ID tyfields_aux .  (20)
+
+	.  reduce 20
+
+
+state 203
+	tyfields_aux : COMMA ID COLON build_in_type tyfields_aux .  (19)
+
+	.  reduce 19
+
+
+State 118 contains 13 shift/reduce conflicts.
+State 119 contains 12 shift/reduce conflicts.
+State 155 contains 12 shift/reduce conflicts.
+State 163 contains 12 shift/reduce conflicts.
+State 168 contains 12 shift/reduce conflicts.
+State 191 contains 12 shift/reduce conflicts.
+
+
+47 terminals, 39 nonterminals
+98 grammar rules, 204 states

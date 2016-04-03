@@ -1,10 +1,16 @@
 myLValueExp(
-  mySimpleVar(id))
+  mySimpleVar(id)
+)
 myLValueExp(
   myRecordField(
     id,
-    id))
+    id
+  )
+)
 myLValueExp(
   myArraySubscript(
     id,
-    myExp(      myNoValueExp())))
+    myExp(      myNoValueExp()
+    )
+  )
+)

@@ -1,0 +1,24 @@
+myExp(  myForExp(
+    i,
+    myExp(      myIntegerLiteralExp(10)
+    ),
+    myExp(      myStringLiteralExp(" ")
+    ),
+    myExp(      myAssignmentExp(
+        myLValueExp(
+          mySimpleVar(i)
+        ),
+        myExp(          myArithmeticExp(
+            myExp(              myLValueExp(
+                mySimpleVar(i)
+              )
+            ),
+            opMinus,
+            myExp(              myIntegerLiteralExp(1)
+            )
+          )
+        )
+      )
+    )
+  )
+)

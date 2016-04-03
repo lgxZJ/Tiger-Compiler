@@ -1,4 +1,5 @@
 #include "mySymbol.h"
+#include "makeMemory.h"
 
 #include <string.h>
 
@@ -16,7 +17,8 @@ static mySymbol	hashTable[HASH_SIZE] = {0};
  */
 bool invalidSymbol(mySymbol symbol)
 {
-    return (symbol == (mySymbol)NULL) || (*((char*)symbol) == '\0')
+    return ((symbol == (mySymbol)NULL) ||
+	    (*(char*)MySymbol_GetName(symbol) == '\0'))
 	? true
 	: false;
 }
@@ -30,7 +32,7 @@ bool invalidSymbol(mySymbol symbol)
 	if (name == NULL || (*(char*)name) == '\0')
 	  return NULL;
 
-	mySymbol one = myCheckedMalloc(sizeof(*one));
+	mySymbol one = makeMemoryBlock(sizeof(*one), MEMORY_TYPE_NONE);
 	
 	one->name = name;
 	one->next = next;

@@ -1,6 +1,6 @@
 OBJECTS = Test_myPrintAbstractSyntax.o myPrintAbstractSyntax.o \
 		myAbstractSyntax.o mySymbol.o myTable.o \
-		myCheckedMalloc.o
+		makeMemory.o
 
 vpath %.c ../
 vpath %.h ../
@@ -17,16 +17,16 @@ myPrintAbstractSyntax.o: myPrintAbstractSyntax.c myAbstractSyntax.h
 myAbstractSyntax.o: myAbstractSyntax.c myAbstractSyntax.h
 	cc -g -c $<
 
-mySymbol.o: mySymbol.c mySymbol.h myCheckedMalloc.h myTable.h
+mySymbol.o: mySymbol.c mySymbol.h makeMemory.h myTable.h
 	cc -g -std=c99 -c $<
 
-myTable.o: myTable.c myTable.h myCheckedMalloc.h
+myTable.o: myTable.c myTable.h makeMemory.h
 	cc -g -std=c99 -c $<
 
-myCheckedMalloc.o: myCheckedMalloc.c myCheckedMalloc.h
-	cc -g -c $<
+makeMemory.o: makeMemory.c makeMemory.h
+	cc -g -c -std=c99 $<
 
 
 .PHNOY: clean
 clean:
-	rm -f Test_myPrintAbstractSyntax.out Test_myPrintAbstractSyntax.o myPrintAbstractSyntax.o myAbstractSyntax.o mySymbol.o myTable.o myCheckedMalloc.o
+	rm -f Test_myPrintAbstractSyntax.out Test_myPrintAbstractSyntax.o myPrintAbstractSyntax.o myAbstractSyntax.o mySymbol.o myTable.o makeMemory.o

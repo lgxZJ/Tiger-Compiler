@@ -1,0 +1,24 @@
+myExp(  myLetExp(
+    myDec(
+      myTypeDec(myRecordType(
+        rectype,
+        name : string, id : int, 
+      ))
+    ),
+    myDec(
+      myVarDec(
+        myShortFormVar(
+          a,
+          myExp(            myNilExp()
+          )
+        )
+      )
+    ),
+,
+    myExp(      myLValueExp(
+        mySimpleVar(a)
+      )
+    ),
+
+  )
+)

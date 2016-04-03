@@ -1,3 +1,6 @@
 myProcedureDec(
   symbol,
-  myExp(    myNoValueExp()))
+  symbol_record : symbol_record, 
+  myExp(    myNoValueExp()
+  )
+)

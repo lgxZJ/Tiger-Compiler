@@ -1,0 +1,19 @@
+myExp(  myLetExp(
+    myDec(
+      myVarDec(
+        myLongFormVar(
+          a,
+          int,
+          myExp(            myStringLiteralExp(" ")
+          )
+        )
+      )
+    ),
+,
+    myExp(      myLValueExp(
+        mySimpleVar(a)
+      )
+    ),
+
+  )
+)

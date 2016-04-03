@@ -1,6 +1,7 @@
 #include "../myAbstractSyntax.h"
 #include <CUnit/CUnit.h>
 #include <CUnit/Basic.h>
+#include <stdlib.h>
 
 /*------------------------test functions---------------------------*/
 
@@ -57,7 +58,7 @@ void getLValueKind_ShouldReturnRecordFieldOnNullSymbolAux()
     enum myLValueKind actualKind = getLValueKind(lValueAux);
 
     //	verify
-    CU_ASSERT_EQUAL(actualKind, RecordField);
+    CU_ASSERT_EQUAL(actualKind, ArraySubscript);
 }
 
 void getLValueKind_ShouldReturnArraySubScriptOnNullExpAux()
@@ -70,7 +71,7 @@ void getLValueKind_ShouldReturnArraySubScriptOnNullExpAux()
     enum myLValueKind actualKind = getLValueKind(lValueAux);
 
     //	verify
-    CU_ASSERT_EQUAL(actualKind, ArraySubscript);
+    CU_ASSERT_EQUAL(actualKind, RecordField);
 }
 
 /*-----------------------end of test functions---------------------*/

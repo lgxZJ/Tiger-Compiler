@@ -1,0 +1,31 @@
+myExp(  myLetExp(
+    myDec(
+      myTypeDec(myRecordType(
+        tree,
+        key : int, children : treelist, 
+      ))
+    ),
+    myDec(
+      myVarDec(
+        myLongFormVar(
+          d,
+          int,
+          myExp(            myIntegerLiteralExp(0)
+          )
+        )
+      )
+    ),
+    myDec(
+      myTypeDec(myRecordType(
+        treelist,
+        hd : tree, tl : treelist, 
+      ))
+    ),
+,
+    myExp(      myLValueExp(
+        mySimpleVar(d)
+      )
+    ),
+
+  )
+)

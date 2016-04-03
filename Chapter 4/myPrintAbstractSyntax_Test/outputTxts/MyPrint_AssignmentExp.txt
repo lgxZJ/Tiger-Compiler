@@ -1,4 +1,7 @@
 myAssignmentExp(
   myLValueExp(
-    mySimpleVar(id)),
-  myExp(    myIntegerLiteralExp(1)))
+    mySimpleVar(id)
+  ),
+  myExp(    myIntegerLiteralExp(1)
+  )
+)

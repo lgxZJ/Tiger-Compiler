@@ -1,0 +1,22 @@
+myExp(  myLetExp(
+    myDec(
+      myVarDec(
+        myShortFormVar(
+          d,
+          myExp(            myIntegerLiteralExp(0)
+          )
+        )
+      )
+    ),
+,
+    myExp(      myLValueExp(
+        myArraySubscript(
+          d,
+          myExp(            myIntegerLiteralExp(3)
+          )
+        )
+      )
+    ),
+
+  )
+)

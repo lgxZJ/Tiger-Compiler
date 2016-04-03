@@ -1,24 +1,42 @@
 myComparisonExp(
-  myExp(    myIntegerLiteralExp(1)),
+  myExp(    myIntegerLiteralExp(1)
+  ),
   opEqual,
-  myExp(    myIntegerLiteralExp(1))),
+  myExp(    myIntegerLiteralExp(1)
+  )
+),
 myComparisonExp(
-  myExp(    myIntegerLiteralExp(1)),
+  myExp(    myIntegerLiteralExp(1)
+  ),
   opNotEqual,
-  myExp(    myIntegerLiteralExp(1))),
+  myExp(    myIntegerLiteralExp(1)
+  )
+),
 myComparisonExp(
-  myExp(    myIntegerLiteralExp(1)),
+  myExp(    myIntegerLiteralExp(1)
+  ),
   opLargerThan,
-  myExp(    myIntegerLiteralExp(1))),
+  myExp(    myIntegerLiteralExp(1)
+  )
+),
 myComparisonExp(
-  myExp(    myIntegerLiteralExp(1)),
+  myExp(    myIntegerLiteralExp(1)
+  ),
   opSmallerThan,
-  myExp(    myIntegerLiteralExp(1))),
+  myExp(    myIntegerLiteralExp(1)
+  )
+),
 myComparisonExp(
-  myExp(    myIntegerLiteralExp(1)),
+  myExp(    myIntegerLiteralExp(1)
+  ),
   opLargerEqualThan,
-  myExp(    myIntegerLiteralExp(1))),
+  myExp(    myIntegerLiteralExp(1)
+  )
+),
 myComparisonExp(
-  myExp(    myIntegerLiteralExp(1)),
+  myExp(    myIntegerLiteralExp(1)
+  ),
   opSmallerEqualThan,
-  myExp(    myIntegerLiteralExp(1))),
+  myExp(    myIntegerLiteralExp(1)
+  )
+),

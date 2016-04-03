@@ -9,7 +9,7 @@
  *		arguments and call the _ functions.
  */
  
- #include "myCheckedMalloc.h"
+ #include "makeMemory.h"
  #include <stdbool.h>
  
  #define		TAB_SIZE		127

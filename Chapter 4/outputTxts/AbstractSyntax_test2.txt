@@ -1,0 +1,37 @@
+myExp(  myLetExp(
+    myDec(
+      myTypeDec(myNamedType(
+        myint,
+        int,
+      ))
+    ),
+    myDec(
+      myTypeDec(myArrayType(
+        arrtype,
+        myint,
+      ))
+    ),
+    myDec(
+      myVarDec(
+        myLongFormVar(
+          arr1,
+          arrtype,
+          myExp(            myArrayCreationExp(
+              arrtype,
+              myExp(                myIntegerLiteralExp(10)
+              ),
+              myExp(                myIntegerLiteralExp(0)
+              )
+            )
+          )
+        )
+      )
+    ),
+,
+    myExp(      myLValueExp(
+        mySimpleVar(arr1)
+      )
+    ),
+
+  )
+)

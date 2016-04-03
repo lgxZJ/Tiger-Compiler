@@ -1,0 +1,517 @@
+myExp(  myLetExp(
+    myDec(
+      myVarDec(
+        myShortFormVar(
+          N,
+          myExp(            myIntegerLiteralExp(8)
+          )
+        )
+      )
+    ),
+    myDec(
+      myTypeDec(myArrayType(
+        intArray,
+        int,
+      ))
+    ),
+    myDec(
+      myVarDec(
+        myShortFormVar(
+          row,
+          myExp(            myArrayCreationExp(
+              intArray,
+              myExp(                myLValueExp(
+                  mySimpleVar(N)
+                )
+              ),
+              myExp(                myIntegerLiteralExp(0)
+              )
+            )
+          )
+        )
+      )
+    ),
+    myDec(
+      myVarDec(
+        myShortFormVar(
+          col,
+          myExp(            myArrayCreationExp(
+              intArray,
+              myExp(                myLValueExp(
+                  mySimpleVar(N)
+                )
+              ),
+              myExp(                myIntegerLiteralExp(0)
+              )
+            )
+          )
+        )
+      )
+    ),
+    myDec(
+      myVarDec(
+        myShortFormVar(
+          diag1,
+          myExp(            myArrayCreationExp(
+              intArray,
+              myExp(                myArithmeticExp(
+                  myExp(                    myArithmeticExp(
+                      myExp(                        myLValueExp(
+                          mySimpleVar(N)
+                        )
+                      ),
+                      opPlus,
+                      myExp(                        myLValueExp(
+                          mySimpleVar(N)
+                        )
+                      )
+                    )
+                  ),
+                  opMinus,
+                  myExp(                    myIntegerLiteralExp(1)
+                  )
+                )
+              ),
+              myExp(                myIntegerLiteralExp(0)
+              )
+            )
+          )
+        )
+      )
+    ),
+    myDec(
+      myVarDec(
+        myShortFormVar(
+          diag2,
+          myExp(            myArrayCreationExp(
+              intArray,
+              myExp(                myArithmeticExp(
+                  myExp(                    myArithmeticExp(
+                      myExp(                        myLValueExp(
+                          mySimpleVar(N)
+                        )
+                      ),
+                      opPlus,
+                      myExp(                        myLValueExp(
+                          mySimpleVar(N)
+                        )
+                      )
+                    )
+                  ),
+                  opMinus,
+                  myExp(                    myIntegerLiteralExp(1)
+                  )
+                )
+              ),
+              myExp(                myIntegerLiteralExp(0)
+              )
+            )
+          )
+        )
+      )
+    ),
+    myDec(
+      myFuncDec(
+        myProcedureDec(
+          printboard,
+          
+          myExp(              mySequencingExp(
+              myExp(                myForExp(
+                  i,
+                  myExp(                    myIntegerLiteralExp(0)
+                  ),
+                  myExp(                    myArithmeticExp(
+                      myExp(                        myLValueExp(
+                          mySimpleVar(N)
+                        )
+                      ),
+                      opMinus,
+                      myExp(                        myIntegerLiteralExp(1)
+                      )
+                    )
+                  ),
+                  myExp(                      mySequencingExp(
+                      myExp(                        myForExp(
+                          j,
+                          myExp(                            myIntegerLiteralExp(0)
+                          ),
+                          myExp(                            myArithmeticExp(
+                              myExp(                                myLValueExp(
+                                  mySimpleVar(N)
+                                )
+                              ),
+                              opMinus,
+                              myExp(                                myIntegerLiteralExp(1)
+                              )
+                            )
+                          ),
+                          myExp(                            myFunctionCallExp(
+                              myParamFunctionCallExp(
+                                print,
+                                myExp(                                  myIfThenElseExp(
+                                    myExp(                                      myComparisonExp(
+                                        myExp(                                          myLValueExp(
+                                            myArraySubscript(
+                                              col,
+                                              myExp(                                                myLValueExp(
+                                                  mySimpleVar(i)
+                                                )
+                                              )
+                                            )
+                                          )
+                                        ),
+                                        opEqual,
+                                        myExp(                                          myLValueExp(
+                                            mySimpleVar(j)
+                                          )
+                                        )
+                                      )
+                                    ),
+                                    myExp(                                      myStringLiteralExp(" O")
+                                    ),
+                                    myExp(                                      myStringLiteralExp(" .")
+                                    )
+                                  )
+                                ),
+
+                              )
+                            )
+                          )
+                        )
+                      ),
+                      myExp(                        myFunctionCallExp(
+                          myParamFunctionCallExp(
+                            print,
+                            myExp(                              myStringLiteralExp("
+")
+                            ),
+
+                          )
+                        )
+                      ),
+
+                    )
+                  )
+                )
+              ),
+              myExp(                myFunctionCallExp(
+                  myParamFunctionCallExp(
+                    print,
+                    myExp(                      myStringLiteralExp("
+")
+                    ),
+
+                  )
+                )
+              ),
+
+            )
+          )
+        )
+      )
+    ),
+    myDec(
+      myFuncDec(
+        myProcedureDec(
+          try,
+          c : int, 
+          myExp(            myParenthesesExp(
+              myExp(                myIfThenElseExp(
+                  myExp(                    myComparisonExp(
+                      myExp(                        myLValueExp(
+                          mySimpleVar(c)
+                        )
+                      ),
+                      opEqual,
+                      myExp(                        myLValueExp(
+                          mySimpleVar(N)
+                        )
+                      )
+                    )
+                  ),
+                  myExp(                    myFunctionCallExp(
+                      myNoParamFunctionCallExp(printboard)
+                    )
+                  ),
+                  myExp(                    myForExp(
+                      r,
+                      myExp(                        myIntegerLiteralExp(0)
+                      ),
+                      myExp(                        myArithmeticExp(
+                          myExp(                            myLValueExp(
+                              mySimpleVar(N)
+                            )
+                          ),
+                          opMinus,
+                          myExp(                            myIntegerLiteralExp(1)
+                          )
+                        )
+                      ),
+                      myExp(                        myIfThenExp(
+                          myExp(                            myBooleanOperateExp(
+                              myExp(                                myBooleanOperateExp(
+                                  myExp(                                    myComparisonExp(
+                                      myExp(                                        myLValueExp(
+                                          myArraySubscript(
+                                            row,
+                                            myExp(                                              myLValueExp(
+                                                mySimpleVar(r)
+                                              )
+                                            )
+                                          )
+                                        )
+                                      ),
+                                      opEqual,
+                                      myExp(                                        myIntegerLiteralExp(0)
+                                      )
+                                    )
+                                  ),
+                                  opBooleanAnd,
+                                  myExp(                                    myComparisonExp(
+                                      myExp(                                        myLValueExp(
+                                          myArraySubscript(
+                                            diag1,
+                                            myExp(                                              myArithmeticExp(
+                                                myExp(                                                  myLValueExp(
+                                                    mySimpleVar(r)
+                                                  )
+                                                ),
+                                                opPlus,
+                                                myExp(                                                  myLValueExp(
+                                                    mySimpleVar(c)
+                                                  )
+                                                )
+                                              )
+                                            )
+                                          )
+                                        )
+                                      ),
+                                      opEqual,
+                                      myExp(                                        myIntegerLiteralExp(0)
+                                      )
+                                    )
+                                  )
+                                )
+                              ),
+                              opBooleanAnd,
+                              myExp(                                myComparisonExp(
+                                  myExp(                                    myLValueExp(
+                                      myArraySubscript(
+                                        diag2,
+                                        myExp(                                          myArithmeticExp(
+                                            myExp(                                              myArithmeticExp(
+                                                myExp(                                                  myLValueExp(
+                                                    mySimpleVar(r)
+                                                  )
+                                                ),
+                                                opPlus,
+                                                myExp(                                                  myIntegerLiteralExp(7)
+                                                )
+                                              )
+                                            ),
+                                            opMinus,
+                                            myExp(                                              myLValueExp(
+                                                mySimpleVar(c)
+                                              )
+                                            )
+                                          )
+                                        )
+                                      )
+                                    )
+                                  ),
+                                  opEqual,
+                                  myExp(                                    myIntegerLiteralExp(0)
+                                  )
+                                )
+                              )
+                            )
+                          ),
+                          myExp(                              mySequencingExp(
+                              myExp(                                myAssignmentExp(
+                                  myLValueExp(
+                                    myArraySubscript(
+                                      row,
+                                      myExp(                                        myLValueExp(
+                                          mySimpleVar(r)
+                                        )
+                                      )
+                                    )
+                                  ),
+                                  myExp(                                    myIntegerLiteralExp(1)
+                                  )
+                                )
+                              ),
+                              myExp(                                myAssignmentExp(
+                                  myLValueExp(
+                                    myArraySubscript(
+                                      diag1,
+                                      myExp(                                        myArithmeticExp(
+                                          myExp(                                            myLValueExp(
+                                              mySimpleVar(r)
+                                            )
+                                          ),
+                                          opPlus,
+                                          myExp(                                            myLValueExp(
+                                              mySimpleVar(c)
+                                            )
+                                          )
+                                        )
+                                      )
+                                    )
+                                  ),
+                                  myExp(                                    myIntegerLiteralExp(1)
+                                  )
+                                )
+                              ),
+                              myExp(                                myAssignmentExp(
+                                  myLValueExp(
+                                    myArraySubscript(
+                                      diag2,
+                                      myExp(                                        myArithmeticExp(
+                                          myExp(                                            myArithmeticExp(
+                                              myExp(                                                myLValueExp(
+                                                  mySimpleVar(r)
+                                                )
+                                              ),
+                                              opPlus,
+                                              myExp(                                                myIntegerLiteralExp(7)
+                                              )
+                                            )
+                                          ),
+                                          opMinus,
+                                          myExp(                                            myLValueExp(
+                                              mySimpleVar(c)
+                                            )
+                                          )
+                                        )
+                                      )
+                                    )
+                                  ),
+                                  myExp(                                    myIntegerLiteralExp(1)
+                                  )
+                                )
+                              ),
+                              myExp(                                myAssignmentExp(
+                                  myLValueExp(
+                                    myArraySubscript(
+                                      col,
+                                      myExp(                                        myLValueExp(
+                                          mySimpleVar(c)
+                                        )
+                                      )
+                                    )
+                                  ),
+                                  myExp(                                    myLValueExp(
+                                      mySimpleVar(r)
+                                    )
+                                  )
+                                )
+                              ),
+                              myExp(                                myFunctionCallExp(
+                                  myParamFunctionCallExp(
+                                    try,
+                                    myExp(                                      myArithmeticExp(
+                                        myExp(                                          myLValueExp(
+                                            mySimpleVar(c)
+                                          )
+                                        ),
+                                        opPlus,
+                                        myExp(                                          myIntegerLiteralExp(1)
+                                        )
+                                      )
+                                    ),
+
+                                  )
+                                )
+                              ),
+                              myExp(                                myAssignmentExp(
+                                  myLValueExp(
+                                    myArraySubscript(
+                                      row,
+                                      myExp(                                        myLValueExp(
+                                          mySimpleVar(r)
+                                        )
+                                      )
+                                    )
+                                  ),
+                                  myExp(                                    myIntegerLiteralExp(0)
+                                  )
+                                )
+                              ),
+                              myExp(                                myAssignmentExp(
+                                  myLValueExp(
+                                    myArraySubscript(
+                                      diag1,
+                                      myExp(                                        myArithmeticExp(
+                                          myExp(                                            myLValueExp(
+                                              mySimpleVar(r)
+                                            )
+                                          ),
+                                          opPlus,
+                                          myExp(                                            myLValueExp(
+                                              mySimpleVar(c)
+                                            )
+                                          )
+                                        )
+                                      )
+                                    )
+                                  ),
+                                  myExp(                                    myIntegerLiteralExp(0)
+                                  )
+                                )
+                              ),
+                              myExp(                                myAssignmentExp(
+                                  myLValueExp(
+                                    myArraySubscript(
+                                      diag2,
+                                      myExp(                                        myArithmeticExp(
+                                          myExp(                                            myArithmeticExp(
+                                              myExp(                                                myLValueExp(
+                                                  mySimpleVar(r)
+                                                )
+                                              ),
+                                              opPlus,
+                                              myExp(                                                myIntegerLiteralExp(7)
+                                              )
+                                            )
+                                          ),
+                                          opMinus,
+                                          myExp(                                            myLValueExp(
+                                              mySimpleVar(c)
+                                            )
+                                          )
+                                        )
+                                      )
+                                    )
+                                  ),
+                                  myExp(                                    myIntegerLiteralExp(0)
+                                  )
+                                )
+                              ),
+
+                            )
+                          )
+                        )
+                      )
+                    )
+                  )
+                )
+              )
+            )
+          )
+        )
+      )
+    ),
+,
+    myExp(      myFunctionCallExp(
+        myParamFunctionCallExp(
+          try,
+          myExp(            myIntegerLiteralExp(0)
+          ),
+
+        )
+      )
+    ),
+
+  )
+)

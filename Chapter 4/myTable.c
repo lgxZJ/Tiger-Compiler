@@ -2,20 +2,17 @@
 #include <assert.h>
 #include <string.h>
 
-//	todo: change all assert into check codes
 
 
 /*	hash function (used internally)
  *	Note:
- *		same string must return same result,
- *		but different string may return same too.
+ *		same key must return same result,
  */
 static int hashFunc_MyTable(void* const key)
 { 
-	//	if key is a numm-pointer, return -1 for failure.
-	//	if key points to an empty string, return -1.
-	if (key == (void*)NULL || (*(char const*)key) == '\0')	return -1;
-	else			return (*(char const*)key) % TAB_SIZE;
+    //	if key is a null-pointer, return -1 for failure.
+    if (key == (void*)NULL)	return -1;
+    else			return ((int)key) % TAB_SIZE;
 }
 
 /*	
@@ -28,7 +25,7 @@ static myBinder makeMyBinder(void* const key, void* const value, const myBinder 
 		return (myBinder)NULL;
 	//	parameters checked by the caller
 	
-	myBinder binder = myCheckedMalloc(sizeof(*binder));
+	myBinder binder = makeMemoryBlock(sizeof(*binder), MEMORY_TYPE_NONE);
 	binder->key = key;
 	binder->value = value;
 	binder->next = next;
@@ -39,15 +36,15 @@ static myBinder makeMyBinder(void* const key, void* const value, const myBinder 
 
 myTable	MyTable_MakeEmptyTable_()
 {
-	myTable	table = myCheckedMalloc(sizeof(*table));
-	if (table == NULL)	return NULL;	
+    myTable	table = makeMemoryBlock(sizeof(*table), MEMORY_TYPE_NONE);
+    if (table == NULL)	return NULL;	
 
-	//	initialize
-	table->top		= NULL;
-	for (unsigned i = 0; i < TAB_SIZE; ++i)
-		table->binder[i] = NULL;
+    //	initialize
+    table->top		= NULL;
+    for (unsigned i = 0; i < TAB_SIZE; ++i)
+	table->binder[i] = NULL;
 	
-	return table;
+    return table;
 }
 
 

@@ -1,0 +1,25 @@
+myExp(  myLetExp(
+    myDec(
+      myVarDec(
+        myShortFormVar(
+          a,
+          myExp(            myIntegerLiteralExp(0)
+          )
+        )
+      )
+    ),
+    myDec(
+      myVarDec(
+        myShortFormVar(
+          a,
+          myExp(            myStringLiteralExp(" ")
+          )
+        )
+      )
+    ),
+,
+    myExp(      myIntegerLiteralExp(0)
+    ),
+
+  )
+)

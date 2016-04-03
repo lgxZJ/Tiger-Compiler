@@ -1,0 +1,76 @@
+myExp(  myLetExp(
+    myDec(
+      myFuncDec(
+        myFunctionDec(
+          do_nothing1,
+          a : int, b : string, 
+          int,
+          myExp(              mySequencingExp(
+              myExp(                myFunctionCallExp(
+                  myParamFunctionCallExp(
+                    do_nothing2,
+                    myExp(                      myArithmeticExp(
+                        myExp(                          myLValueExp(
+                            mySimpleVar(a)
+                          )
+                        ),
+                        opPlus,
+                        myExp(                          myIntegerLiteralExp(1)
+                        )
+                      )
+                    ),
+
+                  )
+                )
+              ),
+              myExp(                myIntegerLiteralExp(0)
+              ),
+
+            )
+          )
+        )
+      )
+    ),
+    myDec(
+      myFuncDec(
+        myFunctionDec(
+          do_nothing2,
+          d : int, 
+          string,
+          myExp(              mySequencingExp(
+              myExp(                myFunctionCallExp(
+                  myParamFunctionCallExp(
+                    do_nothing1,
+                    myExp(                      myLValueExp(
+                        mySimpleVar(a)
+                      )
+                    ),
+                    myExp(                      myStringLiteralExp("str")
+                    ),
+
+                  )
+                )
+              ),
+              myExp(                myStringLiteralExp(" ")
+              ),
+
+            )
+          )
+        )
+      )
+    ),
+,
+    myExp(      myFunctionCallExp(
+        myParamFunctionCallExp(
+          do_nothing1,
+          myExp(            myIntegerLiteralExp(0)
+          ),
+          myExp(            myStringLiteralExp("str2")
+          ),
+
+        )
+      )
+    ),
+
+  )
+)

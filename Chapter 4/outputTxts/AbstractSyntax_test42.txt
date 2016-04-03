@@ -1,0 +1,249 @@
+myExp(  myLetExp(
+    myDec(
+      myTypeDec(myArrayType(
+        arrtype1,
+        int,
+      ))
+    ),
+    myDec(
+      myTypeDec(myRecordType(
+        rectype1,
+        name : string, address : string, id : int, age : int, 
+      ))
+    ),
+    myDec(
+      myTypeDec(myArrayType(
+        arrtype2,
+        rectype1,
+      ))
+    ),
+    myDec(
+      myTypeDec(myRecordType(
+        rectype2,
+        name : string, dates : arrtype1, 
+      ))
+    ),
+    myDec(
+      myTypeDec(myArrayType(
+        arrtype3,
+        string,
+      ))
+    ),
+    myDec(
+      myVarDec(
+        myShortFormVar(
+          arr1,
+          myExp(            myArrayCreationExp(
+              arrtype1,
+              myExp(                myIntegerLiteralExp(10)
+              ),
+              myExp(                myIntegerLiteralExp(0)
+              )
+            )
+          )
+        )
+      )
+    ),
+    myDec(
+      myVarDec(
+        myShortFormVar(
+          arr2,
+          myExp(            myArrayCreationExp(
+              arrtype2,
+              myExp(                myIntegerLiteralExp(5)
+              ),
+              myExp(                myRecordCreationExp(
+                  myFieldRecordCreationExp(
+                    rectype1,
+                      name,
+                      myExp(                        myStringLiteralExp("aname")
+                      )
+                      address,
+                      myExp(                        myStringLiteralExp("somewhere")
+                      )
+                      id,
+                      myExp(                        myIntegerLiteralExp(0)
+                      )
+                      age,
+                      myExp(                        myIntegerLiteralExp(0)
+                      )
+
+                  )
+                )
+              )
+            )
+          )
+        )
+      )
+    ),
+    myDec(
+      myVarDec(
+        myLongFormVar(
+          arr3,
+          arrtype3,
+          myExp(            myArrayCreationExp(
+              arrtype3,
+              myExp(                myIntegerLiteralExp(100)
+              ),
+              myExp(                myStringLiteralExp("")
+              )
+            )
+          )
+        )
+      )
+    ),
+    myDec(
+      myVarDec(
+        myShortFormVar(
+          rec1,
+          myExp(            myRecordCreationExp(
+              myFieldRecordCreationExp(
+                rectype1,
+                  name,
+                  myExp(                    myStringLiteralExp("Kapoios")
+                  )
+                  address,
+                  myExp(                    myStringLiteralExp("Kapou")
+                  )
+                  id,
+                  myExp(                    myIntegerLiteralExp(2432)
+                  )
+                  age,
+                  myExp(                    myIntegerLiteralExp(44)
+                  )
+
+              )
+            )
+          )
+        )
+      )
+    ),
+    myDec(
+      myVarDec(
+        myShortFormVar(
+          rec2,
+          myExp(            myRecordCreationExp(
+              myFieldRecordCreationExp(
+                rectype2,
+                  name,
+                  myExp(                    myStringLiteralExp("Allos")
+                  )
+                  dates,
+                  myExp(                    myArrayCreationExp(
+                      arrtype1,
+                      myExp(                        myIntegerLiteralExp(3)
+                      ),
+                      myExp(                        myIntegerLiteralExp(1900)
+                      )
+                    )
+                  )
+
+              )
+            )
+          )
+        )
+      )
+    ),
+,
+    myExp(      myAssignmentExp(
+        myLValueExp(
+          myArraySubscript(
+            arr1,
+            myExp(              myIntegerLiteralExp(0)
+            )
+          )
+        ),
+        myExp(          myIntegerLiteralExp(1)
+        )
+      )
+    ),
+    myExp(      myAssignmentExp(
+        myLValueExp(
+          myArraySubscript(
+            arr1,
+            myExp(              myIntegerLiteralExp(9)
+            )
+          )
+        ),
+        myExp(          myIntegerLiteralExp(3)
+        )
+      )
+    ),
+    myExp(      myAssignmentExp(
+        myLValueExp(
+          myArraySubscript(
+            arr2,
+            myExp(              myIntegerLiteralExp(3)
+            ),
+            name
+          )
+        ),
+        myExp(          myStringLiteralExp("kati")
+        )
+      )
+    ),
+    myExp(      myAssignmentExp(
+        myLValueExp(
+          myArraySubscript(
+            arr2,
+            myExp(              myIntegerLiteralExp(1)
+            ),
+            age
+          )
+        ),
+        myExp(          myIntegerLiteralExp(23)
+        )
+      )
+    ),
+    myExp(      myAssignmentExp(
+        myLValueExp(
+          myArraySubscript(
+            arr3,
+            myExp(              myIntegerLiteralExp(34)
+            )
+          )
+        ),
+        myExp(          myStringLiteralExp("sfd")
+        )
+      )
+    ),
+    myExp(      myAssignmentExp(
+        myLValueExp(
+          myRecordField(
+            rec1,
+            name
+          )
+        ),
+        myExp(          myStringLiteralExp("sdf")
+        )
+      )
+    ),
+    myExp(      myAssignmentExp(
+        myLValueExp(
+          myRecordField(
+            rec2,
+            dates,
+            myExp(              myIntegerLiteralExp(0)
+            )
+          )
+        ),
+        myExp(          myIntegerLiteralExp(2323)
+        )
+      )
+    ),
+    myExp(      myAssignmentExp(
+        myLValueExp(
+          myRecordField(
+            rec2,
+            dates,
+            myExp(              myIntegerLiteralExp(2)
+            )
+          )
+        ),
+        myExp(          myIntegerLiteralExp(2323)
+        )
+      )
+    ),
+
+  )
+)

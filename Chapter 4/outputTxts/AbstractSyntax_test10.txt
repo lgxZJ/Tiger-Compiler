@@ -1,0 +1,22 @@
+myExp(  myWhileExp(
+    myExp(      myParenthesesExp(
+        myExp(          myComparisonExp(
+            myExp(              myIntegerLiteralExp(10)
+            ),
+            opLargerThan,
+            myExp(              myIntegerLiteralExp(5)
+            )
+          )
+        )
+      )
+    ),
+    myExp(      myArithmeticExp(
+        myExp(          myIntegerLiteralExp(5)
+        ),
+        opPlus,
+        myExp(          myIntegerLiteralExp(6)
+        )
+      )
+    )
+  )
+)

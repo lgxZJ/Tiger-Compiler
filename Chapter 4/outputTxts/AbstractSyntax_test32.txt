@@ -1,0 +1,28 @@
+myExp(  myLetExp(
+    myDec(
+      myTypeDec(myArrayType(
+        arrayty,
+        int,
+      ))
+    ),
+    myDec(
+      myVarDec(
+        myShortFormVar(
+          a,
+          myExp(            myArrayCreationExp(
+              arrayty,
+              myExp(                myIntegerLiteralExp(10)
+              ),
+              myExp(                myStringLiteralExp(" ")
+              )
+            )
+          )
+        )
+      )
+    ),
+,
+    myExp(      myIntegerLiteralExp(0)
+    ),
+
+  )
+)

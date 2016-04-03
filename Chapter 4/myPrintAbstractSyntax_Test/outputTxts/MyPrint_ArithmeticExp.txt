@@ -1,16 +1,28 @@
 myArithmeticExp(
-  myExp(    myIntegerLiteralExp(1)),
+  myExp(    myIntegerLiteralExp(1)
+  ),
   opPlus,
-  myExp(    myIntegerLiteralExp(1)))
+  myExp(    myIntegerLiteralExp(1)
+  )
+)
 myArithmeticExp(
-  myExp(    myIntegerLiteralExp(1)),
+  myExp(    myIntegerLiteralExp(1)
+  ),
   opMinus,
-  myExp(    myIntegerLiteralExp(1)))
+  myExp(    myIntegerLiteralExp(1)
+  )
+)
 myArithmeticExp(
-  myExp(    myIntegerLiteralExp(1)),
+  myExp(    myIntegerLiteralExp(1)
+  ),
   opDivide,
-  myExp(    myIntegerLiteralExp(1)))
+  myExp(    myIntegerLiteralExp(1)
+  )
+)
 myArithmeticExp(
-  myExp(    myIntegerLiteralExp(1)),
+  myExp(    myIntegerLiteralExp(1)
+  ),
   opMultiply,
-  myExp(    myIntegerLiteralExp(1)))
+  myExp(    myIntegerLiteralExp(1)
+  )
+)

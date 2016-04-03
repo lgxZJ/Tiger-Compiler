@@ -1,0 +1,44 @@
+myExp(  myLetExp(
+    myDec(
+      myVarDec(
+        myShortFormVar(
+          a,
+          myExp(            myIntegerLiteralExp(0)
+          )
+        )
+      )
+    ),
+,
+    myExp(      myForExp(
+        i,
+        myExp(          myIntegerLiteralExp(0)
+        ),
+        myExp(          myIntegerLiteralExp(100)
+        ),
+        myExp(            mySequencingExp(
+            myExp(              myAssignmentExp(
+                myLValueExp(
+                  mySimpleVar(a)
+                ),
+                myExp(                  myArithmeticExp(
+                    myExp(                      myLValueExp(
+                        mySimpleVar(a)
+                      )
+                    ),
+                    opPlus,
+                    myExp(                      myIntegerLiteralExp(1)
+                    )
+                  )
+                )
+              )
+            ),
+            myExp(              myNoValueExp()
+            ),
+
+          )
+        )
+      )
+    ),
+
+  )
+)

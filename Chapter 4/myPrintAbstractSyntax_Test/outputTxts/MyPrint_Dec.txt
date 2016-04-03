@@ -2,4 +2,8 @@ myDec(
   myVarDec(
     myShortFormVar(
       name,
-      myExp(        myNoValueExp()))))
+      myExp(        myNoValueExp()
+      )
+    )
+  )
+)

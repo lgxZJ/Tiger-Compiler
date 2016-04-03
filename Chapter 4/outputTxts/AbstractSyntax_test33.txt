@@ -1,0 +1,18 @@
+myExp(  myLetExp(
+    myDec(
+      myVarDec(
+        myShortFormVar(
+          a,
+          myExp(            myRecordCreationExp(
+              myNoFieldRecorCreationExp(rectype)
+            )
+          )
+        )
+      )
+    ),
+,
+    myExp(      myIntegerLiteralExp(0)
+    ),
+
+  )
+)

@@ -1,0 +1,33 @@
+myExp(  myLetExp(
+    myDec(
+      myFuncDec(
+        myFunctionDec(
+          g,
+          a : int, 
+          int,
+          myExp(            myLValueExp(
+              mySimpleVar(a)
+            )
+          )
+        )
+      )
+    ),
+    myDec(
+      myFuncDec(
+        myFunctionDec(
+          g,
+          a : int, 
+          int,
+          myExp(            myLValueExp(
+              mySimpleVar(a)
+            )
+          )
+        )
+      )
+    ),
+,
+    myExp(      myIntegerLiteralExp(0)
+    ),
+
+  )
+)

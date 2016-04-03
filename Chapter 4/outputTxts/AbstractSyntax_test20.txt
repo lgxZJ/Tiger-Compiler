@@ -1,0 +1,27 @@
+myExp(  myWhileExp(
+    myExp(      myComparisonExp(
+        myExp(          myIntegerLiteralExp(10)
+        ),
+        opLargerThan,
+        myExp(          myIntegerLiteralExp(5)
+        )
+      )
+    ),
+    myExp(        mySequencingExp(
+        myExp(          myArithmeticExp(
+            myExp(              myLValueExp(
+                mySimpleVar(i)
+              )
+            ),
+            opPlus,
+            myExp(              myIntegerLiteralExp(1)
+            )
+          )
+        ),
+        myExp(          myNoValueExp()
+        ),
+
+      )
+    )
+  )
+)

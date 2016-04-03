@@ -1,0 +1,63 @@
+myExp(  myLetExp(
+    myDec(
+      myFuncDec(
+        myFunctionDec(
+          nfactor,
+          n : int, 
+          int,
+          myExp(            myIfThenElseExp(
+              myExp(                myComparisonExp(
+                  myExp(                    myLValueExp(
+                      mySimpleVar(n)
+                    )
+                  ),
+                  opEqual,
+                  myExp(                    myIntegerLiteralExp(0)
+                  )
+                )
+              ),
+              myExp(                myIntegerLiteralExp(1)
+              ),
+              myExp(                myArithmeticExp(
+                  myExp(                    myLValueExp(
+                      mySimpleVar(n)
+                    )
+                  ),
+                  opMultiply,
+                  myExp(                    myFunctionCallExp(
+                      myParamFunctionCallExp(
+                        nfactor,
+                        myExp(                          myArithmeticExp(
+                            myExp(                              myLValueExp(
+                                mySimpleVar(n)
+                              )
+                            ),
+                            opMinus,
+                            myExp(                              myIntegerLiteralExp(1)
+                            )
+                          )
+                        ),
+
+                      )
+                    )
+                  )
+                )
+              )
+            )
+          )
+        )
+      )
+    ),
+,
+    myExp(      myFunctionCallExp(
+        myParamFunctionCallExp(
+          nfactor,
+          myExp(            myIntegerLiteralExp(10)
+          ),
+
+        )
+      )
+    ),
+
+  )
+)

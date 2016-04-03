@@ -1,14 +1,14 @@
-Test_myTable.out: Test_myTable.o myTable.o myCheckedMalloc.o
-	cc -g -L/home/lgxZJ/Libraries/CUnit/lib -lcunit -o Test_myTable.out Test_myTable.o myTable.o myCheckedMalloc.o
+Test_myTable.out: Test_myTable.o myTable.o makeMemory.o
+	cc -g -L/home/lgxZJ/Libraries/CUnit/lib -lcunit -o Test_myTable.out Test_myTable.o myTable.o makeMemory.o
 
 Test_myTable.o: Test_myTable.c ../myTable.h
 	cc -g -std=c99 -I/home/lgxZJ/Libraries/CUnit/include -c Test_myTable.c
 
-myTable.o: ../myTable.c ../myTable.h ../myCheckedMalloc.h
+myTable.o: ../myTable.c ../myTable.h ../makeMemory.h
 	cc -g -std=c99 -c ../myTable.c
 
-myCheckedMalloc.o: ../myCheckedMalloc.c ../myCheckedMalloc.h
-	cc -g -c ../myCheckedMalloc.c
+makeMemory.o: ../myCheckedMalloc.c ../makeMemory.h
+	cc -g -c -std=c99 ../makeMemory.c
 
 clean:
-	rm -f myCheckedMalloc.o myTable.o Test_myTable.o Test_myTable.out
+	rm -f makeMemory.o myTable.o Test_myTable.o Test_myTable.out

@@ -1,0 +1,71 @@
+myExp(  myLetExp(
+    myDec(
+      myTypeDec(myArrayType(
+        arrtype,
+        int,
+      ))
+    ),
+    myDec(
+      myTypeDec(myRecordType(
+        rectype,
+        name : string, id : int, 
+      ))
+    ),
+    myDec(
+      myVarDec(
+        myShortFormVar(
+          rec,
+          myExp(            myRecordCreationExp(
+              myFieldRecordCreationExp(
+                rectype,
+                  name,
+                  myExp(                    myStringLiteralExp("aname")
+                  )
+                  id,
+                  myExp(                    myIntegerLiteralExp(0)
+                  )
+
+              )
+            )
+          )
+        )
+      )
+    ),
+    myDec(
+      myVarDec(
+        myShortFormVar(
+          arr,
+          myExp(            myArrayCreationExp(
+              arrtype,
+              myExp(                myIntegerLiteralExp(3)
+              ),
+              myExp(                myIntegerLiteralExp(0)
+              )
+            )
+          )
+        )
+      )
+    ),
+,
+    myExp(      myIfThenElseExp(
+        myExp(          myComparisonExp(
+            myExp(              myLValueExp(
+                mySimpleVar(rec)
+              )
+            ),
+            opNotEqual,
+            myExp(              myLValueExp(
+                mySimpleVar(arr)
+              )
+            )
+          )
+        ),
+        myExp(          myIntegerLiteralExp(3)
+        ),
+        myExp(          myIntegerLiteralExp(4)
+        )
+      )
+    ),
+
+  )
+)

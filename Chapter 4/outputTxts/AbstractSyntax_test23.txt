@@ -1,0 +1,53 @@
+myExp(  myLetExp(
+    myDec(
+      myTypeDec(myRecordType(
+        rectype,
+        name : string, id : int, 
+      ))
+    ),
+    myDec(
+      myVarDec(
+        myShortFormVar(
+          rec1,
+          myExp(            myRecordCreationExp(
+              myFieldRecordCreationExp(
+                rectype,
+                  name,
+                  myExp(                    myStringLiteralExp("aname")
+                  )
+                  id,
+                  myExp(                    myIntegerLiteralExp(0)
+                  )
+
+              )
+            )
+          )
+        )
+      )
+    ),
+,
+    myExp(      myAssignmentExp(
+        myLValueExp(
+          myRecordField(
+            rec1,
+            name
+          )
+        ),
+        myExp(          myIntegerLiteralExp(3)
+        )
+      )
+    ),
+    myExp(      myAssignmentExp(
+        myLValueExp(
+          myRecordField(
+            rec1,
+            id
+          )
+        ),
+        myExp(          myStringLiteralExp("")
+        )
+      )
+    ),
+
+  )
+)

@@ -3,11 +3,20 @@ myLetExp(
     myVarDec(
       myShortFormVar(
         name,
-        myExp(          myNoValueExp())))),
+        myExp(          myNoValueExp()
+        )
+      )
+    )
+  ),
   myDec(
     myVarDec(
       myShortFormVar(
         name,
-        myExp(          myNoValueExp())))),
+        myExp(          myNoValueExp()
+        )
+      )
+    )
+  ),
 ,
+
 )

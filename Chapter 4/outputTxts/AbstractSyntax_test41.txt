@@ -1,0 +1,24 @@
+myExp(  myLetExp(
+    myDec(
+      myTypeDec(myNamedType(
+        a,
+        int,
+      ))
+    ),
+,
+    myExp(      myLetExp(
+        myDec(
+          myTypeDec(myNamedType(
+            a,
+            string,
+          ))
+        ),
+,
+        myExp(          myIntegerLiteralExp(0)
+        ),
+
+      )
+    ),
+
+  )
+)

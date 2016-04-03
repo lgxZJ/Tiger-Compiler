@@ -1,4 +1,4 @@
-myTypeDec(
+myTypeDec(myNamedType(
   symbol,
   ty,
-)
+))

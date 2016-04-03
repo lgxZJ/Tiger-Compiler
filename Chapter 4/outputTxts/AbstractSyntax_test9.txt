@@ -1,0 +1,18 @@
+myExp(  myIfThenElseExp(
+    myExp(      myParenthesesExp(
+        myExp(          myComparisonExp(
+            myExp(              myIntegerLiteralExp(5)
+            ),
+            opLargerThan,
+            myExp(              myIntegerLiteralExp(4)
+            )
+          )
+        )
+      )
+    ),
+    myExp(      myIntegerLiteralExp(13)
+    ),
+    myExp(      myStringLiteralExp(" ")
+    )
+  )
+)

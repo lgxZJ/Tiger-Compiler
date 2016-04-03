@@ -1,0 +1,42 @@
+myExp(  myLetExp(
+    myDec(
+      myTypeDec(myRecordType(
+        rectype1,
+        name : string, id : int, 
+      ))
+    ),
+    myDec(
+      myTypeDec(myRecordType(
+        rectype2,
+        name : string, id : int, 
+      ))
+    ),
+    myDec(
+      myVarDec(
+        myLongFormVar(
+          rec1,
+          rectype1,
+          myExp(            myRecordCreationExp(
+              myFieldRecordCreationExp(
+                rectype2,
+                  name,
+                  myExp(                    myStringLiteralExp("Name")
+                  )
+                  id,
+                  myExp(                    myIntegerLiteralExp(0)
+                  )
+
+              )
+            )
+          )
+        )
+      )
+    ),
+,
+    myExp(      myLValueExp(
+        mySimpleVar(rec1)
+      )
+    ),
+
+  )
+)
