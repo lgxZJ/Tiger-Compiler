@@ -61,20 +61,33 @@ string          { recordTokenPos(false, yyleng);        return STRING; }
 ":="		{ recordTokenPos(false, yyleng);        return ASSIGNMENT_SIGN; }
 
 
-[a-zA-Z][a-zA-Z0-9_]*	{ recordTokenPos(false, yyleng); yylval.myString_val = translateEscape(lexString(yytext, yyleng));        return ID; }
-[0-9]+			{ recordTokenPos(false, yyleng); yylval.int_val = atoi(lexString(yytext, yyleng));        return INTEGER_LITERAL; }
+[a-zA-Z][a-zA-Z0-9_]*	{ 
+				recordTokenPos(false, yyleng);
+				yylval.myString_val = translateEscape(lexString(yytext, yyleng));
+				return ID; }
+[0-9]+			{
+				recordTokenPos(false, yyleng);
+				yylval.int_val = atoi(lexString(yytext, yyleng));
+				return INTEGER_LITERAL; }
  /*	under Windows, use below	*/
- /*\"({valid_string_line}|\\[\t ]*\r\n[\t ]*\\)*\"	{ recordTokenPos(false, yyleng);*/
+ /*\"({valid_string_line}|\\[\t ]*\r\n[\t ]*\\)*\"	{ 
+				recordTokenPos(false, yyleng);
+				yylval.myString_val = translateEscape(lexString(yytext, yyleng));
+				return STRING_LITERAL; }*/
  /*	under Linux, use below	*/
-\"({valid_string_line}|\\[\t ]*\n[\t ]*\\)*\"	{ recordTokenPos(false, yyleng); yylval.myString_val = translateEscape(lexString(yytext, yyleng));        return STRING_LITERAL; }
+\"({valid_string_line}|\\[\t ]*\n[\t ]*\\)*\"	{
+				recordTokenPos(false, yyleng);
+				yylval.myString_val = translateEscape(lexString(yytext, yyleng));
+				return STRING_LITERAL; }
 
+ /*	process c-style comments	*/
 "/*"                   	{ BEGIN(C_COMMENT); }
 <C_COMMENT>"*/"		{ BEGIN(INITIAL); }
 <C_COMMENT>\n           { recordTokenPos(true, yyleng); } 
 <C_COMMENT>.            { recordTokenPos(false, yyleng); }
 
 [ \t\f]			{ recordTokenPos(false, yyleng); }
- /*	under linux, use the line below to detect newline	*/
+ /*	under Linux, use the line below to detect newline	*/
 \n	       		{ recordTokenPos(true, yyleng); }
  /*	under window, use the line below to detect newline	*/
  /*\r\n	       		{ recordTokenPos(true, yyleng); }*/

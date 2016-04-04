@@ -2072,6 +2072,9 @@ state 91
 	boolean_operate : exp . LOGICAL_AND exp  (65)
 	boolean_operate : exp . LOGICAL_OR exp  (66)
 
+	GREATER_SIGN  shift 62
+	LESS_EQUAL_SIGN  shift 63
+	GREATER_EQUAL_SIGN  shift 64
 	ADD_SIGN  shift 65
 	MINUS_SIGN  shift 66
 	MULTIPLY_SIGN  shift 67
@@ -2110,6 +2113,9 @@ state 92
 	boolean_operate : exp . LOGICAL_AND exp  (65)
 	boolean_operate : exp . LOGICAL_OR exp  (66)
 
+	GREATER_SIGN  shift 62
+	LESS_EQUAL_SIGN  shift 63
+	GREATER_EQUAL_SIGN  shift 64
 	ADD_SIGN  shift 65
 	MINUS_SIGN  shift 66
 	MULTIPLY_SIGN  shift 67
@@ -2148,6 +2154,9 @@ state 93
 	boolean_operate : exp . LOGICAL_AND exp  (65)
 	boolean_operate : exp . LOGICAL_OR exp  (66)
 
+	GREATER_SIGN  shift 62
+	LESS_EQUAL_SIGN  shift 63
+	GREATER_EQUAL_SIGN  shift 64
 	ADD_SIGN  shift 65
 	MINUS_SIGN  shift 66
 	MULTIPLY_SIGN  shift 67
@@ -2207,6 +2216,9 @@ state 94
 	RIGHT_BRACKET  reduce 63
 	LOGICAL_AND  reduce 63
 	LOGICAL_OR  reduce 63
+	EQUAL_SIGN  reduce 63
+	NOT_EQUAL_SIGN  reduce 63
+	LESS_SIGN  reduce 63
 
 
 state 95
@@ -2245,6 +2257,9 @@ state 95
 	RIGHT_BRACKET  reduce 62
 	LOGICAL_AND  reduce 62
 	LOGICAL_OR  reduce 62
+	EQUAL_SIGN  reduce 62
+	NOT_EQUAL_SIGN  reduce 62
+	LESS_SIGN  reduce 62
 
 
 state 96
@@ -2283,6 +2298,9 @@ state 96
 	RIGHT_BRACKET  reduce 64
 	LOGICAL_AND  reduce 64
 	LOGICAL_OR  reduce 64
+	EQUAL_SIGN  reduce 64
+	NOT_EQUAL_SIGN  reduce 64
+	LESS_SIGN  reduce 64
 
 
 state 97

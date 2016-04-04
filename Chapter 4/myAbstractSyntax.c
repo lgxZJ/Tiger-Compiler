@@ -457,7 +457,6 @@ myFunctionCallExp makeMyFunctionCallExp_Param(myParamFunctionCallExp exp)
 
 //----------------------NilExp struct-----------------------//
 
-//	todo: struct with no members, can it be allocated?
 
 myNilExp makeMyNilExp()
 {
@@ -637,7 +636,7 @@ myParenthesesExp makeMyParenthesesExp(myExp exp)
 
 //------------------NoValueExp struct-----------------------//
 
-myNoValueExp makeMyNoValueExp()
+inline myNoValueExp makeMyNoValueExp()
 {
 	myNoValueExp one = makeMemoryBlock(sizeof(*one), MEMORY_TYPE_NONE);
 	return one;

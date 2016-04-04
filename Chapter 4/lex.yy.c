@@ -1030,68 +1030,81 @@ YY_RULE_SETUP
 case 43:
 YY_RULE_SETUP
 #line 64 "myTiger.lex"
-{ recordTokenPos(false, yyleng); yylval.myString_val = translateEscape(lexString(yytext, yyleng));        return ID; }
+{ 
+				recordTokenPos(false, yyleng);
+				yylval.myString_val = translateEscape(lexString(yytext, yyleng));
+				return ID; }
 	YY_BREAK
 case 44:
 YY_RULE_SETUP
-#line 65 "myTiger.lex"
-{ recordTokenPos(false, yyleng); yylval.int_val = atoi(lexString(yytext, yyleng));        return INTEGER_LITERAL; }
+#line 68 "myTiger.lex"
+{
+				recordTokenPos(false, yyleng);
+				yylval.int_val = atoi(lexString(yytext, yyleng));
+				return INTEGER_LITERAL; }
 	YY_BREAK
 /*	under Windows, use below	*/
-/*\"({valid_string_line}|\\[\t ]*\r\n[\t ]*\\)*\"	{ recordTokenPos(false, yyleng);*/
+/*\"({valid_string_line}|\\[\t ]*\r\n[\t ]*\\)*\"	{ 
+				recordTokenPos(false, yyleng);
+				yylval.myString_val = translateEscape(lexString(yytext, yyleng));
+				return STRING_LITERAL; }*/
 /*	under Linux, use below	*/
 case 45:
 /* rule 45 can match eol */
 YY_RULE_SETUP
-#line 69 "myTiger.lex"
-{ recordTokenPos(false, yyleng); yylval.myString_val = translateEscape(lexString(yytext, yyleng));        return STRING_LITERAL; }
+#line 78 "myTiger.lex"
+{
+				recordTokenPos(false, yyleng);
+				yylval.myString_val = translateEscape(lexString(yytext, yyleng));
+				return STRING_LITERAL; }
 	YY_BREAK
+/*	process c-style comments	*/
 case 46:
 YY_RULE_SETUP
-#line 71 "myTiger.lex"
+#line 84 "myTiger.lex"
 { BEGIN(C_COMMENT); }
 	YY_BREAK
 case 47:
 YY_RULE_SETUP
-#line 72 "myTiger.lex"
+#line 85 "myTiger.lex"
 { BEGIN(INITIAL); }
 	YY_BREAK
 case 48:
 /* rule 48 can match eol */
 YY_RULE_SETUP
-#line 73 "myTiger.lex"
+#line 86 "myTiger.lex"
 { recordTokenPos(true, yyleng); } 
 	YY_BREAK
 case 49:
 YY_RULE_SETUP
-#line 74 "myTiger.lex"
+#line 87 "myTiger.lex"
 { recordTokenPos(false, yyleng); }
 	YY_BREAK
 case 50:
 YY_RULE_SETUP
-#line 76 "myTiger.lex"
+#line 89 "myTiger.lex"
 { recordTokenPos(false, yyleng); }
 	YY_BREAK
-/*	under linux, use the line below to detect newline	*/
+/*	under Linux, use the line below to detect newline	*/
 case 51:
 /* rule 51 can match eol */
 YY_RULE_SETUP
-#line 78 "myTiger.lex"
+#line 91 "myTiger.lex"
 { recordTokenPos(true, yyleng); }
 	YY_BREAK
 /*	under window, use the line below to detect newline	*/
 /*\r\n	       		{ recordTokenPos(true, yyleng); }*/
 case 52:
 YY_RULE_SETUP
-#line 81 "myTiger.lex"
+#line 94 "myTiger.lex"
 { recordTokenPos(false, yyleng); errorReport(); }
 	YY_BREAK
 case 53:
 YY_RULE_SETUP
-#line 82 "myTiger.lex"
+#line 95 "myTiger.lex"
 ECHO;
 	YY_BREAK
-#line 1095 "lex.yy.c"
+#line 1108 "lex.yy.c"
 case YY_STATE_EOF(INITIAL):
 case YY_STATE_EOF(C_COMMENT):
 	yyterminate();
@@ -2086,4 +2099,4 @@ void yyfree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 82 "myTiger.lex"
+#line 95 "myTiger.lex"

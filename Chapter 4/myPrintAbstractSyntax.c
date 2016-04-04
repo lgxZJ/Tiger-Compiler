@@ -6,18 +6,17 @@
  *		print abstract syntax data structures.
  */
 
-//	todo:	add static back to some functions
+/*
+ *	To test, uncomment following `static` keywords. After testing,
+ *	comment them back.
+ */
 
-//	todo:forward declarations
 
-//	todo: change line
+//	todo: refactor indentPrintf().
 
-//	todo: static keyward
-
-//	todo: refactor printSymbol(mySymbol)
 
 /*	forward declarations	*/
-void MyPrint_ExpList(FILE* out, myExpList expList, int indentSpaceNum);
+static void MyPrint_ExpList(FILE* out, myExpList expList, int indentSpaceNum);
 
 /*====================================================================================*/
 
@@ -28,9 +27,16 @@ static void indent(FILE* out, int numOfSpace)
 		fputc(' ', out);
 }
 
+static void changeLineIndentAddBrace(FILE* out, int numOfSpace)
+{
+    fprintf(out, "\n");
+    indent(out, numOfSpace);
+    fprintf(out, ")");
+}
+
 /*====================================================================================*/
 
-void MyPrint_TyFieldList(FILE* out, myTyFieldList tyFieldList, int indentSpaceNum)
+static void MyPrint_TyFieldList(FILE* out, myTyFieldList tyFieldList, int indentSpaceNum)
 {
     while (tyFieldList)
     {
@@ -44,7 +50,7 @@ void MyPrint_TyFieldList(FILE* out, myTyFieldList tyFieldList, int indentSpaceNu
     };
 }
 
-void MyPrint_Ty(FILE* out, myTy ty, int indentSpaceNum)
+static void MyPrint_Ty(FILE* out, myTy ty, int indentSpaceNum)
 {
 	if (ty == NULL)		return;
 	
@@ -63,7 +69,7 @@ void MyPrint_Ty(FILE* out, myTy ty, int indentSpaceNum)
 	}
 }
 
-void MyPrint_TypeDec(FILE* out, myTypeDec tyDec, int indentSpaceNum)
+static void MyPrint_TypeDec(FILE* out, myTypeDec tyDec, int indentSpaceNum)
 {
 	if (tyDec == NULL)		return;
 	
@@ -92,7 +98,7 @@ void MyPrint_TypeDec(FILE* out, myTypeDec tyDec, int indentSpaceNum)
 
 	/*---------------------------------------*/
 	
-void MyPrint_LongFormVar(FILE* out, myLongFormVar var, int indentSpaceNum)
+static void MyPrint_LongFormVar(FILE* out, myLongFormVar var, int indentSpaceNum)
 {
 	if (var == NULL)		return;
 	
@@ -107,12 +113,10 @@ void MyPrint_LongFormVar(FILE* out, myLongFormVar var, int indentSpaceNum)
 	
 	MyPrint_Exp(out, var->exp, indentSpaceNum + 2);
 
-	fprintf(out, "\n");
-	indent(out, indentSpaceNum);
-	fprintf(out, ")");
+	changeLineIndentAddBrace(out, indentSpaceNum);
 }
 
-void MyPrint_ShortFormVar(FILE* out, myShortFormVar var, int indentSpaceNum)
+static void MyPrint_ShortFormVar(FILE* out, myShortFormVar var, int indentSpaceNum)
 {
 	if (var == NULL)		return;
 	
@@ -124,12 +128,10 @@ void MyPrint_ShortFormVar(FILE* out, myShortFormVar var, int indentSpaceNum)
 	
 	MyPrint_Exp(out, var->exp, indentSpaceNum + 2);
 
-	fprintf(out, "\n");
-	indent(out, indentSpaceNum);
-	fprintf(out, ")");
+	changeLineIndentAddBrace(out, indentSpaceNum);
 }
 	
-void MyPrint_VarDec(FILE* out, myVarDec varDec, int indentSpaceNum)
+static void MyPrint_VarDec(FILE* out, myVarDec varDec, int indentSpaceNum)
 {
 	if (varDec == NULL)		return;
 	
@@ -146,14 +148,12 @@ void MyPrint_VarDec(FILE* out, myVarDec varDec, int indentSpaceNum)
 		break;
 	}
 
-	fprintf(out, "\n");
-	indent(out, indentSpaceNum);
-	fprintf(out, ")");
+	changeLineIndentAddBrace(out, indentSpaceNum);
 }
 
 	/*---------------------------------------*/
 
-void MyPrint_ProcedureDec(FILE* out, myProcedureDec dec, int indentSpaceNum)
+static void MyPrint_ProcedureDec(FILE* out, myProcedureDec dec, int indentSpaceNum)
 {
 	if (dec == NULL)		return;
 	
@@ -172,12 +172,10 @@ void MyPrint_ProcedureDec(FILE* out, myProcedureDec dec, int indentSpaceNum)
 	fprintf(out, "\n");
 	MyPrint_Exp(out, dec->exp, indentSpaceNum + 2);
 
-	fprintf(out, "\n");
-	indent(out, indentSpaceNum);
-	fprintf(out, ")");
+	changeLineIndentAddBrace(out, indentSpaceNum);
 }
 	
-void MyPrint_FunctionDec(FILE* out, myFunctionDec dec, int indentSpaceNum)
+static void MyPrint_FunctionDec(FILE* out, myFunctionDec dec, int indentSpaceNum)
 {
 	if (dec == NULL)	return;
 	
@@ -199,12 +197,10 @@ void MyPrint_FunctionDec(FILE* out, myFunctionDec dec, int indentSpaceNum)
 	//	print function body
 	MyPrint_Exp(out, dec->exp, indentSpaceNum + 2);
 
-	fprintf(out, "\n");
-	indent(out, indentSpaceNum);
-	fprintf(out, ")");
+	changeLineIndentAddBrace(out, indentSpaceNum);
 }
 	
-void MyPrint_FuncDec(FILE* out, myFuncDec funcDec, int indentSpaceNum)
+static void MyPrint_FuncDec(FILE* out, myFuncDec funcDec, int indentSpaceNum)
 {
 	if (funcDec == NULL)	return;
 	
@@ -221,14 +217,12 @@ void MyPrint_FuncDec(FILE* out, myFuncDec funcDec, int indentSpaceNum)
 		break;
 	}
 
-	fprintf(out, "\n");
-	indent(out, indentSpaceNum);
-	fprintf(out, ")");
+	changeLineIndentAddBrace(out, indentSpaceNum);
 }
 	
 	/*-------------------------------------*/
 	
-void MyPrint_Dec(FILE* out, myDec dec, int indentSpaceNum)
+static void MyPrint_Dec(FILE* out, myDec dec, int indentSpaceNum)
 {
 	if (dec == NULL)		return;
 	
@@ -242,12 +236,10 @@ void MyPrint_Dec(FILE* out, myDec dec, int indentSpaceNum)
 	case FuncDec:	MyPrint_FuncDec(out, dec->u.funcDec,indentSpaceNum + 2);break;
 	}
 
-	fprintf(out, "\n");
-	indent(out, indentSpaceNum);
-	fprintf(out, ")");
+	changeLineIndentAddBrace(out, indentSpaceNum);
 }
 
-void MyPrint_DecList(FILE* out, myDecList decList, int indentSpaceNum)
+static void MyPrint_DecList(FILE* out, myDecList decList, int indentSpaceNum)
 {
 	if (decList == NULL)	return;
 	
@@ -308,9 +300,7 @@ static void MyPrint_RecordField(FILE* out, mySymbol id,
 	aux = aux->next;
     }
 
-    fprintf(out, "\n");
-    indent(out, indentSpaceNum);
-    fprintf(out, ")");
+    changeLineIndentAddBrace(out, indentSpaceNum);
 }
 
 static void MyPrint_ArraySubscript(FILE* out, mySymbol id,
@@ -349,39 +339,35 @@ static void MyPrint_ArraySubscript(FILE* out, mySymbol id,
         aux = aux->next;
     }
 
-    fprintf(out, "\n");
-    indent(out, indentSpaceNum);
-    fprintf(out, ")");
+    changeLineIndentAddBrace(out, indentSpaceNum);
 }
 
-void MyPrint_LValueExp(FILE* out, myLValueExp lValueExp, int indentSpaceNum)
+static void MyPrint_LValueExp(FILE* out, myLValueExp lValueExp, int indentSpaceNum)
 {
-	if (lValueExp == NULL)	return;
+    if (lValueExp == NULL)	return;
 	
-	indent(out, indentSpaceNum);
-	fprintf(out, "myLValueExp(\n");
+    indent(out, indentSpaceNum);
+    fprintf(out, "myLValueExp(\n");
 	
-	switch (lValueExp->kind)
-	{
-	case SimpleVar:
-		MyPrint_SimpleVar(out, lValueExp->id, lValueExp->u.simpleVarAux, indentSpaceNum + 2);
-		break;
-	case RecordField:
-		MyPrint_RecordField(out, lValueExp->id, lValueExp->u.recordFieldAux, indentSpaceNum + 2);
-		break;
-	case ArraySubscript:
-		MyPrint_ArraySubscript(out, lValueExp->id, lValueExp->u.arraySubscriptAux, indentSpaceNum + 2);
-		break;
-	}
+    switch (lValueExp->kind)
+    {
+    case SimpleVar:
+	MyPrint_SimpleVar(out, lValueExp->id, lValueExp->u.simpleVarAux, indentSpaceNum + 2);
+	break;
+    case RecordField:
+	MyPrint_RecordField(out, lValueExp->id, lValueExp->u.recordFieldAux, indentSpaceNum + 2);
+	break;
+    case ArraySubscript:
+	MyPrint_ArraySubscript(out, lValueExp->id, lValueExp->u.arraySubscriptAux, indentSpaceNum + 2);
+	break;
+    }
 
-	fprintf(out, "\n");
-	indent(out, indentSpaceNum);
-	fprintf(out, ")");
+    changeLineIndentAddBrace(out, indentSpaceNum);
 }
 
 /*=====================================================================================*/
 
-void MyPrint_NoParamFunctionCallExp(FILE* out, myNoParamFunctionCallExp exp, int indentSpaceNum)
+static void MyPrint_NoParamFunctionCallExp(FILE* out, myNoParamFunctionCallExp exp, int indentSpaceNum)
 {
 	if (exp == NULL)	return;
 	
@@ -389,7 +375,7 @@ void MyPrint_NoParamFunctionCallExp(FILE* out, myNoParamFunctionCallExp exp, int
 	fprintf(out, "myNoParamFunctionCallExp(%s)", MySymbol_GetName(exp->name));
 }
 
-void MyPrint_ParamFunctionCallExp(FILE* out, myParamFunctionCallExp exp, int indentSpaceNum)
+static void MyPrint_ParamFunctionCallExp(FILE* out, myParamFunctionCallExp exp, int indentSpaceNum)
 {
 	if (exp == NULL)				return;
 	
@@ -402,13 +388,10 @@ void MyPrint_ParamFunctionCallExp(FILE* out, myParamFunctionCallExp exp, int ind
 	/*	print 2th member	*/
 	MyPrint_ExpList(out, exp->expList, indentSpaceNum + 2);
 
-	fprintf(out, "\n");
-	indent(out, indentSpaceNum);
-	fprintf(out, ")");
-	
+	changeLineIndentAddBrace(out, indentSpaceNum);
 }
 
-void MyPrint_FunctionCallExp(FILE* out, myFunctionCallExp exp, int indentSpaceNum)
+static void MyPrint_FunctionCallExp(FILE* out, myFunctionCallExp exp, int indentSpaceNum)
 {
 	if (exp == NULL)			return;
 	
@@ -425,15 +408,13 @@ void MyPrint_FunctionCallExp(FILE* out, myFunctionCallExp exp, int indentSpaceNu
 		break;
 	}
 
-	fprintf(out, "\n");
-	indent(out, indentSpaceNum);
-	fprintf(out, ")");
+	changeLineIndentAddBrace(out, indentSpaceNum);
 }
 
 /*=======================================================================================*/
 
 /*	no need of exp, but we have to declare it here for language reason	*/
-void MyPrint_NilExp(FILE* out, myNilExp notUsed, int indentSpaceNum)
+static void MyPrint_NilExp(FILE* out, myNilExp notUsed, int indentSpaceNum)
 {
 	indent(out, indentSpaceNum);
 	fprintf(out, "myNilExp()");
@@ -441,7 +422,7 @@ void MyPrint_NilExp(FILE* out, myNilExp notUsed, int indentSpaceNum)
 
 /*======================================================================================*/
 
-void MyPrint_IntegerLiteralExp(FILE* out, myIntegerLiteralExp exp, int indentSpaceNum)
+static void MyPrint_IntegerLiteralExp(FILE* out, myIntegerLiteralExp exp, int indentSpaceNum)
 {
 	if (exp == NULL)		return;
 	
@@ -451,7 +432,7 @@ void MyPrint_IntegerLiteralExp(FILE* out, myIntegerLiteralExp exp, int indentSpa
 
 /*======================================================================================*/
 
-void MyPrint_StringLiteralExp(FILE* out, myStringLiteralExp exp, int indentSpaceNum)
+static void MyPrint_StringLiteralExp(FILE* out, myStringLiteralExp exp, int indentSpaceNum)
 {
 	if (exp == NULL)		return;
 	
@@ -461,7 +442,7 @@ void MyPrint_StringLiteralExp(FILE* out, myStringLiteralExp exp, int indentSpace
 
 /*=====================================================================================*/
 
-void MyPrint_ArrayCreationExp(FILE* out, myArrayCreationExp exp, int indentSpaceNum)
+static void MyPrint_ArrayCreationExp(FILE* out, myArrayCreationExp exp, int indentSpaceNum)
 {
 	if (exp == NULL)		return;
 	
@@ -477,14 +458,12 @@ void MyPrint_ArrayCreationExp(FILE* out, myArrayCreationExp exp, int indentSpace
 	/*	print 3th member	*/
 	MyPrint_Exp(out, exp->initial, indentSpaceNum + 2);
 
-	fprintf(out, "\n");
-	indent(out, indentSpaceNum);
-	fprintf(out, ")");
+	changeLineIndentAddBrace(out, indentSpaceNum);
 }
 
 /*=====================================================================================*/
 
-void MyPrint_NoFieldRecordCreationExp(FILE* out, myNoFieldRecordCreationExp exp, int indentSpaceNum)
+static void MyPrint_NoFieldRecordCreationExp(FILE* out, myNoFieldRecordCreationExp exp, int indentSpaceNum)
 {
 	if (exp == NULL)		return;
 	
@@ -493,7 +472,7 @@ void MyPrint_NoFieldRecordCreationExp(FILE* out, myNoFieldRecordCreationExp exp,
 }
 
 /*	print record field, so not increment indent number	*/
-void myPrint_RecordField(FILE* out, myRecordField field, int indentSpaceNum)
+static void myPrint_RecordField(FILE* out, myRecordField field, int indentSpaceNum)
 {
 	if (field == NULL)		return;
 	
@@ -503,7 +482,7 @@ void myPrint_RecordField(FILE* out, myRecordField field, int indentSpaceNum)
 	MyPrint_Exp(out, field->varValue, indentSpaceNum);
 }
 
-void MyPrint_FieldRecordCreationExp(FILE* out, myFieldRecordCreationExp exp, int indentSpaceNum)
+static void MyPrint_FieldRecordCreationExp(FILE* out, myFieldRecordCreationExp exp, int indentSpaceNum)
 {
 	if (exp == NULL)		return;
 	
@@ -516,7 +495,6 @@ void MyPrint_FieldRecordCreationExp(FILE* out, myFieldRecordCreationExp exp, int
 	myRecordFieldList fieldList = exp->fieldList;
 	while (fieldList)
 	{
-	    //	todo:
 	    indent(out, indentSpaceNum + 4);
 	    fprintf(out, "%s,\n", MySymbol_GetName(fieldList->field->varName));
 	    MyPrint_Exp(out, fieldList->field->varValue, indentSpaceNum + 4);
@@ -525,12 +503,10 @@ void MyPrint_FieldRecordCreationExp(FILE* out, myFieldRecordCreationExp exp, int
 	    fieldList = fieldList->next;
 	}
 
-	fprintf(out, "\n");
-	indent(out, indentSpaceNum);
-	fprintf(out, ")");
+	changeLineIndentAddBrace(out, indentSpaceNum);
 }
 
-void MyPrint_RecordCreationExp(FILE* out, myRecordCreationExp exp, int indentSpaceNum)
+static void MyPrint_RecordCreationExp(FILE* out, myRecordCreationExp exp, int indentSpaceNum)
 {
 	if (exp == NULL)		return;
 	
@@ -547,14 +523,12 @@ void MyPrint_RecordCreationExp(FILE* out, myRecordCreationExp exp, int indentSpa
 		break;
 	}
 
-	fprintf(out, "\n");
-	indent(out, indentSpaceNum);
-	fprintf(out, ")");
+	changeLineIndentAddBrace(out, indentSpaceNum);
 }
 
 /*======================================================================================*/
 
-void MyPrint_ArithmeticExp(FILE* out, myArithmeticExp exp, int indentSpaceNum)
+static void MyPrint_ArithmeticExp(FILE* out, myArithmeticExp exp, int indentSpaceNum)
 {
 	if (exp == NULL)		return;
 	
@@ -571,14 +545,12 @@ void MyPrint_ArithmeticExp(FILE* out, myArithmeticExp exp, int indentSpaceNum)
 	
 	MyPrint_Exp(out, exp->right, indentSpaceNum + 2);
 
-	fprintf(out, "\n");
-	indent(out, indentSpaceNum);
-	fprintf(out, ")");
+	changeLineIndentAddBrace(out, indentSpaceNum);
 }
 
 /*======================================================================================*/
 
-void MyPrint_ParenthesesExp(FILE* out, myParenthesesExp exp, int indentSpaceNum)
+static void MyPrint_ParenthesesExp(FILE* out, myParenthesesExp exp, int indentSpaceNum)
 {
 	if (exp == NULL)		return;
 	
@@ -587,15 +559,13 @@ void MyPrint_ParenthesesExp(FILE* out, myParenthesesExp exp, int indentSpaceNum)
 	
 	MyPrint_Exp(out, exp->exp, indentSpaceNum + 2);
 
-	fprintf(out, "\n");
-	indent(out, indentSpaceNum);
-	fprintf(out, ")");
+	changeLineIndentAddBrace(out, indentSpaceNum);
 }
 
 /*=====================================================================================*/
 
 /*	no need of exp, but c do not support anonymous parameters	*/
-void MyPrint_NoValueExp(FILE* out, myNoValueExp notUsed, int indentSpaceNum)
+static void MyPrint_NoValueExp(FILE* out, myNoValueExp notUsed, int indentSpaceNum)
 {
 	indent(out, indentSpaceNum);
 	fprintf(out, "myNoValueExp()");
@@ -603,7 +573,7 @@ void MyPrint_NoValueExp(FILE* out, myNoValueExp notUsed, int indentSpaceNum)
 
 /*=====================================================================================*/
 
-void MyPrint_SequencingExp(FILE* out, mySequencingExp exp, int indentSpaceNum)
+static void MyPrint_SequencingExp(FILE* out, mySequencingExp exp, int indentSpaceNum)
 {
 	if (exp == NULL)		return;
 	
@@ -618,14 +588,12 @@ void MyPrint_SequencingExp(FILE* out, mySequencingExp exp, int indentSpaceNum)
 
 	MyPrint_ExpList(out, exp->nextList, indentSpaceNum + 2);
 
-	fprintf(out, "\n");
-	indent(out, indentSpaceNum);
-	fprintf(out, ")");
+	changeLineIndentAddBrace(out, indentSpaceNum);
 }
 
 /*======================================================================================*/
 
-void MyPrint_ForExp(FILE* out, myForExp exp, int indentSpaceNum)
+static void MyPrint_ForExp(FILE* out, myForExp exp, int indentSpaceNum)
 {
 	if (exp == NULL)		return;
 	
@@ -643,14 +611,12 @@ void MyPrint_ForExp(FILE* out, myForExp exp, int indentSpaceNum)
 
 	MyPrint_Exp(out, exp->bodyExp, indentSpaceNum + 2);
 
-	fprintf(out, "\n");
-	indent(out, indentSpaceNum);
-	fprintf(out, ")");
+	changeLineIndentAddBrace(out, indentSpaceNum);
 }
 
 /*======================================================================================*/
 
-void MyPrint_IfThenElseExp(FILE* out, myIfThenElseExp exp, int indentSpaceNum)
+static void MyPrint_IfThenElseExp(FILE* out, myIfThenElseExp exp, int indentSpaceNum)
 {
 	if (exp == NULL)	return;
 	
@@ -665,14 +631,12 @@ void MyPrint_IfThenElseExp(FILE* out, myIfThenElseExp exp, int indentSpaceNum)
 
 	MyPrint_Exp(out, exp->exp3, indentSpaceNum + 2);
 
-	fprintf(out, "\n");
-	indent(out, indentSpaceNum);
-	fprintf(out, ")");
+	changeLineIndentAddBrace(out, indentSpaceNum);
 }
 
 /*======================================================================================*/
 
-void MyPrint_IfThenExp(FILE* out, myIfThenExp exp, int indentSpaceNum)
+static void MyPrint_IfThenExp(FILE* out, myIfThenExp exp, int indentSpaceNum)
 {
 	if (exp == NULL)		return;
 	
@@ -684,14 +648,12 @@ void MyPrint_IfThenExp(FILE* out, myIfThenExp exp, int indentSpaceNum)
 
 	MyPrint_Exp(out, exp->exp2, indentSpaceNum + 2);
 
-	fprintf(out, "\n");
-	indent(out, indentSpaceNum);
-	fprintf(out, ")");
+	changeLineIndentAddBrace(out, indentSpaceNum);
 }
 
 /*======================================================================================*/
 
-void MyPrint_ComparisonExp(FILE* out, myComparisonExp exp, int indentSpaceNum)
+static void MyPrint_ComparisonExp(FILE* out, myComparisonExp exp, int indentSpaceNum)
 {
 	if (exp == NULL)	return;
 	
@@ -711,14 +673,12 @@ void MyPrint_ComparisonExp(FILE* out, myComparisonExp exp, int indentSpaceNum)
 	
 	MyPrint_Exp(out, exp->right, indentSpaceNum + 2);
 
-	fprintf(out, "\n");
-	indent(out, indentSpaceNum);
-	fprintf(out, ")");
+	changeLineIndentAddBrace(out, indentSpaceNum);
 }
 
 /*======================================================================================*/
 
-void MyPrint_BooleanOperateExp(FILE* out, myBooleanOperateExp exp, int indentSpaceNum)
+static void MyPrint_BooleanOperateExp(FILE* out, myBooleanOperateExp exp, int indentSpaceNum)
 {
 	if (exp == NULL)	return;
 	
@@ -734,14 +694,12 @@ void MyPrint_BooleanOperateExp(FILE* out, myBooleanOperateExp exp, int indentSpa
 	
 	MyPrint_Exp(out, exp->right, indentSpaceNum + 2);
 
-	fprintf(out, "\n");
-	indent(out, indentSpaceNum);
-	fprintf(out, ")");
+	changeLineIndentAddBrace(out, indentSpaceNum);
 }
 
 /*======================================================================================*/
 
-void MyPrint_AssignmentExp(FILE* out, myAssignmentExp exp, int indentSpaceNum)
+static void MyPrint_AssignmentExp(FILE* out, myAssignmentExp exp, int indentSpaceNum)
 {
 	if (exp == NULL)		return;
 	
@@ -753,14 +711,12 @@ void MyPrint_AssignmentExp(FILE* out, myAssignmentExp exp, int indentSpaceNum)
 
 	MyPrint_Exp(out, exp->exp, indentSpaceNum + 2);
 
-	fprintf(out, "\n");
-	indent(out, indentSpaceNum);
-	fprintf(out, ")");
+	changeLineIndentAddBrace(out, indentSpaceNum);
 }
 
 /*======================================================================================*/
 
-void MyPrint_LetExp(FILE* out, myLetExp exp, int indentSpaceNum)
+static void MyPrint_LetExp(FILE* out, myLetExp exp, int indentSpaceNum)
 {
 	if (exp == NULL)		return;
 	
@@ -771,14 +727,12 @@ void MyPrint_LetExp(FILE* out, myLetExp exp, int indentSpaceNum)
 	fprintf(out, ",\n");
 	MyPrint_ExpList(out, exp->expList, indentSpaceNum + 2);
 
-	fprintf(out, "\n");
-	indent(out, indentSpaceNum);
-	fprintf(out, ")");
+	changeLineIndentAddBrace(out, indentSpaceNum);
 }
 
 /*======================================================================================*/
 
-void MyPrint_WhileExp(FILE* out, myWhileExp exp, int indentSpaceNum)
+static void MyPrint_WhileExp(FILE* out, myWhileExp exp, int indentSpaceNum)
 {
 	if (exp == NULL)	return;
 	
@@ -790,15 +744,13 @@ void MyPrint_WhileExp(FILE* out, myWhileExp exp, int indentSpaceNum)
 
 	MyPrint_Exp(out, exp->bodyExp, indentSpaceNum + 2);
 
-	fprintf(out, "\n");
-	indent(out, indentSpaceNum);
-	fprintf(out, ")");
+	changeLineIndentAddBrace(out, indentSpaceNum);
 }
 
 /*======================================================================================*/
 
 /*	no need of exp, but c does not support anonymous parameters	*/
-void MyPrint_NegationExp(FILE* out, myNegationExp negationExp, int indentSpaceNum)
+static void MyPrint_NegationExp(FILE* out, myNegationExp negationExp, int indentSpaceNum)
 {
 	//if (exp == NULL)		return;
 	
@@ -807,15 +759,13 @@ void MyPrint_NegationExp(FILE* out, myNegationExp negationExp, int indentSpaceNu
 
 	MyPrint_Exp(out, negationExp->exp, indentSpaceNum + 2);
 
-	fprintf(out, "\n");
-	indent(out, indentSpaceNum);
-	fprintf(out, ")");
+	changeLineIndentAddBrace(out, indentSpaceNum);
 }
 
 /*======================================================================================*/
 
 /*	no need of exp, but for language reason we need to declare it	*/
-void MyPrint_BreakExp(FILE* out, myBreakExp notUsed, int indentSpaceNum)
+static void MyPrint_BreakExp(FILE* out, myBreakExp notUsed, int indentSpaceNum)
 {
 	//if (exp == NULL)		return;
 	
@@ -900,12 +850,10 @@ void MyPrint_Exp(FILE* out, myExp exp, int indentSpaceNum)
 		break;
 	}
 
-	fprintf(out, "\n");
-	indent(out, indentSpaceNum);
-	fprintf(out, ")");
+	changeLineIndentAddBrace(out, indentSpaceNum);
 }
 
-void MyPrint_ExpList(FILE* out, myExpList expList, int indentSpaceNum)
+static void MyPrint_ExpList(FILE* out, myExpList expList, int indentSpaceNum)
 {
 	if (expList == NULL)	return;
 	

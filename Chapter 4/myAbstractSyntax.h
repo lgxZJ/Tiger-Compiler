@@ -511,7 +511,7 @@ typedef	struct	myNoValueExp_
 	//	contain nothing
 }*	myNoValueExp;
 
-myNoValueExp makeMyNoValueExp();	//	todo : should inline
+myNoValueExp makeMyNoValueExp();
 
 //---------------------SequencingExp struct------------------//
 
@@ -745,4 +745,3 @@ typedef	struct	myExpList_
 myExpList makeMyExpList(myExp exp, myExpList list);
 
 #endif
-//todo: add pos
