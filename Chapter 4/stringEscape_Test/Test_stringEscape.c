@@ -1,8 +1,11 @@
 #include "../stringEscape.h"
+#include "../makeMemory.h"
+
 #include <CUnit/CUnit.h>
 #include <CUnit/Basic.h>
 #include <stdlib.h>
 #include <string.h>
+
 
 /*--------------------------------------------------------------*/
 
@@ -273,5 +276,6 @@ int main (int argc, char* argv[])
     }
 
     CU_cleanup_registry();
+    freeMemoryChain();
     return 0;
 }

@@ -7,7 +7,7 @@ Test_myTable.o: Test_myTable.c ../myTable.h
 myTable.o: ../myTable.c ../myTable.h ../makeMemory.h
 	cc -g -std=c99 -c ../myTable.c
 
-makeMemory.o: ../myCheckedMalloc.c ../makeMemory.h
+makeMemory.o: ../makeMemory.c ../makeMemory.h
 	cc -g -c -std=c99 ../makeMemory.c
 
 clean:

@@ -902,5 +902,6 @@ int main (int argc, char* argv[])
     }
 
     CU_cleanup_registry();
+    freeMemoryChain();
     return 0;
 }

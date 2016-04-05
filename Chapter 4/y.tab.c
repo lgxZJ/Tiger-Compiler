@@ -708,9 +708,11 @@ folder except merge.tig and queens.tig\n\n");
 	parseOneAndOutput(argv[1], "SingleParseResult.txt");
     }
 
+    //	free all chained memory
+    freeMemoryChain();
     return 0;
 }
-#line 713 "y.tab.c"
+#line 715 "y.tab.c"
 
 #if YYDEBUG
 #include <stdio.h>		/* needed for printf */
@@ -1442,7 +1444,7 @@ case 97:
 #line 524 "myTiger.y"
 	{ g_AbstractSyntaxTree = yystack.l_mark[0].myExp_val; }
 break;
-#line 1445 "y.tab.c"
+#line 1447 "y.tab.c"
     }
     yystack.s_mark -= yym;
     yystate = *yystack.s_mark;

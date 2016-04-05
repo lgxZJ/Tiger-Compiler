@@ -594,5 +594,7 @@ folder except merge.tig and queens.tig\n\n");
 	parseOneAndOutput(argv[1], "SingleParseResult.txt");
     }
 
+    //	free all chained memory
+    freeMemoryChain();
     return 0;
 }
