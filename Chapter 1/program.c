@@ -1,13 +1,29 @@
+/**
+ *	@file	program.c
+ *	@author	lgxZJ@outlook.com
+ *	@date	03/05/2016
+ *	@brief	main source file.
+ *	@warning	This source is not properly documentation. Only used for
+ *				roughly seeing.
+ */
 #include"util.h"
 #include"introduce.h"
 #include<stdio.h>
 #include<stdlib.h>
 #include<string.h>
 
+/**
+ *	@brief	define \c T_tree to a pointer of \c tree structure.
+ */
 typedef struct tree *T_tree;
-
+/**
+ *	@brief	define \c tree structure.
+ */
 struct tree { T_tree left; string key; T_tree right; };
 
+/**
+ *	@brief	make a new tree from an older one.
+ */
 T_tree Tree (T_tree l, string k, T_tree r)
 {
 	T_tree t = (T_tree)checked_malloc (sizeof (*t));
@@ -17,6 +33,9 @@ T_tree Tree (T_tree l, string k, T_tree r)
 	return t;
 }
 
+/**
+ *	@brief	insert a key into a binary tree.
+ */
 T_tree insert (string key, T_tree t)
 {
 	if (t == NULL)	return Tree(NULL, key, NULL);
@@ -28,6 +47,9 @@ T_tree insert (string key, T_tree t)
 		return Tree(t->left, t->key, t->right);
 }
 
+/**
+ *	@brief	determine whether a given key could be found inside a tree.
+ */
 int find (T_tree t, string key)
 
 {
@@ -40,9 +62,13 @@ int find (T_tree t, string key)
 		return find (t->right, key);
 }
 
+/*	a forward declaration.	*/
 int maxargs (A_stm stm);
 
-//return numbers of expressions which can be treated as parameter
+/**
+ *	@brief	return numbers of expressions which can be treated as
+ *			parameter.
+ */
 int subRoutine_Exp (A_exp ptr, int *otherMaxPtr)
 {
 	int count = 0;
@@ -76,6 +102,9 @@ int subRoutine_Exp (A_exp ptr, int *otherMaxPtr)
 	return count;
 }
 
+/**
+ *	@brief	determine the max arguments of a given `stm`.
+ */
 int maxargs (A_stm stm)
 {
 	if (stm == NULL)	return 0;
@@ -90,6 +119,7 @@ int maxargs (A_stm stm)
 	{
 		A_expList	expListPtr = stm->u.print.exps;
 		A_exp		expPtr = NULL;
+
 lable_expList:
 		if (expListPtr->kind == A_lastExpList)
 		{
@@ -117,7 +147,11 @@ lable_expList:
 			otherMax;
 }
 
-
+/**
+ *	@brief	generate a `stm` for use.
+ *
+ *	Codes commented in body are alternatively correct `stm`s.
+ */
 A_stm prog(void) {
 	/*
 return 
@@ -166,8 +200,20 @@ return
 		A_PrintStm(A_LastExpList(A_IdExp("b")))));
 } 
 
+/**
+ *	@brief	define type \c Table_ to a pointer of \c table structure.
+ */
 typedef struct table *Table_;
+/**
+ *	@brief	\c table structure.
+ */
 struct table { string id; int value; Table_ tail; };
+/**
+ *	@brief	make a new Table from an older one.
+ *
+ *	Indeed Table is a pointer to a table structure which makes table
+ *	actually a linked list.
+ */
 Table_ Table (string id, int value, struct table *tail)
 {
 	Table_	t = (Table_)malloc (sizeof (*t));
@@ -182,7 +228,13 @@ int lookup (Table_ t, string key);
 Table_ interpStm (A_stm s, Table_ t);
 Table_ update (string id, int value, Table_ t);
 
+/**
+ *	@brief	intended structure to be used for \c interpExp() function.
+ */
 struct IntAndTable { int i; Table_ t; };
+/**
+ *	@brief	interpret an expression.
+ */
 struct IntAndTable interpExp (A_exp e, Table_ t)
 {
 	struct IntAndTable tmp;
@@ -224,7 +276,11 @@ struct IntAndTable interpExp (A_exp e, Table_ t)
 	}
 }
 
-//can not use former table when returns
+/**
+ *	@brief	interpret a `stm`.
+ *
+ *	One cannot use the former table when this function returns.
+ */
 Table_ interpStm (A_stm s, Table_ t)
 {
 	if (s->kind == A_compoundStm)
@@ -261,11 +317,19 @@ Table_ interpStm (A_stm s, Table_ t)
 	assert (0);//should not enter here
 }
 
+/**
+ *	@brief	update an \c id inside a table \c t with the new \c value.
+ *
+ *	For more details, see <a href="http:\\www.baidu.com">Tiger Book</a>.
+ */
 Table_ update (string id, int value, Table_ t)
 {
 	return Table (id, value, t);
 }
 
+/**
+ *	@brief	loop up with a special key in the given table.
+ */
 int lookup (Table_ t, string key)
 {
 	while (t && strcmp (t->id, key) != 0)
@@ -276,6 +340,11 @@ int lookup (Table_ t, string key)
 	else assert (0);//should never encounter!!
 }
 
+/**
+ *	@brief	print table content.
+ *
+ *	Default print into \b STDOUT.
+ */
 void outputResult (Table_ table)
 {
 	while (table)
