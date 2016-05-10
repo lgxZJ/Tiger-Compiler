@@ -1,7 +1,7 @@
 Exercise.out: program.o util.o introduce.o
 	cc -o Exercise.out program.o util.o introduce.o
 
-program.o:program.c util.h introduce.h
+program.o: program.c introduce.h
 	cc -c program.c
 
 util.o: util.c util.h

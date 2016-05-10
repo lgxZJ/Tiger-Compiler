@@ -1,12 +1,14 @@
 /**
- *	@file	program.c
- *	@author	lgxZJ@outlook.com
- *	@date	03/05/2016
- *	@brief	main source file.
- *	@warning	This source is not properly documentation. Only used for
- *				roughly seeing.
+ *	@file		program.c
+ *	@brief		main source file.
+ *	@author		lgxZJ@outlook.com
+ *	@date		03/05/2016
+ *	@warning	This source is not properly documented.
+ *	@note		Trying.
+ *	@bug		Because of forgetting, some such as @ref tree structure,
+ *				@ref insert() function, e.g are \b not \b correct. \b Do
+ *				\b not \b use!!
  */
-#include"util.h"
 #include"introduce.h"
 #include<stdio.h>
 #include<stdlib.h>
@@ -18,11 +20,17 @@
 typedef struct tree *T_tree;
 /**
  *	@brief	define \c tree structure.
+ *	@warning	Not properly defined. Do not use it!
  */
 struct tree { T_tree left; string key; T_tree right; };
 
 /**
  *	@brief	make a new tree from an older one.
+ *	@param	l		The left node of tree.
+ *	@param	r		The right node of tree.
+ *	@param	k		A string.		
+ *	@return	A new tree.
+ *	@warning	Not properly defined. Do not use it!
  */
 T_tree Tree (T_tree l, string k, T_tree r)
 {
@@ -35,6 +43,10 @@ T_tree Tree (T_tree l, string k, T_tree r)
 
 /**
  *	@brief	insert a key into a binary tree.
+ *	@param	key		The key to be inserted.
+ *	@param	t		The table into which the key is inserted.
+ *	@return	A new table.
+ *	@warning	Not properly defined. Do not use it!
  */
 T_tree insert (string key, T_tree t)
 {
@@ -49,6 +61,10 @@ T_tree insert (string key, T_tree t)
 
 /**
  *	@brief	determine whether a given key could be found inside a tree.
+ *	@param	t		The table in which the key is searched.
+ *	@param	key		The key to search.
+ *	@return	TRUE if found, FALSE otherwise.
+ *	@warning	Not properly defined. Do not use it!
  */
 int find (T_tree t, string key)
 
@@ -68,6 +84,13 @@ int maxargs (A_stm stm);
 /**
  *	@brief	return numbers of expressions which can be treated as
  *			parameter.
+ *	@param	ptr			An expression to count parameters.
+ *	@param	otherMaxPtr	A pointer to an caller int variable where max
+ *			arguments is stored. If this counter is not greater than
+ *			former one, this value is not changed.
+ *			Since @ref subroutine_Exp() calls @ref maxargs() inside,
+ *			we have to pass this parameter for result storing.
+ *	@return	Count of arguments of this expression.
  */
 int subRoutine_Exp (A_exp ptr, int *otherMaxPtr)
 {
@@ -103,7 +126,9 @@ int subRoutine_Exp (A_exp ptr, int *otherMaxPtr)
 }
 
 /**
- *	@brief	determine the max arguments of a given `stm`.
+ *	@brief	Count the max arguments of a given statement.
+ *	@param	stm		A statement to count for.
+ *	@return	The max argument counter.
  */
 int maxargs (A_stm stm)
 {
@@ -151,6 +176,8 @@ lable_expList:
  *	@brief	generate a `stm` for use.
  *
  *	Codes commented in body are alternatively correct `stm`s.
+ *	@param	This function has no parameters.
+ *	@return	A statement.
  */
 A_stm prog(void) {
 	/*
@@ -213,6 +240,10 @@ struct table { string id; int value; Table_ tail; };
  *
  *	Indeed Table is a pointer to a table structure which makes table
  *	actually a linked list.
+ *	@param	id		The new symbol name.
+ *	@param	value	The new symbol value.
+ *	@param	tail	The old symbol table
+ *	@return	The new table.
  */
 Table_ Table (string id, int value, struct table *tail)
 {
@@ -233,7 +264,13 @@ Table_ update (string id, int value, Table_ t);
  */
 struct IntAndTable { int i; Table_ t; };
 /**
- *	@brief	interpret an expression.
+ *	@brief	interpret an expression to its real value.
+ *	@param	e		An expression.
+ *	@param	t		An table into whcih to search.
+ *	@return	An @ref IntAndTable structure containing a result value and a
+ *			new table which are already interpreted.
+ *	@note	One should use the table inside @ref IntAndTable structure,
+ *			not the former table t any more.
  */
 struct IntAndTable interpExp (A_exp e, Table_ t)
 {
@@ -278,8 +315,10 @@ struct IntAndTable interpExp (A_exp e, Table_ t)
 
 /**
  *	@brief	interpret a `stm`.
- *
- *	One cannot use the former table when this function returns.
+ *	@param	s		A statement.
+ *	@param	t		A table to be used when interpreted.
+ *	@return	A interpreted table.
+ *	@note	One cannot use the former table when this function returns.
  */
 Table_ interpStm (A_stm s, Table_ t)
 {
@@ -321,6 +360,10 @@ Table_ interpStm (A_stm s, Table_ t)
  *	@brief	update an \c id inside a table \c t with the new \c value.
  *
  *	For more details, see <a href="http:\\www.baidu.com">Tiger Book</a>.
+ *	@param	id		The symbol id.
+ *	@param	value	The value of symbol.
+ *	@param	t		The table to be updated.
+ *	@return	An updated table.
  */
 Table_ update (string id, int value, Table_ t)
 {
@@ -329,6 +372,10 @@ Table_ update (string id, int value, Table_ t)
 
 /**
  *	@brief	loop up with a special key in the given table.
+ *	@param	t		A table to look into.
+ *	@param	key		The key to look.
+ *	@return	Return the value of the key.
+ *	@note	The caller assures the key must be in the table.
  */
 int lookup (Table_ t, string key)
 {
@@ -344,6 +391,8 @@ int lookup (Table_ t, string key)
  *	@brief	print table content.
  *
  *	Default print into \b STDOUT.
+ *	@param	table		An table containing "key-value" paris.
+ *	@return	This function has no return value.
  */
 void outputResult (Table_ table)
 {

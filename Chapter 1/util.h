@@ -1,6 +1,9 @@
 /**
  *	@file		util.h
- *	@warning	Only used for roughly seeing.
+ *	@brief		C header for utilities.
+ *	@author		lgxZJ@outlook.com
+ *	@date		06/05/2016
+ *	@note		Trying.
  */
 #ifndef UTIL_H
 #define UTIL_H
@@ -14,9 +17,11 @@
 typedef char *string;
 
 /**
- *	@brief	make a string from a given pointer to char.
+ *	@brief	make a string from a given pointer to zero-ended string.
+ *	@param	A pointer to a string ended of zero.
+ *	@return	A new-created string.
  */
-string String (char *);
+string String (char *str);
 
 /**
  *	@brief	define \c TRUE to 1
@@ -28,9 +33,11 @@ string String (char *);
 #define FALSE	0
 
 /**
- *	@brief	allocate memory with checking.
+ *	@brief	Allocate memory with checking.
+ *	@param	cbSize		Size of memory to be allocated, in bytes.
+ *	@return	A pointer to the created memory.
  */
-void* checked_malloc (int);
+void* checked_malloc (int cbSize);
 //==============end==========//
 
 #endif
