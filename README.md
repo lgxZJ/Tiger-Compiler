@@ -23,10 +23,13 @@ modify it manually. For example, the cunit lib path.
 All files in 'Chapter*' folder are once compiled and all passed.
 
 *	To **install CUnit**, please do search.
-*	To **run** executable already exists, type `Exercise.out` in terminal with right directory.
+*	To **run** executable already exists, type `*.out` in terminal with right directory.
 *	To **remake**, type `make` in terminal with right directory.
 
 **NOTE:**	"*.tig" files are files containing codes wiritten in tiger language.
+**NOTE:**	When cloned into a Window/Linux platform, you may need to modify
+expressions used in **myTiger.lex** file to capture different **New Line**.
+
 
 ## Documentation
 Each chapter contains one single documentation for roughly using. And all documentations are

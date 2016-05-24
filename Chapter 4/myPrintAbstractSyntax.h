@@ -35,6 +35,7 @@ void MyPrint_Exp(FILE* out, myExp exp, int indentSpaceNum);
 
 
 /*------------------function prototypes for tests-------------*/
+
 /*
 void MyPrint_TyFieldList(FILE* out, myTyFieldList tyFieldList, int indentSpaceNum);
 void MyPrint_Ty(FILE* out, myTy ty, int indentSpaceNum);

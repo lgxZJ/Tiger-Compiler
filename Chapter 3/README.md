@@ -2,6 +2,8 @@
 --------------------------------------------------------------
 This program uses [yacc][yacc-link] to generate a syntax parser.
 
+## NOTE
+File **test49.tig** contains syntax error. when parsed, it will generate a parse eror!
 
 ## Files
 ### README

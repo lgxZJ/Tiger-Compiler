@@ -5,6 +5,7 @@
 /*===================private data and types=================*/
 
 
+/*	Privately used	*/
 typedef struct StringChain_
 {
     char*			str;

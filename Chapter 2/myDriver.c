@@ -104,6 +104,7 @@ int main (int argc, char* argv[])
 		errorReport();
 		return -1;
 	    }
+	    resetPos();
 	}
     }
 

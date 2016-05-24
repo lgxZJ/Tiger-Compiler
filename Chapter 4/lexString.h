@@ -66,6 +66,7 @@ void freeStrings(void);
  *	uncomment followings for tests
  *	and uncomment typedefs at source file
  * -----------------------------------------------------------------*/
+
 /*
 typedef struct StringChain_
 {

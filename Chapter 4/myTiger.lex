@@ -88,7 +88,7 @@ string          { recordTokenPos(false, yyleng);        return STRING; }
 
 [ \t\f]			{ recordTokenPos(false, yyleng); }
  /*	under Linux, use the line below to detect newline	*/
-\n	       		{ recordTokenPos(true, yyleng); }
+ /*\n	       		{ recordTokenPos(true, yyleng); }	*/
  /*	under window, use the line below to detect newline	*/
- /*\r\n	       		{ recordTokenPos(true, yyleng); }*/
+\r\n	       		{ recordTokenPos(true, yyleng); }
 .			{ recordTokenPos(false, yyleng); errorReport(); }

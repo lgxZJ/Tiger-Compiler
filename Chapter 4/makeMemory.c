@@ -88,7 +88,7 @@ int registerMemoryType(MemoryType type)
 /*
  *	RETURN:	-1 for error, positive for successfully registered type
  */
-UserMemoryType registerUniqueType(void)
+MemoryType registerUniqueType(void)
 {
     for (unsigned i = 1; i < (unsigned)-1; ++i)
     {
@@ -145,7 +145,7 @@ void* makeMemoryBlock(unsigned bytes, MemoryType type)
  *
  *	RETURN:	NULL for not found, not NULL for found
  */
-void* findMemoryBlock(UserMemoryType type)
+void* findMemoryBlock(MemoryType type)
 {
     /*  This variavle stands for the current searching node	*/
     static MemoryChainPtr current_ = NULL;
