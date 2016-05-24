@@ -1,0 +1,4 @@
+<map id="registerUniqueType" name="registerUniqueType">
+<area shape="rect" id="node2" href="$group___memory_allocate.html#gaab187e55c87d0fd710b3ac524677fd4a" title="Try register a memory type for later memory allocating. " alt="" coords="187,5,327,32"/>
+<area shape="rect" id="node3" href="$group___memory_allocate.html#gab986479c94838b9b2ebbac9452bdd47e" title="Allocate a memory block of a certain memory type which can be used later for searching. " alt="" coords="375,5,509,32"/>
+</map>

@@ -69,19 +69,19 @@ bool MyTable_Enter_(myTable table, void* const key, void* const value)
 //	return key's value if found
 void* MyTable_Look_(const myTable table, void* const key)
 {
-  //	return NULL if income invalid params  
-  if (table == NULL || key == NULL || (*(char*)key) == '\0')
-    return NULL;
+	//	return NULL if income invalid params  
+	if (table == NULL || key == NULL || (*(char*)key) == '\0')
+		return NULL;
  
-  //	the statement above this line assures that hashFunc_MyTable() won't return -1
-  myBinder binder = table->binder[hashFunc_MyTable(key)];
-  while (binder)
+	//	the statement above this line assures that hashFunc_MyTable() won't return -1
+	myBinder binder = table->binder[hashFunc_MyTable(key)];
+	while (binder)
     {
-      if (strcmp(key, binder->key) == 0)	return binder->value;
-      else								binder = binder->next;
+		if (strcmp(key, binder->key) == 0)	return binder->value;
+		else								binder = binder->next;
     }
 	 
-  return NULL;
+	return NULL;
 }
 
 /*	must not called when there no binder inside table	*/

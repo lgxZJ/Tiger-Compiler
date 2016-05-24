@@ -10,10 +10,15 @@
 
 #include "util.h"
 
+
 /**
  *	@brief	define type \c string from \c char*.
  */
 typedef char *string;
+
+
+/**	@cond	*/
+
 /**
  *	@brief	define type \c A_stm to a pointer of \c A_stm_ structure.
  */
@@ -48,6 +53,8 @@ struct A_stm_
 	}u;
 };
 
+/**	@endcond	*/
+
 /**
  *	@brief	make a compound statement.
  *	@param	stm1, stm2	two statememts which consists of one compound statement.
@@ -68,6 +75,8 @@ A_stm A_AssignStm (string id, A_exp exp);
  */
 A_stm A_PrintStm (A_expList exps);
 
+/**	@cond	*/
+
 /**
  *	@brief	expression structure.
  */
@@ -83,6 +92,8 @@ struct A_exp_
 			struct { A_stm stm; A_exp exp; }					eseq;
 	}u;
 };
+
+/**	@endcond	*/
 
 /**
  *	@brief	make an ID expression.
@@ -112,6 +123,8 @@ A_exp A_OpExp (A_exp left, A_binop oper, A_exp right);
  */
 A_exp A_EseqExp (A_stm stm, A_exp exp);
 
+/**	@cond	*/
+
 /**
  *	@brief	expression list structure.
  */
@@ -125,6 +138,8 @@ struct A_expList_
 	A_exp	last;
 	}u;
 };
+
+/**	@endcond	*/
 
 /**
  *	@brief	make a Pair expression list.

@@ -1,15 +1,40 @@
+/**
+ *	@file	myDriver.c
+ *	@author	lgxZJ@outlook.com
+ *	@date	5/19/2016
+ *
+ *	@brief	A driven file for the whole little program.
+ */
+
 #include "myTokens.h"
 #include "myReport.h"
 #include "stdlib.h"
 #include "stdio.h"
+
+/**	@cond	*/
 
 int yylex(void); /* prototype for the lexing function */
 extern FILE* 	yyin;
 extern int	yyleng;
 extern char*	yytext;
 
+/**	@endcond	*/
 
 //	return -1 for error, 0 for success
+/**
+ *	@brief	Do token analyse on one file.
+ *
+ *			This function uses the function \b yylex() provided by 
+ *			<a href="http://flex.sourceforge.net/">flex</a> to do
+ *			real work.
+ *
+ *	@param	filename	The name of file to analyse.
+ *	@return	If the function succeeds, the return value is 0.
+ *			If the function fails, the return value is -1.
+ *	
+ *	@note	This function do no parameter checkings, the caller make sures
+ *			the parameters passed in is valid.
+ */
 int oneParse(char* filename)
 {
     static int count = 0;
@@ -53,6 +78,8 @@ error:
     return -1;
 }
 
+/**	@cond	*/
+
 int main (int argc, char* argv[])
 {
     printf("Useage a.out filename.\nDefault use files in testcases folder.\n\n");
@@ -83,3 +110,5 @@ int main (int argc, char* argv[])
     printf("====All files parsed!====\n");
     return 0;
 }
+
+/**	@endcond	*/
