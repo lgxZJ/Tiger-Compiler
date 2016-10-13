@@ -1,6 +1,0 @@
-/* illegal nil */
-let
-	var a := nil
-in
-	if nil = nil then ()
-end
