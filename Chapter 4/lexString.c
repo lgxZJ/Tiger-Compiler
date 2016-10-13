@@ -5,6 +5,7 @@
 /*===================private data and types=================*/
 
 
+/*	Privately used	*/
 typedef struct StringChain_
 {
     char*			str;
@@ -37,8 +38,8 @@ static char* findStringInChain(char* str, int length)
 char* lexString(char* src, int length)
 {
     if (src == NULL || (*(char*)src) == '\0' ||
-	length <= 0 || (strlen(src) < length))
-	return NULL;
+		length <= 0 || (strlen(src) < length))
+		return NULL;
 
     //	check if already exists
     char* result = findStringInChain(src, length);
@@ -51,8 +52,8 @@ char* lexString(char* src, int length)
     char* str = malloc(sizeof(char*) * (length + 1));
     if (str == NULL)
     {
-	free(chainPtr);
-	return NULL;
+		free(chainPtr);
+		return NULL;
     }
     
     //	copy string
@@ -71,10 +72,10 @@ void freeStrings(void)
     StringChainPtr ptr = g_head;
     while (ptr)
     {
-	//	each valid StringChain_ contains valid string ptr
-	free(ptr->str);
-	ptr->str = NULL;
+		//	each valid StringChain_ contains valid string ptr
+		free(ptr->str);
+		ptr->str = NULL;
 
-	ptr = ptr->next;
+		ptr = ptr->next;
     }
 }

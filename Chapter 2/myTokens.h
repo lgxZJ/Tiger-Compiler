@@ -1,6 +1,18 @@
 #ifndef TOKENS_H
 #define TOKENS_H
 
+/**
+ *	@file	myTokens.h
+ *	@author	lgxZJ@outlook.com
+ *	@date	5/17/2016
+ *
+ *	@brief	This file defines tokens used in lexical analysing.
+ *
+ *			These tokens are manually defined for Tiger Language
+ *			described in the book-- Morden Compiler Implementation
+ *			in C.
+ */
+
 //	followings are key-words
 #define WHILE			1
 #define FOR			2

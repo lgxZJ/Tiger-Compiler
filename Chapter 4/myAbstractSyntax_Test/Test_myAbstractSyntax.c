@@ -109,7 +109,7 @@ int main (int argc, char* argv[])
 	}
 
 
-    if (CU_basic_run_suite(suite) == CUE_SUCCESS)
+    if (CU_basic_run_suite(suite) != CUE_SUCCESS)
     {
 	printf("attempt to run suite, failed!\n");
 	exit(-1);

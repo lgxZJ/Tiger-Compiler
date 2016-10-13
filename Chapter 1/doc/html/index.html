@@ -4,7 +4,7 @@
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
 <meta name="generator" content="Doxygen 1.8.10"/>
-<title>Tiger Project: Main Page</title>
+<title>A warm-up program: Main Page</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -31,7 +31,7 @@
  <tbody>
  <tr style="height: 56px;">
   <td id="projectalign" style="padding-left: 0.5em;">
-   <div id="projectname">Tiger Project
+   <div id="projectname">A warm-up program
    &#160;<span id="projectnumber">1.0</span>
    </div>
    <div id="projectbrief">A brief user reference.</div>
@@ -91,11 +91,36 @@ $(document).ready(function(){initNavTree('index.html','');});
 
 <div class="header">
   <div class="headertitle">
-<div class="title">Tiger Project Documentation</div>  </div>
+<div class="title">A warm-up program Documentation</div>  </div>
 </div><!--header-->
 <div class="contents">
-<div class="textblock"><h2>Chapter 1</h2>
-<p>New to doxygen, please~ </p>
+<div class="textblock"><p>For more details, see chapter 1 of <a href="http://www.amazon.com/Modern-Compiler-Implementation-Andrew-Appel/dp/0521607655">Tiger Book</a>.</p>
+<h2>Files</h2>
+<h3>README</h3>
+<ul>
+<li><b>README.md</b></li>
+</ul>
+<h3>Headers</h3>
+<ul>
+<li><b><a class="el" href="introduce_8h.html" title="Corresponds to contents of Chapter 1 in Tiger Book. ">introduce.h</a></b></li>
+<li><b><a class="el" href="util_8h.html" title="C header for utilities. ">util.h</a></b></li>
+</ul>
+<h3>Sources</h3>
+<ul>
+<li><b>introduce.c</b></li>
+<li><b>util.c</b></li>
+<li><b><a class="el" href="program_8c.html" title="main source file. ">program.c</a></b> : The source file which drives the program.</li>
+</ul>
+<h3>Others</h3>
+<ul>
+<li><b>doxygen_doc.conf</b> : The file to generate doxygen-style documentation.</li>
+<li><b>makefile</b> : The make file to build programs.</li>
+</ul>
+<h2>Program usage</h2>
+<ul>
+<li>To make, run <code>make</code> under terminal.</li>
+<li>To clean, run <code>make clean</code>. </li>
+</ul>
 </div></div><!-- contents -->
 </div><!-- doc-content -->
 <!-- start footer part -->

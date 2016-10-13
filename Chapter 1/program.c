@@ -5,7 +5,7 @@
  *	@date		03/05/2016
  *	@warning	This source is not properly documented.
  *	@note		Trying.
- *	@bug		Because of forgetting, some such as @ref tree structure,
+ *	@bug		Due to my less attention, some such as @ref tree structure,
  *				@ref insert() function, e.g are \b not \b correct. \b Do
  *				\b not \b use!!
  */

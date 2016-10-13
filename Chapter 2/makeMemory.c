@@ -48,28 +48,28 @@ int registerMemoryType(MemoryType type)
 
     for (unsigned i = 0; i < g_currentTypeNum; ++i)
     {
-	if (g_memoryTypes[i] == type)	return MT_EXISTS;
-	//	others are larger then `type`, skip compare
-	if (g_memoryTypes[i] > type)	break;
+		if (g_memoryTypes[i] == type)	return MT_EXISTS;
+		//	others are larger then `type`, skip compare
+		if (g_memoryTypes[i] > type)	break;
     }
 
     //	if type array is full filled
     if (g_currentTypeNum == g_memoryTypeSize)
     {
-	//	add capacity
-	g_memoryTypeSize += 10;
-	void* tmp = makeMemoryBlock(sizeof(MemoryType) * g_memoryTypeSize,
-				    MEMORY_TYPE_NONE);
-	assert(tmp);
+		//	add capacity
+		g_memoryTypeSize += 10;
+		void* tmp = makeMemoryBlock(sizeof(MemoryType) * g_memoryTypeSize,
+									MEMORY_TYPE_NONE);
+		assert(tmp);
 
-	//	copy 
-	memcpy(tmp, g_memoryTypes,
-	       sizeof(MemoryType) * (g_memoryTypeSize - 10));
+		//	copy 
+		memcpy(tmp, g_memoryTypes,
+			   sizeof(MemoryType) * (g_memoryTypeSize - 10));
 
-	//		No needs to free memory because of using
-	//	`makeMemoryBlock`, memorys can be freed at one
-	//	calling at the end.
-	g_memoryTypes = tmp;
+		//		No needs to free memory because of using
+		//	`makeMemoryBlock`, memorys can be freed at one
+		//	calling at the end.
+		g_memoryTypes = tmp;
     }
     
     //	add new type
@@ -78,7 +78,7 @@ int registerMemoryType(MemoryType type)
 
     //	sort in ascendent order
     qsort(g_memoryTypes, g_currentTypeNum, sizeof(MemoryType),
-	  int_compare);
+		  int_compare);
 
     return MT_SUCCESS;
 }
@@ -86,21 +86,21 @@ int registerMemoryType(MemoryType type)
 /*-------------------------------------------------------------------*/
 
 /*
- *	RETURN:	-1 for error, positive for successfully registered type
+ *	RETURN:	MT_ERROR for error, others for successfully registered type
  */
-UserMemoryType registerUniqueType(void)
+MemoryType registerUniqueType(void)
 {
     for (unsigned i = 1; i < (unsigned)-1; ++i)
     {
-	switch (registerMemoryType(i))
-	{
-	case MT_ERROR:		return MT_ERROR;//	if error
-	case MT_SUCCESS:	return i;	//	if succeed
-	case MT_EXISTS:		continue;	//	if exists
-	}
+		switch (registerMemoryType(i))
+		{
+		case MT_ERROR:		return MT_ERROR;//	if error
+		case MT_SUCCESS:	return i;	//	if succeed
+		case MT_EXISTS:		continue;	//	if exists
+		}
 	
-	//	never goes here
-	assert(0);
+		//	never goes here
+		assert(0);
     }
 
     //	can not find appropriate types which hasn't been used
@@ -118,15 +118,15 @@ void* makeMemoryBlock(unsigned bytes, MemoryType type)
 {
     //	allocate chain memory holding data
     MemoryChainPtr chainPtr =
-	(MemoryChainPtr)malloc(sizeof(*chainPtr));
+		(MemoryChainPtr)malloc(sizeof(*chainPtr));
     if (chainPtr == NULL)	return NULL;
 
     //	allocate data block
     chainPtr->data = malloc(bytes);
     if (chainPtr->data == NULL)
     {
-	free(chainPtr);
-	return NULL;
+		free(chainPtr);
+		return NULL;
     }
 
     chainPtr->type = type;
@@ -145,7 +145,7 @@ void* makeMemoryBlock(unsigned bytes, MemoryType type)
  *
  *	RETURN:	NULL for not found, not NULL for found
  */
-void* findMemoryBlock(UserMemoryType type)
+void* findMemoryBlock(MemoryType type)
 {
     /*  This variavle stands for the current searching node	*/
     static MemoryChainPtr current_ = NULL;
@@ -154,22 +154,22 @@ void* findMemoryBlock(UserMemoryType type)
 
 
     /*	if another traversal, set head node first;
-	else continue next finding	*/
+		else continue next finding	*/
     if (type_ != type)
     {
-	type_ = type;
-	current_ = g_head;
+		type_ = type;
+		current_ = g_head;
     }
 
     //	find next memory block
     while (current_)
     {
-	MemoryChainPtr tmp = current_;
-	//	set next search node
-	current_ = current_->next;
+		MemoryChainPtr tmp = current_;
+		//	set next search node
+		current_ = current_->next;
 
-	if (tmp->type == type_)
-	    return tmp->data;
+		if (tmp->type == type_)
+			return tmp->data;
     }
 
     return current_ = NULL;
@@ -182,12 +182,12 @@ void freeMemoryChain(void)
     MemoryChainPtr next = NULL;
     while (g_head)
     {
-	next = g_head->next;
+		next = g_head->next;
 
-	free(g_head->data);
-	free(g_head);
+		free(g_head->data);
+		free(g_head);
 
-	g_head = next;
+		g_head = next;
     }
    
     g_head = NULL;

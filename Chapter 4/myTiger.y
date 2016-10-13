@@ -10,7 +10,7 @@
   extern char* yytext;
   extern PosInfo g_posInfo;
 
-  myExp		g_AbstractSyntaxTree;
+  myExp		g_AbstractSyntaxTree;//used to hold global abstract syntax tree
   
   extern int yylex();//	prototype for lex scanning
 
@@ -539,23 +539,23 @@ int parseOneAndOutput(char* parseFile, char* outputFile)
 {
     if ((yyin = fopen(parseFile, "r")) == NULL)
     {
-	printf("can not open file: %s\n", parseFile);
+		printf("can not open file: %s\n", parseFile);
         return 0;
     }
 	    
     //do parse
     if (yyparse() == 0)
-	printf("parse succeed!\n");
+		printf("parse succeed!\n");
     else
-	return 0;
+		return 0;
     
 
     FILE* output = NULL;
     if ((output = fopen(outputFile, "w")) == NULL)
     {
-	printf("create file error!\n");
-	fclose(yyin);
-	return 0;
+		printf("create file error!\n");
+		fclose(yyin);
+		return 0;
     }
 
     MyPrint_Exp(output, g_AbstractSyntaxTree, 0);
@@ -573,27 +573,29 @@ int main (int argc, char* argv[])
 
     if (argc != 2)
     {
-	printf("Usage a.out filename\nDefault run files in testcases \
+		printf("Usage a.out filename\nDefault run files in testcases \
 folder except merge.tig and queens.tig\n\n");
-	printf("---------------------------------\n");
+		printf("---------------------------------\n");
 
-	char parseFile[256] = {0}, outputFile[256] = {0};
-	for (unsigned i = 1; i < 50; ++i)
-	{
-	    sprintf(parseFile, "testcases/test%i.tig", i);
-	    sprintf(outputFile, "outputTxts/AbstractSyntax_test%i.txt",
-		    i);
+		char parseFile[256] = {0}, outputFile[256] = {0};
+		for (unsigned i = 1; i < 50; ++i)
+		{
+			sprintf(parseFile, "testcases/test%i.tig", i);
+			sprintf(outputFile, "outputTxts/AbstractSyntax_test%i.txt",
+					i);
 	    
-	    printf("No.%i\n", i);
-	    if (!parseOneAndOutput(parseFile, outputFile))
-		break;
-	}
+			printf("No.%i\n", i);
+			if (!parseOneAndOutput(parseFile, outputFile))
+				break;
+		}
     }
     else
     {
-	parseOneAndOutput(argv[1], "SingleParseResult.txt");
+		parseOneAndOutput(argv[1], "SingleParseResult.txt");
     }
 
+	//	free all extracted strings
+	freeStrings();
     //	free all chained memory
     freeMemoryChain();
     return 0;

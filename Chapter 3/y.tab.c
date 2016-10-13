@@ -16,7 +16,8 @@ static const char yysccsid[] = "@(#)yaccpar	1.9 (Berkeley) 02/21/93";
 
 #define YYPURE 0
 
-#line 2 "myTiger.y"
+#line 1 "myTiger.y"
+
 
 #include "stdio.h"
 #include "y.tab.h"
@@ -30,7 +31,7 @@ static const char yysccsid[] = "@(#)yaccpar	1.9 (Berkeley) 02/21/93";
     extern int yylex();
 
     
-#line 33 "y.tab.c"
+#line 34 "y.tab.c"
 
 #ifndef YYSTYPE
 typedef int YYSTYPE;
@@ -606,7 +607,8 @@ typedef struct {
 } YYSTACKDATA;
 /* variables for the parser stack */
 static YYSTACKDATA yystack;
-#line 209 "myTiger.y"
+#line 208 "myTiger.y"
+
 
 
 //	return 0 for success, others for error
@@ -667,7 +669,7 @@ void yyerror()
 	 getCurrentPosInfo().column);
 }
  
-#line 670 "y.tab.c"
+#line 672 "y.tab.c"
 
 #if YYDEBUG
 #include <stdio.h>		/* needed for printf */

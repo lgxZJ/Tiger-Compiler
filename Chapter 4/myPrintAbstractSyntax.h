@@ -1,13 +1,41 @@
 #ifndef MYPRINTABSTRACTSYNTAX_H
 #define MYPRINTABSTRACTSYNTAX_H
 
+/**
+ *	@defgroup	PrintAbstractSyntax	Abstract Syntax Printing
+ *	@{
+ */
+
+/**
+ *	@file	myPrintABstractSyntax.h
+ *	@author	lgxZJ@outlook.com
+ *	@date	5/24/2016
+ *
+ *	@brief	Module about expression printing.
+ */
+
+
 #include "myAbstractSyntax.h"
 #include <stdio.h>
 
-/*	the function prototype used by users	*/
+/**
+ *	@brief	Print an expression.
+ *
+ *	@param[in]	out		The descriptor of file to print to.
+ *	@param[in]	exp		The expression to print.
+ *	@param[in]	indentSpaceNum	The number of indent spaces.
+ *
+ *	@return	This function has no return value.
+ *	@sa		myAbstractSyntax.h
+ */
 void MyPrint_Exp(FILE* out, myExp exp, int indentSpaceNum);
 
+/**	@}	*/
+
+
+
 /*------------------function prototypes for tests-------------*/
+
 /*
 void MyPrint_TyFieldList(FILE* out, myTyFieldList tyFieldList, int indentSpaceNum);
 void MyPrint_Ty(FILE* out, myTy ty, int indentSpaceNum);

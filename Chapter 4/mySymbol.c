@@ -18,19 +18,19 @@ static mySymbol	hashTable[HASH_SIZE] = {0};
 bool invalidSymbol(mySymbol symbol)
 {
     return ((symbol == (mySymbol)NULL) ||
-	    (*(char*)MySymbol_GetName(symbol) == '\0'))
-	? true
-	: false;
+			(*(char*)MySymbol_GetName(symbol) == '\0'))
+		? true
+		: false;
 }
 
 /*
  *	Make a symbol (used internally)
  */
- mySymbol makeSymbol_(myString name, mySymbol next)
+mySymbol makeSymbol_(myString name, mySymbol next)
 {
 	//	next could be NULL
 	if (name == NULL || (*(char*)name) == '\0')
-	  return NULL;
+		return NULL;
 
 	mySymbol one = makeMemoryBlock(sizeof(*one), MEMORY_TYPE_NONE);
 	
@@ -43,7 +43,7 @@ bool invalidSymbol(mySymbol symbol)
 /*
  *	The hash function to get a hash value (used internally)
  */
- int hashFunc_MySymbol(char* c)
+int hashFunc_MySymbol(char* c)
 {
 	/* return -1 if failed, otherwise positive */
 	if (c == NULL || (*c) == '\0')	return -1;
@@ -58,10 +58,10 @@ mySymbol MySymbol_MakeSymbol(myString name)
 {
 	//	make sure name is valid
 	if (name == NULL || *name == '\0')
-	  return NULL;
+		return NULL;
 
 	/*	search if already exists	*/
-        int index = hashFunc_MySymbol((char*)name) % HASH_SIZE;
+	int index = hashFunc_MySymbol((char*)name) % HASH_SIZE;
 	for (mySymbol i = hashTable[index]; i != NULL; i = i->next)
 	{
 		//	if name is valid, compare it

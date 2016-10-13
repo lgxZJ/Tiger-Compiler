@@ -1,4 +1,5 @@
 var searchData=
 [
-  ['intandtable',['IntAndTable',['../struct_int_and_table.html',1,'']]]
+  ['table',['table',['../structtable.html',1,'']]],
+  ['tree',['tree',['../structtree.html',1,'']]]
 ];

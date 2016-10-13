@@ -1,0 +1,261 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - coverage.info - Chapter 5/myError.c</title>
+  <link rel="stylesheet" type="text/css" href="../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../index.html" target="_parent">top level</a> - <a href="index.html" target="_parent">Chapter 5</a> - myError.c<span style="font-size: 80%;"> (source / <a href="myError.c.func.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">coverage.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">38</td>
+            <td class="headerCovTableEntry">38</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2016-10-12</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">9</td>
+            <td class="headerCovTableEntry">9</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
+          </tr>
+          <tr><td><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : #include &quot;myError.h&quot;</a>
+<span class="lineNum">       2 </span>            : #include &quot;makeMemory.h&quot;
+<span class="lineNum">       3 </span>            : 
+<span class="lineNum">       4 </span>            : #include &lt;stdio.h&gt;
+<a name="5"><span class="lineNum">       5 </span>            : #include &lt;stdbool.h&gt;</a>
+<span class="lineNum">       6 </span>            : #include &lt;assert.h&gt;
+<span class="lineNum">       7 </span>            : #include &lt;string.h&gt;
+<span class="lineNum">       8 </span>            : 
+<a name="9"><span class="lineNum">       9 </span>            : ///////////////////////////////////////////////////////////////////</a>
+<span class="lineNum">      10 </span>            : 
+<span class="lineNum">      11 </span>            : //  these string must be matched with error codes.
+<span class="lineNum">      12 </span>            : static char* g_errorStrings[] = {
+<a name="13"><span class="lineNum">      13 </span>            :         &quot;no error!&quot;,</a>
+<span class="lineNum">      14 </span>            :         &quot;subscript not int!&quot;,
+<span class="lineNum">      15 </span>            :         &quot;record field not found!&quot;,
+<span class="lineNum">      16 </span>            :         &quot;subscript error!&quot;,
+<a name="17"><span class="lineNum">      17 </span>            : </a>
+<span class="lineNum">      18 </span>            :         &quot;declarations of Let illegal!&quot;,
+<span class="lineNum">      19 </span>            :         &quot;body of Let illegal!&quot;,
+<span class="lineNum">      20 </span>            : 
+<a name="21"><span class="lineNum">      21 </span>            :         &quot;variable of Simple-Var not declared!&quot;,</a>
+<span class="lineNum">      22 </span>            :         &quot;variable of Record-Field not declared!&quot;,
+<span class="lineNum">      23 </span>            :         &quot;variable of Record-Field not record type!&quot;,
+<span class="lineNum">      24 </span>            :         &quot;variable of Array-Subscript not declared!&quot;,
+<a name="25"><span class="lineNum">      25 </span>            :         &quot;variable of Array-Subscript not array type!&quot;,</a>
+<span class="lineNum">      26 </span>            :         &quot;subscript of Array-Subscript not int!&quot;,
+<span class="lineNum">      27 </span>            : 
+<span class="lineNum">      28 </span>            :         &quot;function of Function-Call not defined!&quot;,
+<a name="29"><span class="lineNum">      29 </span>            : </a>
+<span class="lineNum">      30 </span>            :         &quot;type of Array-Creation not array!&quot;,
+<span class="lineNum">      31 </span>            :         &quot;subscript of Array-Creation not type int!&quot;,
+<span class="lineNum">      32 </span>            :         &quot;initial value of Array-Creation is not element type!&quot;,
+<a name="33"><span class="lineNum">      33 </span>            : </a>
+<span class="lineNum">      34 </span>            :         &quot;type of Record-Creation not record!&quot;,
+<span class="lineNum">      35 </span>            :         &quot;type of Record-Creation not defined!&quot;,
+<span class="lineNum">      36 </span>            :         &quot;names or types of fileds of Record-Creation not match!&quot;,
+<a name="37"><span class="lineNum">      37 </span>            : </a>
+<span class="lineNum">      38 </span>            :         &quot;expression type of Arithmetic not int!&quot;,
+<span class="lineNum">      39 </span>            : 
+<span class="lineNum">      40 </span>            :         &quot;expression of For not type int!&quot;,
+<a name="41"><span class="lineNum">      41 </span>            :         &quot;expression of For not type no-return!&quot;,</a>
+<span class="lineNum">      42 </span>            : 
+<span class="lineNum">      43 </span>            :         &quot;condition type of If-Then-Else not int!&quot;,
+<span class="lineNum">      44 </span>            :         &quot;clause of If-Then-Else not legal!&quot;,
+<a name="45"><span class="lineNum">      45 </span>            :         &quot;clause types of If-Then-else not match!&quot;,</a>
+<span class="lineNum">      46 </span>            : 
+<span class="lineNum">      47 </span>            :         &quot;condition type of If-Then not int!&quot;,
+<span class="lineNum">      48 </span>            :         &quot;clause type of If-Then not no-return!&quot;,
+<a name="49"><span class="lineNum">      49 </span>            : </a>
+<span class="lineNum">      50 </span>            :         &quot;operand of Comparison not legal!&quot;,
+<span class="lineNum">      51 </span>            :         &quot;operands type of Comparison not match!&quot;,
+<span class="lineNum">      52 </span>            : 
+<a name="53"><span class="lineNum">      53 </span>            :         &quot;operand of Boolean-Operate not int!&quot;,</a>
+<span class="lineNum">      54 </span>            : 
+<span class="lineNum">      55 </span>            :         &quot;operand of Assignment not legal!&quot;,
+<span class="lineNum">      56 </span>            :         &quot;operands type of Assignment not match!&quot;,
+<a name="57"><span class="lineNum">      57 </span>            : </a>
+<span class="lineNum">      58 </span>            :         &quot;type of TypeDec-Named not defined!&quot;,
+<span class="lineNum">      59 </span>            :         &quot;type of TypeDec-Record not defined!&quot;,
+<span class="lineNum">      60 </span>            :         &quot;type of TypeDec-Array not defined!&quot;,
+<a name="61"><span class="lineNum">      61 </span>            : </a>
+<span class="lineNum">      62 </span>            :         &quot;type of VarDec-Short can not be nil or no-return!&quot;,
+<span class="lineNum">      63 </span>            :         &quot;type of VarDec-Long not defined!&quot;,
+<span class="lineNum">      64 </span>            :         &quot;value expression of VarDec-Long illegal!&quot;,
+<a name="65"><span class="lineNum">      65 </span>            :         &quot;operand types of VarDec-Long not match!&quot;,</a>
+<span class="lineNum">      66 </span>            : 
+<span class="lineNum">      67 </span>            :         &quot;parameter types of FuncDec-Procedure not defined!&quot;,
+<span class="lineNum">      68 </span>            :         &quot;body of FuncDec-Procedure illgeal!&quot;,
+<a name="69"><span class="lineNum">      69 </span>            :         &quot;body type of FuncDec-Procedure not no-return!&quot;,</a>
+<span class="lineNum">      70 </span>            : 
+<span class="lineNum">      71 </span>            :         &quot;parameter types of FuncDec-Function not defined!&quot;,
+<span class="lineNum">      72 </span>            :         &quot;return type of FuncDec-Function not defined!&quot;,
+<a name="73"><span class="lineNum">      73 </span>            :         &quot;body of FuncDec-Function illegal!&quot;,</a>
+<span class="lineNum">      74 </span>            :         &quot;return type and body type of FuncDec-Function not match!&quot;,
+<span class="lineNum">      75 </span>            : 
+<span class="lineNum">      76 </span>            :         &quot;condition type of While not int!&quot;,
+<a name="77"><span class="lineNum">      77 </span>            :         &quot;body type of While not no-return!&quot;,</a>
+<span class="lineNum">      78 </span>            : 
+<span class="lineNum">      79 </span>            :         &quot;expression type of Negative not int!&quot;,
+<span class="lineNum">      80 </span>            : 
+<a name="81"><span class="lineNum">      81 </span>            :         &quot;parameter types of Function-Call not match!&quot; </a>
+<span class="lineNum">      82 </span>            : };
+<span class="lineNum">      83 </span>            : 
+<span class="lineNum">      84 </span>            : 
+<a name="85"><span class="lineNum">      85 </span>            : ///////////////////////////////////////////////////////////////////</a>
+<span class="lineNum">      86 </span>            : 
+<span class="lineNum">      87 </span>            : typedef struct{
+<span class="lineNum">      88 </span>            :     unsigned    errorCode;
+<a name="89"><span class="lineNum">      89 </span>            :     char*       msg;</a>
+<span class="lineNum">      90 </span>            : } StackCell;
+<span class="lineNum">      91 </span>            : 
+<span class="lineNum">      92 </span>            : static StackCell*   g_errorStack = NULL;
+<a name="93"><span class="lineNum">      93 </span>            : static int          g_stackSize = 0;</a>
+<span class="lineNum">      94 </span>            : static int          g_currentPos = -1;
+<span class="lineNum">      95 </span>            : static unsigned     g_stackIncrementor = 30;
+<span class="lineNum">      96 </span>            : 
+<a name="97"><span class="lineNum">      97 </span>            : //////////////////////////////////////////////////////////////////</a>
+<a name="98"><span class="lineNum">      98 </span>            : </a>
+<span class="lineNum">      99 </span>            : 
+<span class="lineNum">     100 </span><span class="lineCov">         38 : void MyError_pushErrorCodeWithMsg(unsigned errorCode, char* msg)</span>
+<a name="101"><span class="lineNum">     101 </span>            : {</a>
+<span class="lineNum">     102 </span>            :     assert(errorCode &gt;= 0); //  defiend error code
+<span class="lineNum">     103 </span>            : 
+<span class="lineNum">     104 </span>            :     //  no enough memory, re-allocate
+<a name="105"><span class="lineNum">     105 </span><span class="lineCov">         38 :     if (g_errorStack == NULL || g_currentPos == g_stackSize - 1)</span></a>
+<span class="lineNum">     106 </span>            :     {
+<span class="lineNum">     107 </span><span class="lineCov">          2 :         StackCell* newStack = makeMemoryBlock(</span>
+<span class="lineNum">     108 </span><span class="lineCov">          2 :             sizeof(StackCell) * (g_stackSize + g_stackIncrementor),</span>
+<a name="109"><span class="lineNum">     109 </span>            :             MEMORY_TYPE_NONE);</a>
+<span class="lineNum">     110 </span><span class="lineCov">          2 :         assert(newStack);</span>
+<span class="lineNum">     111 </span>            : 
+<span class="lineNum">     112 </span><span class="lineCov">          2 :         memcpy(newStack, g_errorStack, sizeof(StackCell) * g_stackSize);</span>
+<a name="113"><span class="lineNum">     113 </span><span class="lineCov">          2 :         g_errorStack = newStack;</span></a>
+<span class="lineNum">     114 </span><span class="lineCov">          2 :         g_stackSize += g_stackIncrementor;</span>
+<span class="lineNum">     115 </span>            :         //  memory is all made by makeMemoryBlock(), no need to free here.
+<span class="lineNum">     116 </span>            :     }
+<a name="117"><span class="lineNum">     117 </span>            : </a>
+<span class="lineNum">     118 </span><span class="lineCov">         38 :     ++g_currentPos;</span>
+<span class="lineNum">     119 </span><span class="lineCov">         38 :     g_errorStack[g_currentPos].errorCode = errorCode;</span>
+<span class="lineNum">     120 </span><span class="lineCov">         38 :     g_errorStack[g_currentPos].msg = msg;</span>
+<a name="121"><span class="lineNum">     121 </span><span class="lineCov">         38 : }</span></a>
+<span class="lineNum">     122 </span>            : 
+<span class="lineNum">     123 </span><span class="lineCov">          4 : void MyError_pushErrorCode(unsigned errorCode)</span>
+<span class="lineNum">     124 </span>            : { 
+<a name="125"><span class="lineNum">     125 </span><span class="lineCov">          4 :     MyError_pushErrorCodeWithMsg(errorCode, NULL);</span></a>
+<span class="lineNum">     126 </span><span class="lineCov">          4 : }</span>
+<span class="lineNum">     127 </span>            : 
+<a name="128"><span class="lineNum">     128 </span>            : ////////////////////////////////////</a>
+<a name="129"><span class="lineNum">     129 </span>            : </a>
+<span class="lineNum">     130 </span><span class="lineCov">         35 : unsigned MyError_getErrorCode(unsigned index)</span>
+<span class="lineNum">     131 </span>            : {
+<span class="lineNum">     132 </span><span class="lineCov">         35 :     assert(index &gt;=0 &amp;&amp; index &lt;= g_currentPos);</span>
+<a name="133"><span class="lineNum">     133 </span>            : </a>
+<span class="lineNum">     134 </span><span class="lineCov">         35 :     return g_errorStack[index].errorCode;</span>
+<a name="135"><span class="lineNum">     135 </span>            : }</a>
+<span class="lineNum">     136 </span>            : 
+<a name="137"><span class="lineNum">     137 </span><span class="lineCov">         36 : char* MyError_getErrorMsg(unsigned index)</span></a>
+<span class="lineNum">     138 </span>            : {
+<span class="lineNum">     139 </span><span class="lineCov">         36 :     assert(index &gt;=0 &amp;&amp; index &lt;= g_currentPos);</span>
+<span class="lineNum">     140 </span>            : 
+<a name="141"><span class="lineNum">     141 </span><span class="lineCov">         36 :     return g_errorStack[index].msg;</span></a>
+<span class="lineNum">     142 </span>            : }
+<span class="lineNum">     143 </span>            : 
+<a name="144"><span class="lineNum">     144 </span>            : ////////////////////////////////</a>
+<a name="145"><span class="lineNum">     145 </span>            : </a>
+<span class="lineNum">     146 </span><span class="lineCov">         13 : unsigned MyError_getErrorCount(void)</span>
+<span class="lineNum">     147 </span>            : {
+<span class="lineNum">     148 </span><span class="lineCov">         13 :     return g_currentPos + 1;</span>
+<a name="149"><span class="lineNum">     149 </span>            : }</a>
+<a name="150"><span class="lineNum">     150 </span>            : </a>
+<span class="lineNum">     151 </span>            : 
+<span class="lineNum">     152 </span><span class="lineCov">          1 : unsigned MyError_getErrorCapacity(void)</span>
+<a name="153"><span class="lineNum">     153 </span>            : {</a>
+<span class="lineNum">     154 </span><span class="lineCov">          1 :     return g_stackSize;</span>
+<a name="155"><span class="lineNum">     155 </span>            : }</a>
+<span class="lineNum">     156 </span>            : 
+<a name="157"><span class="lineNum">     157 </span><span class="lineCov">          1 : bool MyError_isErrorSet(void)</span></a>
+<span class="lineNum">     158 </span>            : {
+<span class="lineNum">     159 </span><span class="lineCov">          1 :     return MyError_getErrorCount() != 0;</span>
+<span class="lineNum">     160 </span>            : }
+<a name="161"><span class="lineNum">     161 </span>            : </a>
+<span class="lineNum">     162 </span>            : 
+<span class="lineNum">     163 </span><span class="lineCov">          2 : void MyError_clearErrors(void)</span>
+<span class="lineNum">     164 </span>            : {
+<a name="165"><span class="lineNum">     165 </span><span class="lineCov">          2 :     g_currentPos = -1;</span></a>
+<span class="lineNum">     166 </span><span class="lineCov">          2 : }</span>
+<a name="167"><span class="lineNum">     167 </span>            : </a>
+<span class="lineNum">     168 </span>            : 
+<a name="169"><span class="lineNum">     169 </span><span class="lineCov">          1 : void MyError_printErrors()</span></a>
+<span class="lineNum">     170 </span>            : {
+<span class="lineNum">     171 </span>            :     
+<span class="lineNum">     172 </span>            : 
+<a name="173"><span class="lineNum">     173 </span><span class="lineCov">          4 :     for (unsigned i = 0; i &lt; MyError_getErrorCount(); ++i)</span></a>
+<span class="lineNum">     174 </span>            :     {
+<span class="lineNum">     175 </span><span class="lineCov">          3 :         char* errorString = g_errorStrings[MyError_getErrorCode(i)];</span>
+<span class="lineNum">     176 </span>            : 
+<a name="177"><span class="lineNum">     177 </span><span class="lineCov">          3 :         if (MyError_getErrorMsg(i) == NULL)</span></a>
+<span class="lineNum">     178 </span><span class="lineCov">          2 :             fprintf(stderr, &quot;%s\n&quot;, errorString);</span>
+<span class="lineNum">     179 </span>            :         else
+<span class="lineNum">     180 </span><span class="lineCov">          1 :             fprintf(stderr, &quot;%s : %s\n&quot;, errorString, MyError_getErrorMsg(i));</span>
+<a name="181"><span class="lineNum">     181 </span>            :     }</a>
+<span class="lineNum">     182 </span>            : 
+<span class="lineNum">     183 </span><span class="lineCov">          1 :     MyError_clearErrors();</span>
+<span class="lineNum">     184 </span><span class="lineCov">          1 : }</span>
+<a name="185"><span class="lineNum">     185 </span>            : </a>
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.10</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

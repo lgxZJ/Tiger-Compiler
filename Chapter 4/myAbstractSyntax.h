@@ -1,28 +1,36 @@
 #ifndef MY_ABSTRACT_SYNTAX_H
 #define MY_ABSTRACT_SYNTAX_H
 
-/*
- *	myAbstractSyntax.h:
- *		Abstract Syntax module
+/**	@defgroup	AbstractSyntax	Abstract Syntax
+ *	@{
  */
 
-/////////////////////////////////////////////////////////////////////
-//	mySymbol type is defined in another file
-/////////////////////////////////////////////////////////////////////
-
-/*
- *	native struct type			:	begin with "my" and end with '_'
- *	pointer to native struct	:	begin with "my" and end with no '_'
- *	enum number					:	begin with an upper case
- *	variable					|	begin with a lower case
+/**
+ *	@file	myAbstractSyntax.h
+ *	@date	5/23/2016
+ *	@author	lgxZJ@outlook.com
+ *
+ *	@brief	Module about abstract syntax.
+ *
+ *			This file provides a way to construct the abstract syntax
+ *			tree in the process of compilation.
+ *			Each "make" function allocates an appropriate structure memory
+ *			and assigns values to corresponding fields.
+ *			Only "Variable", "Declaration", "Expression" have `pos` field
+ *			and pos are decided by each production's ending terminal
+ *			position.
+ *
+ *	@attention	All functions begin with \b "makeMy" which means they
+ *				simply \b make structures with given parameters. These
+ *				are so simple and straight that i decided to give no more
+ *				descriptions.
+ *
+ *	@note	When finished using, remember to call freeMemoryChain() to
+ *			free all allocated memory.
+ *			For more about the \b origins of above structures and \b
+ *			Abstract \b Syntax, see \b Tiger \b Book.
  */
 
- ////////////////////////////////////////////////////////////////////
- //		each "make" function allocates an appropriate structure and
- //	assigns values to corresponding fields
- //		only "Variable", "Declaration", "Expression" have `pos` field
- //	and pos are decided by each production's ending terminal position
- /////////////////////////////////////////////////////////////////////
 
 
 /*
@@ -38,17 +46,23 @@
 #include "mySymbol.h"
 #include "myReport.h"
 
- 
- //----------------myString typedef-------------------//
- 
- typedef char*	myString;
- 
- //-----------------Pos typedef---------------------//
- 
+/*-----------------------------------------------------------------
+						Structure declarations
+ -----------------------------------------------------------------*/
+
+/**	@cond	*/
+
+//-----------------------myString typedef-------------------------//
+
+typedef char*	myString; 
+
+ //--------------------myPos typedef------------------------//
+
 typedef PosInfo myPos;
  
- //-----------------TyFields struct----------------//
- 
+
+ //--------------------TyField struct------------------------// 
+
  struct		myTyField_
  {
 	 mySymbol	varName;
@@ -56,8 +70,7 @@ typedef PosInfo myPos;
  };
  typedef	struct myTyField_*		myTyField;
  
- myTyField makeMyTyField(mySymbol varName, mySymbol typeName);
- 
+
 	//////////////////////////////////////////
  
  struct		myTyFieldList_
@@ -67,7 +80,6 @@ typedef PosInfo myPos;
  };
  typedef	struct myTyFieldList_*	myTyFieldList;
  
- myTyFieldList makeMyTyFieldList(myTyField field, myTyFieldList list);
  
  //--------------------Ty struct------------------------//
  
@@ -83,13 +95,7 @@ typedef PosInfo myPos;
 	 }u;
  };
  typedef struct myTy_*		myTy;
- 
- myTy makeMyTy_(myPos pos, enum myTyKind kind, void* member);
- 
- //	following functions call the former function internally
- myTy makeMyTy_Named(myPos pos, mySymbol typeName);
- myTy makeMyTy_Record(myPos pos, myTyFieldList tyFieldList);
- myTy makeMyTy_Array(myPos pos, mySymbol arrayName);
+
  
 	///////////////////////////////////
  
@@ -100,7 +106,6 @@ typedef PosInfo myPos;
  };
  typedef struct myTyDec_*	myTyDec;
  
- myTyDec makeMyTyDec(mySymbol name, myTy type);
  
  //----------------------Var struct--------------------//
  
@@ -115,7 +120,6 @@ typedef struct myExp_* myExp;
  };
  typedef	struct myLongFormVar_*		myLongFormVar;
  
- myLongFormVar makeMyLongFormVar(mySymbol name, mySymbol type, myExp exp);
  
 	//////////////////////////////////
  
@@ -126,7 +130,6 @@ typedef struct myExp_* myExp;
  };
  typedef	struct myShortFormVar_*	myShortFormVar;
  
- myShortFormVar makeMyShortFormVar(mySymbol name, myExp exp);
  
 		/////////////////////////////////
  
@@ -141,12 +144,6 @@ typedef struct myExp_* myExp;
  };
  typedef	struct myVarDec_*	myVarDec;
  
- myVarDec makeMyVarDec_(enum myVarDecKind kind, void* member);
- 
- //	function delegations
- 
- myVarDec makeMyVarDec_LongForm(myLongFormVar var);
- myVarDec makeMyVarDec_ShortForm(myShortFormVar var);
  
  //--------------------FuncDec struct-------	-------------//
  
@@ -158,13 +155,8 @@ typedef struct myExp_* myExp;
  };
  typedef	struct myProcedureDec_*	myProcedureDec;
  
- myProcedureDec makeMyProcedureDec(
-	mySymbol		name,
-	myTyFieldList	tyFieldList,
-	myExp			exp
-	);
- 
-	/////////////////////////////
+
+ 	/////////////////////////////
  
  struct		myFunctionDec_
  {
@@ -175,12 +167,6 @@ typedef struct myExp_* myExp;
  };
  typedef struct	myFunctionDec_*		myFunctionDec;
  
- myFunctionDec makeMyFunctionDec(
-	mySymbol		name,
-	myTyFieldList	tyFieldList,
-	mySymbol		returnType,
-	myExp			exp
-	);
 	
 	//////////////////////////////
  
@@ -195,11 +181,6 @@ typedef struct myExp_* myExp;
  };
  typedef struct	myFuncDec_*		myFuncDec;
  
- myFuncDec makeMyFuncDec_(enum myFuncDecKind kind, void* member);
- 
- //	function delegations
- myFuncDec makeMyFuncDec_Procedure(myProcedureDec dec);
- myFuncDec makeMyFuncDec_Function(myFunctionDec dec);
  
  //---------------------Dec struct----------------------//
  
@@ -218,12 +199,6 @@ struct myDec_
 };
 typedef struct myDec_*	myDec;
 
-myDec makeMyDec_(myPos pos, enum myDecKind kind, void* member);
-
-//	function delegations
-myDec makeMyDec_Type(myPos pos, myTypeDec dec);
-myDec makeMyDec_Var(myPos pos, myVarDec dec);
-myDec makeMyDec_Func(myPos pos, myFuncDec dec);
 	
 	////////////////////////////
 
@@ -233,7 +208,7 @@ typedef	struct	myDecList_
 	struct myDecList_*	next;
 }*	myDecList;
 
-myDecList makeMyDecList(myDec dec, myDecList list);
+
 
 //---------------------LValueExp struct------------------//
 
@@ -244,16 +219,6 @@ typedef	struct	myLValueAux_
 	myExp		exp;
 	struct myLValueAux_*	next;
 }* myLValueAux;
-
-myLValueAux	makeMyLValueAux(mySymbol id, myExp exp, myLValueAux next);
-
-/*enum myLValueKind getLValueKind(myLValueAux aux);*/
-
-/*
-mySymbol	MyLValueAux_GetId(myLValueAux aux);
-myExp		MyLValueAux_GetExp(myLValueAux aux);
-myLValueAux	MyLValueAux_GetNext(myLValueAux aux);
-*/
 
 	//////////////////////////
 
@@ -268,8 +233,6 @@ struct	mySimpleVar_
 };
 typedef struct	mySimpleVar_*	mySimpleVarAux;
 
-//mySimpleVarAux makeMySimpleVarAux();
-
 	/////////////////////////
 
 struct	myRecordFieldAux_
@@ -279,8 +242,6 @@ struct	myRecordFieldAux_
 };
 typedef struct	myRecordFieldAux_*	myRecordFieldAux;
 
-//myRecordFieldAux makeMyRecordFieldAux(mySymbol id, myLValueAux next);
-
 	//////////////////////////
 	
 struct	myArraySubscript_
@@ -289,8 +250,6 @@ struct	myArraySubscript_
 	myLValueAux	next;
 };
 typedef struct	myArraySubscript_*	myArraySubscriptAux;
-
-//myArraySubscriptAux makeMyArraySubscriptAux(myExp exp, myLValueAux next);
 
 	//////////////////////////
 	
@@ -311,14 +270,7 @@ typedef struct	myLValueExp_*	myLValueExp;
 //	used internally
 //enum myLValueKind getLValueKind(myLValueAux aux);
 
-myLValueExp makeMyLValue(myPos pos, mySymbol id, myLValueAux aux);
 
-/*
-//	function delegations
-myLValue makeMyLValue_SimpleVar(myPos pos, mySymbol id, mySimpleVarAux simpleVarAux);
-myLValue makeMyLValue_RecordField(myPos pos, mySymbol id, myRecordFieldAux recordFieldAux);
-myLValue makeMyLValue_ArraySubscript(myPos pos, mySymbol id, myArraySubscriptAux arraySubscriptAux);
-*/
 //-----------------------FunctionCallExp struct--------------------//
 
 typedef struct	myNoParamFunctionCallExp_
@@ -326,8 +278,6 @@ typedef struct	myNoParamFunctionCallExp_
 	mySymbol	name;
 }*	myNoParamFunctionCallExp;
 
-myNoParamFunctionCallExp makeMyNoParamFunctionCallExp(
-	mySymbol name);
 	
 	////////////////////
 
@@ -340,8 +290,6 @@ typedef	struct	myParamFunctionCallExp_
 	myExpList	expList;
 }*	myParamFunctionCallExp;
 
-myParamFunctionCallExp makeMyParamFunctionCallExp(
-	mySymbol name, myExpList exps);
 	
 	////////////////////
 
@@ -358,13 +306,6 @@ struct	myFunctionCallExp_
 };
 typedef struct	myFunctionCallExp_*	myFunctionCallExp;
 
-//static myFunctionCallExp makeMyFunctionCallExp_(enum myFunctionCallExpKind kind, void* member);
-
-//	function delegations
-myFunctionCallExp makeMyFunctionCallExp_NoParam(
-	myNoParamFunctionCallExp exp);
-myFunctionCallExp makeMyFunctionCallExp_Param(
-	myParamFunctionCallExp exp);
 
 //----------------------NilExp struct-----------------------//
 
@@ -373,7 +314,6 @@ typedef	struct	myNilExp_
 	//	contain nothing
 }*	myNilExp;
 
-myNilExp makeMyNilExp();
 
 //-------------------IntegerLiteralExp struct------------------//
 
@@ -382,7 +322,6 @@ typedef	struct	myIntegerLiteralExp_
 	int		value;
 }*	myIntegerLiteralExp;
 
-myIntegerLiteralExp makeMyIntegerLiteralExp(int value);
 
 //--------------------StringLiteralExp struct------------------//
 
@@ -391,7 +330,6 @@ typedef	struct	myStringLiteralExp_
 	myString	str;	//	see util.h
 }*	myStringLiteralExp;
 
-myStringLiteralExp makeMyStringLiteralExp(myString str);
 
 //--------------------ArrayCreationExp struct------------------//
 
@@ -402,11 +340,6 @@ typedef	struct	myArrayCreationExp_
 	myExp		initial;
 }*	myArrayCreationExp;
 
-myArrayCreationExp makeMyArrayCreationExp(
-	mySymbol	typeName,
-	myExp		length,
-	myExp		initial
-	);
 
 //-------------------RecordCreation struct--------------------//
 
@@ -416,8 +349,6 @@ typedef	struct	myRecordField_
 	myExp		varValue;
 }*	myRecordField;
 
-myRecordField makeMyRecordField(
-	mySymbol varName, myExp varValue);
 
 	///////////////////////
 	
@@ -427,10 +358,6 @@ typedef	struct	myRecordFieldList_
 	struct myRecordFieldList_*	next;
 }*	myRecordFieldList;
 
-myRecordFieldList makeMyRecordFieldList(
-	myRecordField		field,
-	myRecordFieldList	list
-	);
 
 	///////////////////////
 	
@@ -439,8 +366,6 @@ typedef	struct	myNoFieldRecordCreationExp_
 	mySymbol	typeName;
 }*	myNoFieldRecordCreationExp;
 
-myNoFieldRecordCreationExp makeMyNoFieldRecordCreationExp(
-	mySymbol typeName);
 	
 	///////////////////////
 
@@ -450,8 +375,6 @@ typedef	struct	myFieldRecordCreationExp_
 	myRecordFieldList	fieldList;
 }*	myFieldRecordCreationExp;
 
-myFieldRecordCreationExp makeMyFieldRecordCreationExp(
-	mySymbol typeName, myRecordFieldList list);
 	
 	///////////////////////
 
@@ -465,10 +388,6 @@ typedef	struct	myRecordCreationExp_
 	}u;
 }* myRecordCreationExp;
 
-myRecordCreationExp makeMyRecordCreationExp_NoField(
-	myNoFieldRecordCreationExp exp);
-myRecordCreationExp makeMyRecordCreationExp_Field(
-	myFieldRecordCreationExp exp);
 
 //----------------------ArithmeticExp struct--------------------//
 
@@ -479,21 +398,6 @@ typedef	struct	myArithmeticExp_
 	myExp		right;
 }*	myArithmeticExp;
 
-myArithmeticExp makeMyArithmeticExp_(
-	enum myArithmeticOp	op,
-	myExp			left,
-	myExp			right
-	);
-
-//	the following functions call the former function internally
-myArithmeticExp makeMyArithmeticExp_Plus(
-	myExp left, myExp right);
-myArithmeticExp makeMyArithmeticExp_Minus(
-	myExp left, myExp right);
-myArithmeticExp makeMyArithmeticExp_Multiply(
-	myExp left, myExp right);
-myArithmeticExp makeMyArithmeticExp_Divide(
-	myExp left, myExp right);
 	
 //-------------------ParenthesesExp struct-------------------//
 
@@ -502,7 +406,6 @@ typedef	struct	myParenthesesExp_
 	myExp		exp;
 }*	myParenthesesExp;
 
-myParenthesesExp makeMyParenthesesExp(myExp exp);
 
 //---------------------NoValueExp struct---------------------//
 
@@ -511,7 +414,6 @@ typedef	struct	myNoValueExp_
 	//	contain nothing
 }*	myNoValueExp;
 
-myNoValueExp makeMyNoValueExp();
 
 //---------------------SequencingExp struct------------------//
 
@@ -523,11 +425,6 @@ typedef	struct	mySequencingExp_
 	myExpList	nextList;	//	can be nullptr
 }*	mySequencingExp;
 
-mySequencingExp makeMySequencingExp(
-	myExp		exp1,
-	myExp		exp2,
-	myExpList	expList
-	);
 
 //---------------------ForExp struct------------------------//
 
@@ -539,11 +436,6 @@ typedef	struct	myForExp_
 	myExp		bodyExp;
 }*	myForExp;
 
-myForExp makeMyForExp(
-	mySymbol varName,
-	myExp rangeLow, myExp rangeHigh,
-	myExp bodyExp
-	);
 
 //----------------------IfThenElseExp struct--------------------//
 
@@ -554,8 +446,6 @@ typedef	struct	myIfThenElseExp_
 	myExp		exp3;
 }*	myIfThenElseExp;
 
-myIfThenElseExp makeMyIfThenElseExp(
-	myExp exp1, myExp exp2, myExp exp3);
 
 //----------------------IfThenExp struct--------------------------//
 
@@ -565,7 +455,6 @@ typedef	struct	myIfThenExp_
 	myExp	exp2;
 }*	myIfThenExp;
 
-myIfThenExp makeMyIfThenExp(myExp exp1, myExp exp2);
 
 //----------------------ComparisonExp struct----------------------//
 
@@ -579,25 +468,6 @@ typedef	struct	myComparisonExp_
 	myExp	right;
 }*	myComparisonExp;
 
-myComparisonExp makeMyComparisonExp_(
-	enum myComparisonOp	op,
-	myExp			left,	
-	myExp			right
-	);
-	
-//	the following functions call the former function internally
-myComparisonExp makeMyComparisonExp_Equal(
-	myExp left, myExp right);
-myComparisonExp makeMyComparisonExp_NotEqual(
-	myExp left, myExp right);
-myComparisonExp makeMyComparisonExp_LargerThan(
-	myExp left, myExp right);
-myComparisonExp makeMyComparisonExp_SmallerThan(
-	myExp left, myExp right);
-myComparisonExp makeMyComparisonExp_LargerEqualThan(
-	myExp left, myExp right);
-myComparisonExp makeMyComparisonExp_SmallerEqualThan(
-	myExp left, myExp right);
 
 //-------------------BooleanOperateExp struct--------------------//
 
@@ -608,17 +478,6 @@ typedef	struct	myBooleanOperateExp_
 	myExp		right;
 }*	myBooleanOperateExp;
 
-myBooleanOperateExp makeMyBooleanOPerateExp_(
-	enum myBooleanOperateOp	op,
-	myExp				left,
-	myExp				right
-	);
-	
-//	the following functions call the former function internally
-myBooleanOperateExp makeMyBooleanOperateExp_And(
-	myExp left, myExp right);
-myBooleanOperateExp makeMyBooleanOperateExp_Or(
-	myExp left, myExp right);
 
 //--------------------AssignmentExp struct----------------------//
 
@@ -628,8 +487,6 @@ typedef	struct	myAssignmentExp_
 	myExp		exp;
 }*	myAssignmentExp;
 
-myAssignmentExp makeMyAssignmentExp(
-	myLValueExp lValueExp, myExp exp);
 
 //--------------------LetExp struct--------------------------//
 
@@ -639,7 +496,6 @@ typedef	struct	myLetExp_
 	myExpList		expList;//	may be null
 }*	myLetExp;
 
-myLetExp makeMyLetExp(myDecList decList, myExpList expList);
 
 //--------------------WhileExp struct------------------------//
 
@@ -649,7 +505,6 @@ typedef	struct	myWhileExp_
 	myExp	bodyExp;
 }*	myWhileExp;
 
-myWhileExp makeMyWhileExp(myExp whileExp, myExp bodyExp);
 
 //--------------------NegationExp struct---------------------//
 
@@ -658,7 +513,6 @@ typedef	struct	myNegationExp_
 	myExp		exp;
 }*	myNegationExp;
 
-myNegationExp makeMyNegationExp(myExp exp);
 
 //---------------------BreakExp struct---------------------//
 
@@ -667,7 +521,6 @@ typedef	struct	myBreakExp_
 	//	need nothing
 }*	myBreakExp;
 
-myBreakExp makeMyBreakExp();
 
 //----------------------Exp struct--------------------------//
 
@@ -710,9 +563,314 @@ struct	myExp_
 };
 typedef	struct myExp_*	myExp;
 
-myExp makeMyExp_(myPos pos, enum myExpKind kind, void* unionMember);
 
-//	following functions call the former function internally
+typedef	struct	myExpList_
+{
+	myExp		exp;
+	myExpList	next;
+}*	myExpList;
+
+/**	@endcond	*/
+
+
+/*--------------------------------------------------------------------
+						Function prototypes
+ --------------------------------------------------------------------*/
+
+/**	
+ *	@name Ty About
+ *	@{
+ */
+
+ myTyField		makeMyTyField		(mySymbol varName, mySymbol typeName);
+ myTyFieldList 	makeMyTyFieldList	(myTyField field, myTyFieldList list);
+
+ myTy 			makeMyTy_Named		(myPos pos, mySymbol typeName);
+ myTy 			makeMyTy_Record		(myPos pos, myTyFieldList tyFieldList);
+ myTy			makeMyTy_Array		(myPos pos, mySymbol arrayName);
+
+ myTyDec		makeMyTyDec			(mySymbol name, myTy type);
+
+/**	@}	*/
+
+
+/**
+ *	@name	Var About
+ *	@{
+ */
+
+ myLongFormVar 	makeMyLongFormVar(
+	 mySymbol name,
+	 mySymbol type,
+	 myExp exp);
+ myShortFormVar makeMyShortFormVar(
+	 mySymbol name,
+	 myExp exp);
+ myVarDec 		makeMyVarDec_LongForm	(myLongFormVar var);
+ myVarDec 		makeMyVarDec_ShortForm	(myShortFormVar var);
+
+/**	@}	*/
+
+
+/**
+ *	@name	SubRoutine About
+ *	@{
+ */
+
+ myProcedureDec makeMyProcedureDec(
+	mySymbol		name,
+	myTyFieldList	tyFieldList,
+	myExp			exp
+	);
+ myFunctionDec 	makeMyFunctionDec(
+	mySymbol		name,
+	myTyFieldList	tyFieldList,
+	mySymbol		returnType,
+	myExp			exp
+	);
+ myFuncDec 		makeMyFuncDec_Procedure	(myProcedureDec dec);
+ myFuncDec 		makeMyFuncDec_Function	(myFunctionDec dec);
+
+/**	@}	*/
+
+
+/**
+ *	@name	Dec About
+ *	@{
+ */
+
+myDec makeMyDec_Type	(myPos pos, myTypeDec dec);
+myDec makeMyDec_Var		(myPos pos, myVarDec dec);
+myDec makeMyDec_Func	(myPos pos, myFuncDec dec);
+
+myDecList makeMyDecList	(myDec dec, myDecList list);
+
+/**	@}	*/
+
+
+/**
+ *	@name	LeftValue About
+ *	@{
+ */
+
+myLValueAux	makeMyLValueAux(
+	mySymbol id,
+	myExp exp,
+	myLValueAux next);
+myLValueExp makeMyLValue(
+	myPos pos,
+	mySymbol id,
+	myLValueAux aux);
+
+/**	@}	*/
+
+
+/**
+ *	@name	SubRoutine Call About
+ *	@{
+ */
+
+myNoParamFunctionCallExp 	makeMyNoParamFunctionCallExp(
+	mySymbol name);
+myParamFunctionCallExp 		makeMyParamFunctionCallExp(
+	mySymbol 	name,
+	myExpList 	exps);
+myFunctionCallExp 			makeMyFunctionCallExp_NoParam(
+	myNoParamFunctionCallExp exp);
+myFunctionCallExp 			makeMyFunctionCallExp_Param(
+	myParamFunctionCallExp 	 exp);
+
+/**	@}	*/
+
+
+
+
+
+/**
+ *	@name	Literal About
+ *	@{
+ */
+
+myIntegerLiteralExp makeMyIntegerLiteralExp	(int value);
+myStringLiteralExp 	makeMyStringLiteralExp	(myString str);
+
+/**	@} 	*/
+
+
+/**
+ *	@name	Array About
+ *	@{
+ */
+
+myArrayCreationExp makeMyArrayCreationExp(
+	mySymbol	typeName,
+	myExp		length,
+	myExp		initial
+	);
+
+/**	@}	*/
+
+
+/**
+ *	@name	Record About
+ *	@{
+ */
+
+myRecordField 		makeMyRecordField(
+	mySymbol 	varName,
+	myExp 		varValue);
+myRecordFieldList 	makeMyRecordFieldList(
+	myRecordField		field,
+	myRecordFieldList	list
+	);
+
+myNoFieldRecordCreationExp 	makeMyNoFieldRecordCreationExp(
+	mySymbol typeName);
+myFieldRecordCreationExp 	makeMyFieldRecordCreationExp(
+	mySymbol			typeName,
+	myRecordFieldList 	list);
+
+myRecordCreationExp makeMyRecordCreationExp_NoField(
+	myNoFieldRecordCreationExp 	exp);
+myRecordCreationExp makeMyRecordCreationExp_Field(
+	myFieldRecordCreationExp 	exp);
+
+/**	@}	*/
+
+
+/**
+ *	@name	Arithmetic About
+ *	@{
+ */
+
+myArithmeticExp makeMyArithmeticExp_Plus(
+	myExp left, myExp right);
+myArithmeticExp makeMyArithmeticExp_Minus(
+	myExp left, myExp right);
+myArithmeticExp makeMyArithmeticExp_Multiply(
+	myExp left, myExp right);
+myArithmeticExp makeMyArithmeticExp_Divide(
+	myExp left, myExp right);
+
+/**	@}	*/
+
+
+/**
+ *	@name	Sequencing About
+ *	@{
+ */
+
+mySequencingExp makeMySequencingExp(
+	myExp		exp1,
+	myExp		exp2,
+	myExpList	expList
+	);
+
+/**	@}	*/
+
+
+/**
+ *	@name	Control Flow About
+ *	@{
+ */
+
+myWhileExp 	makeMyWhileExp(
+	myExp whileExp,
+	myExp bodyExp);
+
+myForExp 	makeMyForExp(
+	mySymbol varName,
+	myExp rangeLow,
+	myExp rangeHigh,
+	myExp bodyExp
+	);
+
+myIfThenExp 	makeMyIfThenExp(
+	myExp exp1, myExp exp2);	
+myIfThenElseExp makeMyIfThenElseExp(
+	myExp exp1, myExp exp2, myExp exp3);
+
+myBreakExp 	makeMyBreakExp();
+
+/**	@}	*/
+
+
+/**
+ *	@name	Comparison About
+ *	@{
+ */
+
+myComparisonExp makeMyComparisonExp_Equal(
+	myExp left, myExp right);
+myComparisonExp makeMyComparisonExp_NotEqual(
+	myExp left, myExp right);
+myComparisonExp makeMyComparisonExp_LargerThan(
+	myExp left, myExp right);
+myComparisonExp makeMyComparisonExp_SmallerThan(
+	myExp left, myExp right);
+myComparisonExp makeMyComparisonExp_LargerEqualThan(
+	myExp left, myExp right);
+myComparisonExp makeMyComparisonExp_SmallerEqualThan(
+	myExp left, myExp right);	
+
+/**	@}	*/
+
+
+/**
+ *	@name	BooleanOperate About
+ *	@{
+ */
+
+myBooleanOperateExp makeMyBooleanOperateExp_And(
+	myExp left, myExp right);
+myBooleanOperateExp makeMyBooleanOperateExp_Or(
+	myExp left, myExp right);
+
+/**	@}	*/
+
+
+/**
+ *	@name	Assignment About
+ *	@{
+ */
+
+myAssignmentExp makeMyAssignmentExp(
+	myLValueExp lValueExp,
+	myExp 		exp);
+
+/**	@}	*/
+
+
+/**
+ *	@name	Let About
+ *	@{
+ */
+
+myLetExp	makeMyLetExp(
+	myDecList decList,
+	myExpList expList);
+
+/**	@}	*/
+
+
+/**
+ *	@name	Others About
+ *	@{
+ */
+
+myNilExp 		makeMyNilExp		();
+myNoValueExp 	makeMyNoValueExp	();
+myNegationExp 	makeMyNegationExp	(myExp exp);
+myParenthesesExp makeMyParenthesesExp(myExp exp);
+
+/**	@}	*/
+
+
+/**
+ *	@name	Exp About
+ *	@{
+ */
+
 myExp makeMyExp_LValue			(myPos pos, myLValueExp exp);
 myExp makeMyExp_FunctionCall	(myPos pos, myFunctionCallExp exp);
 myExp makeMyExp_Nil				(myPos pos, myNilExp exp);
@@ -727,7 +885,7 @@ myExp makeMyExp_Sequencing		(myPos pos, mySequencingExp exp);
 myExp makeMyExp_For				(myPos pos, myForExp exp);
 myExp makeMyExp_IfThenElse		(myPos pos, myIfThenElseExp exp);
 myExp makeMyExp_IfThen			(myPos pos, myIfThenExp exp);
-myExp makeMyExp_Comparison		(myPos, myComparisonExp exp);
+myExp makeMyExp_Comparison		(myPos pos, myComparisonExp exp);
 myExp makeMyExp_BooleanOperate	(myPos pos, myBooleanOperateExp exp);
 myExp makeMyExp_Assignment		(myPos pos, myAssignmentExp exp);
 myExp makeMyExp_Let				(myPos pos, myLetExp exp);
@@ -735,13 +893,10 @@ myExp makeMyExp_While			(myPos pos, myWhileExp exp);
 myExp makeMyExp_Negation		(myPos pos, myNegationExp exp);
 myExp makeMyExp_Break			(myPos pos, myBreakExp exp);
 
+myExpList makeMyExpList			(myExp exp, myExpList list);
 
-typedef	struct	myExpList_
-{
-	myExp		exp;
-	myExpList	next;
-}*	myExpList;
+/**	@}	*/
 
-myExpList makeMyExpList(myExp exp, myExpList list);
+/**	@}	*/
 
 #endif
