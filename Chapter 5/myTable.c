@@ -110,6 +110,29 @@ void* MyTable_Look_(const myTable table, void* const key)
 	return NULL;
 }
 
+bool MyTable_Set_(myTable table, void* const key, void* const value)
+{
+	//	return NULL if income invalid params  
+	if (table == NULL || key == NULL)
+		return false;
+ 
+	//	the statement above this line assures that hashFunc_MyTable() won't return -1
+	myBinder binder = table->binder[hashFunc_MyTable(key)];
+	while (binder)
+    {
+        //  key are actually pointers, so just compare them.
+		if (key == binder->key)
+		{
+			binder->value = value;
+			return true;
+		}
+		else
+			binder = binder->next;
+    }
+	 
+	return false;
+}
+
 /*	must not called when there no binder inside table	*/
 void* MyTable_Pop_(myTable table)
 {

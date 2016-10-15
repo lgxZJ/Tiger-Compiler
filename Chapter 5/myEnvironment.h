@@ -21,19 +21,10 @@
 
 
 typedef struct myVarAndFuncEntry_ *myVarAndFuncEntry;
-struct myVarAndFuncEntry_
-{
-    enum EntryType { VarEntry, FuncEntry } kind;
-    union 
-    {
-        struct { myType type ;} varEntry;
-        struct  { myTypeList formalParamTypes; myType returnType; } funcEntry;
-    }u;
-};
 
 /**----------------------------------------------------------
                     make functions
------------------------------------------------------------**/
+-----------------------------------------------------------**/ 
 //  RETURN : a valid var-entry 
 myVarAndFuncEntry myEnvironment_makeVarEntry(myType type);
 //  RETURN : a valid func-entry
@@ -53,10 +44,23 @@ void MyEnvironment_addNewVarOrFunc(
     myTable varAndFuncEnv, mySymbol entryName, myVarAndFuncEntry newEntry);
 void MyEnvironment_addNewType(
     myTable typeEnv, mySymbol typeName, myType newType);
+
 myVarAndFuncEntry MyEnvironment_getVarOrFuncFromName(
     myTable varAndFuncEnv, mySymbol varOrFuncName);
 myType MyEnvironment_getTypeFromName(
     myTable typeEnv, mySymbol typeName);
+
+// todo:    refactor mySemantic module
+myTypeList MyEnvironment_getFuncFormalTypes(myVarAndFuncEntry funcEntry);
+myType MyEnvironment_getFuncReturnType(myVarAndFuncEntry funcEntry);
+
+myType MyEnvironment_getVarType(myVarAndFuncEntry varEntry);
+
+//  RETURN:
+//      If type with name `typeName` is not found, it returns false;
+//      otherwise, it returns true.
+bool MyEnvironment_setTypeFromName(
+    myTable varAndFuncEnv, mySymbol typeName, myType type);
 
 /**
  *  @return A symbol table containing predefined functions and 

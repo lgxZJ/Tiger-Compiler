@@ -100,11 +100,23 @@ void MySymbol_Enter(myTable table, const mySymbol symbol, void* const value);
 void* MySymbol_Look(const myTable table, const mySymbol symbol);
 
 /**
+ *	@brief	Look a symbol's most recent value in the given table.
+ *
+ *	@param[in]	table	A valid table where to look for.
+ *	@param[in]	symbol	A valid symbol key.
+ *  @param[in]  value   A value to set.
+ *	@return	If the function successfully looked, it returns true;
+ *			If the function fails, it returns false. 
+ */
+bool MySymbol_Set(const myTable table, mySymbol symbol, void* value);
+
+/**
  *	@brief	Start a new scope in the given table.
  *	@param[in]	table	The table where to start a new scope.
  *	@return This function has no return value.
  */
 void MySymbol_BeginScope(myTable table);
+
 
 /**
  *	@brief	End the most recent scope in the given table.

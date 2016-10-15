@@ -4,7 +4,19 @@
 #include <assert.h> //  for assert()
 #include <stddef.h> //  for NULL definition
 
+//////////////////////////////////////////////////////////////
 
+struct myVarAndFuncEntry_
+{
+    enum EntryType { VarEntry, FuncEntry, EmptyEntry } kind;
+    union 
+    {
+        struct { myType type ;} varEntry;
+        struct  { myTypeList formalParamTypes; myType returnType; } funcEntry;
+    }u;
+};
+
+///////////////////////////////////////////////////////////////
 
 myVarAndFuncEntry myEnvironment_makeVarEntry(myType type)
 {
@@ -62,11 +74,42 @@ myVarAndFuncEntry MyEnvironment_getVarOrFuncFromName(
     return (myVarAndFuncEntry)MySymbol_Look(varAndFuncEnv, varOrFuncName);
 }
 
+myType MyEnvironment_getVarType(myVarAndFuncEntry varEntry)
+{
+    assert (varEntry);
+    assert (myEnvironment_isVarEntry(varEntry));
+    return varEntry->u.varEntry.type;
+}
+
 //  NOTE:   type must has been already added
 myType MyEnvironment_getTypeFromName(
     myTable typeEnv, mySymbol typeName)
 {
     return (myType)MySymbol_Look(typeEnv, typeName);
+}
+
+//  NOTE:  The parameter must ba a valid function entry.
+myTypeList MyEnvironment_getFuncFormalTypes(myVarAndFuncEntry funcEntry)
+{
+    assert (funcEntry);
+    assert (myEnvironment_isFuncEntry(funcEntry));
+    return funcEntry->u.funcEntry.formalParamTypes;
+}
+
+//  NOTE:  The parameter must ba a valid function entry.
+myType MyEnvironment_getFuncReturnType(myVarAndFuncEntry funcEntry)
+{
+    assert (funcEntry);
+    assert (myEnvironment_isFuncEntry(funcEntry));
+    return funcEntry->u.funcEntry.returnType;
+}
+
+bool MyEnvironment_setTypeFromName(
+    myTable varAndFuncEnv, mySymbol typeName, myType type)
+{
+    assert (varAndFuncEnv && type);
+    assert (!MySymbol_InvalidSymbol(typeName));
+    return MySymbol_Set(varAndFuncEnv, typeName, type);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

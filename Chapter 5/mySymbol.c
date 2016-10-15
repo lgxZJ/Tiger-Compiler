@@ -117,7 +117,6 @@ void MySymbol_Enter(myTable table, const mySymbol symbol, void* const value)
     MyTable_Enter_(table, symbol, value);
 }
 
-//	todo:	begin scope , look
 /*	return value of key "symbol", or NULL */
 void* MySymbol_Look(const myTable table, const mySymbol symbol)
 {
@@ -126,6 +125,12 @@ void* MySymbol_Look(const myTable table, const mySymbol symbol)
     return MyTable_Look_(table, symbol);
 }
 
+bool MySymbol_Set(const myTable table, mySymbol symbol, void* value)
+{
+	assert (table);
+	assert (!MySymbol_InvalidSymbol(symbol));
+	return MyTable_Set_(table, symbol, value);
+}
 
 /*	mark of scope (used internally)	*/
 struct mySymbol_ scopeMark_ = { "scope", NULL };

@@ -71,6 +71,16 @@ bool MyTable_Enter_(myTable table, void* const key, void* const value);
 void* MyTable_Look_(const myTable table, void* const key);
 
 /**
+ *	@brief	Set a key' value which is already entered.
+ *	@param[in]	table	The table where to look.
+ *	@param[in]	key		The key whose value is to be looked.
+ *  @param[in]  value   The value to set.
+ *	@return	If successfully setted, it returns true;
+ *			If `table` or `key` are NULL or key not found, it returns false.
+ */
+bool MyTable_Set_(myTable table, void* const key, void* const value);
+
+/**
  *	@brief	Pop the top binding's value inside the given table.
  *	@param[in]	table	The table whose top binding is to be popped.
  *	@return	If the function fails, the return value is \b NULL;
