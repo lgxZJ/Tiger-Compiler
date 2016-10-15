@@ -138,6 +138,47 @@ void test_MyTableLook_PassKeyNotEntered_ReturnNull(void)
     CU_ASSERT_EQUAL(result, NULL);
 }
 
+///////////////////////////////////////////////////////
+
+void test_MyTableSet_PassNullParams_ReturnFalse(void)
+{
+    myTable nullTable = NULL;
+    myTable validTable = MyTable_MakeEmptyTable_();
+    void* nullKey = NULL;
+    void* validKeyOrValue = (void*)12;
+
+    bool resultNullTable =
+        MyTable_Set_(nullKey, validKeyOrValue, validKeyOrValue);
+    bool resultNullKey =
+        MyTable_Set_(validTable, nullKey, validKeyOrValue);
+
+    CU_ASSERT_EQUAL(resultNullKey, false);
+    CU_ASSERT_EQUAL(resultNullTable, false);
+}
+
+void test_MyTableSet_KeyNotEntered_ReturnFalse(void)
+{
+    myTable table = MyTable_MakeEmptyTable_();
+    void* notEnteredKey = (void*)12;
+
+    bool result = MyTable_Set_(table, notEnteredKey, (void*)12);
+
+    CU_ASSERT_EQUAL(result, false); 
+}
+
+void test_MyTableSet_ValidSet_Setted(void)
+{
+    myTable table = MyTable_MakeEmptyTable_();
+    void* key = (void*)12;
+    void* valueBefore = (void*)1;
+    MyTable_Enter_(table, key, valueBefore);
+
+    void* valueSetted = (void*)22;
+    MyTable_Set_(table, key, valueSetted);
+
+    void* valueGot = MyTable_Look_(table, key);
+    CU_ASSERT_EQUAL(valueGot, valueSetted);
+}
 
 ///////////////////////////////////////////////////////
 
@@ -195,6 +236,10 @@ int main ()
         { "", test_MyTableLook_InvalidParams_ReturnNull },
         { "", test_MyTableLook_PassEnteredKeys_FindOne },
         { "", test_MyTableLook_PassKeyNotEntered_ReturnNull },
+
+        { "", test_MyTableSet_PassNullParams_ReturnFalse },
+        { "", test_MyTableSet_KeyNotEntered_ReturnFalse },
+        { "", test_MyTableSet_ValidSet_Setted },
 
         { "", test_MyTablePop_NullTableOrKey_ReturnNull },
         { "", test_MyTablePop_EmptyTable_ReturnNull },

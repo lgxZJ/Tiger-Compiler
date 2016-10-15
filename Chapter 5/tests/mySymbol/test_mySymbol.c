@@ -24,6 +24,27 @@ void test_MySymbolInvalidSymbol_PassValid_ReturnFalse(void)
 
 /////////////////////////////////////////
 
+void test_MySymbolIsSymbolEqual_NotEqualSymbol_ReturnFalse(void)
+{
+    mySymbol symbolOne = MySymbol_MakeSymbol("symbolOne");
+    mySymbol symbolTwo = MySymbol_MakeSymbol("symbolTwo");
+
+    bool result = MySymbol_IsSymbolEqual(symbolOne, symbolTwo);
+
+    CU_ASSERT_EQUAL(result, false);
+}
+
+void test_MySymbolIsSymbolEqual_SameSymbol_ReturnTrue(void)
+{
+    mySymbol symbol = MySymbol_MakeSymbol("symbol");
+
+    bool result = MySymbol_IsSymbolEqual(symbol, symbol);
+
+    CU_ASSERT_EQUAL(result, true);
+}
+
+/////////////////////////////////////////
+
 void test_MySymbolMakeSymbol_PassNullOrEmptyString_ReturnNull(void)
 {
     myString nullString = NULL;
@@ -108,6 +129,22 @@ void test_MySymbolLook_EnterSome_CanGetAny(void)
 
     CU_ASSERT_EQUAL(valueOne, valueOneGot);
     CU_ASSERT_EQUAL(valueTwo, valueTwoGot);
+}
+
+///////////////////////////////////////////////////////////
+
+void test_MySymbolSet_ValidSet_TheOneSetted(void)
+{
+    myTable table = MySymbol_MakeNewTable();
+    mySymbol symbol = MySymbol_MakeSymbol("symbol");
+    void* valueBefore = (void*)12;
+    MySymbol_Enter(table, symbol, valueBefore);
+
+    void* valueSetted = (void*)12;
+    MySymbol_Set(table, symbol, valueSetted);
+
+    void* valueGot = MySymbol_Look(table, symbol);
+    CU_ASSERT_EQUAL(valueGot, valueSetted);    
 }
 
 ///////////////////////////////////////////////////////////
@@ -238,6 +275,9 @@ int main ()
         { "", test_MySymbolInvalidSymbol_PassNull_ReturnTrue },
         { "", test_MySymbolInvalidSymbol_PassValid_ReturnFalse },
 
+        { "", test_MySymbolIsSymbolEqual_NotEqualSymbol_ReturnFalse },
+        { "",  test_MySymbolIsSymbolEqual_SameSymbol_ReturnTrue},
+
         { "", test_MySymbolMakeSymbol_PassNullOrEmptyString_ReturnNull },
         { "", test_MySymbolMakeSymbol_PassValidString_MakeOne },
         { "", test_MySymbolMakeSymbol_PassSameString_ReturnExisted },
@@ -248,6 +288,8 @@ int main ()
 
         { "", test_MySymbolLook_PassSymbolNotEntered_ReturnNull },
         { "", test_MySymbolLook_EnterSome_CanGetAny },
+
+        { "", test_MySymbolSet_ValidSet_TheOneSetted },
 
         { "", test_MySymbolBeginScope_AfterCalled_BindingsInsideFormerScopeCanBeFound },
         { "", test_MySymbolBeginScope_AddSomeAfterScope_CanFindAny },

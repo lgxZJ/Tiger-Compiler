@@ -8,6 +8,13 @@
  *  so, no much more tests are needed. 
  */
 
+void test_makeTypeEmpty_ByDefault_MakeAValidEmptyType(void)
+{
+    myType result = makeType_Empty();
+
+    CU_ASSERT_EQUAL(result->kind, TypeEmpty);
+}
+
 void test_makeTypeInt_ByDefault_MakeAValidIntType(void)
 {
     myType result = makeType_Int();
@@ -121,6 +128,7 @@ int main (int argc, char* argv[])
 
     //	add tests
     CU_TestInfo tests[] = {
+        { "", test_makeTypeEmpty_ByDefault_MakeAValidEmptyType },
         { "", test_makeTypeInt_ByDefault_MakeAValidIntType },
         { "", test_makeTypeString_ByDefault_MakeAValidStringType },
         { "", test_makeTypeNil_ByDefault_MakeAValidNilType },

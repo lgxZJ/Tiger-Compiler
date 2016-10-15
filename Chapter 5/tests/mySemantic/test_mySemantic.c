@@ -54,6 +54,11 @@ myExp makeOneExp_Nil(void)
     return makeMyExp_Nil(makeOnePos(), makeMyNilExp());
 }
 
+myExp makeOneExp_Break(void)
+{
+    return makeMyExp_Break(makeOnePos(), makeMyBreakExp());
+}
+
 myExp makeOneExp_NoValue(void)
 {
     return makeMyExp_NoValue(
@@ -138,12 +143,12 @@ void test_typeContainsLValueAux_CheckRecord_ReturnTypeOfOneField(void)
 
     myLValueAux aux1 = makeMyLValueAux(symbol1, NULL, NULL);
     myType typeReturn1 = typeContainsLValueAux(
-        varAndFuncEnv, NULL, entry->u.varEntry.type, aux1);
+        varAndFuncEnv, NULL, MyEnvironment_getVarType(entry), aux1);
     myLValueAux aux2 = makeMyLValueAux(symbol2, NULL, NULL);
 
 
     myType typeReturn2 = typeContainsLValueAux(
-        varAndFuncEnv, NULL, entry->u.varEntry.type, aux2);
+        varAndFuncEnv, NULL, MyEnvironment_getVarType(entry), aux2);
     
     CU_ASSERT(typeReturn1->kind == TypeInt);
     CU_ASSERT(typeReturn2->kind == TypeString);
@@ -167,7 +172,7 @@ void test_typeContainsLValueAux_CheckRecord_ReturnTypeOfNestedField(void)
 
 
     myType typeReturn = typeContainsLValueAux(
-        varAndFuncEnv, NULL, entry->u.varEntry.type, aux);
+        varAndFuncEnv, NULL, MyEnvironment_getVarType(entry), aux);
     
     CU_ASSERT(typeReturn->kind == TypeString);
 }
@@ -189,7 +194,7 @@ void test_typeContainsLValueAux_CheckArray_ReturnTypeOfOneField(void)
 
 
     myType typeReturn = typeContainsLValueAux(
-        varAndFuncEnv, typeEnv, entry->u.varEntry.type, aux);
+        varAndFuncEnv, typeEnv, MyEnvironment_getVarType(entry), aux);
     
     CU_ASSERT(typeReturn->kind == TypeInt);
 }
@@ -211,7 +216,7 @@ void test_typeContainsLValueAux_CheckArray_ReturnTypeOfNestedField(void)
 
 
     myType typeReturn = typeContainsLValueAux(
-        varAndFuncEnv, typeEnv, entry->u.varEntry.type, aux);
+        varAndFuncEnv, typeEnv, MyEnvironment_getVarType(entry), aux);
     
     CU_ASSERT(typeReturn->kind == TypeString);
 }
@@ -397,7 +402,7 @@ void test_MySemanticLValueExpArraySubscript_LegalExp_ReturnTypeOfArray(void)
 
     mySymbol symbolArray = MySymbol_MakeSymbol("array");
     MySymbol_Enter(variableSymbolTable, symbolArray, entry);
-    MySymbol_Enter(typeEnv, symbolArray, entry->u.varEntry.type);
+    MySymbol_Enter(typeEnv, symbolArray, MyEnvironment_getVarType(entry));
 
     myLValueExp exp = makeOneLValueExp_TwoIntArraySubscript(symbolArray,
         makeOneExp_Integer(), makeOneExp_Integer());
@@ -1275,12 +1280,13 @@ void test_MySemanticComparisonExp_IllegalRightOperand_ReturnNull(void)
     test_IllegalComparisonExp_ReturnNull(leftLegalOperand, rightIllegalOperand);
 }
 
-void test_MySemanticComparisonExp_OperandsTypeNotMatch_ReturnNull(void)
+void test_MySemanticComparisonExp_AnyOperandsTypeNotInt_ReturnNull(void)
 {
-    myExp leftIntOperand = makeOneExp_Integer();
-    myExp rightStringOperand = makeOneExp_String();
+    myExp intOperand = makeOneExp_Integer();
+    myExp breakOperand = makeOneExp_Break();
 
-    test_IllegalComparisonExp_ReturnNull(leftIntOperand, rightStringOperand);
+    test_IllegalComparisonExp_ReturnNull(intOperand, breakOperand);
+    test_IllegalComparisonExp_ReturnNull(breakOperand, intOperand);
 }
 
 void test_MySemanticComparisonExp_LegalExp_ReturnIntType(void)
@@ -1696,8 +1702,8 @@ void test_MySemanticDecVarShortForm_LegalIntShortVar_ValueTypedAdded(void)
     bool result = 
         MySemantic_Dec_Var_ShortForm(varAndFuncEnv, typeEnv, legalShortVar);
 
-    myType addedType = MyEnvironment_getVarOrFuncFromName(varAndFuncEnv, typeName)
-        ->u.varEntry.type;
+    myType addedType = MyEnvironment_getVarType(
+        MyEnvironment_getVarOrFuncFromName(varAndFuncEnv, typeName));
     CU_ASSERT_EQUAL(result, true);
     CU_ASSERT(isTypeInt(addedType));
 }
@@ -1772,7 +1778,7 @@ void test_MySemanticDecVarLongForm_NilValueOfRecordType_VarAdded(void)
     myVarAndFuncEntry varEntry = MyEnvironment_getVarOrFuncFromName(varAndFuncEnv, varName);
     CU_ASSERT_EQUAL(result, true);
     CU_ASSERT(myEnvironment_isVarEntry(varEntry));
-    CU_ASSERT(isTypeEqual(varEntry->u.varEntry.type, recordType));
+    CU_ASSERT(isTypeEqual(MyEnvironment_getVarType(varEntry), recordType));
 }
 
 void test_MySemanticDecVarLongForm_LegalParam_VarAdded(void)
@@ -1790,7 +1796,7 @@ void test_MySemanticDecVarLongForm_LegalParam_VarAdded(void)
     myVarAndFuncEntry varEntry = MyEnvironment_getVarOrFuncFromName(varAndFuncEnv, varName);
     CU_ASSERT_EQUAL(result, true);
     CU_ASSERT(myEnvironment_isVarEntry(varEntry));
-    CU_ASSERT(isTypeInt(varEntry->u.varEntry.type));
+    CU_ASSERT(isTypeInt(MyEnvironment_getVarType(varEntry)));
 }
 
 void test_MySemanticDecVarLongForm_NilValueOfRecordType_Succeed(void)
@@ -1917,8 +1923,8 @@ void test_MySemanticDecFuncProcedure_LegalDec_FuncAdded(void)
         MyEnvironment_getVarOrFuncFromName(varAndFuncEnv, funcName);
     CU_ASSERT_EQUAL(result, true);
     CU_ASSERT(myEnvironment_isFuncEntry(funcEntry));
-    CU_ASSERT(isTypeInt(funcEntry->u.funcEntry.formalParamTypes->head));
-    CU_ASSERT(isTypeNoReturn(funcEntry->u.funcEntry.returnType));
+    CU_ASSERT(isTypeInt(MyEnvironment_getFuncFormalTypes(funcEntry)->head));
+    CU_ASSERT(isTypeNoReturn(MyEnvironment_getFuncReturnType(funcEntry)));
 }
 
 //  a parameterized test
@@ -2025,8 +2031,8 @@ void test_MySemanticDecFuncFunction_LegalFunctionDec_ReturnTrueAndFunctionAdded(
         MyEnvironment_getVarOrFuncFromName(varAndFuncEnv, dec->name);
     CU_ASSERT_EQUAL(result, true);
     CU_ASSERT(myEnvironment_isFuncEntry(funcEntry));
-    CU_ASSERT(isTypeInt(funcEntry->u.funcEntry.formalParamTypes->head));
-    CU_ASSERT(isTypeInt(funcEntry->u.funcEntry.returnType));
+    CU_ASSERT(isTypeInt(MyEnvironment_getFuncFormalTypes(funcEntry)->head));
+    CU_ASSERT(isTypeInt(MyEnvironment_getFuncReturnType(funcEntry)));
 }
 
 void test_MySemanticDecFuncFunction_LegalFunctionDec_FormalsCanBeUsedInBody(void)
@@ -2100,7 +2106,83 @@ void test_MySemanticDecs_DecsContainsIllegalDec_ReturnFalse(void)
     CU_ASSERT_EQUAL(result, false);
 }
 
-void test_MySemanticDecs_DecsContainsIllegalDec_ReturnFalseAndDecsAdded(void)
+/*void test_MySemanticDecs_ConsecutiveSameFuncOrTypeDecs_ReturnFalse(void)
+{
+    myTable varAndFuncEnv = myEnvironment_BaseVarAndFunc();
+    myTable typeEnv = myEnvironment_BaseType();
+
+    myFuncDec funcDec = makeMyFuncDec_Function(
+        makeMyFunctionDec(MySymbol_MakeSymbol("funcname"), NULL, makeSymbol_String(), makeOneExp_String()));
+    myTypeDec typeDec = makeMyTyDec(
+        MySymbol_MakeSymbol("typename"), makeMyTy_Named(makeOnePos(), makeSymbol_Int()));
+
+    myDecList sameFuncDecs = makeMyDecList(
+        makeMyDec_Func(makeOnePos(),funcDec),
+        makeMyDecList(
+            makeMyDec_Func(makeOnePos(), funcDec),NULL));
+    myDecList sameTypeDecs = makeMyDecList(
+        makeMyDec_Type(makeOnePos(),typeDec),
+        makeMyDecList(
+            makeMyDec_Type(makeOnePos(), typeDec),NULL));
+
+
+    bool resultSameFunc = MySemantic_Decs(varAndFuncEnv, typeEnv, sameFuncDecs);
+    bool resultSameType = MySemantic_Decs(varAndFuncEnv, typeEnv, sameTypeDecs);
+
+    CU_ASSERT_EQUAL(resultSameFunc, false);
+    CU_ASSERT_EQUAL(resultSameType, false);
+}
+
+void test_MySemanticDecs_NotConsecutiveSameFuncOrTypeDecs_ReturnTrue(void)
+{
+    myTable varAndFuncEnv = myEnvironment_BaseVarAndFunc();
+    myTable typeEnv = myEnvironment_BaseType();
+
+    myFuncDec funcDec = makeMyFuncDec_Function(
+        makeMyFunctionDec(MySymbol_MakeSymbol("funcname"), NULL, makeSymbol_String(), makeOneExp_String()));
+    myTypeDec typeDec = makeMyTyDec(
+        MySymbol_MakeSymbol("typename"), makeMyTy_Named(makeOnePos(), makeSymbol_Int()));
+
+    myDecList notConsecutiveFuncs = makeMyDecList(
+        makeMyDec_Func(makeOnePos(),funcDec),
+        makeMyDecList(
+            makeMyDec_Type(makeOnePos(), typeDec),
+                makeMyDecList(
+                makeMyDec_Func(makeOnePos(), funcDec),NULL)));
+    myDecList notConsecutiveTypes = makeMyDecList(
+        makeMyDec_Type(makeOnePos(),typeDec),
+        makeMyDecList(
+            makeMyDec_Func(makeOnePos(), funcDec),
+            makeMyDecList(
+            makeMyDec_Type(makeOnePos(), typeDec),NULL)));
+
+
+    bool resultFunc = MySemantic_Decs(varAndFuncEnv, typeEnv, notConsecutiveFuncs);
+    bool resultType = MySemantic_Decs(varAndFuncEnv, typeEnv, notConsecutiveTypes);
+
+    CU_ASSERT_EQUAL(resultFunc, true);
+    CU_ASSERT_EQUAL(resultType, true);
+}*/
+
+void test_MySemanticDecs_ConsecutiveSameVarDecs_ReturnTrue(void)
+{
+    myTable varAndFuncEnv = myEnvironment_BaseVarAndFunc();
+    myTable typeEnv = myEnvironment_BaseType();
+
+    myVarDec varDec = makeMyVarDec_ShortForm(
+        makeMyShortFormVar(MySymbol_MakeSymbol("var name"), makeOneExp_Integer()));
+    myDecList sameVarDecs = makeMyDecList(
+        makeMyDec_Var(makeOnePos(), varDec),
+        makeMyDecList(
+            makeMyDec_Var(makeOnePos(), varDec),NULL));
+
+
+    bool resultSameVar = MySemantic_Decs(varAndFuncEnv, typeEnv, sameVarDecs);
+
+    CU_ASSERT_EQUAL(resultSameVar, true);
+}
+
+void test_MySemanticDecs_DecsContainslegalDec_ReturnTrueAndDecsAdded(void)
 {
     myTable varAndFuncEnv = myEnvironment_BaseVarAndFunc();
     myTable typeEnv = myEnvironment_BaseType();
@@ -2132,7 +2214,7 @@ void test_MySemanticDecs_DecsContainsIllegalDec_ReturnFalseAndDecsAdded(void)
     myType type = MyEnvironment_getTypeFromName(typeEnv, typeName);
     CU_ASSERT_EQUAL(result, true);
     CU_ASSERT(myEnvironment_isFuncEntry(funcEntry));
-    CU_ASSERT(isTypeString(funcEntry->u.funcEntry.returnType));
+    CU_ASSERT(isTypeString(MyEnvironment_getFuncReturnType(funcEntry)));
     CU_ASSERT(myEnvironment_isVarEntry(varEntry));
     CU_ASSERT(isTypeInt(type));
 }
@@ -2348,7 +2430,7 @@ int main (int argc, char* argv[])
 
         { "", test_MySemanticComparisonExp_IllegalLeftOperand_ReturnNull },
         { "", test_MySemanticComparisonExp_IllegalRightOperand_ReturnNull },
-        { "", test_MySemanticComparisonExp_OperandsTypeNotMatch_ReturnNull },
+        { "", test_MySemanticComparisonExp_AnyOperandsTypeNotInt_ReturnNull },
         { "", test_MySemanticComparisonExp_LegalExp_ReturnIntType },
         { "", test_MySemanticComparisonExp_OneRecordAnotherNil_Succeed },
 
@@ -2406,7 +2488,10 @@ int main (int argc, char* argv[])
         { "", test_MySemanticDecFuncFunction_LegalFunctionDec_FormalsCanBeUsedInBody },
 
         { "", test_MySemanticDecs_DecsContainsIllegalDec_ReturnFalse },
-        { "", test_MySemanticDecs_DecsContainsIllegalDec_ReturnFalseAndDecsAdded },
+        /*{ "", test_MySemanticDecs_ConsecutiveSameFuncOrTypeDecs_ReturnFalse },
+        { "", test_MySemanticDecs_NotConsecutiveSameFuncOrTypeDecs_ReturnTrue },*/
+        { "", test_MySemanticDecs_ConsecutiveSameVarDecs_ReturnTrue },
+        { "", test_MySemanticDecs_DecsContainslegalDec_ReturnTrueAndDecsAdded },
 
         { "", test_MySemanticLetExp_IllegalDeclarations_ReturnNull },
         { "", test_MySemanticLetExp_IllegalBody_ReturnNull },

@@ -15,7 +15,7 @@ void test_makeVarEntry_ByDefault_MakeOneValidVarEntry(void)
 
     CU_ASSERT(entry != NULL);
     CU_ASSERT(myEnvironment_isVarEntry(entry));
-    CU_ASSERT_EQUAL(entry->u.varEntry.type, fakeVarType);
+    CU_ASSERT_EQUAL(MyEnvironment_getVarType(entry), fakeVarType);
 }
 
 void test_makeFuncEntry_ByDefault_MakeOneValidFuncEntry(void)
@@ -27,8 +27,8 @@ void test_makeFuncEntry_ByDefault_MakeOneValidFuncEntry(void)
 
     CU_ASSERT(entry != NULL);
     CU_ASSERT(myEnvironment_isFuncEntry(entry));
-    CU_ASSERT_EQUAL(entry->u.funcEntry.formalParamTypes, fakeFormalTypes);
-    CU_ASSERT_EQUAL(entry->u.funcEntry.returnType, fakeReturnType);
+    CU_ASSERT_EQUAL(MyEnvironment_getFuncFormalTypes(entry), fakeFormalTypes);
+    CU_ASSERT_EQUAL(MyEnvironment_getFuncReturnType(entry), fakeReturnType);
 }
 
 void test_addNewVarOrFunc_ByDefault_AddOne(void)
@@ -56,6 +56,23 @@ void test_addNewType_ByDefault_AddOne(void)
 
     myType actualType = MyEnvironment_getTypeFromName(typeEnv, typeName); 
     CU_ASSERT_EQUAL(expectedType, actualType);
+}
+
+void test_MyEnvironmentsetTypeFromName_ValidSet_ReturnTrueAndTheOneSetted(void)
+{
+    myTable typeEnv = myEnvironment_BaseType();
+
+    myType formerType = NULL;
+    mySymbol typeName = MySymbol_MakeSymbol("typename");
+    MyEnvironment_addNewType(typeEnv, typeName, formerType);
+
+    myType typeSetted = (myType)12;
+    bool result =
+        MyEnvironment_setTypeFromName(typeEnv, typeName, typeSetted);
+
+    myType typeGot = MyEnvironment_getTypeFromName(typeEnv, typeName);
+    CU_ASSERT_EQUAL(result, true);
+    CU_ASSERT_EQUAL(typeGot, typeSetted);
 }
 
 void test_myEnvironmentBaseVarAndFunc_BeDefault_ContainPredefinedFuncs(void)
@@ -96,6 +113,7 @@ int main (int argc, char* argv[])
         { "", test_makeFuncEntry_ByDefault_MakeOneValidFuncEntry },
         { "", test_addNewVarOrFunc_ByDefault_AddOne },
         { "", test_addNewType_ByDefault_AddOne },
+        { "", test_MyEnvironmentsetTypeFromName_ValidSet_ReturnTrueAndTheOneSetted },
         { "", test_myEnvironmentBaseVarAndFunc_BeDefault_ContainPredefinedFuncs },
         { "", test_myEnvironmentBaseType_BeDefault_ContainsIntuitiveTypes }
     };
