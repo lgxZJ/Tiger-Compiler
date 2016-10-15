@@ -27,6 +27,8 @@ myType checkType_RecordContainsFields(myTypeRecord typeRecord, mySymbol field)
 
 ///////////////////////////////////////////////////////////////////////
 
+bool isTypeEmpty(myType type)   { return type->kind == TypeEmpty; }
+
 bool isTypeInt(myType type)     { return type->kind == TypeInt; }
 bool isTypeString(myType type)  { return type->kind == TypeString; }
 bool isTypeNil(myType type)     { return type->kind == TypeNil; }

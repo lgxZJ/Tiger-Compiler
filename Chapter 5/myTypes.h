@@ -68,7 +68,7 @@ typedef struct myType_
     enum TypeKind 
     { 
         TypeInt, TypeString, TypeNil, TypeNoReturn,
-        TypeRecord, TypeArray, TypeNamed 
+        TypeRecord, TypeArray, TypeNamed, TypeEmpty
     }kind;
 
     union 

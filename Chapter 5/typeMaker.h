@@ -25,6 +25,8 @@
                     make functions for type structures
 -----------------------------------------------------------------------**/
 
+myType makeType_Empty(void);
+
 myType makeType_Int(void);
 myType makeType_String(void);
 myType makeType_Nil(void);

@@ -22,11 +22,16 @@ static myType wrapToType_(enum TypeKind kind, void* member)
         case TypeArray: type->u.typeArray = member; break;
         case TypeRecord:type->u.typeRecord = member;break;
         case TypeNamed: type->u.typeNamed = member; break;
+        case TypeEmpty:                             break;//    do nothing
     }
 
     return type;
 }
 
+myType makeType_Empty(void)
+{
+    return wrapToType_(TypeEmpty, NULL);
+}
 
 static struct myTypeInt_ g_typeInt;
 myType makeType_Int(void)

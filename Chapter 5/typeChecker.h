@@ -15,6 +15,8 @@
 myType checkType_RecordContainsFields(myTypeRecord typeRecord, mySymbol field);
 
 //  NOTE:   The caller make sures `type` is valid.
+bool isTypeEmpty(myType type); 
+
 bool isTypeInt(myType type);
 bool isTypeString(myType type);
 bool isTypeNil(myType type);
