@@ -28,7 +28,7 @@ show-coverage:
 	lcov --directory . --zerocounters
 	./tests.out
 	lcov --directory . --capture --output-file code-coverage.info
-	genhtml code-coverage.info
+	genhtml -f code-coverage.info
 	firefox index.html
 
 retest:

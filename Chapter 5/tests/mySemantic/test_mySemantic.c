@@ -2106,7 +2106,7 @@ void test_MySemanticDecs_DecsContainsIllegalDec_ReturnFalse(void)
     CU_ASSERT_EQUAL(result, false);
 }
 
-/*void test_MySemanticDecs_ConsecutiveSameFuncOrTypeDecs_ReturnFalse(void)
+void test_MySemanticDecs_ConsecutiveSameFuncOrTypeDecs_ReturnFalse(void)
 {
     myTable varAndFuncEnv = myEnvironment_BaseVarAndFunc();
     myTable typeEnv = myEnvironment_BaseType();
@@ -2162,7 +2162,7 @@ void test_MySemanticDecs_NotConsecutiveSameFuncOrTypeDecs_ReturnTrue(void)
 
     CU_ASSERT_EQUAL(resultFunc, true);
     CU_ASSERT_EQUAL(resultType, true);
-}*/
+}
 
 void test_MySemanticDecs_ConsecutiveSameVarDecs_ReturnTrue(void)
 {
@@ -2488,8 +2488,8 @@ int main (int argc, char* argv[])
         { "", test_MySemanticDecFuncFunction_LegalFunctionDec_FormalsCanBeUsedInBody },
 
         { "", test_MySemanticDecs_DecsContainsIllegalDec_ReturnFalse },
-        /*{ "", test_MySemanticDecs_ConsecutiveSameFuncOrTypeDecs_ReturnFalse },
-        { "", test_MySemanticDecs_NotConsecutiveSameFuncOrTypeDecs_ReturnTrue },*/
+        { "", test_MySemanticDecs_ConsecutiveSameFuncOrTypeDecs_ReturnFalse },
+        { "", test_MySemanticDecs_NotConsecutiveSameFuncOrTypeDecs_ReturnTrue },
         { "", test_MySemanticDecs_ConsecutiveSameVarDecs_ReturnTrue },
         { "", test_MySemanticDecs_DecsContainslegalDec_ReturnTrueAndDecsAdded },
 

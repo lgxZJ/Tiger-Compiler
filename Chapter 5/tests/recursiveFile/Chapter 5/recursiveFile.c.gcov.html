@@ -19,7 +19,7 @@
         <table cellpadding=1 border=0 width="100%">
           <tr>
             <td width="10%" class="headerItem">Current view:</td>
-            <td width="35%" class="headerValue"><a href="../index.html">top level</a> - <a href="index.html">Chapter 5</a> - recursiveFile.c<span style="font-size: 80%;"> (source / <a href="recursiveFile.c.func.html">functions</a>)</span></td>
+            <td width="35%" class="headerValue"><a href="../index.html" target="_parent">top level</a> - <a href="index.html" target="_parent">Chapter 5</a> - recursiveFile.c<span style="font-size: 80%;"> (source / <a href="recursiveFile.c.func.html">functions</a>)</span></td>
             <td width="5%"></td>
             <td width="15%"></td>
             <td width="10%" class="headerCovTableHead">Hit</td>
@@ -31,18 +31,18 @@
             <td class="headerValue">code-coverage.info</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntry">68</td>
-            <td class="headerCovTableEntry">104</td>
-            <td class="headerCovTableEntryLo">65.4 %</td>
+            <td class="headerCovTableEntry">222</td>
+            <td class="headerCovTableEntry">238</td>
+            <td class="headerCovTableEntryHi">93.3 %</td>
           </tr>
           <tr>
             <td class="headerItem">Date:</td>
-            <td class="headerValue">2016-10-15</td>
+            <td class="headerValue">2016-10-18</td>
             <td></td>
             <td class="headerItem">Functions:</td>
-            <td class="headerCovTableEntry">11</td>
-            <td class="headerCovTableEntry">19</td>
-            <td class="headerCovTableEntryLo">57.9 %</td>
+            <td class="headerCovTableEntry">36</td>
+            <td class="headerCovTableEntry">36</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
           </tr>
           <tr><td><img src="../glass.png" width=3 height=3 alt=""></td></tr>
         </table>
@@ -64,368 +64,709 @@
 <span class="lineNum">       2 </span>            : #include &quot;typeMaker.h&quot;
 <span class="lineNum">       3 </span>            : #include &quot;typeChecker.h&quot;
 <span class="lineNum">       4 </span>            : #include &quot;myEnvironment.h&quot;
-<span class="lineNum">       5 </span>            : #include &quot;mySemantic.h&quot;
+<a name="5"><span class="lineNum">       5 </span>            : #include &quot;mySemantic.h&quot;</a>
 <span class="lineNum">       6 </span>            : #include &quot;myError.h&quot;
 <span class="lineNum">       7 </span>            : 
 <span class="lineNum">       8 </span>            : #include &lt;stdlib.h&gt;
-<span class="lineNum">       9 </span>            : #include &lt;assert.h&gt;
+<a name="9"><span class="lineNum">       9 </span>            : #include &lt;assert.h&gt;</a>
 <span class="lineNum">      10 </span>            : 
-<span class="lineNum">      11 </span>            : /////////////////////////////////////////////////////////////////////////
-<span class="lineNum">      12 </span>            : //  private function in mySemantic.c module
-<span class="lineNum">      13 </span>            : 
-<span class="lineNum">      14 </span>            : void AddOneProcedure(
-<span class="lineNum">      15 </span>            :     myTable varAndFuncEnv, myTable typeEnv, myProcedureDec procedureDec);
-<span class="lineNum">      16 </span>            : void AddOneFunction(
-<span class="lineNum">      17 </span>            :     myTable varAndFuncEnv, myTable typeEnv, myFunctionDec functionDec);
-<span class="lineNum">      18 </span>            : myTypeList getTypesFromTyFields(
-<span class="lineNum">      19 </span>            :     myTable typeEnv, myTyFieldList funcFields);
-<span class="lineNum">      20 </span>            : bool isFuncParamTypesDefined(myTable typeEnv, myTyFieldList funcFields);
-<span class="lineNum">      21 </span>            : void addFormalsToScope(
-<span class="lineNum">      22 </span>            :     myTable varAndFuncEnv, myTable typeEnv, myTyFieldList formals);
-<span class="lineNum">      23 </span>            : myType makeRecordFromTyFields(myTable typeEnv, myTyFieldList tyFields);
-<span class="lineNum">      24 </span>            : 
-<a name="25"><span class="lineNum">      25 </span>            : /////////////////</a>
-<span class="lineNum">      26 </span>            : 
-<span class="lineNum">      27 </span><span class="lineCov">          7 : bool isTypeDefined(myTable typeEnv, mySymbol typeName)</span>
-<span class="lineNum">      28 </span>            : {
-<span class="lineNum">      29 </span><span class="lineCov">          7 :     assert (typeEnv &amp;&amp; typeName);</span>
-<span class="lineNum">      30 </span>            : 
-<span class="lineNum">      31 </span><span class="lineCov">          7 :     return MyEnvironment_getTypeFromName(typeEnv, typeName) != NULL;</span>
-<a name="32"><span class="lineNum">      32 </span>            : }</a>
-<span class="lineNum">      33 </span>            : 
-<span class="lineNum">      34 </span><span class="lineCov">          1 : myType getActualType(myTable typeEnv, mySymbol typeName)</span>
-<span class="lineNum">      35 </span>            : {
-<span class="lineNum">      36 </span><span class="lineCov">          1 :     myType type = MyEnvironment_getTypeFromName(typeEnv, typeName);</span>
-<span class="lineNum">      37 </span><span class="lineCov">          2 :     while(isTypeNamed(type))</span>
-<span class="lineNum">      38 </span>            :     {
-<span class="lineNum">      39 </span><span class="lineNoCov">          0 :         type = type-&gt;u.typeNamed-&gt;type;</span>
-<span class="lineNum">      40 </span>            :     }
-<span class="lineNum">      41 </span><span class="lineCov">          1 :     return type;</span>
-<span class="lineNum">      42 </span>            : }
-<span class="lineNum">      43 </span>            : 
-<span class="lineNum">      44 </span>            : /////////////////////////////////////////////////////////////////////
-<span class="lineNum">      45 </span>            : 
-<span class="lineNum">      46 </span>            : //  FORM:
-<span class="lineNum">      47 </span>            : //      type type-id1 = type-id2
-<span class="lineNum">      48 </span>            : //  DO:
-<span class="lineNum">      49 </span>            : //      1.add an empty type to the type environment.
-<span class="lineNum">      50 </span>            : //  RETURN:
-<span class="lineNum">      51 </span>            : //      always return true.
-<a name="52"><span class="lineNum">      52 </span>            : //  STATUS:</a>
-<span class="lineNum">      53 </span>            : //      Tested.
-<span class="lineNum">      54 </span><span class="lineCov">          4 : bool MySemantic_Dec_Type_OnePass(myTable typeEnv, myTypeDec typeDec)</span>
-<span class="lineNum">      55 </span>            : {
-<span class="lineNum">      56 </span><span class="lineCov">          4 :     if (typeDec == NULL)    return true;</span>
-<span class="lineNum">      57 </span>            : 
-<span class="lineNum">      58 </span><span class="lineCov">          4 :     mySymbol newTypeName = typeDec-&gt;name;</span>
-<span class="lineNum">      59 </span><span class="lineCov">          4 :     myType emptyType = makeType_Empty();</span>
-<span class="lineNum">      60 </span><span class="lineCov">          4 :     MyEnvironment_addNewType(typeEnv, newTypeName, emptyType);</span>
-<span class="lineNum">      61 </span><span class="lineCov">          4 :     return true;</span>
-<span class="lineNum">      62 </span>            : }
-<span class="lineNum">      63 </span>            : 
-<span class="lineNum">      64 </span>            : ////////////////////////////////////////
-<span class="lineNum">      65 </span>            : 
-<span class="lineNum">      66 </span>            : //  forwards
-<span class="lineNum">      67 </span>            : void AddOneProcedure_OnePass(
-<span class="lineNum">      68 </span>            :     myTable varAndFuncEnv, myTable typeEnv, myProcedureDec procedureDec);
-<span class="lineNum">      69 </span>            : 
-<span class="lineNum">      70 </span>            : ////////////////
+<span class="lineNum">      11 </span>            : 
+<span class="lineNum">      12 </span>            : /////////////////////////////////////////////////////////////////////////
+<a name="13"><span class="lineNum">      13 </span>            : //  private function in mySemantic.c module</a>
+<span class="lineNum">      14 </span>            : 
+<span class="lineNum">      15 </span>            : void AddOneProcedure(
+<span class="lineNum">      16 </span>            :     myTable varAndFuncEnv, myTable typeEnv, myProcedureDec procedureDec);
+<a name="17"><span class="lineNum">      17 </span>            : void AddOneFunction(</a>
+<span class="lineNum">      18 </span>            :     myTable varAndFuncEnv, myTable typeEnv, myFunctionDec functionDec);
+<span class="lineNum">      19 </span>            : myTypeList getTypesFromTyFields(
+<span class="lineNum">      20 </span>            :     myTable typeEnv, myTyFieldList funcFields);
+<a name="21"><span class="lineNum">      21 </span>            : bool isFuncParamTypesDefined(myTable typeEnv, myTyFieldList funcFields);</a>
+<span class="lineNum">      22 </span>            : void addFormalsToScope(
+<span class="lineNum">      23 </span>            :     myTable varAndFuncEnv, myTable typeEnv, myTyFieldList formals);
+<span class="lineNum">      24 </span>            : bool MySemantic_Dec_Var(myTable varAndFuncEnv, myTable typeEnv, myVarDec varDec);
+<a name="25"><span class="lineNum">      25 </span>            : </a>
+<a name="26"><span class="lineNum">      26 </span>            : /////////////////</a>
+<span class="lineNum">      27 </span>            : 
+<span class="lineNum">      28 </span><span class="lineCov">          8 : bool isExpOneTypeOrIllegal(</span>
+<a name="29"><span class="lineNum">      29 </span>            :     myTable varAndFuncEnv, myTable typeEnv,</a>
+<span class="lineNum">      30 </span>            :     myExp exp, enum TypeKind kind)
+<span class="lineNum">      31 </span>            : {
+<span class="lineNum">      32 </span><span class="lineCov">          8 :     assert (varAndFuncEnv &amp;&amp; typeEnv &amp;&amp; exp);</span>
+<a name="33"><span class="lineNum">      33 </span>            : </a>
+<span class="lineNum">      34 </span><span class="lineCov">          8 :     myTranslationAndType result = </span>
+<span class="lineNum">      35 </span>            :         MySemantic_Exp(varAndFuncEnv, typeEnv, exp);
+<span class="lineNum">      36 </span><span class="lineCov">          8 :     if (result == SEMANTIC_ERROR)     return false;</span>
+<a name="37"><span class="lineNum">      37 </span>            : </a>
+<span class="lineNum">      38 </span><span class="lineCov">          8 :     switch (kind)</span>
+<span class="lineNum">      39 </span>            :     {
+<span class="lineNum">      40 </span><span class="lineNoCov">          0 :         case TypeInt:       return isTypeInt(result-&gt;type);</span>
+<a name="41"><span class="lineNum">      41 </span><span class="lineCov">          8 :         case TypeNoReturn:  return isTypeNoReturn(result-&gt;type);</span></a>
+<span class="lineNum">      42 </span><span class="lineNoCov">          0 :         case TypeArray:     return isTypeArray(result-&gt;type);</span>
+<span class="lineNum">      43 </span><span class="lineNoCov">          0 :         default:            assert(false);</span>
+<span class="lineNum">      44 </span>            :     }
+<a name="45"><span class="lineNum">      45 </span>            : }</a>
+<span class="lineNum">      46 </span>            : 
+<span class="lineNum">      47 </span><span class="lineCov">          8 : bool isExpNoReturn(myTable varAndFuncEnv, myTable typeEnv, myExp exp)</span>
+<span class="lineNum">      48 </span>            : {
+<a name="49"><span class="lineNum">      49 </span><span class="lineCov">          8 :     return isExpOneTypeOrIllegal(varAndFuncEnv, typeEnv, exp, TypeNoReturn);</span></a>
+<a name="50"><span class="lineNum">      50 </span>            : }</a>
+<span class="lineNum">      51 </span>            : 
+<span class="lineNum">      52 </span><span class="lineCov">         25 : bool isTypeDefined(myTable typeEnv, mySymbol typeName)</span>
+<a name="53"><span class="lineNum">      53 </span>            : {</a>
+<span class="lineNum">      54 </span><span class="lineCov">         25 :     assert (typeEnv &amp;&amp; typeName);</span>
+<span class="lineNum">      55 </span>            : 
+<span class="lineNum">      56 </span><span class="lineCov">         25 :     return MyEnvironment_getTypeFromName(typeEnv, typeName) != NULL;</span>
+<a name="57"><span class="lineNum">      57 </span>            : }</a>
+<a name="58"><span class="lineNum">      58 </span>            : </a>
+<span class="lineNum">      59 </span>            : 
+<span class="lineNum">      60 </span><span class="lineCov">          7 : bool isExpLegal(</span>
+<a name="61"><span class="lineNum">      61 </span>            :     myTable varAndFuncEnv, myTable typeEnv, myExp exp)</a>
+<span class="lineNum">      62 </span>            : {
+<span class="lineNum">      63 </span><span class="lineCov">          7 :     assert (varAndFuncEnv &amp;&amp; typeEnv &amp;&amp; exp);</span>
+<span class="lineNum">      64 </span>            : 
+<a name="65"><span class="lineNum">      65 </span><span class="lineCov">          7 :     myTranslationAndType result = </span></a>
+<span class="lineNum">      66 </span>            :         MySemantic_Exp(varAndFuncEnv, typeEnv, exp);
+<span class="lineNum">      67 </span>            :         
+<span class="lineNum">      68 </span><span class="lineCov">          7 :     if (result == SEMANTIC_ERROR)   return false;</span>
+<a name="69"><span class="lineNum">      69 </span><span class="lineCov">          6 :     else                            return true;</span></a>
+<span class="lineNum">      70 </span>            : }
 <span class="lineNum">      71 </span>            : 
-<span class="lineNum">      72 </span>            : //  FORM:
-<span class="lineNum">      73 </span>            : //      function id (tyfields) = exp
-<span class="lineNum">      74 </span>            : //  DO:
-<span class="lineNum">      75 </span>            : //      1.check whether types in `tyfields` have already been defined.
-<span class="lineNum">      76 </span>            : //      2.add a procedure to the function environment.
-<span class="lineNum">      77 </span>            : //  RETURN:
-<span class="lineNum">      78 </span>            : //      a boolean variable indicates whether this function succeeds.
-<a name="79"><span class="lineNum">      79 </span>            : //  STATUS:</a>
-<span class="lineNum">      80 </span>            : //      Tested.
-<span class="lineNum">      81 </span><span class="lineCov">          2 : bool MySemantic_Dec_Func_Procedure_OnePass(</span>
-<span class="lineNum">      82 </span>            :     myTable varAndFuncEnv, myTable typeEnv, myProcedureDec procedureDec)
+<span class="lineNum">      72 </span>            : /////////////////////////////////////////////////////////////////////
+<a name="73"><span class="lineNum">      73 </span>            : </a>
+<span class="lineNum">      74 </span>            : //  FORM:
+<span class="lineNum">      75 </span>            : //      type type-id1 = type-id2
+<span class="lineNum">      76 </span>            : //  DO:
+<a name="77"><span class="lineNum">      77 </span>            : //      1.add a type to the type environment without checking.</a>
+<span class="lineNum">      78 </span>            : //  RETURN:
+<span class="lineNum">      79 </span>            : //      always return true.
+<a name="80"><span class="lineNum">      80 </span>            : //  STATUS:</a>
+<a name="81"><span class="lineNum">      81 </span>            : //      Tested.</a>
+<span class="lineNum">      82 </span><span class="lineCov">         19 : bool MySemantic_Dec_Type_OnePass(myTable typeEnv, myTypeDec typeDec)</span>
 <span class="lineNum">      83 </span>            : {
-<span class="lineNum">      84 </span><span class="lineCov">          2 :     bool isParamTypesDefined =</span>
-<span class="lineNum">      85 </span><span class="lineCov">          2 :         isFuncParamTypesDefined(typeEnv, procedureDec-&gt;tyFieldList);</span>
-<span class="lineNum">      86 </span>            :         
-<span class="lineNum">      87 </span><span class="lineCov">          2 :     if (isParamTypesDefined)</span>
-<span class="lineNum">      88 </span>            :     {
-<span class="lineNum">      89 </span><span class="lineCov">          1 :         AddOneProcedure_OnePass(varAndFuncEnv, typeEnv, procedureDec);</span>
-<span class="lineNum">      90 </span><span class="lineCov">          1 :         return true;</span>
-<span class="lineNum">      91 </span>            :     }
-<span class="lineNum">      92 </span>            :     else
-<span class="lineNum">      93 </span>            :     {
-<span class="lineNum">      94 </span><span class="lineCov">          1 :         MyError_pushErrorCodeWithMsg(</span>
-<span class="lineNum">      95 </span>            :             ERROR__FUNCDEC_PROCEDURE__PARAM_TYPE_NOT_DEFINED,
-<span class="lineNum">      96 </span>            :             MySymbol_GetName(procedureDec-&gt;name));
-<span class="lineNum">      97 </span><span class="lineCov">          1 :         return false;</span>
-<span class="lineNum">      98 </span>            :     }
-<a name="99"><span class="lineNum">      99 </span>            : }</a>
-<span class="lineNum">     100 </span>            : 
-<span class="lineNum">     101 </span><span class="lineCov">          1 : void AddOneProcedure_OnePass(</span>
-<span class="lineNum">     102 </span>            :     myTable varAndFuncEnv, myTable typeEnv, myProcedureDec procedureDec)
-<span class="lineNum">     103 </span>            : {
-<span class="lineNum">     104 </span><span class="lineCov">          1 :     AddOneProcedure(varAndFuncEnv, typeEnv, procedureDec);</span>
-<span class="lineNum">     105 </span><span class="lineCov">          1 : }</span>
-<span class="lineNum">     106 </span>            : 
-<span class="lineNum">     107 </span>            : //////////////////////////////////////////////////
-<span class="lineNum">     108 </span>            : 
-<span class="lineNum">     109 </span>            : //  forwards
-<span class="lineNum">     110 </span>            : void AddOneFunction_OnePass(
-<span class="lineNum">     111 </span>            :     myTable varAndFuncEnv, myTable typeEnv, myFunctionDec functionDec);
-<span class="lineNum">     112 </span>            : void processFunctionErrors_OnePass(
-<span class="lineNum">     113 </span>            :     bool isParamTypesDefined, bool isReturnTypeDefined, mySymbol functionName);
-<span class="lineNum">     114 </span>            : 
-<span class="lineNum">     115 </span>            : /////////////////
-<span class="lineNum">     116 </span>            : 
-<span class="lineNum">     117 </span>            : //  FORM:
-<span class="lineNum">     118 </span>            : //      function id (tyfields) : type-id = exp
-<span class="lineNum">     119 </span>            : //  DO:
-<span class="lineNum">     120 </span>            : //      1.check whether types in `tyfields` have already been defined.
-<span class="lineNum">     121 </span>            : //      2.check whether function return type is already defined.
-<span class="lineNum">     122 </span>            : //      3.add a function to the function environment.
-<span class="lineNum">     123 </span>            : //  RETURN:
-<span class="lineNum">     124 </span>            : //      a boolean variable indicates whether this function succeeds.
-<a name="125"><span class="lineNum">     125 </span>            : //  STATUS:</a>
-<span class="lineNum">     126 </span>            : //      Tested.
-<span class="lineNum">     127 </span><span class="lineCov">          3 : bool MySemantic_Dec_Func_Function_OnePass(</span>
-<span class="lineNum">     128 </span>            :     myTable varAndFuncEnv, myTable typeEnv, myFunctionDec functionDec)
-<span class="lineNum">     129 </span>            : {
-<span class="lineNum">     130 </span><span class="lineCov">          3 :     bool isParamTypesDefined =</span>
-<span class="lineNum">     131 </span><span class="lineCov">          3 :         isFuncParamTypesDefined(typeEnv, functionDec-&gt;tyFieldList);</span>
-<span class="lineNum">     132 </span><span class="lineCov">          3 :     bool isReturnTypeDefined = </span>
-<span class="lineNum">     133 </span><span class="lineCov">          3 :         isTypeDefined(typeEnv, functionDec-&gt;returnType);</span>
-<span class="lineNum">     134 </span>            :     
-<span class="lineNum">     135 </span><span class="lineCov">          3 :     if (isParamTypesDefined &amp;&amp; isReturnTypeDefined)</span>
-<span class="lineNum">     136 </span>            :     {
-<span class="lineNum">     137 </span><span class="lineCov">          1 :         AddOneFunction_OnePass(varAndFuncEnv, typeEnv, functionDec);</span>
-<span class="lineNum">     138 </span><span class="lineCov">          1 :         return true;</span>
-<span class="lineNum">     139 </span>            :     }
-<span class="lineNum">     140 </span>            :     else
-<span class="lineNum">     141 </span>            :     {
-<span class="lineNum">     142 </span><span class="lineCov">          2 :         processFunctionErrors_OnePass(</span>
-<span class="lineNum">     143 </span>            :             isParamTypesDefined, isReturnTypeDefined, functionDec-&gt;name);
-<span class="lineNum">     144 </span><span class="lineCov">          2 :         return false;</span>
-<span class="lineNum">     145 </span>            :     }
-<a name="146"><span class="lineNum">     146 </span>            : }</a>
-<span class="lineNum">     147 </span>            : 
-<span class="lineNum">     148 </span><span class="lineCov">          1 : void AddOneFunction_OnePass(</span>
-<span class="lineNum">     149 </span>            :     myTable varAndFuncEnv, myTable typeEnv, myFunctionDec functionDec)
-<span class="lineNum">     150 </span>            : {
-<span class="lineNum">     151 </span><span class="lineCov">          1 :     AddOneFunction(varAndFuncEnv, typeEnv, functionDec);</span>
-<a name="152"><span class="lineNum">     152 </span><span class="lineCov">          1 : }</span></a>
-<span class="lineNum">     153 </span>            : 
-<span class="lineNum">     154 </span><span class="lineCov">          2 : void processFunctionErrors_OnePass(</span>
-<span class="lineNum">     155 </span>            :     bool isParamTypesDefined, bool isReturnTypeDefined, mySymbol functionName)
-<span class="lineNum">     156 </span>            : {
-<span class="lineNum">     157 </span><span class="lineCov">          2 :     myString functionNameString = MySymbol_GetName(functionName);</span>
-<span class="lineNum">     158 </span>            : 
-<span class="lineNum">     159 </span><span class="lineCov">          2 :     if (!isParamTypesDefined)</span>
-<span class="lineNum">     160 </span><span class="lineCov">          1 :         MyError_pushErrorCodeWithMsg(</span>
-<span class="lineNum">     161 </span>            :             ERROR__FUNCDEC_FUNCTION__PARAM_TYPES_NOT_DEFINED,
-<span class="lineNum">     162 </span>            :             functionNameString);
-<span class="lineNum">     163 </span><span class="lineCov">          2 :     if (!isReturnTypeDefined)</span>
-<span class="lineNum">     164 </span><span class="lineCov">          1 :         MyError_pushErrorCodeWithMsg(</span>
-<span class="lineNum">     165 </span>            :             ERROR__FUNCDEC_FUNCTION__RETURN_TYPE_NOT_DEFINED,
-<span class="lineNum">     166 </span>            :             functionNameString);
-<span class="lineNum">     167 </span><span class="lineCov">          2 : }</span>
+<span class="lineNum">      84 </span><span class="lineCov">         19 :     if (typeDec == NULL)    return true;</span>
+<a name="85"><span class="lineNum">      85 </span>            : </a>
+<span class="lineNum">      86 </span><span class="lineCov">         19 :     mySymbol newTypeName = typeDec-&gt;name;</span>
+<span class="lineNum">      87 </span>            : 
+<span class="lineNum">      88 </span>            :     myType type;
+<a name="89"><span class="lineNum">      89 </span><span class="lineCov">         19 :     switch (typeDec-&gt;type-&gt;kind)</span></a>
+<span class="lineNum">      90 </span>            :     {
+<span class="lineNum">      91 </span>            :         case NamedType:
+<span class="lineNum">      92 </span><span class="lineCov">         11 :             type = makeType_Named(typeDec-&gt;type-&gt;u.typeName, NULL);</span>
+<a name="93"><span class="lineNum">      93 </span><span class="lineCov">         11 :             break;</span></a>
+<span class="lineNum">      94 </span>            :         case RecordType:
+<span class="lineNum">      95 </span><span class="lineCov">          4 :             type = makeType_Record(NULL);</span>
+<span class="lineNum">      96 </span><span class="lineCov">          4 :             break;</span>
+<a name="97"><span class="lineNum">      97 </span>            :         case ArrayType:</a>
+<span class="lineNum">      98 </span><span class="lineCov">          4 :             type = makeType_Array(NULL);</span>
+<span class="lineNum">      99 </span><span class="lineCov">          4 :             break;</span>
+<span class="lineNum">     100 </span>            :     }
+<a name="101"><span class="lineNum">     101 </span>            : </a>
+<span class="lineNum">     102 </span><span class="lineCov">         19 :     MyEnvironment_addNewType(typeEnv, newTypeName, type);</span>
+<span class="lineNum">     103 </span><span class="lineCov">         19 :     return true;</span>
+<span class="lineNum">     104 </span>            : }
+<a name="105"><span class="lineNum">     105 </span>            : </a>
+<span class="lineNum">     106 </span>            : //  forwards
+<span class="lineNum">     107 </span>            : void updateType_Named(
+<span class="lineNum">     108 </span>            :     myTable typeEnv, mySymbol newTypeName, mySymbol existedTypeName);
+<a name="109"><span class="lineNum">     109 </span>            : void processNamedDecErrors(</a>
+<span class="lineNum">     110 </span>            :     bool isNamedTypeDefined, bool isRecursive, mySymbol existedTypeName);
+<span class="lineNum">     111 </span>            : 
+<span class="lineNum">     112 </span>            : //  FORM:
+<a name="113"><span class="lineNum">     113 </span>            : //      type type-id1 = type-id2</a>
+<span class="lineNum">     114 </span>            : //  DO:
+<span class="lineNum">     115 </span>            : //      1.check whether type `type-id2` is already defined(which means can be found).
+<span class="lineNum">     116 </span>            : //      2.update this type content if `type-id2` exists.
+<a name="117"><span class="lineNum">     117 </span>            : //  RETURN:</a>
+<span class="lineNum">     118 </span>            : //      a boolean variable indicates whether this function succeeds.
+<a name="119"><span class="lineNum">     119 </span>            : //  STATUS:</a>
+<span class="lineNum">     120 </span>            : //      Tested.
+<a name="121"><span class="lineNum">     121 </span><span class="lineCov">         10 : bool MySemantic_Dec_Type_Named_TwoPass(</span></a>
+<span class="lineNum">     122 </span>            :     myTable typeEnv, mySymbol newTypeName, mySymbol existedTypeName)
+<span class="lineNum">     123 </span>            : {
+<span class="lineNum">     124 </span><span class="lineCov">         10 :     assert (newTypeName &amp;&amp; existedTypeName);</span>
+<a name="125"><span class="lineNum">     125 </span>            : </a>
+<span class="lineNum">     126 </span><span class="lineCov">         10 :     bool isNamedTypeDefined = isTypeDefined(typeEnv, existedTypeName);</span>
+<span class="lineNum">     127 </span><span class="lineCov">         10 :     bool isRecursive = MySymbol_IsSymbolEqual(newTypeName, existedTypeName); </span>
+<span class="lineNum">     128 </span><span class="lineCov">         10 :     if (isNamedTypeDefined &amp;&amp; !isRecursive)</span>
+<a name="129"><span class="lineNum">     129 </span>            :     {</a>
+<span class="lineNum">     130 </span><span class="lineCov">          8 :         updateType_Named(typeEnv, newTypeName, existedTypeName);</span>
+<span class="lineNum">     131 </span><span class="lineCov">          8 :         return true;</span>
+<span class="lineNum">     132 </span>            :     }
+<a name="133"><span class="lineNum">     133 </span>            :     else</a>
+<span class="lineNum">     134 </span>            :     {
+<span class="lineNum">     135 </span><span class="lineCov">          2 :         processNamedDecErrors(isNamedTypeDefined, isRecursive, existedTypeName);</span>
+<span class="lineNum">     136 </span><span class="lineCov">          2 :         return false;</span>
+<a name="137"><span class="lineNum">     137 </span>            :     }</a>
+<a name="138"><span class="lineNum">     138 </span>            : }</a>
+<span class="lineNum">     139 </span>            : 
+<span class="lineNum">     140 </span><span class="lineCov">          8 : void updateType_Named(</span>
+<a name="141"><span class="lineNum">     141 </span>            :     myTable typeEnv, mySymbol newTypeName, mySymbol existedTypeName)</a>
+<span class="lineNum">     142 </span>            : {
+<span class="lineNum">     143 </span><span class="lineCov">          8 :     myType existedType =</span>
+<span class="lineNum">     144 </span>            :         MyEnvironment_getTypeFromName(typeEnv, existedTypeName);
+<a name="145"><span class="lineNum">     145 </span><span class="lineCov">          8 :     myType newType = </span></a>
+<span class="lineNum">     146 </span>            :         MyEnvironment_getTypeFromName(typeEnv, newTypeName);
+<span class="lineNum">     147 </span><span class="lineCov">          8 :     newType-&gt;u.typeNamed-&gt;type = existedType;</span>
+<a name="148"><span class="lineNum">     148 </span><span class="lineCov">          8 : }</span></a>
+<a name="149"><span class="lineNum">     149 </span>            : </a>
+<span class="lineNum">     150 </span><span class="lineCov">          2 : void processNamedDecErrors(</span>
+<span class="lineNum">     151 </span>            :     bool isNamedTypeDefined, bool isRecursive, mySymbol existedTypeName)
+<span class="lineNum">     152 </span>            : {
+<a name="153"><span class="lineNum">     153 </span><span class="lineCov">          2 :     if (!isNamedTypeDefined)</span></a>
+<span class="lineNum">     154 </span><span class="lineCov">          1 :         MyError_pushErrorCodeWithMsg(ERROR__TYPEDEC_NAMED__TYPE_NOT_DEFINED, </span>
+<span class="lineNum">     155 </span>            :             MySymbol_GetName(existedTypeName));
+<span class="lineNum">     156 </span><span class="lineCov">          2 :     if (isRecursive)</span>
+<a name="157"><span class="lineNum">     157 </span><span class="lineCov">          1 :         MyError_pushErrorCodeWithMsg(ERROR__RECURSIVE__ILLEGAL,</span></a>
+<span class="lineNum">     158 </span>            :             MySymbol_GetName(existedTypeName));
+<span class="lineNum">     159 </span><span class="lineCov">          2 : }</span>
+<span class="lineNum">     160 </span>            : 
+<a name="161"><span class="lineNum">     161 </span>            : //////////////////////////////////////////////////</a>
+<span class="lineNum">     162 </span>            : 
+<span class="lineNum">     163 </span>            : //  forwards
+<span class="lineNum">     164 </span>            : myTypeFieldList makeTypeFieldsFromTyFields_TwoPass(
+<a name="165"><span class="lineNum">     165 </span>            :     myTable typeEnv, myTyFieldList tyFields);</a>
+<span class="lineNum">     166 </span>            : void updateType_Record(
+<span class="lineNum">     167 </span>            :     myTable typeEnv, mySymbol newTypeName, myTypeFieldList typeFields);
 <span class="lineNum">     168 </span>            : 
-<span class="lineNum">     169 </span>            : ///////////////////////////////////////////////////
-<a name="170"><span class="lineNum">     170 </span>            : </a>
-<span class="lineNum">     171 </span>            : //  a delagate
-<span class="lineNum">     172 </span><span class="lineNoCov">          0 : bool MySemantic_Dec_Func_OnePass(</span>
-<span class="lineNum">     173 </span>            :     myTable varAndFuncEnv, myTable typeEnv, myFuncDec funcDec)
-<span class="lineNum">     174 </span>            : {
-<span class="lineNum">     175 </span><span class="lineNoCov">          0 :     if (funcDec == NULL)        return true;</span>
-<span class="lineNum">     176 </span>            : 
-<span class="lineNum">     177 </span><span class="lineNoCov">          0 :     switch (funcDec-&gt;kind)</span>
-<span class="lineNum">     178 </span>            :     {
-<span class="lineNum">     179 </span>            :         case ProcedureDec:
-<span class="lineNum">     180 </span><span class="lineNoCov">          0 :             return MySemantic_Dec_Func_Procedure_OnePass(</span>
-<span class="lineNum">     181 </span>            :                 varAndFuncEnv, typeEnv, funcDec-&gt;u.procedureDec);
-<span class="lineNum">     182 </span>            :         case FunctionDec:
-<span class="lineNum">     183 </span><span class="lineNoCov">          0 :             return MySemantic_Dec_Func_Function_OnePass(</span>
-<span class="lineNum">     184 </span>            :                 varAndFuncEnv, typeEnv, funcDec-&gt;u.functionDec);
-<span class="lineNum">     185 </span>            :         default:
-<span class="lineNum">     186 </span><span class="lineNoCov">          0 :             assert (false);</span>
-<span class="lineNum">     187 </span>            :     }
-<span class="lineNum">     188 </span>            : }
-<span class="lineNum">     189 </span>            : 
-<span class="lineNum">     190 </span>            : /////////////////////////////////////////////////
-<a name="191"><span class="lineNum">     191 </span>            : </a>
-<span class="lineNum">     192 </span>            : //  a delegate function.
-<span class="lineNum">     193 </span><span class="lineNoCov">          0 : bool MySemantic_FuncOrType_OnePass(myTable varAndFuncEnv, myTable typeEnv, myDec dec)</span>
-<span class="lineNum">     194 </span>            : {
-<span class="lineNum">     195 </span><span class="lineNoCov">          0 :     switch (dec-&gt;kind)</span>
-<span class="lineNum">     196 </span>            :     {
-<span class="lineNum">     197 </span>            :         case TypeDec:
-<span class="lineNum">     198 </span><span class="lineNoCov">          0 :             return MySemantic_Dec_Type_OnePass(typeEnv, dec-&gt;u.tyDec);</span>
-<span class="lineNum">     199 </span>            :         case FuncDec:
-<span class="lineNum">     200 </span><span class="lineNoCov">          0 :             return MySemantic_Dec_Func_OnePass(varAndFuncEnv, typeEnv, dec-&gt;u.funcDec);</span>
-<span class="lineNum">     201 </span>            :         default:
-<span class="lineNum">     202 </span><span class="lineNoCov">          0 :             assert(false);</span>
-<span class="lineNum">     203 </span>            :     }
-<span class="lineNum">     204 </span>            : }
-<span class="lineNum">     205 </span>            : 
-<span class="lineNum">     206 </span>            : /////////////////////////////////////////////////////////////////
-<span class="lineNum">     207 </span>            : 
-<span class="lineNum">     208 </span>            : //  FORM:
-<span class="lineNum">     209 </span>            : //      type type-id1 = type-id2
-<span class="lineNum">     210 </span>            : //  DO:
-<span class="lineNum">     211 </span>            : //      1.check whether type `type-id2` is already defined and is not empty type.
-<span class="lineNum">     212 </span>            : //      2.set this empty type as the same type of `type-id2`.
-<span class="lineNum">     213 </span>            : //  RETURN:
-<span class="lineNum">     214 </span>            : //      a boolean variable indicates whether this function succeeds.
-<a name="215"><span class="lineNum">     215 </span>            : //  STATUS:</a>
-<span class="lineNum">     216 </span>            : //      
-<span class="lineNum">     217 </span><span class="lineCov">          2 : bool MySemantic_Dec_Type_Named_TwoPass(</span>
-<span class="lineNum">     218 </span>            :     myTable typeEnv, mySymbol newTypeName, mySymbol existedTypeName)
-<span class="lineNum">     219 </span>            : {
-<span class="lineNum">     220 </span><span class="lineCov">          2 :     assert (newTypeName &amp;&amp; existedTypeName);</span>
-<span class="lineNum">     221 </span>            : 
-<span class="lineNum">     222 </span><span class="lineCov">          2 :     if (isTypeDefined(typeEnv, existedTypeName))</span>
-<span class="lineNum">     223 </span>            :     {
-<span class="lineNum">     224 </span><span class="lineCov">          1 :         myType existedActualType = getActualType(typeEnv, existedTypeName);</span>
-<span class="lineNum">     225 </span><span class="lineCov">          1 :         bool result =</span>
-<span class="lineNum">     226 </span>            :             MyEnvironment_setTypeFromName(typeEnv, newTypeName, existedActualType);
-<span class="lineNum">     227 </span><span class="lineCov">          1 :         assert (result);    //  OnePassed before</span>
-<span class="lineNum">     228 </span>            : 
-<span class="lineNum">     229 </span><span class="lineCov">          1 :         return true;</span>
-<span class="lineNum">     230 </span>            :     }
-<span class="lineNum">     231 </span>            :     else
-<span class="lineNum">     232 </span>            :     {
-<span class="lineNum">     233 </span><span class="lineCov">          1 :         MyError_pushErrorCodeWithMsg(ERROR__TYPEDEC_NAMED__TYPE_NOT_DEFINED, </span>
-<span class="lineNum">     234 </span>            :             MySymbol_GetName(existedTypeName));
-<span class="lineNum">     235 </span><span class="lineCov">          1 :         return false;</span>
-<span class="lineNum">     236 </span>            :     }
-<span class="lineNum">     237 </span>            : }
-<span class="lineNum">     238 </span>            : 
-<span class="lineNum">     239 </span>            : //////////////////////////////////////////////////
-<span class="lineNum">     240 </span>            : 
-<span class="lineNum">     241 </span>            : //  FORM:
-<span class="lineNum">     242 </span>            : //      type type-id = { tyfields }
-<span class="lineNum">     243 </span>            : //  DO:
-<span class="lineNum">     244 </span>            : //      1.check whether types in record fields have already been defined.
-<span class="lineNum">     245 </span>            : //      2.set this empty type to the new type.
-<span class="lineNum">     246 </span>            : //  RETURN:
-<span class="lineNum">     247 </span>            : //      a boolean variable indicates whether this function succeeds.
-<a name="248"><span class="lineNum">     248 </span>            : //  STATUS:</a>
-<span class="lineNum">     249 </span>            : //      Tested.
-<span class="lineNum">     250 </span><span class="lineCov">          2 : bool MySemantic_Dec_Type_Record_TwoPass(</span>
-<span class="lineNum">     251 </span>            :     myTable typeEnv, mySymbol newTypeName, myTyFieldList fields)
-<span class="lineNum">     252 </span>            : {
-<span class="lineNum">     253 </span><span class="lineCov">          2 :     myType recordType = makeRecordFromTyFields(typeEnv, fields);</span>
-<span class="lineNum">     254 </span>            : 
-<span class="lineNum">     255 </span><span class="lineCov">          2 :     if (recordType == SEMANTIC_ERROR)</span>
-<span class="lineNum">     256 </span><span class="lineCov">          1 :         return false;</span>
-<span class="lineNum">     257 </span>            :     else
-<span class="lineNum">     258 </span>            :     {
-<span class="lineNum">     259 </span><span class="lineCov">          1 :         bool result =</span>
-<span class="lineNum">     260 </span>            :             MyEnvironment_setTypeFromName(typeEnv, newTypeName, recordType);
-<span class="lineNum">     261 </span><span class="lineCov">          1 :         assert (result);</span>
-<span class="lineNum">     262 </span>            : 
-<span class="lineNum">     263 </span><span class="lineCov">          1 :         return true;</span>
-<span class="lineNum">     264 </span>            :     }
-<span class="lineNum">     265 </span>            : }
-<span class="lineNum">     266 </span>            : 
-<span class="lineNum">     267 </span>            : //////////////////////////////////////////////////
-<span class="lineNum">     268 </span>            : 
-<span class="lineNum">     269 </span>            : //  FORM:
-<span class="lineNum">     270 </span>            : //      type type-id1 = array of type-id2
-<span class="lineNum">     271 </span>            : //  DO:
-<span class="lineNum">     272 </span>            : //      1.check whether the `type-id2` type is already defined.
-<span class="lineNum">     273 </span>            : //      2.set this empty type to this type.
-<span class="lineNum">     274 </span>            : //  RETURN:
-<span class="lineNum">     275 </span>            : //      a boolean variable indicates whether this function succeeds.
-<a name="276"><span class="lineNum">     276 </span>            : //  STATUS:</a>
-<span class="lineNum">     277 </span>            : //      Tested.
-<span class="lineNum">     278 </span><span class="lineCov">          2 : bool MySemantic_Dec_Type_Array_TwoPass(</span>
-<span class="lineNum">     279 </span>            :     myTable typeEnv, mySymbol newTypeName, mySymbol elementTypeName)
-<span class="lineNum">     280 </span>            : {
-<span class="lineNum">     281 </span><span class="lineCov">          2 :     if (isTypeDefined(typeEnv, elementTypeName))</span>
-<span class="lineNum">     282 </span>            :     {
-<span class="lineNum">     283 </span><span class="lineCov">          1 :         myType elementType = MyEnvironment_getTypeFromName(typeEnv, elementTypeName);</span>
-<span class="lineNum">     284 </span><span class="lineCov">          1 :         myType newArrayType = makeType_Array(elementType);</span>
-<span class="lineNum">     285 </span><span class="lineCov">          1 :         MyEnvironment_setTypeFromName(typeEnv, newTypeName, newArrayType);</span>
-<span class="lineNum">     286 </span><span class="lineCov">          1 :         return true;</span>
-<span class="lineNum">     287 </span>            :     }
-<span class="lineNum">     288 </span>            :     else
-<span class="lineNum">     289 </span>            :     {
-<span class="lineNum">     290 </span><span class="lineCov">          1 :         MyError_pushErrorCodeWithMsg(ERROR__TYPEDEC_ARRAY__TYPE_NOT_DEFINED,</span>
-<span class="lineNum">     291 </span>            :             MySymbol_GetName(elementTypeName));
-<span class="lineNum">     292 </span><span class="lineCov">          1 :         return false;</span>
-<span class="lineNum">     293 </span>            :     }
-<span class="lineNum">     294 </span>            : }
-<a name="295"><span class="lineNum">     295 </span>            : </a>
-<span class="lineNum">     296 </span>            : 
-<span class="lineNum">     297 </span><span class="lineNoCov">          0 : bool MySemantic_Dec_Type_TwoPass(</span>
-<span class="lineNum">     298 </span>            :     myTable varAndFuncEnv, myTable typeEnv, myTypeDec typeDec)
-<span class="lineNum">     299 </span>            : {
-<span class="lineNum">     300 </span><span class="lineNoCov">          0 :     mySymbol newTypeName = typeDec-&gt;name;</span>
-<span class="lineNum">     301 </span><span class="lineNoCov">          0 :     switch (typeDec-&gt;type-&gt;kind)</span>
-<span class="lineNum">     302 </span>            :     {
-<span class="lineNum">     303 </span>            :         case NamedType:
-<span class="lineNum">     304 </span><span class="lineNoCov">          0 :             return MySemantic_Dec_Type_Named_TwoPass(</span>
-<span class="lineNum">     305 </span><span class="lineNoCov">          0 :                 typeEnv, newTypeName, typeDec-&gt;type-&gt;u.typeName);</span>
-<span class="lineNum">     306 </span>            :         case RecordType:
-<span class="lineNum">     307 </span><span class="lineNoCov">          0 :             return MySemantic_Dec_Type_Record_TwoPass(typeEnv,</span>
-<span class="lineNum">     308 </span><span class="lineNoCov">          0 :                 newTypeName, typeDec-&gt;type-&gt;u.tyFieldList);</span>
-<span class="lineNum">     309 </span>            :         /*case ArrayType:
-<span class="lineNum">     310 </span>            :             return MySemantic_Dec_Type_Array_TwoPass(typeEnv,
-<span class="lineNum">     311 </span>            :                 newTypeName, typeDec-&gt;type-&gt;u.arrayTypeName);*/
-<span class="lineNum">     312 </span>            :         default:
-<span class="lineNum">     313 </span><span class="lineNoCov">          0 :             assert(false);</span>
-<span class="lineNum">     314 </span>            :     }
-<span class="lineNum">     315 </span>            : }
-<a name="316"><span class="lineNum">     316 </span>            : </a>
-<span class="lineNum">     317 </span>            : //  a delegate function.
-<span class="lineNum">     318 </span><span class="lineNoCov">          0 : bool MySemantic_FuncOrType_TwoPass(myTable varAndFuncEnv, myTable typeEnv, myDec dec)</span>
-<span class="lineNum">     319 </span>            : {
-<span class="lineNum">     320 </span><span class="lineNoCov">          0 :     switch (dec-&gt;kind)</span>
-<span class="lineNum">     321 </span>            :     {
-<span class="lineNum">     322 </span>            :         case TypeDec:
-<span class="lineNum">     323 </span><span class="lineNoCov">          0 :             return MySemantic_Dec_Type_TwoPass(varAndFuncEnv, typeEnv, dec-&gt;u.tyDec);</span>
-<span class="lineNum">     324 </span>            :         /*case FuncDec:
-<span class="lineNum">     325 </span>            :             return MySemantic_Dec_Func_TwoPass(varAndFuncEnv, typeEnv, dec-&gt;u.funcDec);*/
-<span class="lineNum">     326 </span>            :         default:
-<span class="lineNum">     327 </span><span class="lineNoCov">          0 :             assert(false);</span>
-<span class="lineNum">     328 </span>            :     }
-<span class="lineNum">     329 </span>            : }
-<span class="lineNum">     330 </span>            : 
-<a name="331"><span class="lineNum">     331 </span>            : /////////////////////////////////////////////////////////////////</a>
-<span class="lineNum">     332 </span>            : 
-<span class="lineNum">     333 </span><span class="lineNoCov">          0 : bool PassTemplate(</span>
-<span class="lineNum">     334 </span>            :     myTable varAndFuncEnv, myTable typeEnv, myDecList decs,
-<span class="lineNum">     335 </span>            :     bool (*passFunc)(myTable, myTable, myDec))
-<span class="lineNum">     336 </span>            : {
-<span class="lineNum">     337 </span><span class="lineNoCov">          0 :     while (decs)</span>
-<span class="lineNum">     338 </span>            :     {
-<span class="lineNum">     339 </span><span class="lineNoCov">          0 :         if (!(*passFunc)(varAndFuncEnv, typeEnv, decs-&gt;dec))</span>
-<span class="lineNum">     340 </span><span class="lineNoCov">          0 :             return false;</span>
-<span class="lineNum">     341 </span><span class="lineNoCov">          0 :         decs = decs-&gt;next;</span>
-<span class="lineNum">     342 </span>            :     }
-<span class="lineNum">     343 </span><span class="lineNoCov">          0 :     return true;</span>
-<a name="344"><span class="lineNum">     344 </span>            : }</a>
-<span class="lineNum">     345 </span>            : 
-<span class="lineNum">     346 </span><span class="lineNoCov">          0 : bool MySemantic_FuncsOrTypes_OnePass(</span>
-<span class="lineNum">     347 </span>            :     myTable varAndFuncEnv, myTable typeEnv, myDecList decs)
-<span class="lineNum">     348 </span>            : {
-<span class="lineNum">     349 </span><span class="lineNoCov">          0 :     return PassTemplate(</span>
-<span class="lineNum">     350 </span>            :         varAndFuncEnv, typeEnv, decs, MySemantic_FuncOrType_OnePass);
-<a name="351"><span class="lineNum">     351 </span>            : }</a>
+<a name="169"><span class="lineNum">     169 </span>            : //  FORM:</a>
+<span class="lineNum">     170 </span>            : //      type type-id = { tyfields }
+<span class="lineNum">     171 </span>            : //  DO:
+<span class="lineNum">     172 </span>            : //      1.check whether types in record fields have already been defined.
+<a name="173"><span class="lineNum">     173 </span>            : //      2.update this empty type to the new type.</a>
+<span class="lineNum">     174 </span>            : //  RETURN:
+<span class="lineNum">     175 </span>            : //      a boolean variable indicates whether this function succeeds.
+<a name="176"><span class="lineNum">     176 </span>            : //  STATUS:</a>
+<a name="177"><span class="lineNum">     177 </span>            : //      Tested.</a>
+<span class="lineNum">     178 </span><span class="lineCov">          4 : bool MySemantic_Dec_Type_Record_TwoPass(</span>
+<span class="lineNum">     179 </span>            :     myTable typeEnv, mySymbol newTypeName, myTyFieldList fields)
+<span class="lineNum">     180 </span>            : {
+<a name="181"><span class="lineNum">     181 </span>            :     //  also checks whether field types defined</a>
+<span class="lineNum">     182 </span><span class="lineCov">          4 :     myTypeFieldList typeFields =</span>
+<span class="lineNum">     183 </span>            :         makeTypeFieldsFromTyFields_TwoPass(typeEnv, fields);
+<span class="lineNum">     184 </span>            : 
+<a name="185"><span class="lineNum">     185 </span><span class="lineCov">          4 :     if (typeFields != SEMANTIC_ERROR)            </span></a>
+<span class="lineNum">     186 </span>            :     {
+<span class="lineNum">     187 </span><span class="lineCov">          3 :         updateType_Record(typeEnv, newTypeName, typeFields);</span>
+<span class="lineNum">     188 </span><span class="lineCov">          3 :         return true;</span>
+<a name="189"><span class="lineNum">     189 </span>            :     }</a>
+<span class="lineNum">     190 </span>            :     else
+<span class="lineNum">     191 </span><span class="lineCov">          1 :         return false;</span>
+<a name="192"><span class="lineNum">     192 </span>            : }</a>
+<a name="193"><span class="lineNum">     193 </span>            : </a>
+<span class="lineNum">     194 </span><span class="lineCov">          3 : void updateType_Record(</span>
+<span class="lineNum">     195 </span>            :     myTable typeEnv, mySymbol newTypeName, myTypeFieldList typeFields)
+<span class="lineNum">     196 </span>            : {
+<a name="197"><span class="lineNum">     197 </span><span class="lineCov">          3 :     myType newType = MyEnvironment_getTypeFromName(typeEnv, newTypeName);</span></a>
+<span class="lineNum">     198 </span><span class="lineCov">          3 :     newType-&gt;u.typeRecord-&gt;fieldList = typeFields;</span>
+<span class="lineNum">     199 </span><span class="lineCov">          3 : }</span>
+<a name="200"><span class="lineNum">     200 </span>            : </a>
+<a name="201"><span class="lineNum">     201 </span>            : //  forwards</a>
+<span class="lineNum">     202 </span><span class="lineCov">          7 : myTypeFieldList makeTypeFieldsFromTyFields_TwoPass(myTable typeEnv, myTyFieldList tyFields)</span>
+<span class="lineNum">     203 </span>            : {
+<span class="lineNum">     204 </span>            :     //  end condition for recursive
+<a name="205"><span class="lineNum">     205 </span><span class="lineCov">          7 :     if (tyFields == NULL)   return NULL; </span></a>
+<span class="lineNum">     206 </span>            : 
+<span class="lineNum">     207 </span><span class="lineCov">          4 :     myTyField oneTyField = tyFields-&gt;field;</span>
+<span class="lineNum">     208 </span>            : 
+<a name="209"><span class="lineNum">     209 </span><span class="lineCov">          4 :     if (isTypeDefined(typeEnv, oneTyField-&gt;typeName))</span></a>
+<span class="lineNum">     210 </span>            :     {
+<span class="lineNum">     211 </span><span class="lineCov">          3 :         myTypeField oneTypeField = makeType_TypeField(</span>
+<span class="lineNum">     212 </span>            :             oneTyField-&gt;varName,
+<a name="213"><span class="lineNum">     213 </span>            :             MyEnvironment_getTypeFromName(typeEnv, oneTyField-&gt;typeName));</a>
+<span class="lineNum">     214 </span>            : 
+<span class="lineNum">     215 </span><span class="lineCov">          3 :         myTypeFieldList rests = makeTypeFieldsFromTyFields_TwoPass(</span>
+<span class="lineNum">     216 </span>            :             typeEnv, tyFields-&gt;next);
+<a name="217"><span class="lineNum">     217 </span><span class="lineCov">          3 :         if (rests != SEMANTIC_ERROR) </span></a>
+<span class="lineNum">     218 </span><span class="lineCov">          3 :             return makeType_TypeFieldList(oneTypeField, rests);</span>
+<span class="lineNum">     219 </span>            :     }
+<span class="lineNum">     220 </span>            : 
+<a name="221"><span class="lineNum">     221 </span><span class="lineCov">          1 :     MyError_pushErrorCodeWithMsg(ERROR__TYPEDEC_RECORD__TYPE_NOT_DEFINED,</span></a>
+<span class="lineNum">     222 </span>            :         MySymbol_GetName(oneTyField-&gt;typeName));
+<span class="lineNum">     223 </span><span class="lineCov">          1 :     return SEMANTIC_ERROR;</span>
+<span class="lineNum">     224 </span>            : }
+<a name="225"><span class="lineNum">     225 </span>            : </a>
+<span class="lineNum">     226 </span>            : //////////////////////////////////////////////////
+<span class="lineNum">     227 </span>            : 
+<span class="lineNum">     228 </span>            : //  forwards
+<a name="229"><span class="lineNum">     229 </span>            : void updateType_Array(</a>
+<span class="lineNum">     230 </span>            :     myTable typeEnv, mySymbol arrayTypeName, mySymbol elementTypeName);
+<span class="lineNum">     231 </span>            : void processArrayDecErrors(
+<span class="lineNum">     232 </span>            :     bool isElementTypeDefined, bool isArrayRecursive, mySymbol elementTypeName);
+<a name="233"><span class="lineNum">     233 </span>            : </a>
+<span class="lineNum">     234 </span>            : //  FORM:
+<span class="lineNum">     235 </span>            : //      type type-id1 = array of type-id2
+<span class="lineNum">     236 </span>            : //  DO:
+<a name="237"><span class="lineNum">     237 </span>            : //      1.check whether the `type-id2` type is already defined.</a>
+<span class="lineNum">     238 </span>            : //      2.update this empty type to this type.
+<span class="lineNum">     239 </span>            : //  RETURN:
+<span class="lineNum">     240 </span>            : //      a boolean variable indicates whether this function succeeds.
+<a name="241"><span class="lineNum">     241 </span>            : //  STATUS:</a>
+<span class="lineNum">     242 </span>            : //      Tested.
+<span class="lineNum">     243 </span><span class="lineCov">          5 : bool MySemantic_Dec_Type_Array_TwoPass(</span>
+<span class="lineNum">     244 </span>            :     myTable typeEnv, mySymbol newTypeName, mySymbol elementTypeName)
+<a name="245"><span class="lineNum">     245 </span>            : {</a>
+<span class="lineNum">     246 </span><span class="lineCov">          5 :     bool isElementTypeDefined = isTypeDefined(typeEnv, elementTypeName);</span>
+<span class="lineNum">     247 </span><span class="lineCov">          5 :     bool isArrayRecursive = MySymbol_IsSymbolEqual(newTypeName, elementTypeName);</span>
+<span class="lineNum">     248 </span>            : 
+<a name="249"><span class="lineNum">     249 </span><span class="lineCov">          5 :     if (isElementTypeDefined &amp;&amp; !isArrayRecursive)</span></a>
+<span class="lineNum">     250 </span>            :     {
+<span class="lineNum">     251 </span><span class="lineCov">          3 :         updateType_Array(typeEnv, newTypeName, elementTypeName);</span>
+<span class="lineNum">     252 </span><span class="lineCov">          3 :         return true;</span>
+<a name="253"><span class="lineNum">     253 </span>            :     }</a>
+<span class="lineNum">     254 </span>            :     else
+<span class="lineNum">     255 </span>            :     {
+<span class="lineNum">     256 </span><span class="lineCov">          2 :         processArrayDecErrors(</span>
+<a name="257"><span class="lineNum">     257 </span>            :             isElementTypeDefined, isArrayRecursive, elementTypeName);</a>
+<span class="lineNum">     258 </span><span class="lineCov">          2 :         return false;</span>
+<span class="lineNum">     259 </span>            :     }
+<a name="260"><span class="lineNum">     260 </span>            : }</a>
+<a name="261"><span class="lineNum">     261 </span>            : </a>
+<span class="lineNum">     262 </span><span class="lineCov">          3 : void updateType_Array(</span>
+<span class="lineNum">     263 </span>            :     myTable typeEnv, mySymbol arrayTypeName, mySymbol elementTypeName)
+<span class="lineNum">     264 </span>            : {
+<a name="265"><span class="lineNum">     265 </span><span class="lineCov">          3 :     myType elementType = MyEnvironment_getTypeFromName(typeEnv, elementTypeName);</span></a>
+<span class="lineNum">     266 </span><span class="lineCov">          3 :     myType arrayType = MyEnvironment_getTypeFromName(typeEnv, arrayTypeName);</span>
+<span class="lineNum">     267 </span><span class="lineCov">          3 :     arrayType-&gt;u.typeArray-&gt;type = elementType;</span>
+<a name="268"><span class="lineNum">     268 </span><span class="lineCov">          3 : }</span></a>
+<a name="269"><span class="lineNum">     269 </span>            : </a>
+<span class="lineNum">     270 </span><span class="lineCov">          2 : void processArrayDecErrors(</span>
+<span class="lineNum">     271 </span>            :     bool isElementTypeDefined, bool isArrayRecursive, mySymbol elementTypeName)
+<span class="lineNum">     272 </span>            : {
+<a name="273"><span class="lineNum">     273 </span><span class="lineCov">          2 :     if (!isElementTypeDefined)</span></a>
+<span class="lineNum">     274 </span><span class="lineCov">          1 :         MyError_pushErrorCodeWithMsg(ERROR__TYPEDEC_ARRAY__TYPE_NOT_DEFINED,</span>
+<span class="lineNum">     275 </span>            :             MySymbol_GetName(elementTypeName));
+<span class="lineNum">     276 </span><span class="lineCov">          2 :     if (isArrayRecursive)</span>
+<a name="277"><span class="lineNum">     277 </span><span class="lineCov">          1 :         MyError_pushErrorCodeWithMsg(ERROR__RECURSIVE__ILLEGAL,</span></a>
+<span class="lineNum">     278 </span>            :             MySymbol_GetName(elementTypeName));
+<span class="lineNum">     279 </span><span class="lineCov">          2 : }</span>
+<span class="lineNum">     280 </span>            : 
+<a name="281"><span class="lineNum">     281 </span>            : //////////////////////////////</a>
+<span class="lineNum">     282 </span>            : 
+<span class="lineNum">     283 </span><span class="lineCov">          6 : bool MySemantic_Dec_Type_TwoPass(myTable typeEnv, myTypeDec typeDec)</span>
+<span class="lineNum">     284 </span>            : {
+<a name="285"><span class="lineNum">     285 </span><span class="lineCov">          6 :     mySymbol newTypeName = typeDec-&gt;name;</span></a>
+<span class="lineNum">     286 </span><span class="lineCov">          6 :     switch (typeDec-&gt;type-&gt;kind)</span>
+<span class="lineNum">     287 </span>            :     {
+<span class="lineNum">     288 </span>            :         case NamedType:
+<a name="289"><span class="lineNum">     289 </span><span class="lineCov">          6 :             return MySemantic_Dec_Type_Named_TwoPass(</span></a>
+<span class="lineNum">     290 </span><span class="lineCov">          6 :                 typeEnv, newTypeName, typeDec-&gt;type-&gt;u.typeName);</span>
+<span class="lineNum">     291 </span>            :         case RecordType:
+<span class="lineNum">     292 </span><span class="lineNoCov">          0 :             return MySemantic_Dec_Type_Record_TwoPass(typeEnv,</span>
+<a name="293"><span class="lineNum">     293 </span><span class="lineNoCov">          0 :                 newTypeName, typeDec-&gt;type-&gt;u.tyFieldList);</span></a>
+<span class="lineNum">     294 </span>            :         case ArrayType:
+<span class="lineNum">     295 </span><span class="lineNoCov">          0 :             return MySemantic_Dec_Type_Array_TwoPass(typeEnv,</span>
+<span class="lineNum">     296 </span><span class="lineNoCov">          0 :                 newTypeName, typeDec-&gt;type-&gt;u.arrayTypeName);</span>
+<a name="297"><span class="lineNum">     297 </span>            :         default:</a>
+<span class="lineNum">     298 </span><span class="lineNoCov">          0 :             assert(false);</span>
+<span class="lineNum">     299 </span>            :     }
+<span class="lineNum">     300 </span>            : }
+<a name="301"><span class="lineNum">     301 </span>            : </a>
+<span class="lineNum">     302 </span>            : ////////////////////////////////////////
+<span class="lineNum">     303 </span>            : 
+<span class="lineNum">     304 </span>            : //  forwards
+<a name="305"><span class="lineNum">     305 </span>            : void AddOneProcedure_OnePass(</a>
+<span class="lineNum">     306 </span>            :     myTable varAndFuncEnv, myTable typeEnv, myProcedureDec procedureDec);
+<span class="lineNum">     307 </span>            : 
+<span class="lineNum">     308 </span>            : ////////////////
+<a name="309"><span class="lineNum">     309 </span>            : </a>
+<span class="lineNum">     310 </span>            : //  FORM:
+<span class="lineNum">     311 </span>            : //      function id (tyfields) = exp
+<span class="lineNum">     312 </span>            : //  DO:
+<a name="313"><span class="lineNum">     313 </span>            : //      1.check whether types in `tyfields` have already been defined.</a>
+<span class="lineNum">     314 </span>            : //      2.add a procedure to the function environment.
+<span class="lineNum">     315 </span>            : //  RETURN:
+<span class="lineNum">     316 </span>            : //      a boolean variable indicates whether this function succeeds.
+<a name="317"><span class="lineNum">     317 </span>            : //  STATUS:</a>
+<span class="lineNum">     318 </span>            : //      Tested.
+<span class="lineNum">     319 </span><span class="lineCov">          8 : bool MySemantic_Dec_Func_Procedure_OnePass(</span>
+<span class="lineNum">     320 </span>            :     myTable varAndFuncEnv, myTable typeEnv, myProcedureDec procedureDec)
+<a name="321"><span class="lineNum">     321 </span>            : {</a>
+<span class="lineNum">     322 </span><span class="lineCov">          8 :     bool isParamTypesDefined =</span>
+<span class="lineNum">     323 </span><span class="lineCov">          8 :         isFuncParamTypesDefined(typeEnv, procedureDec-&gt;tyFieldList);</span>
+<span class="lineNum">     324 </span>            :         
+<a name="325"><span class="lineNum">     325 </span><span class="lineCov">          8 :     if (isParamTypesDefined)</span></a>
+<span class="lineNum">     326 </span>            :     {
+<span class="lineNum">     327 </span><span class="lineCov">          7 :         AddOneProcedure_OnePass(varAndFuncEnv, typeEnv, procedureDec);</span>
+<span class="lineNum">     328 </span><span class="lineCov">          7 :         return true;</span>
+<a name="329"><span class="lineNum">     329 </span>            :     }</a>
+<span class="lineNum">     330 </span>            :     else
+<span class="lineNum">     331 </span>            :     {
+<span class="lineNum">     332 </span><span class="lineCov">          1 :         MyError_pushErrorCodeWithMsg(</span>
+<a name="333"><span class="lineNum">     333 </span>            :             ERROR__FUNCDEC_PROCEDURE__PARAM_TYPE_NOT_DEFINED,</a>
+<span class="lineNum">     334 </span>            :             MySymbol_GetName(procedureDec-&gt;name));
+<span class="lineNum">     335 </span><span class="lineCov">          1 :         return false;</span>
+<span class="lineNum">     336 </span>            :     }
+<a name="337"><span class="lineNum">     337 </span>            : }</a>
+<span class="lineNum">     338 </span>            : 
+<span class="lineNum">     339 </span><span class="lineCov">          7 : void AddOneProcedure_OnePass(</span>
+<span class="lineNum">     340 </span>            :     myTable varAndFuncEnv, myTable typeEnv, myProcedureDec procedureDec)
+<a name="341"><span class="lineNum">     341 </span>            : {</a>
+<span class="lineNum">     342 </span><span class="lineCov">          7 :     AddOneProcedure(varAndFuncEnv, typeEnv, procedureDec);</span>
+<span class="lineNum">     343 </span><span class="lineCov">          7 : }</span>
+<span class="lineNum">     344 </span>            : 
+<a name="345"><span class="lineNum">     345 </span>            : //////////////////////////////////////////////////</a>
+<span class="lineNum">     346 </span>            : 
+<span class="lineNum">     347 </span>            : //  forwards
+<span class="lineNum">     348 </span>            : void AddOneFunction_OnePass(
+<a name="349"><span class="lineNum">     349 </span>            :     myTable varAndFuncEnv, myTable typeEnv, myFunctionDec functionDec);</a>
+<span class="lineNum">     350 </span>            : void processFunctionErrors_OnePass(
+<span class="lineNum">     351 </span>            :     bool isParamTypesDefined, bool isReturnTypeDefined, mySymbol functionName);
 <span class="lineNum">     352 </span>            : 
-<span class="lineNum">     353 </span><span class="lineNoCov">          0 : bool MySemantic_FuncsOrTypes_TwoPass(</span>
-<span class="lineNum">     354 </span>            :     myTable varAndFuncEnv, myTable typeEnv, myDecList decs)
-<span class="lineNum">     355 </span>            : {
-<span class="lineNum">     356 </span><span class="lineNoCov">          0 :     return PassTemplate(</span>
-<span class="lineNum">     357 </span>            :         varAndFuncEnv, typeEnv, decs, MySemantic_FuncOrType_TwoPass);
-<a name="358"><span class="lineNum">     358 </span>            : }</a>
-<span class="lineNum">     359 </span>            : 
-<span class="lineNum">     360 </span><span class="lineNoCov">          0 : bool MySemantic_Decs_Recursive(</span>
-<span class="lineNum">     361 </span>            :     myTable varAndFuncEnv, myTable typeEnv, myDecList decs)
-<span class="lineNum">     362 </span>            : {
-<span class="lineNum">     363 </span>            :     //  todo:
-<span class="lineNum">     364 </span>            :     //  devide decs into some consecutive parts and process
-<span class="lineNum">     365 </span>            :     //  (options)check if all types and functions are not empty
-<span class="lineNum">     366 </span><span class="lineNoCov">          0 : }</span>
+<a name="353"><span class="lineNum">     353 </span>            : /////////////////</a>
+<span class="lineNum">     354 </span>            : 
+<span class="lineNum">     355 </span>            : //  FORM:
+<span class="lineNum">     356 </span>            : //      function id (tyfields) : type-id = exp
+<a name="357"><span class="lineNum">     357 </span>            : //  DO:</a>
+<span class="lineNum">     358 </span>            : //      1.check whether types in `tyfields` have already been defined.
+<span class="lineNum">     359 </span>            : //      2.check whether function return type is already defined.
+<span class="lineNum">     360 </span>            : //      3.add a function to the function environment.
+<a name="361"><span class="lineNum">     361 </span>            : //  RETURN:</a>
+<span class="lineNum">     362 </span>            : //      a boolean variable indicates whether this function succeeds.
+<a name="363"><span class="lineNum">     363 </span>            : //  STATUS:</a>
+<span class="lineNum">     364 </span>            : //      Tested.
+<a name="365"><span class="lineNum">     365 </span><span class="lineCov">          6 : bool MySemantic_Dec_Func_Function_OnePass(</span></a>
+<span class="lineNum">     366 </span>            :     myTable varAndFuncEnv, myTable typeEnv, myFunctionDec functionDec)
+<span class="lineNum">     367 </span>            : {
+<span class="lineNum">     368 </span><span class="lineCov">          6 :     bool isParamTypesDefined =</span>
+<a name="369"><span class="lineNum">     369 </span><span class="lineCov">          6 :         isFuncParamTypesDefined(typeEnv, functionDec-&gt;tyFieldList);</span></a>
+<span class="lineNum">     370 </span><span class="lineCov">          6 :     bool isReturnTypeDefined = </span>
+<span class="lineNum">     371 </span><span class="lineCov">          6 :         isTypeDefined(typeEnv, functionDec-&gt;returnType);</span>
+<span class="lineNum">     372 </span>            :     
+<a name="373"><span class="lineNum">     373 </span><span class="lineCov">          6 :     if (isParamTypesDefined &amp;&amp; isReturnTypeDefined)</span></a>
+<span class="lineNum">     374 </span>            :     {
+<span class="lineNum">     375 </span><span class="lineCov">          4 :         AddOneFunction_OnePass(varAndFuncEnv, typeEnv, functionDec);</span>
+<span class="lineNum">     376 </span><span class="lineCov">          4 :         return true;</span>
+<a name="377"><span class="lineNum">     377 </span>            :     }</a>
+<span class="lineNum">     378 </span>            :     else
+<span class="lineNum">     379 </span>            :     {
+<span class="lineNum">     380 </span><span class="lineCov">          2 :         processFunctionErrors_OnePass(</span>
+<a name="381"><span class="lineNum">     381 </span>            :             isParamTypesDefined, isReturnTypeDefined, functionDec-&gt;name);</a>
+<span class="lineNum">     382 </span><span class="lineCov">          2 :         return false;</span>
+<span class="lineNum">     383 </span>            :     }
+<a name="384"><span class="lineNum">     384 </span>            : }</a>
+<a name="385"><span class="lineNum">     385 </span>            : </a>
+<span class="lineNum">     386 </span><span class="lineCov">          4 : void AddOneFunction_OnePass(</span>
+<span class="lineNum">     387 </span>            :     myTable varAndFuncEnv, myTable typeEnv, myFunctionDec functionDec)
+<span class="lineNum">     388 </span>            : {
+<a name="389"><span class="lineNum">     389 </span><span class="lineCov">          4 :     AddOneFunction(varAndFuncEnv, typeEnv, functionDec);</span></a>
+<a name="390"><span class="lineNum">     390 </span><span class="lineCov">          4 : }</span></a>
+<span class="lineNum">     391 </span>            : 
+<span class="lineNum">     392 </span><span class="lineCov">          2 : void processFunctionErrors_OnePass(</span>
+<a name="393"><span class="lineNum">     393 </span>            :     bool isParamTypesDefined, bool isReturnTypeDefined, mySymbol functionName)</a>
+<span class="lineNum">     394 </span>            : {
+<span class="lineNum">     395 </span><span class="lineCov">          2 :     myString functionNameString = MySymbol_GetName(functionName);</span>
+<span class="lineNum">     396 </span>            : 
+<a name="397"><span class="lineNum">     397 </span><span class="lineCov">          2 :     if (!isParamTypesDefined)</span></a>
+<span class="lineNum">     398 </span><span class="lineCov">          1 :         MyError_pushErrorCodeWithMsg(</span>
+<span class="lineNum">     399 </span>            :             ERROR__FUNCDEC_FUNCTION__PARAM_TYPES_NOT_DEFINED,
+<span class="lineNum">     400 </span>            :             functionNameString);
+<a name="401"><span class="lineNum">     401 </span><span class="lineCov">          2 :     if (!isReturnTypeDefined)</span></a>
+<span class="lineNum">     402 </span><span class="lineCov">          1 :         MyError_pushErrorCodeWithMsg(</span>
+<span class="lineNum">     403 </span>            :             ERROR__FUNCDEC_FUNCTION__RETURN_TYPE_NOT_DEFINED,
+<span class="lineNum">     404 </span>            :             functionNameString);
+<a name="405"><span class="lineNum">     405 </span><span class="lineCov">          2 : }</span></a>
+<span class="lineNum">     406 </span>            : 
+<span class="lineNum">     407 </span>            : ///////////////////////////////////////////////////
+<a name="408"><span class="lineNum">     408 </span>            : </a>
+<a name="409"><span class="lineNum">     409 </span>            : //  a delagate</a>
+<span class="lineNum">     410 </span><span class="lineCov">          3 : bool MySemantic_Dec_Func_OnePass(</span>
+<span class="lineNum">     411 </span>            :     myTable varAndFuncEnv, myTable typeEnv, myFuncDec funcDec)
+<span class="lineNum">     412 </span>            : {
+<a name="413"><span class="lineNum">     413 </span><span class="lineCov">          3 :     if (funcDec == NULL)        return true;</span></a>
+<span class="lineNum">     414 </span>            : 
+<span class="lineNum">     415 </span><span class="lineCov">          3 :     switch (funcDec-&gt;kind)</span>
+<span class="lineNum">     416 </span>            :     {
+<a name="417"><span class="lineNum">     417 </span>            :         case ProcedureDec:</a>
+<span class="lineNum">     418 </span><span class="lineCov">          3 :             return MySemantic_Dec_Func_Procedure_OnePass(</span>
+<span class="lineNum">     419 </span>            :                 varAndFuncEnv, typeEnv, funcDec-&gt;u.procedureDec);
+<span class="lineNum">     420 </span>            :         case FunctionDec:
+<a name="421"><span class="lineNum">     421 </span><span class="lineNoCov">          0 :             return MySemantic_Dec_Func_Function_OnePass(</span></a>
+<span class="lineNum">     422 </span>            :                 varAndFuncEnv, typeEnv, funcDec-&gt;u.functionDec);
+<span class="lineNum">     423 </span>            :         default:
+<span class="lineNum">     424 </span><span class="lineNoCov">          0 :             assert (false);</span>
+<a name="425"><span class="lineNum">     425 </span>            :     }</a>
+<span class="lineNum">     426 </span>            : }
+<span class="lineNum">     427 </span>            : 
+<span class="lineNum">     428 </span>            : /////////////////////////////////////////////////
+<a name="429"><span class="lineNum">     429 </span>            : </a>
+<span class="lineNum">     430 </span>            : //  FORM:
+<span class="lineNum">     431 </span>            : //      function id (tyfields) = exp
+<span class="lineNum">     432 </span>            : //  DO:
+<a name="433"><span class="lineNum">     433 </span>            : //      1.check whether `exp` type is of NoReturn.</a>
+<span class="lineNum">     434 </span>            : //      2.update this function in the function environment.
+<span class="lineNum">     435 </span>            : //  RETURN:
+<span class="lineNum">     436 </span>            : //      a boolean variable indicates whether this function succeeds.
+<a name="437"><span class="lineNum">     437 </span>            : //  STATUS:</a>
+<span class="lineNum">     438 </span>            : //      Tested.
+<span class="lineNum">     439 </span><span class="lineCov">          8 : bool MySemantic_Dec_Func_Procedure_TwoPass(</span>
+<span class="lineNum">     440 </span>            :     myTable varAndFuncEnv, myTable typeEnv, myProcedureDec procedureDec)
+<a name="441"><span class="lineNum">     441 </span>            : {</a>
+<span class="lineNum">     442 </span><span class="lineCov">          8 :     MySymbol_BeginScope(varAndFuncEnv);</span>
+<span class="lineNum">     443 </span><span class="lineCov">          8 :     addFormalsToScope(varAndFuncEnv, typeEnv, procedureDec-&gt;tyFieldList);</span>
+<span class="lineNum">     444 </span>            : 
+<a name="445"><span class="lineNum">     445 </span><span class="lineCov">          8 :     bool isBodyNoReturn = false;</span></a>
+<span class="lineNum">     446 </span><span class="lineCov">          8 :     isBodyNoReturn = isExpNoReturn(varAndFuncEnv, typeEnv, procedureDec-&gt;exp);</span>
+<span class="lineNum">     447 </span>            :     
+<span class="lineNum">     448 </span><span class="lineCov">          8 :     MySymbol_EndScope(varAndFuncEnv);</span>
+<a name="449"><span class="lineNum">     449 </span>            : </a>
+<span class="lineNum">     450 </span><span class="lineCov">          8 :     if (isBodyNoReturn)</span>
+<span class="lineNum">     451 </span><span class="lineCov">          7 :         return true;</span>
+<span class="lineNum">     452 </span>            :     else
+<a name="453"><span class="lineNum">     453 </span>            :     {</a>
+<span class="lineNum">     454 </span><span class="lineCov">          1 :         MyError_pushErrorCodeWithMsg(</span>
+<span class="lineNum">     455 </span>            :             ERROR__FUNCDEC_PROCEDURE__BODY_TYPE_NOT_NORETURN,
+<span class="lineNum">     456 </span>            :             MySymbol_GetName(procedureDec-&gt;name));
+<a name="457"><span class="lineNum">     457 </span><span class="lineCov">          1 :         return false;</span></a>
+<span class="lineNum">     458 </span>            :     }
+<span class="lineNum">     459 </span>            : }
+<span class="lineNum">     460 </span>            : 
+<a name="461"><span class="lineNum">     461 </span>            : //////////////////////////////////////////////////</a>
+<span class="lineNum">     462 </span>            : 
+<span class="lineNum">     463 </span>            : //  forwrads(mySemantic.c)
+<span class="lineNum">     464 </span>            : bool isFunctionReturnTypeMatchesOrNil(
+<a name="465"><span class="lineNum">     465 </span>            :     myTable varAndFuncEnv, myTable typeEnv, myFunctionDec functionDec);</a>
+<span class="lineNum">     466 </span>            : 
+<span class="lineNum">     467 </span>            : ////////////
+<span class="lineNum">     468 </span>            : 
+<a name="469"><span class="lineNum">     469 </span>            : //  FORM:</a>
+<span class="lineNum">     470 </span>            : //      function id (tyfields) : type-id = exp
+<span class="lineNum">     471 </span>            : //  DO:
+<span class="lineNum">     472 </span>            : //      1.check whether the return type matches type `type-id`(or Nil of Record).
+<a name="473"><span class="lineNum">     473 </span>            : //      2.add a function to the function environment.</a>
+<span class="lineNum">     474 </span>            : //  RETURN:
+<span class="lineNum">     475 </span>            : //      a boolean variable indicates whether this function succeeds.
+<a name="476"><span class="lineNum">     476 </span>            : //  STATUS:</a>
+<a name="477"><span class="lineNum">     477 </span>            : //      Tested.</a>
+<span class="lineNum">     478 </span><span class="lineCov">          7 : bool MySemantic_Dec_Func_Function_TwoPass(</span>
+<span class="lineNum">     479 </span>            :     myTable varAndFuncEnv, myTable typeEnv, myFunctionDec functionDec)
+<span class="lineNum">     480 </span>            : {
+<a name="481"><span class="lineNum">     481 </span><span class="lineCov">          7 :     MySymbol_BeginScope(varAndFuncEnv);</span></a>
+<span class="lineNum">     482 </span><span class="lineCov">          7 :     addFormalsToScope(varAndFuncEnv, typeEnv, functionDec-&gt;tyFieldList);</span>
+<span class="lineNum">     483 </span>            : 
+<span class="lineNum">     484 </span><span class="lineCov">          7 :     bool isBodyLegal =</span>
+<a name="485"><span class="lineNum">     485 </span><span class="lineCov">          7 :         isExpLegal(varAndFuncEnv, typeEnv, functionDec-&gt;exp);</span></a>
+<span class="lineNum">     486 </span>            : 
+<span class="lineNum">     487 </span><span class="lineCov">          7 :     bool isReturnTypeMatches = false;</span>
+<span class="lineNum">     488 </span><span class="lineCov">          7 :     if (isBodyLegal)</span>
+<a name="489"><span class="lineNum">     489 </span><span class="lineCov">          6 :         isReturnTypeMatches = isFunctionReturnTypeMatchesOrNil(</span></a>
+<span class="lineNum">     490 </span>            :             varAndFuncEnv, typeEnv, functionDec);
+<span class="lineNum">     491 </span>            : 
+<span class="lineNum">     492 </span><span class="lineCov">          7 :     MySymbol_EndScope(varAndFuncEnv);</span>
+<a name="493"><span class="lineNum">     493 </span>            : </a>
+<span class="lineNum">     494 </span><span class="lineCov">          7 :     if (isReturnTypeMatches)</span>
+<span class="lineNum">     495 </span><span class="lineCov">          5 :         return true;</span>
+<span class="lineNum">     496 </span>            :     else
+<a name="497"><span class="lineNum">     497 </span>            :     {</a>
+<span class="lineNum">     498 </span><span class="lineCov">          2 :         MyError_pushErrorCodeWithMsg(</span>
+<span class="lineNum">     499 </span>            :             ERROR__FUNCDEC_FUNCTION__RETURN_TYPE_NOT_MATCH,
+<span class="lineNum">     500 </span>            :             MySymbol_GetName(functionDec-&gt;name));
+<a name="501"><span class="lineNum">     501 </span><span class="lineCov">          2 :         return false;</span></a>
+<span class="lineNum">     502 </span>            :     }
+<a name="503"><span class="lineNum">     503 </span>            : }</a>
+<span class="lineNum">     504 </span>            : 
+<a name="505"><span class="lineNum">     505 </span><span class="lineCov">          3 : bool MySemantic_Dec_Func_TwoPass(</span></a>
+<span class="lineNum">     506 </span>            :     myTable varAndFuncEnv, myTable typeEnv, myFuncDec funcDec)
+<span class="lineNum">     507 </span>            : {
+<span class="lineNum">     508 </span><span class="lineCov">          3 :     if (funcDec == NULL)        return true;</span>
+<a name="509"><span class="lineNum">     509 </span>            : </a>
+<span class="lineNum">     510 </span><span class="lineCov">          3 :     switch (funcDec-&gt;kind)</span>
+<span class="lineNum">     511 </span>            :     {
+<span class="lineNum">     512 </span>            :         case ProcedureDec:
+<a name="513"><span class="lineNum">     513 </span><span class="lineCov">          3 :             return MySemantic_Dec_Func_Procedure_TwoPass(</span></a>
+<span class="lineNum">     514 </span>            :                 varAndFuncEnv, typeEnv, funcDec-&gt;u.procedureDec);
+<span class="lineNum">     515 </span>            :         case FunctionDec:
+<span class="lineNum">     516 </span><span class="lineNoCov">          0 :             return MySemantic_Dec_Func_Function_TwoPass(</span>
+<a name="517"><span class="lineNum">     517 </span>            :                 varAndFuncEnv, typeEnv, funcDec-&gt;u.functionDec);</a>
+<span class="lineNum">     518 </span>            :         default:
+<span class="lineNum">     519 </span><span class="lineNoCov">          0 :             assert (false);</span>
+<span class="lineNum">     520 </span>            :     }
+<a name="521"><span class="lineNum">     521 </span>            : }</a>
+<span class="lineNum">     522 </span>            : 
+<span class="lineNum">     523 </span>            : /////////////////////////////////////////////////
+<a name="524"><span class="lineNum">     524 </span>            : </a>
+<a name="525"><span class="lineNum">     525 </span>            : //  a delegate function.</a>
+<span class="lineNum">     526 </span><span class="lineCov">          6 : bool MySemantic_Dec_FuncOrType_OnePass(myTable varAndFuncEnv, myTable typeEnv, myDec dec)</span>
+<span class="lineNum">     527 </span>            : {
+<span class="lineNum">     528 </span><span class="lineCov">          6 :     switch (dec-&gt;kind)</span>
+<a name="529"><span class="lineNum">     529 </span>            :     {</a>
+<span class="lineNum">     530 </span>            :         case TypeDec:
+<span class="lineNum">     531 </span><span class="lineCov">          3 :             return MySemantic_Dec_Type_OnePass(typeEnv, dec-&gt;u.tyDec);</span>
+<span class="lineNum">     532 </span>            :         case FuncDec:
+<a name="533"><span class="lineNum">     533 </span><span class="lineCov">          3 :             return MySemantic_Dec_Func_OnePass(varAndFuncEnv, typeEnv, dec-&gt;u.funcDec);</span></a>
+<span class="lineNum">     534 </span>            :         default:
+<span class="lineNum">     535 </span><span class="lineNoCov">          0 :             assert(false);</span>
+<span class="lineNum">     536 </span>            :     }
+<a name="537"><span class="lineNum">     537 </span>            : }</a>
+<span class="lineNum">     538 </span>            : 
+<span class="lineNum">     539 </span>            : /////////////////////////////////////////////////////////////////
+<span class="lineNum">     540 </span>            : 
+<a name="541"><span class="lineNum">     541 </span>            : </a>
+<span class="lineNum">     542 </span>            : //  a delegate function.
+<span class="lineNum">     543 </span><span class="lineCov">          6 : bool MySemantic_Dec_FuncOrType_TwoPass(</span>
+<span class="lineNum">     544 </span>            :     myTable varAndFuncEnv, myTable typeEnv, myDec dec)
+<a name="545"><span class="lineNum">     545 </span>            : {</a>
+<span class="lineNum">     546 </span><span class="lineCov">          6 :     switch (dec-&gt;kind)</span>
+<span class="lineNum">     547 </span>            :     {
+<span class="lineNum">     548 </span>            :         case TypeDec:
+<a name="549"><span class="lineNum">     549 </span><span class="lineCov">          3 :             return MySemantic_Dec_Type_TwoPass(</span></a>
+<span class="lineNum">     550 </span>            :                 typeEnv, dec-&gt;u.tyDec);
+<span class="lineNum">     551 </span>            :         case FuncDec:
+<span class="lineNum">     552 </span><span class="lineCov">          3 :             return MySemantic_Dec_Func_TwoPass(</span>
+<a name="553"><span class="lineNum">     553 </span>            :                 varAndFuncEnv, typeEnv, dec-&gt;u.funcDec);</a>
+<span class="lineNum">     554 </span>            :         default:
+<span class="lineNum">     555 </span><span class="lineNoCov">          0 :             assert(false);</span>
+<span class="lineNum">     556 </span>            :     }
+<a name="557"><span class="lineNum">     557 </span>            : }</a>
+<span class="lineNum">     558 </span>            : 
+<a name="559"><span class="lineNum">     559 </span>            : /////////////////////////////////////////////////////////////////</a>
+<span class="lineNum">     560 </span>            : 
+<a name="561"><span class="lineNum">     561 </span><span class="lineCov">          4 : bool MySemantic_Dec_Var_Pass(</span></a>
+<span class="lineNum">     562 </span>            :     myTable varAndFuncEnv, myTable typeEnv, myDec varDec)
+<span class="lineNum">     563 </span>            : {
+<span class="lineNum">     564 </span><span class="lineCov">          4 :     return MySemantic_Dec_Var(</span>
+<a name="565"><span class="lineNum">     565 </span>            :         varAndFuncEnv, typeEnv, varDec-&gt;u.varDec);</a>
+<span class="lineNum">     566 </span>            : }
+<span class="lineNum">     567 </span>            : 
+<span class="lineNum">     568 </span>            : ////////////////////////////////////////////////////////////////
+<a name="569"><span class="lineNum">     569 </span>            : </a>
+<span class="lineNum">     570 </span>            : //  forwards
+<span class="lineNum">     571 </span>            : bool PassTemplate(
+<span class="lineNum">     572 </span>            :     myTable varAndFuncEnv, myTable typeEnv, myDecList decs,
+<a name="573"><span class="lineNum">     573 </span>            :     bool (*passFunc)(myTable, myTable, myDec));</a>
+<span class="lineNum">     574 </span>            : 
+<a name="575"><span class="lineNum">     575 </span>            : ///////////////</a>
+<span class="lineNum">     576 </span>            : 
+<a name="577"><span class="lineNum">     577 </span><span class="lineCov">          2 : bool MySemantic_Decs_FuncsOrTypes_OnePass(</span></a>
+<span class="lineNum">     578 </span>            :     myTable varAndFuncEnv, myTable typeEnv, myDecList decs)
+<span class="lineNum">     579 </span>            : {
+<span class="lineNum">     580 </span><span class="lineCov">          2 :     return PassTemplate(</span>
+<a name="581"><span class="lineNum">     581 </span>            :         varAndFuncEnv, typeEnv, decs, MySemantic_Dec_FuncOrType_OnePass);</a>
+<a name="582"><span class="lineNum">     582 </span>            : }</a>
+<span class="lineNum">     583 </span>            : 
+<span class="lineNum">     584 </span><span class="lineCov">          2 : bool MySemantic_Decs_FuncsOrTypes_TwoPass(</span>
+<a name="585"><span class="lineNum">     585 </span>            :     myTable varAndFuncEnv, myTable typeEnv, myDecList decs)</a>
+<span class="lineNum">     586 </span>            : {
+<span class="lineNum">     587 </span><span class="lineCov">          2 :     return PassTemplate(</span>
+<span class="lineNum">     588 </span>            :         varAndFuncEnv, typeEnv, decs, MySemantic_Dec_FuncOrType_TwoPass);
+<a name="589"><span class="lineNum">     589 </span>            : }</a>
+<span class="lineNum">     590 </span>            : 
+<span class="lineNum">     591 </span><span class="lineCov">          2 : bool MySemantic_Decs_Vars_Pass(</span>
+<span class="lineNum">     592 </span>            :     myTable varAndFuncEnv, myTable typeEnv, myDecList decs)
+<a name="593"><span class="lineNum">     593 </span>            : {</a>
+<span class="lineNum">     594 </span><span class="lineCov">          2 :     return PassTemplate(</span>
+<span class="lineNum">     595 </span>            :         varAndFuncEnv, typeEnv, decs, MySemantic_Dec_Var_Pass);
+<a name="596"><span class="lineNum">     596 </span>            : }</a>
+<a name="597"><span class="lineNum">     597 </span>            : </a>
+<span class="lineNum">     598 </span><span class="lineCov">          6 : bool PassTemplate(</span>
+<span class="lineNum">     599 </span>            :     myTable varAndFuncEnv, myTable typeEnv, myDecList decs,
+<span class="lineNum">     600 </span>            :     bool (*passFunc)(myTable, myTable, myDec))
+<a name="601"><span class="lineNum">     601 </span>            : {</a>
+<span class="lineNum">     602 </span><span class="lineCov">         27 :     while (decs)</span>
+<span class="lineNum">     603 </span>            :     {
+<span class="lineNum">     604 </span><span class="lineCov">         16 :         if (!(*passFunc)(varAndFuncEnv, typeEnv, decs-&gt;dec))</span>
+<a name="605"><span class="lineNum">     605 </span><span class="lineCov">          1 :             return false;</span></a>
+<span class="lineNum">     606 </span><span class="lineCov">         15 :         decs = decs-&gt;next;</span>
+<span class="lineNum">     607 </span>            :     }
+<span class="lineNum">     608 </span><span class="lineCov">          5 :     return true;</span>
+<a name="609"><span class="lineNum">     609 </span>            : }</a>
+<span class="lineNum">     610 </span>            : 
+<span class="lineNum">     611 </span>            : /////////////////////////////////////////////////////
+<span class="lineNum">     612 </span>            : 
+<a name="613"><span class="lineNum">     613 </span>            : //  forwards</a>
+<span class="lineNum">     614 </span>            : bool detectConsecutivelySameDecs(myDecList decs);
+<span class="lineNum">     615 </span>            : bool detectIllegalRecursive_NamedTypes(myDecList decs);
+<a name="616"><span class="lineNum">     616 </span>            : myDecList getNextConsecutivePart(myDecList decs, myDecList* pNext);</a>
+<a name="617"><span class="lineNum">     617 </span>            : </a>
+<span class="lineNum">     618 </span><span class="lineCov">          7 : bool MySemantic_Decs_Recursive(</span>
+<span class="lineNum">     619 </span>            :     myTable varAndFuncEnv, myTable typeEnv, myDecList decs)
+<span class="lineNum">     620 </span>            : {
+<a name="621"><span class="lineNum">     621 </span><span class="lineCov">          7 :     if (decs == NULL)       return true;</span></a>
+<span class="lineNum">     622 </span><span class="lineCov">          7 :     if (detectConsecutivelySameDecs(decs))</span>
+<span class="lineNum">     623 </span><span class="lineCov">          2 :         return false;</span>
+<span class="lineNum">     624 </span>            : 
+<a name="625"><span class="lineNum">     625 </span><span class="lineCov">          5 :     myDecList next = decs;</span></a>
+<span class="lineNum">     626 </span>            :     myDecList thisConsecutivePart;
+<span class="lineNum">     627 </span><span class="lineCov">         13 :     while ((thisConsecutivePart = getNextConsecutivePart(next, &amp;next)))</span>
+<span class="lineNum">     628 </span>            :     {
+<a name="629"><span class="lineNum">     629 </span><span class="lineCov">          5 :         if (thisConsecutivePart-&gt;dec-&gt;kind == VarDec)</span></a>
+<span class="lineNum">     630 </span>            :         {
+<span class="lineNum">     631 </span><span class="lineCov">          2 :             if (!MySemantic_Decs_Vars_Pass(</span>
+<span class="lineNum">     632 </span>            :                 varAndFuncEnv, typeEnv, thisConsecutivePart))
+<a name="633"><span class="lineNum">     633 </span><span class="lineCov">          1 :                 return false;</span></a>
+<span class="lineNum">     634 </span>            :         }
+<span class="lineNum">     635 </span>            :         else
+<span class="lineNum">     636 </span>            :         {
+<a name="637"><span class="lineNum">     637 </span><span class="lineCov">          5 :             if (thisConsecutivePart-&gt;dec-&gt;kind == TypeDec &amp;&amp;</span></a>
+<span class="lineNum">     638 </span><span class="lineCov">          2 :                 detectIllegalRecursive_NamedTypes(thisConsecutivePart))</span>
+<span class="lineNum">     639 </span><span class="lineCov">          1 :                 return false;</span>
+<span class="lineNum">     640 </span>            : 
+<a name="641"><span class="lineNum">     641 </span><span class="lineCov">          2 :             if (!MySemantic_Decs_FuncsOrTypes_OnePass(</span></a>
+<span class="lineNum">     642 </span><span class="lineCov">          2 :                     varAndFuncEnv, typeEnv, thisConsecutivePart) ||</span>
+<span class="lineNum">     643 </span><span class="lineCov">          2 :                 !MySemantic_Decs_FuncsOrTypes_TwoPass(</span>
+<span class="lineNum">     644 </span>            :                     varAndFuncEnv, typeEnv, thisConsecutivePart))
+<a name="645"><span class="lineNum">     645 </span><span class="lineNoCov">          0 :                 return false;</span></a>
+<span class="lineNum">     646 </span>            :         }
+<span class="lineNum">     647 </span>            :     }
+<span class="lineNum">     648 </span><span class="lineCov">          3 :     return true;</span>
+<a name="649"><span class="lineNum">     649 </span>            : }</a>
+<span class="lineNum">     650 </span>            : 
+<span class="lineNum">     651 </span><span class="lineCov">          8 : myDecList getNextConsecutivePart(myDecList decs, myDecList* pNext)</span>
+<span class="lineNum">     652 </span>            : {
+<a name="653"><span class="lineNum">     653 </span><span class="lineCov">          8 :     if (decs == NULL)   return NULL;</span></a>
+<span class="lineNum">     654 </span>            : 
+<span class="lineNum">     655 </span><span class="lineCov">          5 :     myDecList begin = decs;</span>
+<span class="lineNum">     656 </span><span class="lineCov">         26 :     while (decs-&gt;next &amp;&amp;</span>
+<a name="657"><span class="lineNum">     657 </span><span class="lineCov">          8 :            decs-&gt;dec-&gt;kind == decs-&gt;next-&gt;dec-&gt;kind)</span></a>
+<span class="lineNum">     658 </span><span class="lineCov">          8 :             decs = decs-&gt;next;</span>
+<span class="lineNum">     659 </span>            : 
+<span class="lineNum">     660 </span><span class="lineCov">          5 :     if (decs-&gt;next == NULL)  *pNext = NULL;</span>
+<a name="661"><span class="lineNum">     661 </span><span class="lineNoCov">          0 :     else                     *pNext = decs-&gt;next, decs-&gt;next = NULL;</span></a>
+<span class="lineNum">     662 </span>            : 
+<span class="lineNum">     663 </span><span class="lineCov">          5 :     return begin;</span>
+<span class="lineNum">     664 </span>            : }
+<a name="665"><span class="lineNum">     665 </span>            : </a>
+<span class="lineNum">     666 </span>            : 
+<span class="lineNum">     667 </span>            : //  forwards
+<span class="lineNum">     668 </span>            : void addRecord(myTable recordTable, mySymbol typeName);
+<a name="669"><span class="lineNum">     669 </span>            : bool findRecordAndSetError(myTable recordTable, mySymbol typeName);</a>
+<span class="lineNum">     670 </span>            : 
+<span class="lineNum">     671 </span><span class="lineCov">          2 : bool detectIllegalRecursive_NamedTypes(myDecList decs)</span>
+<span class="lineNum">     672 </span>            : {
+<a name="673"><span class="lineNum">     673 </span><span class="lineCov">          2 :     myTable recordTable = MySymbol_MakeNewTable();</span></a>
+<span class="lineNum">     674 </span><span class="lineCov">          2 :     bool firstOne = true;</span>
+<span class="lineNum">     675 </span>            : 
+<span class="lineNum">     676 </span><span class="lineCov">          9 :     while (decs)</span>
+<a name="677"><span class="lineNum">     677 </span>            :     {</a>
+<span class="lineNum">     678 </span><span class="lineCov">          6 :         myTypeDec typeDec = decs-&gt;dec-&gt;u.tyDec;</span>
+<span class="lineNum">     679 </span><span class="lineCov">          6 :         if (findRecordAndSetError(recordTable, typeDec-&gt;type-&gt;u.typeName))</span>
+<span class="lineNum">     680 </span><span class="lineCov">          1 :             return true;</span>
+<a name="681"><span class="lineNum">     681 </span>            : </a>
+<span class="lineNum">     682 </span><span class="lineCov">          5 :         addRecord(recordTable, typeDec-&gt;type-&gt;u.typeName);</span>
+<span class="lineNum">     683 </span><span class="lineCov">          5 :         if (firstOne)</span>
+<span class="lineNum">     684 </span><span class="lineCov">          2 :             addRecord(recordTable, typeDec-&gt;name),</span>
+<a name="685"><span class="lineNum">     685 </span><span class="lineCov">          2 :             firstOne = false;</span></a>
+<span class="lineNum">     686 </span>            : 
+<span class="lineNum">     687 </span><span class="lineCov">          5 :         decs = decs-&gt;next;</span>
+<span class="lineNum">     688 </span>            :     }
+<a name="689"><span class="lineNum">     689 </span><span class="lineCov">          1 :     return false;</span></a>
+<a name="690"><span class="lineNum">     690 </span>            : }</a>
+<span class="lineNum">     691 </span>            : 
+<span class="lineNum">     692 </span><span class="lineCov">          6 : bool findRecordAndSetError(myTable recordTable, mySymbol typeName)</span>
+<a name="693"><span class="lineNum">     693 </span>            : {</a>
+<span class="lineNum">     694 </span><span class="lineCov">          6 :     if (MyEnvironment_getTypeFromName(recordTable, typeName))</span>
+<span class="lineNum">     695 </span>            :     {
+<span class="lineNum">     696 </span><span class="lineCov">          1 :         MyError_pushErrorCodeWithMsg(ERROR__RECURSIVE__ILLEGAL,</span>
+<a name="697"><span class="lineNum">     697 </span>            :             MySymbol_GetName(typeName));</a>
+<span class="lineNum">     698 </span><span class="lineCov">          1 :         return true;</span>
+<span class="lineNum">     699 </span>            :     }
+<span class="lineNum">     700 </span><span class="lineCov">          5 :     return false;</span>
+<a name="701"><span class="lineNum">     701 </span>            : }</a>
+<span class="lineNum">     702 </span>            : 
+<span class="lineNum">     703 </span><span class="lineCov">          7 : void addRecord(myTable recordTable, mySymbol typeName)</span>
+<span class="lineNum">     704 </span>            : {
+<a name="705"><span class="lineNum">     705 </span><span class="lineCov">          7 :     void* fakeValue = (void*)12;</span></a>
+<span class="lineNum">     706 </span><span class="lineCov">          7 :     MyEnvironment_addNewType(recordTable, typeName, fakeValue);</span>
+<span class="lineNum">     707 </span><span class="lineCov">          7 : }</span>
 </pre>
       </td>
     </tr>
