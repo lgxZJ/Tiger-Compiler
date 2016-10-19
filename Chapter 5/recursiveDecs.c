@@ -23,62 +23,14 @@ bool isFuncParamTypesDefined(myTable typeEnv, myTyFieldList funcFields);
 void addFormalsToScope(
     myTable varAndFuncEnv, myTable typeEnv, myTyFieldList formals);
 bool MySemantic_Dec_Var(myTable varAndFuncEnv, myTable typeEnv, myVarDec varDec);
-
-/////////////////
-
-static myType getActualTypeFromName(myTable typeEnv, mySymbol typeName)
-{
-    myType type = MyEnvironment_getTypeFromName(typeEnv, typeName);
-    while(isTypeNamed(type))
-    {
-        type = type->u.typeNamed->type;
-    }
-    return type;
-}
-
+myType getActualTypeFromName(myTable typeEnv, mySymbol typeName);
 bool isExpOneTypeOrIllegal(
     myTable varAndFuncEnv, myTable typeEnv,
-    myExp exp, enum TypeKind kind)
-{
-    assert (varAndFuncEnv && typeEnv && exp);
-
-    myTranslationAndType result = 
-        MySemantic_Exp(varAndFuncEnv, typeEnv, exp);
-    if (result == SEMANTIC_ERROR)     return false;
-
-    switch (kind)
-    {
-        case TypeInt:       return isTypeInt(result->type);
-        case TypeNoReturn:  return isTypeNoReturn(result->type);
-        case TypeArray:     return isTypeArray(result->type);
-        default:            assert(false);
-    }
-}
-
-bool isExpNoReturn(myTable varAndFuncEnv, myTable typeEnv, myExp exp)
-{
-    return isExpOneTypeOrIllegal(varAndFuncEnv, typeEnv, exp, TypeNoReturn);
-}
-
-bool isTypeDefined(myTable typeEnv, mySymbol typeName)
-{
-    assert (typeEnv && typeName);
-
-    return MyEnvironment_getTypeFromName(typeEnv, typeName) != NULL;
-}
-
-
+    myExp exp, enum TypeKind kind);
+bool isExpNoReturn(myTable varAndFuncEnv, myTable typeEnv, myExp exp);
+bool isTypeDefined(myTable typeEnv, mySymbol typeName);
 bool isExpLegal(
-    myTable varAndFuncEnv, myTable typeEnv, myExp exp)
-{
-    assert (varAndFuncEnv && typeEnv && exp);
-
-    myTranslationAndType result = 
-        MySemantic_Exp(varAndFuncEnv, typeEnv, exp);
-        
-    if (result == SEMANTIC_ERROR)   return false;
-    else                            return true;
-}
+    myTable varAndFuncEnv, myTable typeEnv, myExp exp);
 
 /////////////////////////////////////////////////////////////////////
 
@@ -315,6 +267,7 @@ bool MySemantic_Dec_Type_TwoPass(myTable typeEnv, myTypeDec typeDec)
 }
 
 ////////////////////////////////////////
+////////////////////////////////////////
 
 //  forwards
 void AddOneProcedure_OnePass(
@@ -500,21 +453,11 @@ bool MySemantic_Dec_Func_Function_TwoPass(
 
     bool isBodyLegal =
         isExpLegal(varAndFuncEnv, typeEnv, functionDec->exp);
-    /*myTranslationAndType result = MySemantic_Exp(
-        varAndFuncEnv, typeEnv, functionDec->exp);
-    bool isBodyLegal = result != SEMANTIC_ERROR;*/
 
     bool isReturnTypeMatches = false;
     if (isBodyLegal)
         isReturnTypeMatches = isFunctionReturnTypeMatchesOrNil(
             varAndFuncEnv, typeEnv, functionDec);
-    /*if (isBodyLegal)
-    {
-        myType functionReturnType =
-            getActualTypeFromName(typeEnv, functionDec->returnType);
-        isReturnTypeMatches = isTypeEqual(result->type, functionReturnType) ||
-            (isTypeRecord(functionReturnType) && isTypeNil(result->type));
-    }*/
 
     MySymbol_EndScope(varAndFuncEnv);
 
@@ -548,6 +491,7 @@ bool MySemantic_Dec_Func_TwoPass(
 }
 
 /////////////////////////////////////////////////
+/////////////////////////////////////////////////
 
 //  a delegate function.
 bool MySemantic_Dec_FuncOrType_OnePass(myTable varAndFuncEnv, myTable typeEnv, myDec dec)
@@ -562,9 +506,6 @@ bool MySemantic_Dec_FuncOrType_OnePass(myTable varAndFuncEnv, myTable typeEnv, m
             assert(false);
     }
 }
-
-/////////////////////////////////////////////////////////////////
-
 
 //  a delegate function.
 bool MySemantic_Dec_FuncOrType_TwoPass(
@@ -582,8 +523,6 @@ bool MySemantic_Dec_FuncOrType_TwoPass(
             assert(false);
     }
 }
-
-/////////////////////////////////////////////////////////////////
 
 bool MySemantic_Dec_Var_Pass(
     myTable varAndFuncEnv, myTable typeEnv, myDec varDec)
@@ -635,12 +574,12 @@ bool PassTemplate(
     return true;
 }
 
-/////////////////////////////////////////////////////
+///////////////////////////////////////////////////////
 
 //  forwards
 myDecList copyDecs(myDecList decs);
-bool detectConsecutivelySameDecs(myDecList decs);
-bool isAllNamedDecs(myDecList decs);
+bool detectIllegalRecursive_SameTypeOrFuncDecs(myDecList decs);
+bool isAllDecsNamed(myDecList decs);
 bool detectIllegalRecursive_NamedTypes(myDecList decs);
 myDecList getNextConsecutivePart(myDecList decs, myDecList* pNext);
 
@@ -648,7 +587,7 @@ bool MySemantic_Decs_Recursive(
     myTable varAndFuncEnv, myTable typeEnv, myDecList decs)
 {
     if (decs == NULL)       return true;
-    if (detectConsecutivelySameDecs(decs))
+    if (detectIllegalRecursive_SameTypeOrFuncDecs(decs))
         return false;
 
     //  every cycle Decs will be divide into some parts, so, we make a 
@@ -665,7 +604,7 @@ bool MySemantic_Decs_Recursive(
         }
         else
         {
-            if (isAllNamedDecs(thisConsecutivePart) &&
+            if (isAllDecsNamed(thisConsecutivePart) &&
                 detectIllegalRecursive_NamedTypes(thisConsecutivePart))
                 return false;
 
@@ -698,7 +637,7 @@ myDecList copyDecs(myDecList decs)
     return newDecs;
 }
 
-bool isAllNamedDecs(myDecList decs)
+bool isAllDecsNamed(myDecList decs)
 {
     while (decs)
     {
@@ -725,6 +664,110 @@ myDecList getNextConsecutivePart(myDecList decs, myDecList* pNext)
     return begin;
 }
 
+//////////////////////////////////////////////////////////////////////////
+
+
+/////////////////////////////////////////////////////////
+
+//  forwards
+bool detectConsecutivelySameFuncOrTypeDec(
+    myDec dec, enum myDecKind* formerDecKind, mySymbol* formerDecName);
+bool detectIllegalRecursive_SameTypeOrFuncDec(myDec dec);
+void resetDetectState(void);
+
+/////////
+
+bool detectIllegalRecursive_SameTypeOrFuncDecs(myDecList decs)
+{
+    while (decs)
+    {
+        if (detectIllegalRecursive_SameTypeOrFuncDec(decs->dec))
+        {
+            resetDetectState();
+            return true;
+        }
+        decs = decs->next;
+    }
+    resetDetectState();
+    return false;
+}
+
+
+static enum myDecKind g_formerDecKind = None;
+static mySymbol       g_formerDecName = NULL;
+
+bool detectIllegalRecursive_SameTypeOrFuncDec(myDec dec)
+{
+    if (dec->kind == VarDec)
+    {
+        g_formerDecKind = None;
+        g_formerDecName = NULL;
+        return false;
+    }
+
+    return detectConsecutivelySameFuncOrTypeDec(
+        dec, &g_formerDecKind, &g_formerDecName);
+}
+
+void resetDetectState(void)
+{
+    g_formerDecKind = None;
+    g_formerDecName = NULL;
+}
+
+//////////////////////////////////////////////////////////////////////////
+
+//  forwards
+mySymbol getNameFromDec(myDec dec);
+mySymbol getNameFromFuncDec(myFuncDec dec);
+
+/////////
+
+bool detectConsecutivelySameFuncOrTypeDec(
+    myDec dec, enum myDecKind* formerDecKind, mySymbol* formerDecName)
+{
+    enum myDecKind thisDecKind = dec->kind;
+    mySymbol       thisDecName = getNameFromDec(dec);
+
+    if (*formerDecKind == thisDecKind &&
+        MySymbol_IsSymbolEqual(*formerDecName, thisDecName))
+    {
+        MyError_pushErrorCodeWithMsg(ERROR__RECURSIVE__ILLEGAL,
+            MySymbol_GetName(thisDecName));
+        return true;
+    }
+    else
+    {
+        *formerDecKind = thisDecKind;
+        *formerDecName = thisDecName;
+        return false;
+    }
+}
+
+mySymbol getNameFromFuncDec(myFuncDec dec)
+{
+    switch (dec->kind)
+    {
+        case FunctionDec:   return dec->u.functionDec->name;
+        case ProcedureDec:  return dec->u.procedureDec->name;
+        default:            assert (false);
+    }
+}
+
+mySymbol getNameFromDec(myDec dec)
+{
+    switch (dec->kind)
+    {
+        case TypeDec:
+            return dec->u.tyDec->name;
+        case FuncDec:
+            return getNameFromFuncDec(dec->u.funcDec);
+        default:    assert (false);
+    }
+}
+
+
+//////////////////////////////////////////////////////////////////////////
 
 //  forwards
 void addRecord(myTable recordTable, mySymbol typeName);

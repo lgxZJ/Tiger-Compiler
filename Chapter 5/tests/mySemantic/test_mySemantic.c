@@ -1,6 +1,8 @@
 #include "../testHelper.h"
+#include "../testFixture.h"
 
-#include "../../internalForwards.h"
+#include "internalForwards.h"
+
 #include "../../mySemantic.h"
 #include "../../myEnvironment.h"
 #include "../../typeMaker.h"
@@ -9,120 +11,53 @@
 
 #include <stdlib.h>
 #include <stdio.h>
+
 //  todo: change name *NULL to *SemanticError
-///////////////////////////////////////////////////////////////////
-//  help functions
+///////////////////////////////////////////////////////////////////////
 
-mySymbol makeOneSymbol(void)
+//  NOTE: after recursive version finished, these functions actually
+//  not exists, but i don't want to lose these test efforts, so i create
+//  some dalegates to called the recursive versions.
+
+bool MySemantic_Dec_Type_Named(
+    myTable typeEnv, mySymbol newTypeName, mySymbol existedTypeName)
 {
-    return MySymbol_MakeSymbol("randomSymbol");
+    myTypeDec dec =
+        makeMyTyDec(newTypeName, makeMyTy_Named(makeOnePos(), existedTypeName));
+    return MySemantic_Dec_Type_OnePass(typeEnv, dec) &&
+            MySemantic_Dec_Type_Named_TwoPass(typeEnv, newTypeName, existedTypeName);
 }
 
-mySymbol makeSymbol_Int(void)
+bool MySemantic_Dec_Type_Record(
+    myTable typeEnv, mySymbol newTypeName, myTyFieldList fields)
 {
-    return MySymbol_MakeSymbol("int");
+    myTypeDec dec =
+        makeMyTyDec(newTypeName, makeMyTy_Record(makeOnePos(), fields));
+    return MySemantic_Dec_Type_OnePass(typeEnv, dec) &&
+            MySemantic_Dec_Type_Record_TwoPass(typeEnv, newTypeName, fields);
 }
 
-mySymbol makeSymbol_String(void)
+bool MySemantic_Dec_Type_Array(
+    myTable typeEnv, mySymbol newTypeName, mySymbol elementTypeName)
 {
-    return MySymbol_MakeSymbol("string");
+    myTypeDec dec =
+        makeMyTyDec(newTypeName, makeMyTy_Array(makeOnePos(), elementTypeName));
+    return MySemantic_Dec_Type_OnePass(typeEnv, dec) &&
+            MySemantic_Dec_Type_Array_TwoPass(typeEnv, newTypeName, elementTypeName);
 }
 
-myPos makeOnePos()
+bool MySemantic_Dec_Func_Procedure(
+    myTable varAndFuncEnv, myTable typeEnv, myProcedureDec procedureDec)
 {
-    myPos pos;
-    pos.column = pos.line;
-    return pos;
+    return MySemantic_Dec_Func_Procedure_OnePass(varAndFuncEnv, typeEnv, procedureDec) &&
+        MySemantic_Dec_Func_Procedure_TwoPass(varAndFuncEnv, typeEnv, procedureDec);
 }
 
-myExp makeOneExp_Integer(void)
+bool MySemantic_Dec_Func_Function(
+    myTable varAndFuncEnv, myTable typeEnv, myFunctionDec functionDec)
 {
-    return makeMyExp_IntegerLiteral(
-            makeOnePos(),
-            makeMyIntegerLiteralExp(1));
-}
-
-myExp makeOneExp_String(void)
-{
-    return makeMyExp_StringLiteral(
-            makeOnePos(),
-            makeMyStringLiteralExp("1"));
-}
-
-myExp makeOneExp_Nil(void)
-{
-    return makeMyExp_Nil(makeOnePos(), makeMyNilExp());
-}
-
-myExp makeOneExp_Break(void)
-{
-    return makeMyExp_Break(makeOnePos(), makeMyBreakExp());
-}
-
-myExp makeOneExp_NoValue(void)
-{
-    return makeMyExp_NoValue(
-        makeOnePos(), makeMyNoValueExp());
-}
-
-myExp makeOneExp_Record(mySymbol recordTypeName)
-{
-    return makeMyExp_RecordCreation(makeOnePos(),
-        makeMyRecordCreationExp_NoField(
-            makeMyNoFieldRecordCreationExp(recordTypeName)));
-}
-
-myExp makeOneIllegalExp_Integer(void)
-{
-    return makeMyExp_IfThenElse(makeOnePos(),
-        makeMyIfThenElseExp(makeOneExp_String(),
-            makeOneExp_Integer(), makeOneExp_Integer()));
-}
-
-myLValueExp makeOneLegalLValueExp_SimpleVar_Int(
-    myTable varAndFuncEnv, myTable typeEnv)
-{
-    mySymbol variableName = makeOneSymbol();
-    MySymbol_Enter(varAndFuncEnv, variableName, myEnvironment_makeVarEntry(makeType_Int()));
-
-    return makeMyLValue(makeOnePos(), variableName, NULL);
-}
-
-myLValueExp makeOneLegalLValueExp_Record(
-    myTable varAndFuncEnv, myType recordType)
-{
-    mySymbol variableName = makeOneSymbol();
-    MySymbol_Enter(varAndFuncEnv, variableName, myEnvironment_makeVarEntry(recordType));
-
-    return makeMyLValue(makeOnePos(), variableName, NULL);
-}
-
-myNoFieldRecordCreationExp makeOneNoFieldCreationExp(void)
-{
-    return makeMyNoFieldRecordCreationExp(MySymbol_MakeSymbol("record creation"));
-}
-
-myLValueExp makeOneLValueExp_TwoIntArraySubscript(
-    mySymbol arrayName, myExp subscript1, myExp subscript2)
-{
-    return makeMyLValue(makeOnePos(), arrayName,
-        makeMyLValueAux(NULL,
-            subscript1,
-            makeMyLValueAux(NULL,
-            subscript2,
-            NULL)));
-}
-
-myType makeOneArray_StringArrayArray(void)
-{
-    return makeType_Array(makeType_Array(makeType_String()));
-}
-
-myType makeAndAddOneType_NoFieldRecord(myTable typeEnv, mySymbol recordTypeName)
-{
-    myType recordType = makeType_Record(makeType_TypeFieldList(NULL, NULL));
-    MyEnvironment_addNewType(typeEnv, recordTypeName, recordType);
-    return recordType;
+    return MySemantic_Dec_Func_Function_OnePass(varAndFuncEnv, typeEnv, functionDec) &&
+        MySemantic_Dec_Func_Function_TwoPass(varAndFuncEnv, typeEnv, functionDec);
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -1561,7 +1496,7 @@ void test_MySemanticNegationExp_LegalExp_ReturnIntType(void)
 
 /////////////////////////////////////////////////////////////////////////////
 
-void test_MySemanticDecTypeNamed_NamedTypeNotDefined_TypeNotAdd(void)
+void test_MySemanticDecTypeNamed_NamedTypeNotDefined_ReturnFalse(void)
 {
     myTable typeEnv = myEnvironment_BaseType();
     mySymbol undefinedTypeName = MySymbol_MakeSymbol("undefined");
@@ -1570,12 +1505,10 @@ void test_MySemanticDecTypeNamed_NamedTypeNotDefined_TypeNotAdd(void)
     bool result = MySemantic_Dec_Type_Named(
         typeEnv, typeName , undefinedTypeName);
 
-    bool typeNotAdd = MyEnvironment_getTypeFromName(typeEnv, typeName) == NULL; 
     CU_ASSERT_EQUAL(result, false);
-    CU_ASSERT(typeNotAdd);
 }
 
-void test_MySemanticDecTypeNamed_NamedTypeOfBuildInt_AddedTypeIsInt(void)
+void test_MySemanticDecTypeNamed_NamedTypeOfBuildInt_AddedActualTypeIsInt(void)
 {
     myTable typeEnv = myEnvironment_BaseType();
     mySymbol newTypeName = MySymbol_MakeSymbol("newType");
@@ -1586,7 +1519,7 @@ void test_MySemanticDecTypeNamed_NamedTypeOfBuildInt_AddedTypeIsInt(void)
     myType expectedType = MyEnvironment_getTypeFromName(typeEnv, buildIntTypeName);
     myType actualType = MyEnvironment_getTypeFromName(typeEnv, newTypeName);
     CU_ASSERT_EQUAL(result, true);
-    CU_ASSERT_EQUAL(expectedType, actualType);
+    CU_ASSERT_EQUAL(expectedType, actualType->u.typeNamed->type);
 }
 
 void test_MySemanticDecTypeNamed_NamedTypeOfNamedOne_AddedTypeIsNamedActualType(void)
@@ -1602,12 +1535,12 @@ void test_MySemanticDecTypeNamed_NamedTypeOfNamedOne_AddedTypeIsNamedActualType(
     myType actualType = MyEnvironment_getTypeFromName(typeEnv, newTypeName);
     myType expectedType = MyEnvironment_getTypeFromName(typeEnv, buildIntTypeName);
     CU_ASSERT_EQUAL(result, true);
-    CU_ASSERT_EQUAL(expectedType, actualType);
+    CU_ASSERT_EQUAL(expectedType, actualType->u.typeNamed->type->u.typeNamed->type);
 }
 
 /////////////////////////////////////////////////////////////////////////////
 
-void test_MySemanticDecTypeRecord_FieldTypeNotDefined_TypeNotAdd(void)
+void test_MySemanticDecTypeRecord_FieldTypeNotDefined_ReturnFalse(void)
 {
     myTable typeEnv = myEnvironment_BaseType();
     mySymbol varName = makeOneSymbol();
@@ -1617,9 +1550,7 @@ void test_MySemanticDecTypeRecord_FieldTypeNotDefined_TypeNotAdd(void)
 
     bool result = MySemantic_Dec_Type_Record(typeEnv, recordTypeName, tyFields);
 
-    bool recordNotAdd = MyEnvironment_getTypeFromName(typeEnv, recordTypeName) == NULL; 
     CU_ASSERT_EQUAL(result, false);
-    CU_ASSERT(recordNotAdd);
 }
 
 void test_MySemanticDecTypeRecord_LegalParam_AddOneRecordType(void)
@@ -1639,7 +1570,7 @@ void test_MySemanticDecTypeRecord_LegalParam_AddOneRecordType(void)
 
 /////////////////////////////////////////////////////////////////////////////
 
-void test_MySemanticDecTypeArray_ElementTypeNotDefined_TypeNotAdd(void)
+void test_MySemanticDecTypeArray_ElementTypeNotDefined_ReturnFalse(void)
 {
     myTable typeEnv = myEnvironment_BaseType();
     mySymbol newTypeName = MySymbol_MakeSymbol("newTypeName");
@@ -1647,9 +1578,7 @@ void test_MySemanticDecTypeArray_ElementTypeNotDefined_TypeNotAdd(void)
 
     bool result = MySemantic_Dec_Type_Array(typeEnv, newTypeName, elementTypeName);
 
-    bool typeNotAdd = MyEnvironment_getTypeFromName(typeEnv, newTypeName) == NULL;
     CU_ASSERT_EQUAL(result, false);
-    CU_ASSERT(typeNotAdd);
 }
 
 void test_MySemanticDecTypeArray_LegalParam_TypeAdded(void)
@@ -1817,23 +1746,23 @@ void test_MySemanticDecVarLongForm_NilValueOfRecordType_Succeed(void)
 /////////////////////////////////////////////////////////////////////////////
 
 //  forwards
-void test_IllegalProcedureDec_ReturnFalseAndFuncNotAdd(
+void test_IllegalProcedureDec_ReturnFalse(
     myTyFieldList funcFields, myExp funcBody);
 
 ///////////////
 
-void test_MySemanticDecFuncProcedure_ParamTypeNotDefined_ReturnFalseAndFuncNotAdd(void)
+void test_MySemanticDecFuncProcedure_ParamTypeNotDefined_ReturnFalse(void)
 {
     mySymbol notDefinedFieldTypeName = makeOneSymbol();
     myTyFieldList funcFields = makeMyTyFieldList(makeMyTyField(
         makeOneSymbol(), notDefinedFieldTypeName),
         NULL);
 
-    test_IllegalProcedureDec_ReturnFalseAndFuncNotAdd(
+    test_IllegalProcedureDec_ReturnFalse(
         funcFields, makeOneExp_NoValue());
 }
 
-void test_MySemanticDecFuncProcedure_BodyExpNotLegal_ReturnFalseAndFuncNotAdd(void)
+void test_MySemanticDecFuncProcedure_BodyExpNotLegal_ReturnFalse(void)
 {
     mySymbol fieldTypeName = MySymbol_MakeSymbol("int");
     myTyFieldList funcFields = makeMyTyFieldList(makeMyTyField(
@@ -1841,11 +1770,11 @@ void test_MySemanticDecFuncProcedure_BodyExpNotLegal_ReturnFalseAndFuncNotAdd(vo
         NULL);
     myExp illegalBodyExp = makeOneIllegalExp_Integer(); 
 
-    test_IllegalProcedureDec_ReturnFalseAndFuncNotAdd(
+    test_IllegalProcedureDec_ReturnFalse(
         funcFields, illegalBodyExp);
 }
 
-void test_MySemanticDecFuncProcedure_BodyExpNotNoReturn_ReturnFalseAndFuncNotAdd(void)
+void test_MySemanticDecFuncProcedure_BodyExpNotNoReturn_ReturnFalse(void)
 {
     mySymbol fieldTypeName = MySymbol_MakeSymbol("int");
     myTyFieldList funcFields = makeMyTyFieldList(makeMyTyField(
@@ -1853,7 +1782,7 @@ void test_MySemanticDecFuncProcedure_BodyExpNotNoReturn_ReturnFalseAndFuncNotAdd
         NULL);
     myExp bodyExpNotNoReturn = makeOneExp_Integer();
 
-    test_IllegalProcedureDec_ReturnFalseAndFuncNotAdd(
+    test_IllegalProcedureDec_ReturnFalse(
         funcFields, bodyExpNotNoReturn);
 }
 
@@ -1928,7 +1857,7 @@ void test_MySemanticDecFuncProcedure_LegalDec_FuncAdded(void)
 }
 
 //  a parameterized test
-void test_IllegalProcedureDec_ReturnFalseAndFuncNotAdd(
+void test_IllegalProcedureDec_ReturnFalse(
     myTyFieldList funcFields, myExp funcBody)
 {
     myTable varAndFuncEnv = myEnvironment_BaseVarAndFunc();
@@ -1940,10 +1869,7 @@ void test_IllegalProcedureDec_ReturnFalseAndFuncNotAdd(
     bool result = 
         MySemantic_Dec_Func_Procedure(varAndFuncEnv, typeEnv, procedureDec);
 
-    bool funcNotAdd =
-        MyEnvironment_getVarOrFuncFromName(varAndFuncEnv, funcName) == NULL;
     CU_ASSERT_EQUAL(result, false);
-    CU_ASSERT_EQUAL(funcNotAdd, true);
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -2216,7 +2142,7 @@ void test_MySemanticDecs_DecsContainslegalDec_ReturnTrueAndDecsAdded(void)
     CU_ASSERT(myEnvironment_isFuncEntry(funcEntry));
     CU_ASSERT(isTypeString(MyEnvironment_getFuncReturnType(funcEntry)));
     CU_ASSERT(myEnvironment_isVarEntry(varEntry));
-    CU_ASSERT(isTypeInt(type));
+    CU_ASSERT(isTypeInt(type->u.typeNamed->type));
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -2451,14 +2377,14 @@ int main (int argc, char* argv[])
         { "", test_MySemanticNegationExp_ExpNotInt_ReturnNull },
         { "", test_MySemanticNegationExp_LegalExp_ReturnIntType },
 
-        { "", test_MySemanticDecTypeNamed_NamedTypeNotDefined_TypeNotAdd },
-        { "", test_MySemanticDecTypeNamed_NamedTypeOfBuildInt_AddedTypeIsInt },
+        { "", test_MySemanticDecTypeNamed_NamedTypeNotDefined_ReturnFalse },
+        { "", test_MySemanticDecTypeNamed_NamedTypeOfBuildInt_AddedActualTypeIsInt },
         { "", test_MySemanticDecTypeNamed_NamedTypeOfNamedOne_AddedTypeIsNamedActualType },
 
-        { "", test_MySemanticDecTypeRecord_FieldTypeNotDefined_TypeNotAdd },
+        { "", test_MySemanticDecTypeRecord_FieldTypeNotDefined_ReturnFalse },
         { "", test_MySemanticDecTypeRecord_LegalParam_AddOneRecordType },
 
-        { "", test_MySemanticDecTypeArray_ElementTypeNotDefined_TypeNotAdd },
+        { "", test_MySemanticDecTypeArray_ElementTypeNotDefined_ReturnFalse },
         { "", test_MySemanticDecTypeArray_LegalParam_TypeAdded },
 
         { "", test_MySemanticDecVarShortForm_IllegalValueExp_ReturnFalse },
@@ -2472,9 +2398,9 @@ int main (int argc, char* argv[])
         { "", test_MySemanticDecVarLongForm_LegalParam_VarAdded },
         { "", test_MySemanticDecVarLongForm_NilValueOfRecordType_Succeed },
 
-        { "", test_MySemanticDecFuncProcedure_ParamTypeNotDefined_ReturnFalseAndFuncNotAdd },
-        { "", test_MySemanticDecFuncProcedure_BodyExpNotLegal_ReturnFalseAndFuncNotAdd },
-        { "", test_MySemanticDecFuncProcedure_BodyExpNotNoReturn_ReturnFalseAndFuncNotAdd },
+        { "", test_MySemanticDecFuncProcedure_ParamTypeNotDefined_ReturnFalse },
+        { "", test_MySemanticDecFuncProcedure_BodyExpNotLegal_ReturnFalse },
+        { "", test_MySemanticDecFuncProcedure_BodyExpNotNoReturn_ReturnFalse },
         { "", test_MySemanticDecFuncProcedure_LegalDec_ReturnTrue },
         { "", test_MySemanticDecFuncProcedure_LegalDec_FuncAdded },
         { "", test_MySemanticDecFuncProcedure_LegalDec_FormalsCanBeUsedInBody },

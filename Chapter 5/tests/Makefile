@@ -17,3 +17,5 @@ retest-all:
 	cd ..
 	cd recursiveDecs && $(MAKE) retest
 	cd ..
+	cd mySymbol && $(MAKE) retest
+	cd ..

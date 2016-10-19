@@ -1,6 +1,6 @@
 OBJECTS := test_recursiveDecs.o mySemantic.o myEnvironment.o\
 	mySymbol.o typeMaker.o makeMemory.o myTable.o abstractSyntaxMaker.o\
-	myError.o typeChecker.o testHelper.o recursiveDecs.o
+	myError.o typeChecker.o testHelper.o recursiveDecs.o testFixture.o
 
 COMPILE_FLAGS := gcc -g -c -std=c99
 ADDITIONAL_LIB := -L/home/lgxZJ/Libraries/CUnit/lib

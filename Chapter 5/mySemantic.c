@@ -31,7 +31,7 @@ myTranslationAndType MySemantic_LValueExp(
 
 //  DO:
 //      analyze if this expression fits its semantic
-static bool isExpLegal(
+bool isExpLegal(
     myTable varAndFuncEnv, myTable typeEnv, myExp exp)
 {
     assert (varAndFuncEnv && typeEnv && exp);
@@ -43,7 +43,7 @@ static bool isExpLegal(
     else                            return true;
 }
 
-static bool isExpOneTypeOrIllegal(
+bool isExpOneTypeOrIllegal(
     myTable varAndFuncEnv, myTable typeEnv,
     myExp exp, enum TypeKind kind)
 {
@@ -68,7 +68,7 @@ static bool isExpInt(myTable varAndFuncEnv, myTable typeEnv, myExp exp)
     return isExpOneTypeOrIllegal(varAndFuncEnv, typeEnv, exp, TypeInt);
 }
 
-static bool isExpNoReturn(myTable varAndFuncEnv, myTable typeEnv, myExp exp)
+bool isExpNoReturn(myTable varAndFuncEnv, myTable typeEnv, myExp exp)
 {
     return isExpOneTypeOrIllegal(varAndFuncEnv, typeEnv, exp, TypeNoReturn);
 }
@@ -239,7 +239,7 @@ static bool isFuncDefined(myTable varAndFuncEnv, mySymbol funcSymbol)
         return true;
 }
 
-static bool isTypeDefined(myTable typeEnv, mySymbol typeName)
+bool isTypeDefined(myTable typeEnv, mySymbol typeName)
 {
     assert (typeEnv && typeName);
 
@@ -247,7 +247,7 @@ static bool isTypeDefined(myTable typeEnv, mySymbol typeName)
 }
 
 //  NOTE:   type must already be defined.
-static myType getActualTypeFromName(myTable typeEnv, mySymbol typeName)
+myType getActualTypeFromName(myTable typeEnv, mySymbol typeName)
 {
     myType type = MyEnvironment_getTypeFromName(typeEnv, typeName);
     while(isTypeNamed(type))
@@ -2268,9 +2268,6 @@ bool MySemantic_Dec(myTable varAndFuncEnv, myTable typeEnv, myDec dec)
     }
 }
 
-//  forwards
-bool detectConsecutivelySameDecs(myDecList decs);
-
 //  FORM:
 //      decs -> {dec}
 //  DO:
@@ -2283,98 +2280,7 @@ bool detectConsecutivelySameDecs(myDecList decs);
 bool MySemantic_Decs(
     myTable varAndFuncEnv, myTable typeEnv, myDecList decs)
 {
-    if (detectConsecutivelySameDecs(decs))
-        return false;
-
-    while (decs)
-    {
-        if(!MySemantic_Dec(varAndFuncEnv, typeEnv, decs->dec))
-            return false;
-        decs = decs->next;
-    }
-    return true;
-}
-
-mySymbol getNameFromFuncDec(myFuncDec dec)
-{
-    switch (dec->kind)
-    {
-        case FunctionDec:   return dec->u.functionDec->name;
-        case ProcedureDec:  return dec->u.procedureDec->name;
-        default:            assert (false);
-    }
-}
-
-mySymbol getNameFromDec(myDec dec)
-{
-    switch (dec->kind)
-    {
-        case TypeDec:
-            return dec->u.tyDec->name;
-        case FuncDec:
-            return getNameFromFuncDec(dec->u.funcDec);
-        default:    assert (false);
-    }
-}
-
-bool detectConsecutivelySameFuncOrTypeDec(
-    myDec dec, enum myDecKind* formerDecKind, mySymbol* formerDecName)
-{
-    enum myDecKind thisDecKind = dec->kind;
-    mySymbol       thisDecName = getNameFromDec(dec);
-
-    if (*formerDecKind == thisDecKind &&
-        MySymbol_IsSymbolEqual(*formerDecName, thisDecName))
-    {
-        MyError_pushErrorCodeWithMsg(ERROR__RECURSIVE__ILLEGAL,
-            MySymbol_GetName(thisDecName));
-        return true;
-    }
-    else
-    {
-        *formerDecKind = thisDecKind;
-        *formerDecName = thisDecName;
-        return false;
-    }
-}
-
-/////////////////////////////////////////////////////////
-
-static enum myDecKind g_formerDecKind = None;
-static mySymbol       g_formerDecName = NULL;
-
-void resetDetectState(void)
-{
-    g_formerDecKind = None;
-    g_formerDecName = NULL;
-}
-
-bool detectConsecutivelySameDec(myDec dec)
-{
-    if (dec->kind == VarDec)
-    {
-        g_formerDecKind = None;
-        g_formerDecName = NULL;
-        return false;
-    }
-
-    return detectConsecutivelySameFuncOrTypeDec(
-        dec, &g_formerDecKind, &g_formerDecName);
-}
-
-bool detectConsecutivelySameDecs(myDecList decs)
-{
-    while (decs)
-    {
-        if (detectConsecutivelySameDec(decs->dec))
-        {
-            resetDetectState();
-            return true;
-        }
-        decs = decs->next;
-    }
-    resetDetectState();
-    return false;
+    return MySemantic_Decs_Recursive(varAndFuncEnv, typeEnv, decs);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
