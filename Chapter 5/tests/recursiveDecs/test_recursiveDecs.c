@@ -1,6 +1,6 @@
 #include "../testHelper.h"
 
-#include "../../recursiveFile.h"
+#include "../../recursiveDecs.h"
 #include "../../myEnvironment.h"
 #include "../../abstractSyntaxMaker.h"
 #include "../../typeChecker.h"

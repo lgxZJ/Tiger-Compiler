@@ -15,3 +15,5 @@ retest-all:
 	cd ..
 	cd typeMaker && $(MAKE) retest
 	cd ..
+	cd recursiveDecs && $(MAKE) retest
+	cd ..

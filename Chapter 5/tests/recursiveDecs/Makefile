@@ -1,6 +1,6 @@
-OBJECTS := test_recursiveFile.o mySemantic.o myEnvironment.o\
+OBJECTS := test_recursiveDecs.o mySemantic.o myEnvironment.o\
 	mySymbol.o typeMaker.o makeMemory.o myTable.o abstractSyntaxMaker.o\
-	myError.o typeChecker.o testHelper.o recursiveFile.o
+	myError.o typeChecker.o testHelper.o recursiveDecs.o
 
 COMPILE_FLAGS := gcc -g -c -std=c99
 ADDITIONAL_LIB := -L/home/lgxZJ/Libraries/CUnit/lib
@@ -14,7 +14,7 @@ all : $(OBJECTS)
 # make rules
 %.o : %.c
 	$(COMPILE_FLAGS) $(ADDITIONAL_INCLUDE) $<
-recursiveFile.o : recursiveFile.c
+recursiveDecs.o : recursiveDecs.c
 	$(COMPILE_FLAGS) -fprofile-arcs -ftest-coverage $(ADDITIONAL_INCLUDE) $<
 
 .PHONY: clean run show-coverage rebuild

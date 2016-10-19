@@ -31,7 +31,7 @@ static char* g_errorStrings[] = {
         "subscript of Array-Creation not type int!",
         "initial value of Array-Creation is not element type!",
 
-        "type of Record-Creation not record!",
+        "type of Record-Creation not defined as record!",
         "type of Record-Creation not defined!",
         "names or types of fileds of Record-Creation not match!",
 
@@ -78,7 +78,9 @@ static char* g_errorStrings[] = {
 
         "expression type of Negative not int!",
 
-        "parameter types of Function-Call not match!" 
+        "parameter types of Function-Call not match!",
+
+        "illegal recursive types!"
 };
 
 
