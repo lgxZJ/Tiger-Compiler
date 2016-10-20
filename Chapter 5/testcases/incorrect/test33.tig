@@ -1,0 +1,6 @@
+/*	illegal break(not inside loop)	*/
+let
+in
+	if (1) then break
+end
+

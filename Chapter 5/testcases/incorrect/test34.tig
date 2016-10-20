@@ -1,0 +1,5 @@
+/*	illegal break(not inside loop)	*/
+let
+in
+	(1;2;2;3;break)
+end
