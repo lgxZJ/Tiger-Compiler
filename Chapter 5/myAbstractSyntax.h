@@ -92,7 +92,7 @@ typedef PosInfo myPos;
 	 union
 	 {
 		mySymbol		typeName;
-		myTyFieldList		tyFieldList;
+		myTyFieldList	tyFieldList;
 		mySymbol		arrayTypeName;
 	 }u;
  };
@@ -190,7 +190,7 @@ typedef	myTyDec		myTypeDec;
  
 struct myDec_
 {
-	enum myDecKind { TypeDec, VarDec, FuncDec }	kind;
+	enum myDecKind { TypeDec, VarDec, FuncDec, None }	kind;
 	myPos	pos;
 	union 
 	{

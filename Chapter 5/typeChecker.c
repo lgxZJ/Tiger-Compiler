@@ -56,7 +56,7 @@ bool isRecordEqual_(myTypeRecord lhs, myTypeRecord rhs)
 //  DO:
 //      1.check actual type.
 bool isNamedEqual_(myTypeNamed lhs, myTypeNamed rhs)
-{
+{// todo:   actual type
     return isTypeEqual(lhs->type, rhs->type);
 }
 

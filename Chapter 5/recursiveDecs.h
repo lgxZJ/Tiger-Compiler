@@ -4,7 +4,6 @@
 #include "myTypes.h"
 #include "myAbstractSyntax.h"
 
-bool MySemantic_Decs_Recursive(
-    myTable varAndFuncEnv, myTable typeEnv, myDecList decs);
+bool MySemantic_Decs_Recursive(myDecList decs);
 
 #endif

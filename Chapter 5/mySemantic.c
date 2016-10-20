@@ -20,11 +20,10 @@
 
 
 //  forwards
-myType getExpActualResultType(myTable varAndFuncEnv, myTable typeEnv, myExp exp);
+myType getExpActualResultType(myExp exp);
 static myType getActualType(myType type);
-myType getActualTypeFromName(myTable typeEnv, mySymbol typeName);
-myTranslationAndType MySemantic_LValueExp(
-    myTable varAndFuncEnv, myTable typeEnv, myLValueExp lValueExp);
+myType getActualTypeFromName(mySymbol typeName);
+myTranslationAndType MySemantic_LValueExp(myLValueExp lValueExp);
 
 ////////////////////////////////////////////////////////////////////////
 //
@@ -32,26 +31,22 @@ myTranslationAndType MySemantic_LValueExp(
 
 //  DO:
 //      analyze if this expression fits its semantic
-bool isExpLegal(
-    myTable varAndFuncEnv, myTable typeEnv, myExp exp)
+bool isExpLegal(myExp exp)
 {
-    assert (varAndFuncEnv && typeEnv && exp);
+    assert (exp);
 
-    myTranslationAndType result = 
-        MySemantic_Exp(varAndFuncEnv, typeEnv, exp);
+    myTranslationAndType result = MySemantic_Exp(exp);
         
     if (result == SEMANTIC_ERROR)   return false;
     else                            return true;
 }
 
-bool isExpOneTypeOrIllegal(
-    myTable varAndFuncEnv, myTable typeEnv,
-    myExp exp, enum TypeKind kind)
+bool isExpOneTypeOrIllegal(myExp exp, enum TypeKind kind)
 {
-    assert (varAndFuncEnv && typeEnv && exp);
+    assert (exp);
 
     myTranslationAndType result = 
-        MySemantic_Exp(varAndFuncEnv, typeEnv, exp);
+        MySemantic_Exp(exp);
     if (result == SEMANTIC_ERROR)     return false;
 
     myType expActualType = getActualType(result->type);
@@ -64,58 +59,53 @@ bool isExpOneTypeOrIllegal(
     }
 }
 
-static bool isExpInt(myTable varAndFuncEnv, myTable typeEnv, myExp exp)
+static bool isExpInt(myExp exp)
 {
-    return isExpOneTypeOrIllegal(varAndFuncEnv, typeEnv, exp, TypeInt);
+    return isExpOneTypeOrIllegal(exp, TypeInt);
 }
 
-bool isExpNoReturn(myTable varAndFuncEnv, myTable typeEnv, myExp exp)
+bool isExpNoReturn(myExp exp)
 {
-    return isExpOneTypeOrIllegal(varAndFuncEnv, typeEnv, exp, TypeNoReturn);
+    return isExpOneTypeOrIllegal(exp, TypeNoReturn);
 }
 
 //  NOTE:   array type named arrayTypeName must be valid. 
 static bool isExpThisArrayElement(
-    myTable varAndFuncEnv, myTable typeEnv,
     myExp exp, mySymbol arrayTypeName)
 {
     assert (exp && arrayTypeName);
 
     myType arrayElementType = getActualType(
-        getActualTypeFromName(typeEnv, arrayTypeName)
+        getActualTypeFromName(arrayTypeName)
         ->u.typeArray->type);
     myType initialExpType = getActualType(
-        MySemantic_Exp(varAndFuncEnv, typeEnv, exp)->type); 
+        MySemantic_Exp(exp)->type); 
     return isTypeEqual(arrayElementType, initialExpType);
 }
 
-bool isLValueExpLegal(
-    myTable varAndFuncEnv, myTable typeEnv, myLValueExp lValueExp)
+bool isLValueExpLegal(myLValueExp lValueExp)
 {
     myTranslationAndType result =
-        MySemantic_LValueExp(varAndFuncEnv, typeEnv, lValueExp);
+        MySemantic_LValueExp(lValueExp);
     return result != SEMANTIC_ERROR;
 }
 
 //  NOTE:   expression must ba valid.
-myType getExpActualResultType(myTable varAndFuncEnv, myTable typeEnv, myExp exp)
+myType getExpActualResultType(myExp exp)
 {
-    assert (varAndFuncEnv && typeEnv && exp);
+    assert (exp);
 
-    myTranslationAndType result =
-        MySemantic_Exp(varAndFuncEnv, typeEnv, exp);
+    myTranslationAndType result = MySemantic_Exp(exp);
     assert (result != SEMANTIC_ERROR);
 
     return getActualType(result->type);
 }
 
-myType getLValueExpActualResultType(
-    myTable varAndFuncEnv, myTable typeEnv, myLValueExp  lValueExp)
+myType getLValueExpActualResultType(myLValueExp  lValueExp)
 {
-    assert (varAndFuncEnv && typeEnv && lValueExp);
+    assert (lValueExp);
 
-    myTranslationAndType result =
-        MySemantic_LValueExp(varAndFuncEnv, typeEnv, lValueExp);
+    myTranslationAndType result = MySemantic_LValueExp(lValueExp);
     assert (result != SEMANTIC_ERROR);
 
     return getActualType(result->type);
@@ -146,49 +136,53 @@ myTranslationAndType make_MyTranslationAndType(
 
 //  NOTE:
 //      must be called after isVariableDeclared or isFuncDefined.
-static myVarAndFuncEntry getVarOrFuncFromName(myTable varAndFuncEnv, mySymbol symbol)
+static myVarAndFuncEntry getVarOrFuncFromName(mySymbol symbol)
 {
-    assert (varAndFuncEnv && symbol);
+    assert (symbol);
+    myTable varAndFuncEnv = MySemantic_getVarAndFuncEnvironment();
     return MyEnvironment_getVarOrFuncFromName(varAndFuncEnv, symbol);
 }
 
 //  NOTE:
 //      must be called after isVariableDeclared.
-static myType getVariableType(myTable varAndFuncEnv, mySymbol variableName)
+static myType getVariableType(mySymbol variableName)
 {
-    assert (varAndFuncEnv && variableName);
+    assert (variableName);
 
+    myTable varAndFuncEnv = MySemantic_getVarAndFuncEnvironment();
     return MyEnvironment_getVarType(
         MyEnvironment_getVarOrFuncFromName(varAndFuncEnv, variableName));
 }
 
 //  NOTE:
 //      must be called after isFuncDefined.
-static myType getFunctionReturnType(myTable varAndFuncEnv, mySymbol functionName)
+static myType getFunctionReturnType(mySymbol functionName)
 {
-    assert (varAndFuncEnv && functionName);
+    assert (functionName);
 
+    myTable varAndFuncEnv = MySemantic_getVarAndFuncEnvironment();
     return MyEnvironment_getFuncReturnType(
         MyEnvironment_getVarOrFuncFromName(varAndFuncEnv, functionName));
 }
 
 //  NOTE:
 //      must be called after isFuncDefined.
-static myTypeList getFunctionFormalTypes(
-    myTable varAndFuncEnv, mySymbol functionName)
+static myTypeList getFunctionFormalTypes(mySymbol functionName)
 {
-    assert (varAndFuncEnv && functionName);
+    assert (functionName);
 
+    myTable varAndFuncEnv = MySemantic_getVarAndFuncEnvironment();
     return MyEnvironment_getFuncFormalTypes(
         MyEnvironment_getVarOrFuncFromName(varAndFuncEnv, functionName));
 }
 
 ///////////////////////////////////////////////////////////////////
 
-static bool isVariableDeclared(myTable varAndFuncEnv, mySymbol variableName)
+static bool isVariableDeclared(mySymbol variableName)
 {
-    assert (varAndFuncEnv && variableName);
+    assert (variableName);
 
+    myTable varAndFuncEnv = MySemantic_getVarAndFuncEnvironment();
     myVarAndFuncEntry entry = 
         MyEnvironment_getVarOrFuncFromName(varAndFuncEnv, variableName);
 
@@ -198,10 +192,11 @@ static bool isVariableDeclared(myTable varAndFuncEnv, mySymbol variableName)
         return true;
 }
 
-static bool isFuncDefined(myTable varAndFuncEnv, mySymbol funcSymbol)
+static bool isFuncDefined(mySymbol funcSymbol)
 {
-    assert (varAndFuncEnv && funcSymbol);
+    assert (funcSymbol);
 
+    myTable varAndFuncEnv = MySemantic_getVarAndFuncEnvironment();
     myVarAndFuncEntry entry = 
         MyEnvironment_getVarOrFuncFromName(varAndFuncEnv, funcSymbol);
 
@@ -211,10 +206,11 @@ static bool isFuncDefined(myTable varAndFuncEnv, mySymbol funcSymbol)
         return true;
 }
 
-bool isTypeDefined(myTable typeEnv, mySymbol typeName)
+bool isTypeDefined(mySymbol typeName)
 {
-    assert (typeEnv && typeName);
+    assert (typeName);
 
+    myTable typeEnv = MySemantic_getTypeEnvironment();
     return MyEnvironment_getTypeFromName(typeEnv, typeName) != NULL;
 }
 
@@ -228,8 +224,9 @@ static myType getActualType(myType type)
 }
 
 //  NOTE:   type must already be defined.
-myType getActualTypeFromName(myTable typeEnv, mySymbol typeName)
+myType getActualTypeFromName(mySymbol typeName)
 {
+    myTable typeEnv = MySemantic_getTypeEnvironment();
     myType type = MyEnvironment_getTypeFromName(typeEnv, typeName);
     return getActualType(type);
 }
@@ -249,11 +246,13 @@ myTable g_typeEnv = NULL;
 
 void MySemantic_setVarAndFuncEnvironment(myTable varAndFuncEnv)
 {
+    assert (varAndFuncEnv);
     g_varAndFuncEnv = varAndFuncEnv;
 }
 
 void MySemantic_setTypeEnvironment(myTable typeEnv)
 {
+    assert (typeEnv);
     g_typeEnv = typeEnv;
 }
 
@@ -273,11 +272,11 @@ myTable MySemantic_getTypeEnvironment(void)
 
 
 myTranslationAndType MySemantic_LValueExp_SimpleVar(
-    myTable varAndFuncEnv, myLValueExp lValueExp);
+    myLValueExp lValueExp);
 myTranslationAndType MySemantic_LValueExp_RecordField(
-    myTable varAndFuncEnv, myTable typeEnv, myLValueExp lValueExp);
+    myLValueExp lValueExp);
 myTranslationAndType MySemantic_LValueExp_ArraySubscript(
-    myTable varAndFuncEnv, myTable typeEnv, myLValueExp lValueExp);
+    myLValueExp lValueExp);
 
 //  FORM:
 //    ->  id
@@ -301,18 +300,18 @@ myTranslationAndType MySemantic_LValueExp_ArraySubscript(
  *              MySemantic_LValueExp_SimpleVar.
  */
 myTranslationAndType MySemantic_LValueExp(
-    myTable varAndFuncEnv, myTable typeEnv, myLValueExp lValueExp)
+    myLValueExp lValueExp)
 {
     switch (lValueExp->kind)
     {
         case SimpleVar:
-            return MySemantic_LValueExp_SimpleVar(varAndFuncEnv, lValueExp);
+            return MySemantic_LValueExp_SimpleVar(lValueExp);
             break;
         case RecordField:
-            return MySemantic_LValueExp_RecordField(varAndFuncEnv, typeEnv, lValueExp);
+            return MySemantic_LValueExp_RecordField(lValueExp);
             break;
         case ArraySubscript:
-            return MySemantic_LValueExp_ArraySubscript(varAndFuncEnv, typeEnv, lValueExp);
+            return MySemantic_LValueExp_ArraySubscript(lValueExp);
             break;
     }
 }
@@ -338,9 +337,9 @@ myTranslationAndType MySemantic_LValueExp(
  *  @note       Tested.
  */
 myTranslationAndType MySemantic_LValueExp_SimpleVar(
-    myTable varAndFuncEnv, myLValueExp lValueExp)
+    myLValueExp lValueExp)
 {
-    if (!isVariableDeclared(varAndFuncEnv, lValueExp->id))
+    if (!isVariableDeclared(lValueExp->id))
     {
         MyError_pushErrorCodeWithMsg(
             ERROR__LVALUE_SIMPLE_VAR__VAR_NOT_DECLARED,
@@ -349,21 +348,21 @@ myTranslationAndType MySemantic_LValueExp_SimpleVar(
     }
     
     return make_MyTranslationAndType(NULL, 
-        getVariableType(varAndFuncEnv, lValueExp->id));
+        getVariableType(lValueExp->id));
 }
 
 ///////////////////////////////////////////////
 
 //  forward declarations
-bool isVariableRecordType(myTable typeEnv, mySymbol variableName);
+bool isVariableRecordType(mySymbol variableName);
 myType typeContainsLValueAux(
-    myTable varAndFuncEnv, myTable typeEnv, myType type, myLValueAux aux);
+    myType type, myLValueAux aux);
 static myType arrayContainsLValueAux(
-    myTable varAndFuncEnv, myTable typeEnv, myType type, myLValueAux aux);
+    myType type, myLValueAux aux);
 static myType analyzeRecordFields(
-    myTable varAndFuncEnv, myTable typeEnv, myLValueExp lValueExp);
+    myLValueExp lValueExp);
 static myType recordContainsLValueAux(
-    myTable varAndFuncEnv, myTable typeEnv, myType type, myLValueAux aux);
+    myType type, myLValueAux aux);
 void processRecordFieldErrors(
     bool isVarDeclared, bool isVarAnRecord, mySymbol recordVarName);
 
@@ -389,19 +388,19 @@ void processRecordFieldErrors(
  *  @note       Tested.
  */
 myTranslationAndType MySemantic_LValueExp_RecordField(
-    myTable varAndFuncEnv, myTable typeEnv, myLValueExp lValueExp)
+    myLValueExp lValueExp)
 {
     mySymbol recordVarName = lValueExp->id;
 
-    bool isVarDeclared = isVariableDeclared(varAndFuncEnv, recordVarName);
+    bool isVarDeclared = isVariableDeclared(recordVarName);
     bool isVarAnRecord = false;
     
     if (isVarDeclared)
-        isVarAnRecord = isVariableRecordType(varAndFuncEnv, recordVarName);
+        isVarAnRecord = isVariableRecordType(recordVarName);
     if (isVarDeclared && isVarAnRecord)
     {
         myType returnType =
-            analyzeRecordFields(varAndFuncEnv, typeEnv, lValueExp);
+            analyzeRecordFields(lValueExp);
         //  analysis error!
         if (returnType == SEMANTIC_ERROR)
             return SEMANTIC_ERROR;
@@ -415,9 +414,9 @@ myTranslationAndType MySemantic_LValueExp_RecordField(
 }
 
 
-bool isVariableRecordType(myTable varAndFuncEnv, mySymbol variableName)
+bool isVariableRecordType(mySymbol variableName)
 {
-     myVarAndFuncEntry entry = getVarOrFuncFromName(varAndFuncEnv, variableName);
+     myVarAndFuncEntry entry = getVarOrFuncFromName(variableName);
      myType actualVarType = getActualType(MyEnvironment_getVarType(entry));
      return isTypeRecord(MyEnvironment_getVarType(entry));
 }
@@ -441,18 +440,18 @@ void processRecordFieldErrors(
 //      return NULL if analyze fails.
 //      return type of the last field if succeed.
 static myType analyzeRecordFields(
-    myTable varAndFuncEnv, myTable typeEnv, myLValueExp lValueExp)
+    myLValueExp lValueExp)
 {
     assert (lValueExp);
 
     myRecordFieldAux fieldAux = lValueExp->u.recordFieldAux;
     myType typeOfRecord = makeType_Record(
-        getVariableType(varAndFuncEnv, lValueExp->id)
+        getVariableType(lValueExp->id)
             ->u.typeRecord->fieldList); 
     myLValueAux aux = makeMyLValueAux(
         fieldAux->id, NULL, fieldAux->next);
 
-    return typeContainsLValueAux(varAndFuncEnv, typeEnv, typeOfRecord, aux);
+    return typeContainsLValueAux(typeOfRecord, aux);
 }
 
 /**
@@ -472,14 +471,14 @@ static myType analyzeRecordFields(
  *  @note       Tested.
  */
 myType typeContainsLValueAux(
-    myTable varAndFuncEnv, myTable typeEnv, myType type, myLValueAux aux)
+    myType type, myLValueAux aux)
 { 
     switch (type->kind)
     {
         case TypeArray:
-            return arrayContainsLValueAux(varAndFuncEnv, typeEnv, type, aux);
+            return arrayContainsLValueAux(type, aux);
         case TypeRecord:
-            return recordContainsLValueAux(varAndFuncEnv, typeEnv, type, aux);
+            return recordContainsLValueAux(type, aux);
         default:    //  never goes here
             assert(false);
     }
@@ -488,7 +487,7 @@ myType typeContainsLValueAux(
 //  check whether field name in `aux` can be found inside record type.
 //  return NULL for checking error.
 static myType recordContainsLValueAux(
-    myTable varAndFuncEnv, myTable typeEnv, myType type, myLValueAux aux)
+    myType type, myLValueAux aux)
 {
     assert (isTypeRecord(type));
     assert (getLValueKind(aux) == RecordField);
@@ -515,7 +514,7 @@ static myType recordContainsLValueAux(
     else    //  field found
     {
         if (aux->next)  //  have next symbol or exp, do check
-            return typeContainsLValueAux(varAndFuncEnv, typeEnv, 
+            return typeContainsLValueAux(
                 typeReturn, aux->next);
         else
             return typeReturn;
@@ -525,21 +524,21 @@ static myType recordContainsLValueAux(
 //  check whether the type of array subscript is Integer.
 //  return NULL for checking error.
 static myType arrayContainsLValueAux(
-    myTable varAndFuncEnv, myTable typeEnv, myType type, myLValueAux aux)
+    myType type, myLValueAux aux)
 {
     assert (isTypeArray(type));
     assert (getLValueKind(aux) == ArraySubscript);
 
     //  check subscript's expression is of Integer type
     myExp subscriptExp = aux->exp;
-    if (!isExpInt(varAndFuncEnv, typeEnv, subscriptExp))
+    if (!isExpInt(subscriptExp))
     {
         MyError_pushErrorCode(ERROR_SUBSCRIPT_NOT_INT);
         return NULL;
     }
 
     if (aux->next)  //  have next symbol or exp, do checking
-        return typeContainsLValueAux(varAndFuncEnv, typeEnv, 
+        return typeContainsLValueAux(
                 type->u.typeArray->type, aux->next);
     else
         return type->u.typeArray->type;
@@ -548,9 +547,9 @@ static myType arrayContainsLValueAux(
 ////////////////////////////////////////////////
 
 //  forward declarations
-bool isVariableArrayType(myTable varAndFuncEnv, mySymbol variableName);
+bool isVariableArrayType(mySymbol variableName);
 myTranslationAndType analyzeRecursiveArraySubscripts(
-    myTable varAndFuncEnv, myTable typeEnv, myLValueExp lValueExp);
+    myLValueExp lValueExp);
 void processArraySubscriptErrors(
     bool isArrayVariableDeclared, bool isVariableArrayType,
     bool isSubscriptExpInt, myLValueExp lValueExp);
@@ -577,22 +576,22 @@ void processArraySubscriptErrors(
  *  @note       Tested.
  */
 myTranslationAndType MySemantic_LValueExp_ArraySubscript(
-    myTable varAndFuncEnv, myTable typeEnv, myLValueExp lValueExp)
+    myLValueExp lValueExp)
 {
     mySymbol arrayVariableName = lValueExp->id;
 
     bool isArrayVariableDeclared =
-        isVariableDeclared(varAndFuncEnv, arrayVariableName);
+        isVariableDeclared(arrayVariableName);
     bool isVariableAnArray = false;
     if (isArrayVariableDeclared) 
-        isVariableAnArray = isVariableArrayType(varAndFuncEnv, arrayVariableName);
+        isVariableAnArray = isVariableArrayType(arrayVariableName);
 
     myExp subscriptExp = lValueExp->u.arraySubscriptAux->exp;
-    bool isSubscriptInt = isExpInt(varAndFuncEnv, typeEnv, subscriptExp);
+    bool isSubscriptInt = isExpInt(subscriptExp);
 
     myTranslationAndType result;
     if (isArrayVariableDeclared && isVariableAnArray && isSubscriptInt)
-        return analyzeRecursiveArraySubscripts(varAndFuncEnv, typeEnv, lValueExp);
+        return analyzeRecursiveArraySubscripts(lValueExp);
     else    
     {
         processArraySubscriptErrors(isArrayVariableDeclared,
@@ -601,11 +600,11 @@ myTranslationAndType MySemantic_LValueExp_ArraySubscript(
     }
 }
 
-bool isVariableArrayType(myTable varAndFuncEnv, mySymbol variableName)
+bool isVariableArrayType(mySymbol variableName)
 {
-    assert (varAndFuncEnv && variableName);
+    assert (variableName);
 
-    myVarAndFuncEntry entry = getVarOrFuncFromName(varAndFuncEnv, variableName);
+    myVarAndFuncEntry entry = getVarOrFuncFromName(variableName);
     if (myEnvironment_isVarEntry(entry))
         return isTypeArray(MyEnvironment_getVarType(entry));
     
@@ -640,7 +639,7 @@ void processArraySubscriptErrors(
 //      SEMANTIC_ERROR for checking error;
 //      A myTranslationAndType variable for success.
 myTranslationAndType analyzeRecursiveArraySubscripts(
-    myTable varAndFuncEnv, myTable typeEnv, myLValueExp lValueExp)
+    myLValueExp lValueExp)
 {
     assert (lValueExp);
 
@@ -648,7 +647,7 @@ myTranslationAndType analyzeRecursiveArraySubscripts(
         make_MyTranslationAndType(NULL, NULL);
     
     //  caller make sures its a variable entry!
-    myVarAndFuncEntry arrayEntry = getVarOrFuncFromName(varAndFuncEnv, lValueExp->id);
+    myVarAndFuncEntry arrayEntry = getVarOrFuncFromName(lValueExp->id);
     assert (arrayEntry != NULL);
 
     if (lValueExp->u.arraySubscriptAux->next)
@@ -658,7 +657,7 @@ myTranslationAndType analyzeRecursiveArraySubscripts(
 
         //  recursive checking
         myType typeReturn = typeContainsLValueAux(
-            varAndFuncEnv, typeEnv, elementType,
+            elementType,
             lValueExp->u.arraySubscriptAux->next);
 
         if (typeReturn == NULL)
@@ -684,14 +683,11 @@ myTranslationAndType analyzeRecursiveArraySubscripts(
 
 //  forward declarations
 myTranslationAndType analyzeParamsOfFunction(
-    myTable varAndFuncEnv, myTable typeEnv,
     myExpList formalVariables, myTypeList formalTypes,
     mySymbol functioName);
 myTranslationAndType MySemantic_FunctionCallExp_Param(
-    myTable varAndFuncEnv, myTable typeEnv,
     myParamFunctionCallExp paramFunctionCallExp);
 myTranslationAndType MySemantic_FunctionCallExp_NoParam(
-    myTable varAndFuncEnv, myTable typeEnv,
     myNoParamFunctionCallExp noParamFunctionCallExp);
 
 /**
@@ -702,16 +698,16 @@ myTranslationAndType MySemantic_FunctionCallExp_NoParam(
  *              2.if any, whether the formal parameters' type matches its signature.
  */
 myTranslationAndType MySemantic_FunctionCallExp(
-    myTable varAndFuncEnv, myTable typeEnv, myFunctionCallExp functionCallExp)
+    myFunctionCallExp functionCallExp)
 {
     switch (functionCallExp->kind)
     {
         case NoParamFunctionCallExp:
             return MySemantic_FunctionCallExp_NoParam(
-                varAndFuncEnv, typeEnv, functionCallExp->u.noParamFunctionCallExp);
+                functionCallExp->u.noParamFunctionCallExp);
         case ParamFunctionCallExp:
             return MySemantic_FunctionCallExp_Param(
-                varAndFuncEnv, typeEnv, functionCallExp->u.paramFunctionCallExp);
+                functionCallExp->u.paramFunctionCallExp);
     }
 
     assert (false);
@@ -728,11 +724,10 @@ myTranslationAndType MySemantic_FunctionCallExp(
 //  STATUS:
 //      Tested.
 myTranslationAndType MySemantic_FunctionCallExp_NoParam(
-    myTable varAndFuncEnv, myTable typeEnv,
     myNoParamFunctionCallExp noParamFunctionCallExp)
 {
     mySymbol functionName = noParamFunctionCallExp->name;
-    if (!isFuncDefined(varAndFuncEnv, functionName))
+    if (!isFuncDefined(functionName))
     {
         MyError_pushErrorCodeWithMsg(
             ERROR__FUNCTION_CALL__FUNC_NOT_DEFINED,
@@ -741,7 +736,7 @@ myTranslationAndType MySemantic_FunctionCallExp_NoParam(
     }
 
     return make_MyTranslationAndType(
-        NULL, getFunctionReturnType(varAndFuncEnv, functionName));
+        NULL, getFunctionReturnType(functionName));
 }
 
 
@@ -757,11 +752,10 @@ myTranslationAndType MySemantic_FunctionCallExp_NoParam(
 //  STATUS:
 //      Tested.
 myTranslationAndType MySemantic_FunctionCallExp_Param(
-    myTable varAndFuncEnv, myTable typeEnv,
     myParamFunctionCallExp paramFunctionCallExp)
 {
     mySymbol functionName = paramFunctionCallExp->name;
-    if (!isFuncDefined(varAndFuncEnv, functionName))
+    if (!isFuncDefined(functionName))
     {
         MyError_pushErrorCodeWithMsg(
             ERROR__FUNCTION_CALL__FUNC_NOT_DEFINED,
@@ -770,10 +764,10 @@ myTranslationAndType MySemantic_FunctionCallExp_Param(
     }
 
     myExpList formalVariables = paramFunctionCallExp->expList;
-    myTypeList formalTypes = getFunctionFormalTypes(varAndFuncEnv, functionName);
+    myTypeList formalTypes = getFunctionFormalTypes(functionName);
 
     return analyzeParamsOfFunction(
-        varAndFuncEnv, typeEnv, 
+        
         formalVariables, formalTypes, 
         functionName);
 }
@@ -783,16 +777,15 @@ bool isFormalTypeMatchesRealTypeOrNil(
     myType formalType, myType valueType);
 
 myTranslationAndType analyzeParamsOfFunction(
-    myTable varAndFuncEnv, myTable typeEnv,
     myExpList formalVariables, myTypeList formalTypes,
     mySymbol functioName)
 {
-    assert (varAndFuncEnv && typeEnv && functioName);
+    assert (functioName);
 
     while (formalVariables && formalTypes)
     {
         myTranslationAndType realParamResult = 
-            MySemantic_Exp(varAndFuncEnv, typeEnv, formalVariables->exp);
+            MySemantic_Exp(formalVariables->exp);
         if (realParamResult == SEMANTIC_ERROR)   return SEMANTIC_ERROR;
 
         //  check if types matches
@@ -817,7 +810,7 @@ myTranslationAndType analyzeParamsOfFunction(
     else
     {
         return make_MyTranslationAndType(
-            NULL, getFunctionReturnType(varAndFuncEnv, functioName));
+            NULL, getFunctionReturnType(functioName));
     }
 }
 
@@ -848,7 +841,7 @@ bool isFormalTypeMatchesRealTypeOrNil(myType formalType, myType realType)
  *  @note   Tested
  */
 myTranslationAndType MySemantic_NilExp(
-    myTable varAndFuncEnv, myTable typeEnv, myNilExp nilExp)
+    myNilExp nilExp)
 {
     //  no checking needed here
     return make_MyTranslationAndType(NULL, makeType_Nil());  
@@ -871,7 +864,7 @@ myTranslationAndType MySemantic_NilExp(
  *  @note   Tested
  */
 myTranslationAndType MySemantic_IntegerLiteralExp(
-    myTable varAndFuncEnv, myTable typeEnv, myIntegerLiteralExp integerLiteralExp)
+    myIntegerLiteralExp integerLiteralExp)
 {
     //  no checking needed here
     return make_MyTranslationAndType(NULL, makeType_Int());
@@ -894,7 +887,7 @@ myTranslationAndType MySemantic_IntegerLiteralExp(
  *  @note   Tested
  */
 myTranslationAndType MySemantic_StringLiteralExp(
-    myTable varAndFuncEnv, myTable typeEnv, myStringLiteralExp stringLiteralExp)
+    myStringLiteralExp stringLiteralExp)
 {
     //  no checking needed here
     return make_MyTranslationAndType(NULL, makeType_String());  
@@ -904,9 +897,8 @@ myTranslationAndType MySemantic_StringLiteralExp(
 
 //  forward declarations
 bool isTypeDefinedAsArray(
-    myTable typeEnv, mySymbol arrayTypeName);
+    mySymbol arrayTypeName);
 bool isValueTypeMatchesArrayElementOrNil(
-    myTable varAndFuncEnv, myTable typeEnv,
     myExp initialValue, mySymbol arrayTypeName);
 void processArrayCreationErrors(
     bool isArrayTypeDefiend, bool isSubscriptAnIntExp,
@@ -925,20 +917,20 @@ void processArrayCreationErrors(
 //  STATUS:
 //      Tested.
 myTranslationAndType MySemantic_ArrayCreationExp(
-    myTable varAndFuncEnv, myTable typeEnv, myArrayCreationExp arrayCreationExp)
+    myArrayCreationExp arrayCreationExp)
 {
     mySymbol arrayTypeName = arrayCreationExp->typeName;
 
-    bool isArrayTypeDefiend = isTypeDefinedAsArray(typeEnv, arrayTypeName);
-    bool isSubscriptAnIntExp = isExpInt(varAndFuncEnv, typeEnv, arrayCreationExp->length);
+    bool isArrayTypeDefiend = isTypeDefinedAsArray(arrayTypeName);
+    bool isSubscriptAnIntExp = isExpInt(arrayCreationExp->length);
     bool isInitialExpThisArrayElementType = false;
 
     if (isArrayTypeDefiend)
         isInitialExpThisArrayElementType = isValueTypeMatchesArrayElementOrNil(
-            varAndFuncEnv, typeEnv, arrayCreationExp->initial, arrayTypeName);
+            arrayCreationExp->initial, arrayTypeName);
 
     if (isArrayTypeDefiend && isSubscriptAnIntExp && isInitialExpThisArrayElementType)
-        return make_MyTranslationAndType(NULL, getActualTypeFromName(typeEnv, arrayTypeName));
+        return make_MyTranslationAndType(NULL, getActualTypeFromName(arrayTypeName));
     else
     {
         processArrayCreationErrors(isArrayTypeDefiend, isSubscriptAnIntExp,
@@ -948,24 +940,23 @@ myTranslationAndType MySemantic_ArrayCreationExp(
 }
 
 bool isValueTypeMatchesArrayElementOrNil(
-    myTable varAndFuncEnv, myTable typeEnv,
     myExp initialValue, mySymbol arrayTypeName)
 {
     myType arrayElementType = getActualType(
-        getActualTypeFromName(typeEnv, arrayTypeName)
+        getActualTypeFromName(arrayTypeName)
             ->u.typeArray->type);
     myType valueType = getActualType(
-        getExpActualResultType(varAndFuncEnv, typeEnv, initialValue));
+        getExpActualResultType(initialValue));
 
     return isExpThisArrayElement(
-                varAndFuncEnv, typeEnv, initialValue, arrayTypeName) ||
+                initialValue, arrayTypeName) ||
            isNilValueOfRecordType(arrayElementType, valueType);
 }
 
-bool isTypeDefinedAsArray(myTable typeEnv, mySymbol arrayTypeName)
+bool isTypeDefinedAsArray(mySymbol arrayTypeName)
 {
-    if (isTypeDefined(typeEnv, arrayTypeName))
-        return isTypeArray(getActualTypeFromName(typeEnv, arrayTypeName));
+    if (isTypeDefined(arrayTypeName))
+        return isTypeArray(getActualTypeFromName(arrayTypeName));
     return false;
 }
 
@@ -992,12 +983,10 @@ void processArrayCreationErrors(
 
 //  forward declarations
 
-bool isTypeDefinedAsRecord(myTable typeEnv, mySymbol recordTypeName);
+bool isTypeDefinedAsRecord(mySymbol recordTypeName);
 myTranslationAndType MySemantic_RecordCreationExp_NoField(
-    myTable varAndFuncEnv, myTable typeEnv,
     myNoFieldRecordCreationExp noFieldRecordCreationExp);
 myTranslationAndType MySemantic_RecordCreationExp_Field(
-    myTable varAndFuncEnv, myTable typeEnv,
     myFieldRecordCreationExp fieldRecordCreationExp);
 
 //  FORM:
@@ -1012,16 +1001,16 @@ myTranslationAndType MySemantic_RecordCreationExp_Field(
 //          this record type;
 //      if fails, it returns SEMANTIC_ERROR.
 myTranslationAndType MySemantic_RecordCreationExp(
-    myTable varAndFuncEnv, myTable typeEnv, myRecordCreationExp recordCreationExp)
+    myRecordCreationExp recordCreationExp)
 {
     switch (recordCreationExp->kind)
     {
         case NoFieldRecordCreationExp:
             return MySemantic_RecordCreationExp_NoField(
-                varAndFuncEnv, typeEnv, recordCreationExp->u.noFieldRecordCreationExp);
+                recordCreationExp->u.noFieldRecordCreationExp);
         case FieldRecordCreationExp:
             return MySemantic_RecordCreationExp_Field(
-                varAndFuncEnv, typeEnv, recordCreationExp->u.fieldRecordCreationExp);
+                recordCreationExp->u.fieldRecordCreationExp);
     }
 
     assert(false);
@@ -1039,14 +1028,13 @@ myTranslationAndType MySemantic_RecordCreationExp(
 //  STATUS:
 //      Tested.      
 myTranslationAndType MySemantic_RecordCreationExp_NoField(
-    myTable varAndFuncEnv, myTable typeEnv,
     myNoFieldRecordCreationExp noFieldRecordCreationExp)
 {
     mySymbol recordTypeName = noFieldRecordCreationExp->typeName;
 
-    if (isTypeDefinedAsRecord(typeEnv, recordTypeName))
+    if (isTypeDefinedAsRecord(recordTypeName))
         return make_MyTranslationAndType(NULL,
-            getActualTypeFromName(typeEnv, recordTypeName));
+            getActualTypeFromName(recordTypeName));
     else
     {
         MyError_pushErrorCodeWithMsg(
@@ -1059,7 +1047,6 @@ myTranslationAndType MySemantic_RecordCreationExp_NoField(
 
 //  forward declarations
 bool ifFieldNamesAndTypesMatches(
-    myTable varAndFuncEnv, myTable typeEnv,
     myFieldRecordCreationExp fieldRecordCreationExp);
 void processFieldRecordCreationErrors(
     bool isRecordTypeDefined,
@@ -1079,21 +1066,20 @@ void processFieldRecordCreationErrors(
 //  STATUS:
 //      Tested.
 myTranslationAndType MySemantic_RecordCreationExp_Field(
-    myTable varAndFuncEnv, myTable typeEnv,
     myFieldRecordCreationExp fieldRecordCreationExp)
 {
     mySymbol recordTypeName = fieldRecordCreationExp->typeName;
 
     bool isRecordTypeDefined =
-        isTypeDefinedAsRecord(typeEnv, recordTypeName);
+        isTypeDefinedAsRecord(recordTypeName);
     bool isCreationFieldsMatchThisRecordType = isRecordTypeDefined ?
             ifFieldNamesAndTypesMatches(
-                varAndFuncEnv, typeEnv, fieldRecordCreationExp) :
+                fieldRecordCreationExp) :
             false;
     
     if (isRecordTypeDefined && isCreationFieldsMatchThisRecordType)
         return make_MyTranslationAndType(NULL,
-            getActualTypeFromName(typeEnv, recordTypeName));
+            getActualTypeFromName(recordTypeName));
     else
     {
         processFieldRecordCreationErrors(isRecordTypeDefined,
@@ -1116,10 +1102,10 @@ void processFieldRecordCreationErrors(
             ERROR__RECORD_CREATION__FIELDS_NOT_MATCH, recordTypeString);
 }
 
-bool isTypeDefinedAsRecord(myTable typeEnv, mySymbol recordTypeName)
+bool isTypeDefinedAsRecord(mySymbol recordTypeName)
 {
-    if (isTypeDefined(typeEnv, recordTypeName))
-        return isTypeRecord(getActualTypeFromName(typeEnv, recordTypeName));
+    if (isTypeDefined(recordTypeName))
+        return isTypeRecord(getActualTypeFromName(recordTypeName));
     return false;
 }
 
@@ -1128,23 +1114,21 @@ bool isTypeAndNameMatchesOrNil(
     myType fieldType, myType valueType,
     mySymbol givenName, mySymbol fieldName);
 bool isOneFieldMatches(
-    myTable varAndFuncEnv, myTable typeEnv,
     myTypeFieldList typeFields, myRecordFieldList givenRecordFields);
 
 //  NOTE:   must be called after isTypeNotRecordAndSetError.
 bool ifFieldNamesAndTypesMatches(
-    myTable varAndFuncEnv, myTable typeEnv,
     myFieldRecordCreationExp fieldRecordCreationExp)
 {
     mySymbol recordTypeName = fieldRecordCreationExp->typeName;
     myRecordFieldList givenRecordFields = fieldRecordCreationExp->fieldList;
     myTypeFieldList typeFields =
-        getActualTypeFromName(typeEnv, recordTypeName)->u.typeRecord->fieldList;
+        getActualTypeFromName(recordTypeName)->u.typeRecord->fieldList;
 
     while (givenRecordFields && typeFields)
     {
         if (!isOneFieldMatches(
-                varAndFuncEnv, typeEnv, typeFields, givenRecordFields))
+                typeFields, givenRecordFields))
             return false;
 
         givenRecordFields = givenRecordFields->next;
@@ -1156,12 +1140,11 @@ bool ifFieldNamesAndTypesMatches(
 }
 
 bool isOneFieldMatches(
-    myTable varAndFuncEnv, myTable typeEnv,
     myTypeFieldList typeFields, myRecordFieldList givenRecordFields)
 {
     myType fieldType = typeFields->head->type;
     myType valueType = 
-        MySemantic_Exp(varAndFuncEnv, typeEnv, givenRecordFields->field->varValue)
+        MySemantic_Exp(givenRecordFields->field->varValue)
             ->type;
     mySymbol fieldName = typeFields->head->name;
     mySymbol givenName = givenRecordFields->field->varName;
@@ -1202,10 +1185,10 @@ void processArithmeticErrors(bool isLeftExpInt, bool isRightExpInt);
 //  STATUS:
 //      Tested.
 myTranslationAndType MySemantic_ArithmeticExp(
-    myTable varAndFuncEnv, myTable typeEnv, myArithmeticExp arithmeticExp)
+    myArithmeticExp arithmeticExp)
 {
-    bool isLeftExpInt = isExpInt(varAndFuncEnv, typeEnv, arithmeticExp->left);
-    bool isRightExpInt = isExpInt(varAndFuncEnv, typeEnv, arithmeticExp->right);
+    bool isLeftExpInt = isExpInt(arithmeticExp->left);
+    bool isRightExpInt = isExpInt(arithmeticExp->right);
 
     if (isLeftExpInt && isRightExpInt)
         return make_MyTranslationAndType(NULL, makeType_Int());
@@ -1241,9 +1224,9 @@ void processArithmeticErrors(bool isLeftExpInt, bool isRightExpInt)
 //  STATUS:
 //      Tested.
 myTranslationAndType MySemantic_ParenthesesExp(
-    myTable varAndFuncEnv, myTable typeEnv, myParenthesesExp parenthesesExp)
+    myParenthesesExp parenthesesExp)
 {
-    return MySemantic_Exp(varAndFuncEnv, typeEnv, parenthesesExp->exp);
+    return MySemantic_Exp(parenthesesExp->exp);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -1263,7 +1246,7 @@ myTranslationAndType MySemantic_ParenthesesExp(
  *  @note   Tested
  */
 myTranslationAndType MySemantic_NoValueExp(
-    myTable varAndFuncEnv, myTable typeEnv, myNoValueExp noValueExp)
+    myNoValueExp noValueExp)
 {
     //  no checking needed here
     return make_MyTranslationAndType(NULL, makeType_NoReturn());
@@ -1282,7 +1265,7 @@ myTranslationAndType MySemantic_NoValueExp(
 //  STATUS:
 //      Tested.
 myTranslationAndType MySemantic_SequencingExp(
-    myTable varAndFuncEnv, myTable typeEnv, mySequencingExp sequencingExp)
+    mySequencingExp sequencingExp)
 {
     //  expressions inside sequence-expression must be two or more than two
     assert (sequencingExp->exp1 && sequencingExp->exp2);
@@ -1291,9 +1274,9 @@ myTranslationAndType MySemantic_SequencingExp(
     if (sequencingExp->nextList == NULL)
     {
         myTranslationAndType resultOne =
-            MySemantic_Exp(varAndFuncEnv, typeEnv, sequencingExp->exp1); 
+            MySemantic_Exp(sequencingExp->exp1); 
         myTranslationAndType resultTwo =
-            MySemantic_Exp(varAndFuncEnv, typeEnv, sequencingExp->exp2);
+            MySemantic_Exp(sequencingExp->exp2);
 
         if (resultOne != SEMANTIC_ERROR && resultTwo != SEMANTIC_ERROR)
             return resultTwo;
@@ -1305,14 +1288,14 @@ myTranslationAndType MySemantic_SequencingExp(
         myExpList rests = sequencingExp->nextList;
         while (rests->next)
             rests = rests->next;
-        return MySemantic_Exp(varAndFuncEnv, typeEnv, rests->exp);
+        return MySemantic_Exp(rests->exp);
     }
 }
 
 //////////////////////////////////////////////////////////////////////////////
 
 //  forward declarations
-void addLoopVarToScope(myTable varAndFuncEnv, mySymbol varName);
+void addLoopVarToScope(mySymbol varName);
 void processForErrors(bool isLowRangeInt, bool isHighRangeInt, bool isBodyNoReturn);
 
 //  todo: break
@@ -1328,20 +1311,20 @@ void processForErrors(bool isLowRangeInt, bool isHighRangeInt, bool isBodyNoRetu
 //  STATUS:
 //      Tested.
 myTranslationAndType MySemantic_ForExp(
-    myTable varAndFuncEnv, myTable typeEnv, myForExp forExp)
+    myForExp forExp)
 {
-    MySymbol_BeginScope(varAndFuncEnv);
+    MySymbol_BeginScope(MySemantic_getVarAndFuncEnvironment());
 
-    bool isLowRangeInt = isExpInt(varAndFuncEnv, typeEnv, forExp->varRangeLow);
-    bool isHighRangeInt = isExpInt(varAndFuncEnv, typeEnv, forExp->varRangeHigh);
+    bool isLowRangeInt = isExpInt(forExp->varRangeLow);
+    bool isHighRangeInt = isExpInt(forExp->varRangeHigh);
     if (isLowRangeInt && isHighRangeInt)
-        addLoopVarToScope(varAndFuncEnv, forExp->varName);
+        addLoopVarToScope(forExp->varName);
 
     enterLoop();
-    bool isBodyNoReturn = isExpNoReturn(varAndFuncEnv, typeEnv, forExp->bodyExp);  
+    bool isBodyNoReturn = isExpNoReturn(forExp->bodyExp);  
     leaveLoop();
 
-    MySymbol_EndScope(varAndFuncEnv);
+    MySymbol_EndScope(MySemantic_getVarAndFuncEnvironment());
 
     if (isLowRangeInt && isHighRangeInt && isBodyNoReturn)
         return make_MyTranslationAndType(NULL, makeType_NoReturn());
@@ -1352,10 +1335,12 @@ myTranslationAndType MySemantic_ForExp(
     }
 }
 
-void addLoopVarToScope(myTable varAndFuncEnv, mySymbol varName)
+void addLoopVarToScope(mySymbol varName)
 {
+    myTable varAndFuncEnv = MySemantic_getVarAndFuncEnvironment(); 
     myType loopVarType = makeType_Int();
     myVarAndFuncEntry varEntry = myEnvironment_makeVarEntry(loopVarType);
+
     MyEnvironment_addNewVarOrFunc(varAndFuncEnv, varName, varEntry);
 }
 
@@ -1376,7 +1361,7 @@ void processForErrors(bool isLowRangeInt, bool isHighRangeInt, bool isBodyNoRetu
 
 //  forward declarations
 myType getThenElseResultType(
-    myTable varAndFuncEnv, myTable typeEnv, myIfThenElseExp ifThenElseExp,
+    myIfThenElseExp ifThenElseExp,
     bool isThenClauseLegal, bool isElseClauseLegal);
 void processIfThenElseErrors(
     bool isConditionExpInt, bool isThenClauseLegal,
@@ -1396,14 +1381,14 @@ void processIfThenElseErrors(
 //  STATUS:
 //      Tested.
 myTranslationAndType MySemantic_IfThenElseExp(
-    myTable varAndFuncEnv, myTable typeEnv, myIfThenElseExp ifThenElseExp)
+    myIfThenElseExp ifThenElseExp)
 {
-    bool isConditionExpInt = isExpInt(varAndFuncEnv, typeEnv, ifThenElseExp->exp1);
-    bool isThenClauseLegal = isExpLegal(varAndFuncEnv, typeEnv, ifThenElseExp->exp2);
-    bool isElseClauseLegal = isExpLegal(varAndFuncEnv, typeEnv, ifThenElseExp->exp3);
+    bool isConditionExpInt = isExpInt(ifThenElseExp->exp1);
+    bool isThenClauseLegal = isExpLegal(ifThenElseExp->exp2);
+    bool isElseClauseLegal = isExpLegal(ifThenElseExp->exp3);
     
     myType resultType = getThenElseResultType(
-        varAndFuncEnv, typeEnv, ifThenElseExp,
+        ifThenElseExp,
         isThenClauseLegal, isElseClauseLegal);
     bool isThenAndElseClauseSameType = (resultType != NULL);
 
@@ -1425,14 +1410,14 @@ bool isTwoClausesTypeMatchesOrNil(
 //      type of `IfThenElseExp`;
 //  otherwise, it returns NULL; 
 myType getThenElseResultType(
-    myTable varAndFuncEnv, myTable typeEnv, myIfThenElseExp ifThenElseExp,
+    myIfThenElseExp ifThenElseExp,
     bool isThenClauseLegal, bool isElseClauseLegal)
 {
     if (isThenClauseLegal && isElseClauseLegal)
     {
-        myType thenClauseType = MySemantic_Exp(varAndFuncEnv, typeEnv, ifThenElseExp->exp2)
+        myType thenClauseType = MySemantic_Exp(ifThenElseExp->exp2)
             ->type;
-        myType elseClauseType = MySemantic_Exp(varAndFuncEnv, typeEnv, ifThenElseExp->exp3)
+        myType elseClauseType = MySemantic_Exp(ifThenElseExp->exp3)
             ->type;
         if (isTwoClausesTypeMatchesOrNil(thenClauseType, elseClauseType))
             return thenClauseType;
@@ -1491,10 +1476,10 @@ void processIfThenErrors(bool isIfConditionInt, bool isThenClauseNoReturn);
 //  STATUS:
 //      Tested.
 myTranslationAndType MySemantic_IfThenExp(
-    myTable varAndFuncEnv, myTable typeEnv, myIfThenExp ifThenExp)
+    myIfThenExp ifThenExp)
 {
-    bool isIfConditionInt = isExpInt(varAndFuncEnv, typeEnv, ifThenExp->exp1);
-    bool isThenClauseNoReturn = isExpNoReturn(varAndFuncEnv, typeEnv, ifThenExp->exp2);
+    bool isIfConditionInt = isExpInt(ifThenExp->exp1);
+    bool isThenClauseNoReturn = isExpNoReturn(ifThenExp->exp2);
 
     if (isIfConditionInt && isThenClauseNoReturn)
         return make_MyTranslationAndType(NULL, makeType_NoReturn());
@@ -1519,7 +1504,7 @@ void processIfThenErrors(bool isIfConditionInt, bool isThenClauseNoReturn)
 
 //  forward declarations
 bool isTwoComparisonOperandsTypeEqualsOrNil(
-    myTable varAndFuncEnv, myTable typeEnv, myComparisonExp comparisonExp);
+    myComparisonExp comparisonExp);
 void processComparisonErrors(
     bool isLeftOperandLegal, bool isRightOperandLegal, bool isOperandsTypeMatches);
 
@@ -1536,18 +1521,18 @@ void processComparisonErrors(
 //  STATUS:
 //      Tested.
 myTranslationAndType MySemantic_ComparisonExp(
-    myTable varAndFuncEnv, myTable typeEnv, myComparisonExp comparisonExp)
+    myComparisonExp comparisonExp)
 {
     bool isLeftOperandLegal = isExpLegal(
-        varAndFuncEnv, typeEnv, comparisonExp->left);
+        comparisonExp->left);
     bool isRightOperandLegal = isExpLegal(
-        varAndFuncEnv, typeEnv, comparisonExp->right);
+        comparisonExp->right);
 
     bool isOperandsTypeMatches = false;
     if (isLeftOperandLegal && isRightOperandLegal)
     {
         isOperandsTypeMatches = isTwoComparisonOperandsTypeEqualsOrNil(
-            varAndFuncEnv, typeEnv, comparisonExp);
+            comparisonExp);
     }
 
     if (isLeftOperandLegal && isRightOperandLegal && isOperandsTypeMatches)
@@ -1561,12 +1546,12 @@ myTranslationAndType MySemantic_ComparisonExp(
 }
 
 bool isTwoComparisonOperandsTypeEqualsOrNil(
-    myTable varAndFuncEnv, myTable typeEnv, myComparisonExp comparisonExp)
+    myComparisonExp comparisonExp)
 {
     myType leftType = getExpActualResultType(
-        varAndFuncEnv, typeEnv, comparisonExp->left);
+        comparisonExp->left);
     myType rightType = getExpActualResultType(
-        varAndFuncEnv, typeEnv, comparisonExp->right);
+        comparisonExp->right);
 
     if (isTypeNoReturn(leftType) || isTypeNoReturn(rightType))
         return false;
@@ -1605,12 +1590,12 @@ void processBooleanOperateErrors(bool isLeftOperandInt, bool isRightOperandInt);
 //  STATUS:
 //      Tested.
 myTranslationAndType MySemantic_BooleanOperateExp(
-    myTable varAndFuncEnv, myTable typeEnv, myBooleanOperateExp booleanOperateExp)
+    myBooleanOperateExp booleanOperateExp)
 {
     bool isLeftOperandInt =
-        isExpInt(varAndFuncEnv, typeEnv, booleanOperateExp->left);
+        isExpInt(booleanOperateExp->left);
     bool isRightOperandInt = 
-        isExpInt(varAndFuncEnv, typeEnv, booleanOperateExp->right);
+        isExpInt(booleanOperateExp->right);
 
     if (isLeftOperandInt && isRightOperandInt)
         return make_MyTranslationAndType(NULL, makeType_Int());
@@ -1635,7 +1620,7 @@ void processBooleanOperateErrors(bool isLeftOperandInt, bool isRightOperandInt)
 
 //  forwards
 bool isAssignmentOperandsTypeMatchOrNil(
-    myTable varAndFuncEnv, myTable typeEnv, myAssignmentExp assignmentExp);
+    myAssignmentExp assignmentExp);
 void processAssignmentErrors(
     bool isLeftOperandLegal, bool isRightOperandLegal, bool isOperandsTypeMatches);
 
@@ -1651,18 +1636,18 @@ void processAssignmentErrors(
 //  STATUS:
 //      Tested.
 myTranslationAndType MySemantic_AssignmentExp(
-    myTable varAndFuncEnv, myTable typeEnv, myAssignmentExp assignmentExp)
+    myAssignmentExp assignmentExp)
 {
     bool isLeftOperandLegal =
-        isLValueExpLegal(varAndFuncEnv, typeEnv, assignmentExp->lValueExp);
+        isLValueExpLegal(assignmentExp->lValueExp);
     bool isRightOperandLegal =
-        isExpLegal(varAndFuncEnv, typeEnv, assignmentExp->exp);
+        isExpLegal(assignmentExp->exp);
 
     bool isOperandsTypeMatches = false;
     if (isLeftOperandLegal && isRightOperandLegal)
     {
         isOperandsTypeMatches = isAssignmentOperandsTypeMatchOrNil(
-            varAndFuncEnv, typeEnv, assignmentExp);
+            assignmentExp);
     }
 
     if (isLeftOperandLegal && isRightOperandLegal && isOperandsTypeMatches)
@@ -1676,12 +1661,12 @@ myTranslationAndType MySemantic_AssignmentExp(
 }
 
 bool isAssignmentOperandsTypeMatchOrNil(
-    myTable varAndFuncEnv, myTable typeEnv, myAssignmentExp assignmentExp)
+    myAssignmentExp assignmentExp)
 {
     myType leftOperandType =
-        getLValueExpActualResultType(varAndFuncEnv, typeEnv, assignmentExp->lValueExp);
+        getLValueExpActualResultType(assignmentExp->lValueExp);
     myType rightOperandType =
-        getExpActualResultType(varAndFuncEnv, typeEnv, assignmentExp->exp);
+        getExpActualResultType(assignmentExp->exp);
 
     if (isTypeNoReturn(leftOperandType) || isTypeNoReturn(rightOperandType))
         return false;
@@ -1715,16 +1700,17 @@ void processAssignmentErrors(
 //  STATUS:
 //      Tested.
 bool MySemantic_Dec_Var_ShortForm(
-    myTable varAndFuncEnv, myTable typeEnv, myShortFormVar shortFormVar)
+    myShortFormVar shortFormVar)
 {
-    bool isValueExpLegal = isExpLegal(varAndFuncEnv, typeEnv, shortFormVar->exp);
+    bool isValueExpLegal = isExpLegal(shortFormVar->exp);
 
     if (isValueExpLegal)
     {
         myType valueType =
-            getExpActualResultType(varAndFuncEnv, typeEnv, shortFormVar->exp);
+            getExpActualResultType(shortFormVar->exp);
         if (!isTypeNil(valueType) && !isTypeNoReturn(valueType))
         {
+            myTable varAndFuncEnv = MySemantic_getVarAndFuncEnvironment();
             myVarAndFuncEntry varEntry = myEnvironment_makeVarEntry(valueType);
             MyEnvironment_addNewVarOrFunc(varAndFuncEnv, shortFormVar->name, varEntry);
             return true;
@@ -1742,7 +1728,7 @@ bool MySemantic_Dec_Var_ShortForm(
 
 //  forwards
 bool isVarDecValueTypeMatchesGivenType(
-    myTable varAndFuncEnv, myTable typeEnv, myLongFormVar longFormVar);
+    myLongFormVar longFormVar);
 void processLongFormVarDecErrors(
     bool isGivenTypeDefined, bool isValueExpLegal,
     bool isTypeMatches, mySymbol typeName);
@@ -1759,23 +1745,24 @@ void processLongFormVarDecErrors(
 //  STATUS:
 //      Tested.
 bool MySemantic_Dec_Var_LongForm(
-    myTable varAndFuncEnv, myTable typeEnv, myLongFormVar longFormVar)
+    myLongFormVar longFormVar)
 {
-    bool isVariableTypeDefined = isTypeDefined(typeEnv, longFormVar->type);
-    bool isValueExpLegal = isExpLegal(varAndFuncEnv, typeEnv, longFormVar->exp);
+    bool isVariableTypeDefined = isTypeDefined(longFormVar->type);
+    bool isValueExpLegal = isExpLegal(longFormVar->exp);
 
     bool isTypeMatches = false;
     if (isVariableTypeDefined && isValueExpLegal)
     {
         isTypeMatches = isVarDecValueTypeMatchesGivenType(
-            varAndFuncEnv, typeEnv, longFormVar);
+            longFormVar);
     }
 
     //    hidden checking for the other two booleans
     if (isTypeMatches)
     {
+        myTable varAndFuncEnv = MySemantic_getVarAndFuncEnvironment();
         myVarAndFuncEntry varEntry =
-            myEnvironment_makeVarEntry(getActualTypeFromName(typeEnv, longFormVar->type));
+            myEnvironment_makeVarEntry(getActualTypeFromName(longFormVar->type));
         MyEnvironment_addNewVarOrFunc(varAndFuncEnv, longFormVar->name,varEntry);
         return true;
     }
@@ -1788,12 +1775,12 @@ bool MySemantic_Dec_Var_LongForm(
 }
 
 bool isVarDecValueTypeMatchesGivenType(
-    myTable varAndFuncEnv, myTable typeEnv, myLongFormVar longFormVar)
+    myLongFormVar longFormVar)
 {
     myType valueType = 
-        getExpActualResultType(varAndFuncEnv, typeEnv, longFormVar->exp);
+        getExpActualResultType(longFormVar->exp);
     myType givenType = 
-        getActualTypeFromName(typeEnv, longFormVar->type);
+        getActualTypeFromName(longFormVar->type);
 
     return isTypeEqual(valueType, givenType) ||
             isNilValueOfRecordType(givenType, valueType);
@@ -1823,7 +1810,7 @@ void processLongFormVarDecErrors(
 //      var id : type-id := exp
 //  DO:
 //      delegate
-bool MySemantic_Dec_Var(myTable varAndFuncEnv, myTable typeEnv, myVarDec varDec)
+bool MySemantic_Dec_Var(myVarDec varDec)
 {
     if (varDec == NULL)     return true;
 
@@ -1831,10 +1818,10 @@ bool MySemantic_Dec_Var(myTable varAndFuncEnv, myTable typeEnv, myVarDec varDec)
     {
         case ShortFormVar:
             return MySemantic_Dec_Var_ShortForm(
-                varAndFuncEnv, typeEnv, varDec->u.shortFormVar);
+                varDec->u.shortFormVar);
         case LongFormVar:
             return MySemantic_Dec_Var_LongForm(
-                varAndFuncEnv, typeEnv, varDec->u.longFormVar);
+                varDec->u.longFormVar);
         default:
             assert (false);
     }
@@ -1852,18 +1839,18 @@ bool MySemantic_Dec_Var(myTable varAndFuncEnv, myTable typeEnv, myVarDec varDec)
 //  STATUS:
 //      Tested.
 bool MySemantic_Decs(
-    myTable varAndFuncEnv, myTable typeEnv, myDecList decs)
+    myDecList decs)
 {
-    return MySemantic_Decs_Recursive(varAndFuncEnv, typeEnv, decs);
+    return MySemantic_Decs_Recursive(decs);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 
 //  forwards
 bool areExpressionsLegal(
-    myTable varAndFuncEnv, myTable typeEnv, myExpList exps);
+    myExpList exps);
 myType getLastExpResultType(
-    myTable varAndFuncEnv, myTable typeEnv, myExpList exps);
+    myExpList exps);
 void processLetErrors(
     bool areDeclarationsLegal, bool isBodyLegal);
 
@@ -1882,38 +1869,38 @@ void processLetErrors(
 //  STATUS:
 //      Tested.
 myTranslationAndType MySemantic_LetExp(
-    myTable varAndFuncEnv, myTable typeEnv, myLetExp letExp)
+    myLetExp letExp)
 {
-    MySymbol_BeginScope(varAndFuncEnv);
-    MySymbol_BeginScope(typeEnv);
+    MySymbol_BeginScope(MySemantic_getVarAndFuncEnvironment());
+    MySymbol_BeginScope(MySemantic_getTypeEnvironment());
 
     bool areDeclarationsLegal =
-        MySemantic_Decs_Recursive(varAndFuncEnv, typeEnv, letExp->decList);
+        MySemantic_Decs_Recursive(letExp->decList);
     bool isBodyLegal =
-        areExpressionsLegal(varAndFuncEnv, typeEnv, letExp->expList);
+        areExpressionsLegal(letExp->expList);
 
     
     myTranslationAndType result;
     if (areDeclarationsLegal && isBodyLegal)
         result = make_MyTranslationAndType(NULL,
-            getLastExpResultType(varAndFuncEnv, typeEnv, letExp->expList));
+            getLastExpResultType(letExp->expList));
     else
     {
         processLetErrors(areDeclarationsLegal, isBodyLegal);
         result = SEMANTIC_ERROR;
     }
 
-    MySymbol_EndScope(varAndFuncEnv);
-    MySymbol_EndScope(typeEnv);
+    MySymbol_EndScope(MySemantic_getVarAndFuncEnvironment());
+    MySymbol_EndScope(MySemantic_getTypeEnvironment());
     return result;
 }
 
 bool areExpressionsLegal(
-    myTable varAndFuncEnv, myTable typeEnv, myExpList exps)
+    myExpList exps)
 {
     while (exps)
     {
-        if (MySemantic_Exp(varAndFuncEnv, typeEnv, exps->exp)
+        if (MySemantic_Exp(exps->exp)
             == SEMANTIC_ERROR)
             return false;
         exps = exps->next;
@@ -1922,13 +1909,13 @@ bool areExpressionsLegal(
 }
 
 myType getLastExpResultType(
-    myTable varAndFuncEnv, myTable typeEnv, myExpList exps)
+    myExpList exps)
 {
     if (exps == NULL)   return makeType_NoReturn();
 
     while (exps->next)
         exps = exps->next;
-    return getExpActualResultType(varAndFuncEnv, typeEnv, exps->exp);
+    return getExpActualResultType(exps->exp);
 }
 
 void processLetErrors(bool areDeclarationsLegal, bool isBodyLegal)
@@ -1958,14 +1945,14 @@ void processWhileErrors(bool isConditionInt, bool isBodyNoReturn);
 //  STATUS:
 //      Tested.
 myTranslationAndType MySemantic_WhileExp(
-    myTable varAndFuncEnv, myTable typeEnv, myWhileExp whileExp)
+    myWhileExp whileExp)
 {
     bool isConditionInt =
-        isExpInt(varAndFuncEnv, typeEnv, whileExp->whileExp);
+        isExpInt(whileExp->whileExp);
 
     enterLoop();
     bool isBodyNoReturn =
-        isExpNoReturn(varAndFuncEnv, typeEnv, whileExp->bodyExp);
+        isExpNoReturn(whileExp->bodyExp);
     leaveLoop();
 
     if (isConditionInt && isBodyNoReturn)
@@ -2001,9 +1988,9 @@ void processNegationErrors(bool isFollowingExpInt);
 //  STATUS:
 //      Tested.
 myTranslationAndType MySemantic_NegationExp(
-    myTable varAndFuncEnv, myTable typeEnv, myNegationExp negationExp)
+    myNegationExp negationExp)
 {
-    bool isFollowingExpInt = isExpInt(varAndFuncEnv, typeEnv, negationExp->exp);
+    bool isFollowingExpInt = isExpInt(negationExp->exp);
     if (isFollowingExpInt)
         return make_MyTranslationAndType(NULL, makeType_Int());
     else
@@ -2032,7 +2019,7 @@ void processNegationErrors(bool isFollowingExpInt)
  *  @note   Tested
  */
 myTranslationAndType MySemantic_BreakExp(
-    myTable varAndFuncEnv, myTable typeEnv, myBreakExp breakExp)
+    myBreakExp breakExp)
 {
     if (isBreakInsideLoop())
         return make_MyTranslationAndType(NULL, makeType_NoReturn());
@@ -2048,52 +2035,52 @@ myTranslationAndType MySemantic_BreakExp(
 //  public function
 
 myTranslationAndType MySemantic_Exp(
-    myTable varAndFuncEnv, myTable typeEnv, myExp exp)
+    myExp exp)
 {
     switch (exp->kind)
     {
         case LValueExp:         
-            return MySemantic_LValueExp(varAndFuncEnv, typeEnv, exp->u.lValueExp);
+            return MySemantic_LValueExp(exp->u.lValueExp);
         case FunctionCallExp:
-            return MySemantic_FunctionCallExp(varAndFuncEnv, typeEnv, exp->u.functionCallExp);
+            return MySemantic_FunctionCallExp(exp->u.functionCallExp);
         case NilExp:
-            return MySemantic_NilExp(varAndFuncEnv, typeEnv, exp->u.nilExp);
+            return MySemantic_NilExp(exp->u.nilExp);
         case IntegerLiteralExp:
-            return MySemantic_IntegerLiteralExp(varAndFuncEnv, typeEnv, exp->u.integerLiteralExp);
+            return MySemantic_IntegerLiteralExp(exp->u.integerLiteralExp);
         case StringLiteralExp:
-            return MySemantic_StringLiteralExp(varAndFuncEnv, typeEnv, exp->u.stringLiteralExp);
+            return MySemantic_StringLiteralExp(exp->u.stringLiteralExp);
         case ArrayCreationExp:
-            return MySemantic_ArrayCreationExp(varAndFuncEnv, typeEnv, exp->u.arrayCreationExp);
+            return MySemantic_ArrayCreationExp(exp->u.arrayCreationExp);
         case RecordCreationExp:
-            return MySemantic_RecordCreationExp(varAndFuncEnv, typeEnv, exp->u.recordCreationExp);
+            return MySemantic_RecordCreationExp(exp->u.recordCreationExp);
         case ArithmeticExp:
-            return MySemantic_ArithmeticExp(varAndFuncEnv, typeEnv, exp->u.arithmeticExp);
+            return MySemantic_ArithmeticExp(exp->u.arithmeticExp);
         case ParenthesesExp:
-            return MySemantic_ParenthesesExp(varAndFuncEnv, typeEnv, exp->u.parenthesesExp);
+            return MySemantic_ParenthesesExp(exp->u.parenthesesExp);
         case NoValueExp:
-            return MySemantic_NoValueExp(varAndFuncEnv, typeEnv, exp->u.noValueExp);
+            return MySemantic_NoValueExp(exp->u.noValueExp);
         case SequencingExp:
-            return MySemantic_SequencingExp(varAndFuncEnv, typeEnv, exp->u.sequencingExp);
+            return MySemantic_SequencingExp(exp->u.sequencingExp);
         case ForExp:
-            return MySemantic_ForExp(varAndFuncEnv, typeEnv, exp->u.forExp);
+            return MySemantic_ForExp(exp->u.forExp);
         case IfThenElseExp:
-            return MySemantic_IfThenElseExp(varAndFuncEnv, typeEnv, exp->u.ifThenElseExp);
+            return MySemantic_IfThenElseExp(exp->u.ifThenElseExp);
         case IfThenExp:
-            return MySemantic_IfThenExp(varAndFuncEnv, typeEnv, exp->u.ifThenExp);
+            return MySemantic_IfThenExp(exp->u.ifThenExp);
         case ComparisonExp:
-            return MySemantic_ComparisonExp(varAndFuncEnv, typeEnv, exp->u.comparisonExp);
+            return MySemantic_ComparisonExp(exp->u.comparisonExp);
         case BooleanOperateExp:
-            return MySemantic_BooleanOperateExp(varAndFuncEnv, typeEnv, exp->u.booleanOperateExp);
+            return MySemantic_BooleanOperateExp(exp->u.booleanOperateExp);
         case AssignmentExp:
-            return MySemantic_AssignmentExp(varAndFuncEnv, typeEnv, exp->u.assignmentExp);
+            return MySemantic_AssignmentExp(exp->u.assignmentExp);
         case LetExp:
-            return MySemantic_LetExp(varAndFuncEnv, typeEnv, exp->u.letExp);
+            return MySemantic_LetExp(exp->u.letExp);
         case WhileExp:
-            return MySemantic_WhileExp(varAndFuncEnv, typeEnv, exp->u.whileExp);
+            return MySemantic_WhileExp(exp->u.whileExp);
         case NegationExp:
-            return MySemantic_NegationExp(varAndFuncEnv, typeEnv, exp->u.negationExp);
+            return MySemantic_NegationExp(exp->u.negationExp);
         case BreakExp:
-            return MySemantic_BreakExp(varAndFuncEnv, typeEnv, exp->u.breakExp);
+            return MySemantic_BreakExp(exp->u.breakExp);
 
         default:            assert(false);
     }

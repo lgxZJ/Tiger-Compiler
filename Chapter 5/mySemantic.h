@@ -46,10 +46,7 @@ myTranslationAndType make_MyTranslationAndType
  *  @return     A myTranslationAndType holds the intermediate expression and
  *              its type after analysis if succeed; otherwise, SEMANTIC_ERROR.
  */
- myTranslationAndType MySemantic_Exp(
-     myTable varAndFuncEnv, 
-     myTable typeEnv,
-     myExp   exp);
+ myTranslationAndType MySemantic_Exp(myExp   exp);
 
 //  todo:
 void MySemantic_setVarAndFuncEnvironment    (myTable varAndEnvEnv);

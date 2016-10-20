@@ -9,28 +9,17 @@
 #include <stdlib.h>
 #include <assert.h>
 
-
 /////////////////////////////////////////////////////////////////////////
 //  private function in mySemantic.c module
+bool    MySemantic_Dec_Var      (myVarDec varDec);
+myType  getActualTypeFromName   (mySymbol typeName);
+myType  getExpActualResultType  (myExp exp);
 
-void AddOneProcedure(
-    myTable varAndFuncEnv, myTable typeEnv, myProcedureDec procedureDec);
-void AddOneFunction(
-    myTable varAndFuncEnv, myTable typeEnv, myFunctionDec functionDec);
-myTypeList getTypesFromTyFields(
-    myTable typeEnv, myTyFieldList funcFields);
-bool isFuncParamTypesDefined(myTable typeEnv, myTyFieldList funcFields);
-void addFormalsToScope(
-    myTable varAndFuncEnv, myTable typeEnv, myTyFieldList formals);
-bool MySemantic_Dec_Var(myTable varAndFuncEnv, myTable typeEnv, myVarDec varDec);
-myType getActualTypeFromName(myTable typeEnv, mySymbol typeName);
-bool isExpOneTypeOrIllegal(
-    myTable varAndFuncEnv, myTable typeEnv,
-    myExp exp, enum TypeKind kind);
-bool isExpNoReturn(myTable varAndFuncEnv, myTable typeEnv, myExp exp);
-bool isTypeDefined(myTable typeEnv, mySymbol typeName);
-bool isExpLegal(
-    myTable varAndFuncEnv, myTable typeEnv, myExp exp);
+bool isExpOneTypeOrIllegal(myExp exp, enum TypeKind kind);
+    
+bool isExpNoReturn  (myExp exp);
+bool isTypeDefined  (mySymbol typeName);
+bool isExpLegal     (myExp exp);
 
 /////////////////////////////////////////////////////////////////////
 
@@ -42,7 +31,7 @@ bool isExpLegal(
 //      always return true.
 //  STATUS:
 //      Tested.
-bool MySemantic_Dec_Type_OnePass(myTable typeEnv, myTypeDec typeDec)
+bool MySemantic_Dec_Type_OnePass(myTypeDec typeDec)
 {
     if (typeDec == NULL)    return true;
 
@@ -62,13 +51,14 @@ bool MySemantic_Dec_Type_OnePass(myTable typeEnv, myTypeDec typeDec)
             break;
     }
 
+    myTable typeEnv = MySemantic_getTypeEnvironment();
     MyEnvironment_addNewType(typeEnv, newTypeName, type);
     return true;
 }
 
 //  forwards
 void updateType_Named(
-    myTable typeEnv, mySymbol newTypeName, mySymbol existedTypeName);
+    mySymbol newTypeName, mySymbol existedTypeName);
 void processNamedDecErrors(
     bool isNamedTypeDefined, bool isRecursive, mySymbol existedTypeName);
 
@@ -82,15 +72,15 @@ void processNamedDecErrors(
 //  STATUS:
 //      Tested.
 bool MySemantic_Dec_Type_Named_TwoPass(
-    myTable typeEnv, mySymbol newTypeName, mySymbol existedTypeName)
+    mySymbol newTypeName, mySymbol existedTypeName)
 {
     assert (newTypeName && existedTypeName);
 
-    bool isNamedTypeDefined = isTypeDefined(typeEnv, existedTypeName);
+    bool isNamedTypeDefined = isTypeDefined(existedTypeName);
     bool isRecursive = MySymbol_IsSymbolEqual(newTypeName, existedTypeName); 
     if (isNamedTypeDefined && !isRecursive)
     {
-        updateType_Named(typeEnv, newTypeName, existedTypeName);
+        updateType_Named(newTypeName, existedTypeName);
         return true;
     }
     else
@@ -100,9 +90,9 @@ bool MySemantic_Dec_Type_Named_TwoPass(
     }
 }
 
-void updateType_Named(
-    myTable typeEnv, mySymbol newTypeName, mySymbol existedTypeName)
+void updateType_Named(mySymbol newTypeName, mySymbol existedTypeName)
 {
+    myTable typeEnv = MySemantic_getTypeEnvironment();
     myType existedType =
         MyEnvironment_getTypeFromName(typeEnv, existedTypeName);
     myType newType = 
@@ -125,9 +115,9 @@ void processNamedDecErrors(
 
 //  forwards
 myTypeFieldList makeTypeFieldsFromTyFields_TwoPass(
-    myTable typeEnv, myTyFieldList tyFields);
+    myTyFieldList tyFields);
 void updateType_Record(
-    myTable typeEnv, mySymbol newTypeName, myTypeFieldList typeFields);
+    mySymbol newTypeName, myTypeFieldList typeFields);
 
 //  FORM:
 //      type type-id = { tyfields }
@@ -139,15 +129,15 @@ void updateType_Record(
 //  STATUS:
 //      Tested.
 bool MySemantic_Dec_Type_Record_TwoPass(
-    myTable typeEnv, mySymbol newTypeName, myTyFieldList fields)
+    mySymbol newTypeName, myTyFieldList fields)
 {
     //  also checks whether field types defined
     myTypeFieldList typeFields =
-        makeTypeFieldsFromTyFields_TwoPass(typeEnv, fields);
+        makeTypeFieldsFromTyFields_TwoPass(fields);
 
     if (typeFields != SEMANTIC_ERROR)            
     {
-        updateType_Record(typeEnv, newTypeName, typeFields);
+        updateType_Record(newTypeName, typeFields);
         return true;
     }
     else
@@ -155,28 +145,30 @@ bool MySemantic_Dec_Type_Record_TwoPass(
 }
 
 void updateType_Record(
-    myTable typeEnv, mySymbol newTypeName, myTypeFieldList typeFields)
+    mySymbol newTypeName, myTypeFieldList typeFields)
 {
+    myTable typeEnv = MySemantic_getTypeEnvironment();
     myType newType = MyEnvironment_getTypeFromName(typeEnv, newTypeName);
     newType->u.typeRecord->fieldList = typeFields;
 }
 
 //  forwards
-myTypeFieldList makeTypeFieldsFromTyFields_TwoPass(myTable typeEnv, myTyFieldList tyFields)
+myTypeFieldList makeTypeFieldsFromTyFields_TwoPass(myTyFieldList tyFields)
 {
     //  end condition for recursive
     if (tyFields == NULL)   return NULL; 
 
     myTyField oneTyField = tyFields->field;
 
-    if (isTypeDefined(typeEnv, oneTyField->typeName))
+    if (isTypeDefined(oneTyField->typeName))
     {
+        myTable typeEnv = MySemantic_getTypeEnvironment();
         myTypeField oneTypeField = makeType_TypeField(
             oneTyField->varName,
             MyEnvironment_getTypeFromName(typeEnv, oneTyField->typeName));
 
         myTypeFieldList rests = makeTypeFieldsFromTyFields_TwoPass(
-            typeEnv, tyFields->next);
+            tyFields->next);
         if (rests != SEMANTIC_ERROR)
             return makeType_TypeFieldList(oneTypeField, rests);
         else
@@ -194,7 +186,7 @@ myTypeFieldList makeTypeFieldsFromTyFields_TwoPass(myTable typeEnv, myTyFieldLis
 
 //  forwards
 void updateType_Array(
-    myTable typeEnv, mySymbol arrayTypeName, mySymbol elementTypeName);
+    mySymbol arrayTypeName, mySymbol elementTypeName);
 void processArrayDecErrors(
     bool isElementTypeDefined, bool isArrayRecursive, mySymbol elementTypeName);
 
@@ -208,14 +200,14 @@ void processArrayDecErrors(
 //  STATUS:
 //      Tested.
 bool MySemantic_Dec_Type_Array_TwoPass(
-    myTable typeEnv, mySymbol newTypeName, mySymbol elementTypeName)
+    mySymbol newTypeName, mySymbol elementTypeName)
 {
-    bool isElementTypeDefined = isTypeDefined(typeEnv, elementTypeName);
+    bool isElementTypeDefined = isTypeDefined(elementTypeName);
     bool isArrayRecursive = MySymbol_IsSymbolEqual(newTypeName, elementTypeName);
 
     if (isElementTypeDefined && !isArrayRecursive)
     {
-        updateType_Array(typeEnv, newTypeName, elementTypeName);
+        updateType_Array(newTypeName, elementTypeName);
         return true;
     }
     else
@@ -227,8 +219,9 @@ bool MySemantic_Dec_Type_Array_TwoPass(
 }
 
 void updateType_Array(
-    myTable typeEnv, mySymbol arrayTypeName, mySymbol elementTypeName)
+    mySymbol arrayTypeName, mySymbol elementTypeName)
 {
+    myTable typeEnv = MySemantic_getTypeEnvironment();
     myType elementType = MyEnvironment_getTypeFromName(typeEnv, elementTypeName);
     myType arrayType = MyEnvironment_getTypeFromName(typeEnv, arrayTypeName);
     arrayType->u.typeArray->type = elementType;
@@ -247,19 +240,19 @@ void processArrayDecErrors(
 
 //////////////////////////////
 
-bool MySemantic_Dec_Type_TwoPass(myTable typeEnv, myTypeDec typeDec)
+bool MySemantic_Dec_Type_TwoPass( myTypeDec typeDec)
 {
     mySymbol newTypeName = typeDec->name;
     switch (typeDec->type->kind)
     {
         case NamedType:
             return MySemantic_Dec_Type_Named_TwoPass(
-                typeEnv, newTypeName, typeDec->type->u.typeName);
+                newTypeName, typeDec->type->u.typeName);
         case RecordType:
-            return MySemantic_Dec_Type_Record_TwoPass(typeEnv,
+            return MySemantic_Dec_Type_Record_TwoPass(
                 newTypeName, typeDec->type->u.tyFieldList);
         case ArrayType:
-            return MySemantic_Dec_Type_Array_TwoPass(typeEnv,
+            return MySemantic_Dec_Type_Array_TwoPass(
                 newTypeName, typeDec->type->u.arrayTypeName);
         default:
             assert(false);
@@ -270,8 +263,8 @@ bool MySemantic_Dec_Type_TwoPass(myTable typeEnv, myTypeDec typeDec)
 ////////////////////////////////////////
 
 //  forwards
-void AddOneProcedure_OnePass(
-    myTable varAndFuncEnv, myTable typeEnv, myProcedureDec procedureDec);
+void AddOneProcedure_OnePass(myProcedureDec procedureDec);
+bool isFuncParamTypesDefined(myTyFieldList funcFields);
 
 ////////////////
 
@@ -285,14 +278,14 @@ void AddOneProcedure_OnePass(
 //  STATUS:
 //      Tested.
 bool MySemantic_Dec_Func_Procedure_OnePass(
-    myTable varAndFuncEnv, myTable typeEnv, myProcedureDec procedureDec)
+    myProcedureDec procedureDec)
 {
     bool isParamTypesDefined =
-        isFuncParamTypesDefined(typeEnv, procedureDec->tyFieldList);
+        isFuncParamTypesDefined(procedureDec->tyFieldList);
         
     if (isParamTypesDefined)
     {
-        AddOneProcedure_OnePass(varAndFuncEnv, typeEnv, procedureDec);
+        AddOneProcedure_OnePass(procedureDec);
         return true;
     }
     else
@@ -304,17 +297,64 @@ bool MySemantic_Dec_Func_Procedure_OnePass(
     }
 }
 
-void AddOneProcedure_OnePass(
-    myTable varAndFuncEnv, myTable typeEnv, myProcedureDec procedureDec)
+bool isFuncParamTypesDefined(myTyFieldList funcFields)
 {
-    AddOneProcedure(varAndFuncEnv, typeEnv, procedureDec);
+    while (funcFields)
+    {
+        myTyField paramField = funcFields->field;
+        if (!isTypeDefined(paramField->typeName))
+            return false;
+
+        funcFields = funcFields->next;
+    }
+
+    return true;
+}
+
+//  forwards
+void AddOneProcedure(myProcedureDec procedureDec);
+
+/////////////
+
+void AddOneProcedure_OnePass(myProcedureDec procedureDec)
+{
+    AddOneProcedure(procedureDec);
+}
+
+myTypeList getTypesFromTyFields(myTyFieldList funcFields)
+{
+    if (funcFields == NULL) return NULL;
+
+    myType fieldType = getActualTypeFromName(
+        funcFields->field->typeName);
+    return makeType_TypeList(
+        fieldType,
+        getTypesFromTyFields(funcFields->next));
+}
+
+void AddOneFunc(
+    mySymbol funcName, myTyFieldList tyFields, myType returnType)
+{
+    myTypeList formalTypes =
+        getTypesFromTyFields(tyFields); 
+
+    myTable varAndFuncEnv = MySemantic_getVarAndFuncEnvironment();
+    myVarAndFuncEntry funcEntry = myEnvironment_makeFuncEntry(
+        formalTypes, returnType);
+    MyEnvironment_addNewVarOrFunc(
+        varAndFuncEnv, funcName, funcEntry);
+}
+
+void AddOneProcedure(myProcedureDec procedureDec)
+{
+    AddOneFunc(procedureDec->name,
+        procedureDec->tyFieldList, makeType_NoReturn());
 }
 
 //////////////////////////////////////////////////
 
 //  forwards
-void AddOneFunction_OnePass(
-    myTable varAndFuncEnv, myTable typeEnv, myFunctionDec functionDec);
+void AddOneFunction_OnePass(myFunctionDec functionDec);
 void processFunctionErrors_OnePass(
     bool isParamTypesDefined, bool isReturnTypeDefined, mySymbol functionName);
 
@@ -331,16 +371,16 @@ void processFunctionErrors_OnePass(
 //  STATUS:
 //      Tested.
 bool MySemantic_Dec_Func_Function_OnePass(
-    myTable varAndFuncEnv, myTable typeEnv, myFunctionDec functionDec)
+    myFunctionDec functionDec)
 {
     bool isParamTypesDefined =
-        isFuncParamTypesDefined(typeEnv, functionDec->tyFieldList);
+        isFuncParamTypesDefined(functionDec->tyFieldList);
     bool isReturnTypeDefined = 
-        isTypeDefined(typeEnv, functionDec->returnType);
+        isTypeDefined(functionDec->returnType);
     
     if (isParamTypesDefined && isReturnTypeDefined)
     {
-        AddOneFunction_OnePass(varAndFuncEnv, typeEnv, functionDec);
+        AddOneFunction_OnePass(functionDec);
         return true;
     }
     else
@@ -351,11 +391,24 @@ bool MySemantic_Dec_Func_Function_OnePass(
     }
 }
 
-void AddOneFunction_OnePass(
-    myTable varAndFuncEnv, myTable typeEnv, myFunctionDec functionDec)
+//  forwards
+void AddOneFunction(
+    myFunctionDec functionDec);
+
+///////
+
+void AddOneFunction_OnePass(myFunctionDec functionDec)
 {
-    AddOneFunction(varAndFuncEnv, typeEnv, functionDec);
+    AddOneFunction(functionDec);
 }
+void AddOneFunction(myFunctionDec functionDec)
+{// todo: actual type
+    myTable typeEnv = MySemantic_getTypeEnvironment();
+    myType returnType =
+        MyEnvironment_getTypeFromName(typeEnv, functionDec->returnType);
+    AddOneFunc(functionDec->name, functionDec->tyFieldList, returnType);
+}
+
 
 void processFunctionErrors_OnePass(
     bool isParamTypesDefined, bool isReturnTypeDefined, mySymbol functionName)
@@ -376,7 +429,7 @@ void processFunctionErrors_OnePass(
 
 //  a delagate
 bool MySemantic_Dec_Func_OnePass(
-    myTable varAndFuncEnv, myTable typeEnv, myFuncDec funcDec)
+    myFuncDec funcDec)
 {
     if (funcDec == NULL)        return true;
 
@@ -384,16 +437,19 @@ bool MySemantic_Dec_Func_OnePass(
     {
         case ProcedureDec:
             return MySemantic_Dec_Func_Procedure_OnePass(
-                varAndFuncEnv, typeEnv, funcDec->u.procedureDec);
+                funcDec->u.procedureDec);
         case FunctionDec:
             return MySemantic_Dec_Func_Function_OnePass(
-                varAndFuncEnv, typeEnv, funcDec->u.functionDec);
+                funcDec->u.functionDec);
         default:
             assert (false);
     }
 }
 
 /////////////////////////////////////////////////
+
+//  forwards
+void addFormalsToScope(myTyFieldList formals);
 
 //  FORM:
 //      function id (tyfields) = exp
@@ -405,15 +461,15 @@ bool MySemantic_Dec_Func_OnePass(
 //  STATUS:
 //      Tested.
 bool MySemantic_Dec_Func_Procedure_TwoPass(
-    myTable varAndFuncEnv, myTable typeEnv, myProcedureDec procedureDec)
+    myProcedureDec procedureDec)
 {
-    MySymbol_BeginScope(varAndFuncEnv);
-    addFormalsToScope(varAndFuncEnv, typeEnv, procedureDec->tyFieldList);
+    MySymbol_BeginScope(MySemantic_getVarAndFuncEnvironment());
+    addFormalsToScope(procedureDec->tyFieldList);
 
     bool isBodyNoReturn = false;
-    isBodyNoReturn = isExpNoReturn(varAndFuncEnv, typeEnv, procedureDec->exp);
+    isBodyNoReturn = isExpNoReturn(procedureDec->exp);
     
-    MySymbol_EndScope(varAndFuncEnv);
+    MySymbol_EndScope(MySemantic_getVarAndFuncEnvironment());
 
     if (isBodyNoReturn)
         return true;
@@ -426,13 +482,29 @@ bool MySemantic_Dec_Func_Procedure_TwoPass(
     }
 }
 
+void addFormalsToScope(
+    myTyFieldList formals)
+{
+    while (formals)
+    {
+        myTyField field = formals->field;
+        myType formalVarType =
+            getActualTypeFromName(field->typeName);
+
+        myTable varAndFuncEnv = MySemantic_getVarAndFuncEnvironment();
+        MyEnvironment_addNewVarOrFunc(
+            varAndFuncEnv, field->varName,
+            myEnvironment_makeVarEntry(formalVarType));
+
+        formals = formals->next;
+    }
+}
+
 //////////////////////////////////////////////////
 
-//  forwrads(mySemantic.c)
+//  forwards
 bool isFunctionReturnTypeMatchesOrNil(
-    myTable varAndFuncEnv, myTable typeEnv, myFunctionDec functionDec);
-
-////////////
+    myFunctionDec functionDec);
 
 //  FORM:
 //      function id (tyfields) : type-id = exp
@@ -446,20 +518,19 @@ bool isFunctionReturnTypeMatchesOrNil(
 //  STATUS:
 //      Tested.
 bool MySemantic_Dec_Func_Function_TwoPass(
-    myTable varAndFuncEnv, myTable typeEnv, myFunctionDec functionDec)
+    myFunctionDec functionDec)
 {
-    MySymbol_BeginScope(varAndFuncEnv);
-    addFormalsToScope(varAndFuncEnv, typeEnv, functionDec->tyFieldList);
+    MySymbol_BeginScope(MySemantic_getVarAndFuncEnvironment());
+    addFormalsToScope(functionDec->tyFieldList);
 
-    bool isBodyLegal =
-        isExpLegal(varAndFuncEnv, typeEnv, functionDec->exp);
+    bool isBodyLegal = isExpLegal(functionDec->exp);
 
     bool isReturnTypeMatches = false;
     if (isBodyLegal)
         isReturnTypeMatches = isFunctionReturnTypeMatchesOrNil(
-            varAndFuncEnv, typeEnv, functionDec);
+            functionDec);
 
-    MySymbol_EndScope(varAndFuncEnv);
+    MySymbol_EndScope(MySemantic_getVarAndFuncEnvironment());
 
     if (isReturnTypeMatches)
         return true;
@@ -472,8 +543,21 @@ bool MySemantic_Dec_Func_Function_TwoPass(
     }
 }
 
+bool isFunctionReturnTypeMatchesOrNil(
+    myFunctionDec functionDec)
+{
+    myType bodyType =
+            getExpActualResultType(functionDec->exp);
+    myType functionReturnType =
+            getActualTypeFromName(functionDec->returnType);
+    return isTypeEqual(bodyType, functionReturnType) ||
+            (isTypeRecord(functionReturnType) && isTypeNil(bodyType));
+}
+
+/////////////////////////////////////
+
 bool MySemantic_Dec_Func_TwoPass(
-    myTable varAndFuncEnv, myTable typeEnv, myFuncDec funcDec)
+    myFuncDec funcDec)
 {
     if (funcDec == NULL)        return true;
 
@@ -481,10 +565,10 @@ bool MySemantic_Dec_Func_TwoPass(
     {
         case ProcedureDec:
             return MySemantic_Dec_Func_Procedure_TwoPass(
-                varAndFuncEnv, typeEnv, funcDec->u.procedureDec);
+                funcDec->u.procedureDec);
         case FunctionDec:
             return MySemantic_Dec_Func_Function_TwoPass(
-                varAndFuncEnv, typeEnv, funcDec->u.functionDec);
+                funcDec->u.functionDec);
         default:
             assert (false);
     }
@@ -494,80 +578,69 @@ bool MySemantic_Dec_Func_TwoPass(
 /////////////////////////////////////////////////
 
 //  a delegate function.
-bool MySemantic_Dec_FuncOrType_OnePass(myTable varAndFuncEnv, myTable typeEnv, myDec dec)
+bool MySemantic_Dec_FuncOrType_OnePass(myDec dec)
 {
     switch (dec->kind)
     {
         case TypeDec:
-            return MySemantic_Dec_Type_OnePass(typeEnv, dec->u.tyDec);
+            return MySemantic_Dec_Type_OnePass(dec->u.tyDec);
         case FuncDec:
-            return MySemantic_Dec_Func_OnePass(varAndFuncEnv, typeEnv, dec->u.funcDec);
+            return MySemantic_Dec_Func_OnePass(dec->u.funcDec);
         default:
             assert(false);
     }
 }
 
 //  a delegate function.
-bool MySemantic_Dec_FuncOrType_TwoPass(
-    myTable varAndFuncEnv, myTable typeEnv, myDec dec)
+bool MySemantic_Dec_FuncOrType_TwoPass(myDec dec)
 {
     switch (dec->kind)
     {
         case TypeDec:
-            return MySemantic_Dec_Type_TwoPass(
-                typeEnv, dec->u.tyDec);
+            return MySemantic_Dec_Type_TwoPass(dec->u.tyDec);
         case FuncDec:
-            return MySemantic_Dec_Func_TwoPass(
-                varAndFuncEnv, typeEnv, dec->u.funcDec);
+            return MySemantic_Dec_Func_TwoPass(dec->u.funcDec);
         default:
             assert(false);
     }
 }
 
-bool MySemantic_Dec_Var_Pass(
-    myTable varAndFuncEnv, myTable typeEnv, myDec varDec)
+bool MySemantic_Dec_Var_Pass(myDec varDec)
 {
-    return MySemantic_Dec_Var(
-        varAndFuncEnv, typeEnv, varDec->u.varDec);
+    return MySemantic_Dec_Var(varDec->u.varDec);
 }
 
 ////////////////////////////////////////////////////////////////
 
 //  forwards
-bool PassTemplate(
-    myTable varAndFuncEnv, myTable typeEnv, myDecList decs,
-    bool (*passFunc)(myTable, myTable, myDec));
+bool PassTemplate(myDecList decs, bool (*passFunc)(myDec));
 
 ///////////////
 
 bool MySemantic_Decs_FuncsOrTypes_OnePass(
-    myTable varAndFuncEnv, myTable typeEnv, myDecList decs)
+    myDecList decs)
 {
-    return PassTemplate(
-        varAndFuncEnv, typeEnv, decs, MySemantic_Dec_FuncOrType_OnePass);
+    return PassTemplate(decs, MySemantic_Dec_FuncOrType_OnePass);
 }
 
 bool MySemantic_Decs_FuncsOrTypes_TwoPass(
-    myTable varAndFuncEnv, myTable typeEnv, myDecList decs)
+    myDecList decs)
 {
-    return PassTemplate(
-        varAndFuncEnv, typeEnv, decs, MySemantic_Dec_FuncOrType_TwoPass);
+    return PassTemplate(decs, MySemantic_Dec_FuncOrType_TwoPass);
 }
 
 bool MySemantic_Decs_Vars_Pass(
-    myTable varAndFuncEnv, myTable typeEnv, myDecList decs)
+    myDecList decs)
 {
-    return PassTemplate(
-        varAndFuncEnv, typeEnv, decs, MySemantic_Dec_Var_Pass);
+    return PassTemplate(decs, MySemantic_Dec_Var_Pass);
 }
 
 bool PassTemplate(
-    myTable varAndFuncEnv, myTable typeEnv, myDecList decs,
-    bool (*passFunc)(myTable, myTable, myDec))
+    myDecList decs, bool (*passFunc)(myDec))
 {
     while (decs)
     {
-        if (!(*passFunc)(varAndFuncEnv, typeEnv, decs->dec))
+        if (!(*passFunc)(decs->dec))
             return false;
         decs = decs->next;
     }
@@ -584,7 +657,7 @@ bool detectIllegalRecursive_NamedTypes(myDecList decs);
 myDecList getNextConsecutivePart(myDecList decs, myDecList* pNext);
 
 bool MySemantic_Decs_Recursive(
-    myTable varAndFuncEnv, myTable typeEnv, myDecList decs)
+    myDecList decs)
 {
     if (decs == NULL)       return true;
     if (detectIllegalRecursive_SameTypeOrFuncDecs(decs))
@@ -598,8 +671,7 @@ bool MySemantic_Decs_Recursive(
     {
         if (thisConsecutivePart->dec->kind == VarDec)
         {
-            if (!MySemantic_Decs_Vars_Pass(
-                varAndFuncEnv, typeEnv, thisConsecutivePart))
+            if (!MySemantic_Decs_Vars_Pass(thisConsecutivePart))
                 return false;
         }
         else
@@ -608,10 +680,8 @@ bool MySemantic_Decs_Recursive(
                 detectIllegalRecursive_NamedTypes(thisConsecutivePart))
                 return false;
 
-            if (!MySemantic_Decs_FuncsOrTypes_OnePass(
-                    varAndFuncEnv, typeEnv, thisConsecutivePart) ||
-                !MySemantic_Decs_FuncsOrTypes_TwoPass(
-                    varAndFuncEnv, typeEnv, thisConsecutivePart))
+            if (!MySemantic_Decs_FuncsOrTypes_OnePass(thisConsecutivePart) ||
+                !MySemantic_Decs_FuncsOrTypes_TwoPass(thisConsecutivePart))
                 return false;
         }
     }
