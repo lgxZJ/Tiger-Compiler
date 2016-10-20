@@ -236,11 +236,41 @@ myType getActualTypeFromName(myTable typeEnv, mySymbol typeName)
 
 ////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////
-//                           Semantic Checkers                            //
-////////////////////////////////////////////////////////////////////////////
+//                           Semantic Globals                             //
 ////////////////////////////////////////////////////////////////////////////
 
+myTable g_varAndFuncEnv = NULL;
+myTable g_typeEnv = NULL;
+
 ////////////////////////////////////////////////////////////////////////////
+//                    Semantic Getters and Setters                        //
+////////////////////////////////////////////////////////////////////////////
+
+
+void MySemantic_setVarAndFuncEnvironment(myTable varAndFuncEnv)
+{
+    g_varAndFuncEnv = varAndFuncEnv;
+}
+
+void MySemantic_setTypeEnvironment(myTable typeEnv)
+{
+    g_typeEnv = typeEnv;
+}
+
+myTable MySemantic_getVarAndFuncEnvironment(void)
+{
+    return g_varAndFuncEnv;
+}
+
+myTable MySemantic_getTypeEnvironment(void)
+{
+    return g_typeEnv;
+}
+
+////////////////////////////////////////////////////////////////////////////
+//                           Semantic Checkers                            //
+////////////////////////////////////////////////////////////////////////////
+
 
 myTranslationAndType MySemantic_LValueExp_SimpleVar(
     myTable varAndFuncEnv, myLValueExp lValueExp);

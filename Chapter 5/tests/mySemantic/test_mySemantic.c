@@ -8,6 +8,7 @@
 #include "../../typeMaker.h"
 #include "../../typeChecker.h"
 #include "../../abstractSyntaxMaker.h"
+#include "../../breakChecker.h"
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -61,6 +62,22 @@ bool MySemantic_Dec_Func_Function(
 }
 
 ///////////////////////////////////////////////////////////////////////
+
+void test_GetterAndSetter_GetWhatSetted(void)
+{
+    myTable typeTableSetted = (myTable)12;
+    myTable varAndFuncTableSetted = (myTable)34;
+
+    MySemantic_setTypeEnvironment(typeTableSetted);
+    MySemantic_setVarAndFuncEnvironment(varAndFuncTableSetted);
+
+    myTable typeTableGot = MySemantic_getTypeEnvironment();
+    myTable varAndFuncTableGot = MySemantic_getVarAndFuncEnvironment();
+    CU_ASSERT_EQUAL(typeTableSetted, typeTableGot);
+    CU_ASSERT_EQUAL(varAndFuncTableSetted, varAndFuncTableGot);
+}
+
+//////////////////////////////////////////////////////////////////////
 
 void test_typeContainsLValueAux_CheckRecord_ReturnTypeOfOneField(void)
 {
@@ -414,18 +431,30 @@ void test_MySemanticNoValueExp_ByDefault_ReturnNoReturnType(void)
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void test_MySemanticBreakExp_ByDefault_ReturnNoReturnType(void)
+void test_MySemanticBreakExp_InsideLoop_ReturnNoReturnType(void)
 {
     myTable varAndFuncEnv = NULL;
     myTable typeEnv = NULL;
-
-    myPos pos;  pos.column = pos.line = 0;
     myBreakExp exp = makeMyBreakExp();
 
+    enterLoop();
     myTranslationAndType result = 
         MySemantic_BreakExp(varAndFuncEnv, typeEnv, exp);
 
-    CU_ASSERT(result != NULL && isTypeNoReturn(result->type));
+    CU_ASSERT(result != SEMANTIC_ERROR && isTypeNoReturn(result->type));
+}
+
+void test_MySemanticBreakExp_NotInsideLoop_ReturnSemanticError(void)
+{
+    myTable varAndFuncEnv = NULL;
+    myTable typeEnv = NULL;
+    myBreakExp exp = makeMyBreakExp();
+
+    leaveLoop();
+    myTranslationAndType result = 
+        MySemantic_BreakExp(varAndFuncEnv, typeEnv, exp);
+
+    CU_ASSERT_EQUAL(result, SEMANTIC_ERROR);
 }
 
 //////////////////////////////////////////////////////////////////////////////////
@@ -1215,13 +1244,20 @@ void test_MySemanticComparisonExp_IllegalRightOperand_ReturnNull(void)
     test_IllegalComparisonExp_ReturnNull(leftLegalOperand, rightIllegalOperand);
 }
 
-void test_MySemanticComparisonExp_AnyOperandsTypeNotInt_ReturnNull(void)
+void test_MySemanticComparisonExp_OperandsTypeNotEqual_ReturnNull(void)
 {
     myExp intOperand = makeOneExp_Integer();
-    myExp breakOperand = makeOneExp_Break();
+    myExp stringOperand = makeOneExp_String();
 
-    test_IllegalComparisonExp_ReturnNull(intOperand, breakOperand);
-    test_IllegalComparisonExp_ReturnNull(breakOperand, intOperand);
+    test_IllegalComparisonExp_ReturnNull(intOperand, stringOperand);
+    test_IllegalComparisonExp_ReturnNull(stringOperand, intOperand);
+}
+
+void test_MySemanticComparisonExp_OperandsTypesAllNoReturn_ReturnNull(void)
+{
+   myExp breakOperand = makeOneExp_NoValue();
+
+    test_IllegalComparisonExp_ReturnNull(breakOperand, breakOperand);
 }
 
 void test_MySemanticComparisonExp_LegalExp_ReturnIntType(void)
@@ -1370,6 +1406,19 @@ void test_MySemanticAssignmentExp_OperandsTypeNotMatch_ReturnNull(void)
     test_IllegalAssignmentExp_ReturnNull(
         varAndFuncEnv, typeEnv, 
         intLeftOperand, stringRightOperand);
+}
+
+void test_MySemanticAssignmentExp_RightOperandTypeNoReturn_ReturnNull(void)
+{
+    myTable varAndFuncEnv = myEnvironment_BaseVarAndFunc();
+    myTable typeEnv = myEnvironment_BaseType();
+    myLValueExp intLeftOperand =
+        makeOneLegalLValueExp_SimpleVar_Int(varAndFuncEnv, typeEnv); 
+    myExp breakExp = makeOneExp_NoValue();
+
+    test_IllegalAssignmentExp_ReturnNull(
+        varAndFuncEnv, typeEnv, 
+        intLeftOperand, breakExp);
 }
 
 void test_MySemanticAssignmentExp_LegalExp_ReturnNoReturnType(void)
@@ -2108,7 +2157,7 @@ void test_MySemanticDecs_ConsecutiveSameVarDecs_ReturnTrue(void)
     CU_ASSERT_EQUAL(resultSameVar, true);
 }
 
-void test_MySemanticDecs_DecsContainslegalDec_ReturnTrueAndDecsAdded(void)
+void test_MySemanticDecs_DecsContainsLegalDec_ReturnTrueAndDecsAdded(void)
 {
     myTable varAndFuncEnv = myEnvironment_BaseVarAndFunc();
     myTable typeEnv = myEnvironment_BaseType();
@@ -2274,6 +2323,32 @@ void test_MySemanticLetExp_LegalExp_FuncsInDecsCanBeUsedInExps(void)
 
 /////////////////////////////////////////////////////////////////////////////
 
+void test_MySemanticExp_IllegalBreak_Failed(void)
+{
+    myTable varAndFuncEnv = myEnvironment_BaseVarAndFunc();
+    myTable typeEnv = myEnvironment_BaseType();
+    myExp illegalExp = makeMyExp_IfThen(makeOnePos(),
+        makeMyIfThenExp(makeOneExp_Integer(), makeOneExp_Break()));
+
+    myTranslationAndType result = MySemantic_Exp(varAndFuncEnv, typeEnv, illegalExp);
+
+    CU_ASSERT_EQUAL(result, SEMANTIC_ERROR);
+}
+
+void test_MySemanticExp_LegalBreak_Succeed(void)
+{
+    myTable varAndFuncEnv = myEnvironment_BaseVarAndFunc();
+    myTable typeEnv = myEnvironment_BaseType();
+    myExp legalExp = makeMyExp_While(makeOnePos(),
+        makeMyWhileExp(makeOneExp_Integer(), makeOneExp_Break()));
+
+    myTranslationAndType result = MySemantic_Exp(varAndFuncEnv, typeEnv, legalExp);
+
+    CU_ASSERT_NOT_EQUAL(result, SEMANTIC_ERROR);
+}
+
+/////////////////////////////////////////////////////////////////////////////
+
 int main (int argc, char* argv[])
 {
     CU_pSuite suite;
@@ -2281,6 +2356,8 @@ int main (int argc, char* argv[])
 
     //	add tests
     CU_TestInfo tests[] = {
+        { "", test_GetterAndSetter_GetWhatSetted },
+
         { "", test_typeContainsLValueAux_CheckRecord_ReturnTypeOfOneField },
         { "", test_typeContainsLValueAux_CheckRecord_ReturnTypeOfNestedField },
         { "", test_typeContainsLValueAux_CheckArray_ReturnTypeOfOneField },
@@ -2303,7 +2380,9 @@ int main (int argc, char* argv[])
         { "", test_MySemanticIntegerLiteralExp_ByDefault_ReturnIntType },
         { "", test_MySemanticStringLiteralExp_ByDefault_ReturnStringType },
         { "", test_MySemanticNoValueExp_ByDefault_ReturnNoReturnType },
-        { "", test_MySemanticBreakExp_ByDefault_ReturnNoReturnType },
+
+        { "", test_MySemanticBreakExp_InsideLoop_ReturnNoReturnType },
+        { "", test_MySemanticBreakExp_NotInsideLoop_ReturnSemanticError },
 
         { "", test_MySemanticFunctionCallExpNoParam_LegalExp_ReturnTypeOfFunctionResult },
         { "", test_MySemanticFunctionCallExpNoParam_FunctionNotDefined_ReturnNull },
@@ -2356,7 +2435,8 @@ int main (int argc, char* argv[])
 
         { "", test_MySemanticComparisonExp_IllegalLeftOperand_ReturnNull },
         { "", test_MySemanticComparisonExp_IllegalRightOperand_ReturnNull },
-        { "", test_MySemanticComparisonExp_AnyOperandsTypeNotInt_ReturnNull },
+        { "", test_MySemanticComparisonExp_OperandsTypeNotEqual_ReturnNull },
+        { "", test_MySemanticComparisonExp_OperandsTypesAllNoReturn_ReturnNull },
         { "", test_MySemanticComparisonExp_LegalExp_ReturnIntType },
         { "", test_MySemanticComparisonExp_OneRecordAnotherNil_Succeed },
 
@@ -2367,6 +2447,7 @@ int main (int argc, char* argv[])
         { "", test_MySemanticAssignmentExp_OnlyLeftOperandIllegal_ReturnNull },
         { "", test_MySemanticAssignmentExp_OnlyRightOperandIllegal_ReturnNull },
         { "", test_MySemanticAssignmentExp_OperandsTypeNotMatch_ReturnNull },
+        { "", test_MySemanticAssignmentExp_RightOperandTypeNoReturn_ReturnNull },
         { "", test_MySemanticAssignmentExp_LegalExp_ReturnNoReturnType },
         { "", test_MySemanticAssignmentExp_LeftRecordRightNil_Succeed },
 
@@ -2417,14 +2498,17 @@ int main (int argc, char* argv[])
         { "", test_MySemanticDecs_ConsecutiveSameFuncOrTypeDecs_ReturnFalse },
         { "", test_MySemanticDecs_NotConsecutiveSameFuncOrTypeDecs_ReturnTrue },
         { "", test_MySemanticDecs_ConsecutiveSameVarDecs_ReturnTrue },
-        { "", test_MySemanticDecs_DecsContainslegalDec_ReturnTrueAndDecsAdded },
+        { "", test_MySemanticDecs_DecsContainsLegalDec_ReturnTrueAndDecsAdded },
 
         { "", test_MySemanticLetExp_IllegalDeclarations_ReturnNull },
         { "", test_MySemanticLetExp_IllegalBody_ReturnNull },
         { "", test_MySemanticLetExp_LegalExp_ReturnLastExpType },
         { "", test_MySemanticLetExp_LegalExp_VarInDecsCanBeUsedInExps },
         { "", test_MySemanticLetExp_LegalExp_TypesInDecsCanBeUsedInExps },
-        { "", test_MySemanticLetExp_LegalExp_FuncsInDecsCanBeUsedInExps }
+        { "", test_MySemanticLetExp_LegalExp_FuncsInDecsCanBeUsedInExps },
+
+        { "", test_MySemanticExp_IllegalBreak_Failed },
+        { "", test_MySemanticExp_LegalBreak_Succeed }
     };
     
     if (!addTests(&suite, tests, sizeof(tests) / sizeof(tests[0])))

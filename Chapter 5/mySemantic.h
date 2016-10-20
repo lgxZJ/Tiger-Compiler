@@ -51,5 +51,11 @@ myTranslationAndType make_MyTranslationAndType
      myTable typeEnv,
      myExp   exp);
 
+//  todo:
+void MySemantic_setVarAndFuncEnvironment    (myTable varAndEnvEnv);
+void MySemantic_setTypeEnvironment          (myTable typeEnv);
+
+myTable MySemantic_getVarAndFuncEnvironment(void);
+myTable MySemantic_getTypeEnvironment(void);
 
 #endif
