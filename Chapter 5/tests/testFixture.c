@@ -3,6 +3,7 @@
 #include "../myEnvironment.h"
 #include "../typeMaker.h"
 #include "../abstractSyntaxMaker.h"
+#include "../mySemantic.h"
 
 #include <stdlib.h> //  for macro NULL
 
@@ -75,20 +76,24 @@ myExp makeOneIllegalExp_Integer(void)
             makeOneExp_Integer(), makeOneExp_Integer()));
 }
 
-myLValueExp makeOneLegalLValueExp_SimpleVar_Int(
-    myTable varAndFuncEnv, myTable typeEnv)
+myLValueExp makeOneLegalLValueExp_SimpleVar_Int(void)
 {
     mySymbol variableName = makeOneSymbol();
-    MySymbol_Enter(varAndFuncEnv, variableName, myEnvironment_makeVarEntry(makeType_Int()));
+    MySymbol_Enter(
+        MySemantic_getVarAndFuncEnvironment(),
+        variableName,
+        myEnvironment_makeVarEntry(makeType_Int()));
 
     return makeMyLValue(makeOnePos(), variableName, NULL);
 }
 
-myLValueExp makeOneLegalLValueExp_Record(
-    myTable varAndFuncEnv, myType recordType)
+myLValueExp makeOneLegalLValueExp_Record(myType recordType)
 {
     mySymbol variableName = makeOneSymbol();
-    MySymbol_Enter(varAndFuncEnv, variableName, myEnvironment_makeVarEntry(recordType));
+    MySymbol_Enter(
+        MySemantic_getVarAndFuncEnvironment(),
+        variableName,
+        myEnvironment_makeVarEntry(recordType));
 
     return makeMyLValue(makeOnePos(), variableName, NULL);
 }
@@ -114,10 +119,13 @@ myType makeOneArray_StringArrayArray(void)
     return makeType_Array(makeType_Array(makeType_String()));
 }
 
-myType makeAndAddOneType_NoFieldRecord(myTable typeEnv, mySymbol recordTypeName)
+myType makeAndAddOneType_NoFieldRecord(mySymbol recordTypeName)
 {
     myType recordType = makeType_Record(makeType_TypeFieldList(NULL, NULL));
-    MyEnvironment_addNewType(typeEnv, recordTypeName, recordType);
+    MyEnvironment_addNewType(
+        MySemantic_getTypeEnvironment(),
+        recordTypeName,
+        recordType);
     return recordType;
 }
 

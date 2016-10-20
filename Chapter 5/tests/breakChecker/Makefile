@@ -1,4 +1,6 @@
-OBJECTS := test_breakChecker.o breakChecker.o testHelper.o
+OUT_DIR := ./bin
+OBJECTS := $(OUT_DIR)/test_breakChecker.o $(OUT_DIR)/breakChecker.o\
+	$(OUT_DIR)/testHelper.o
 
 COMPILE_FLAGS := gcc -g -c -std=c99
 ADDITIONAL_INCLUDE := -I/home/lgxZJ/Libraries/CUnit/include
@@ -9,32 +11,32 @@ VPATH := ../../:../
 
 
 all.out : $(OBJECTS)
-	gcc -g $(ADDITIONAL_LIB) -lcunit -coverage -o all.out $(OBJECTS)
+	gcc -g $(ADDITIONAL_LIB) -lcunit -coverage -o $(OUT_DIR)/all.out $(OBJECTS)
 
-breakChecker.o : breakChecker.c
-	$(COMPILE_FLAGS)  $(ADDITIONAL_INCLUDE) $(COVERAGE_OPTIONS) $<
+$(OUT_DIR)/breakChecker.o : breakChecker.c
+	$(COMPILE_FLAGS)  $(ADDITIONAL_INCLUDE) $(COVERAGE_OPTIONS) -o $@ $<
 
-%.o : %.c
-	$(COMPILE_FLAGS) $(ADDITIONAL_INCLUDE) $<
+$(OUT_DIR)/%.o : %.c
+	$(COMPILE_FLAGS) $(ADDITIONAL_INCLUDE) -o $@ $<
 
 
 
 .PHONY : clean retest run show-coverage
 
 clean:
-	rm -f $(OBJECTS) all.out
+	rm -f $(OBJECTS) $(OUT_DIR)/all.out
 
 retest:
 	make clean
 	make
-	./all.out
+	$(OUT_DIR)/all.out
 
 run:
-	./all.out
+	$(OUT_DIR)/all.out
 
 show-coverage:
 	lcov --directory . --zerocounters
-	./all.out
+	$(OUT_DIR)/all.out
 	lcov --directory . --capture --output-file coverage.info
 	genhtml -f coverage.info
-	firefox index.html
+	firefox index.html &

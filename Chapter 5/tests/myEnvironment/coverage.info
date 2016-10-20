@@ -7,10 +7,10 @@ FN:52,myEnvironment_isFuncEntry
 FN:58,MyEnvironment_addNewVarOrFunc
 FN:64,MyEnvironment_addNewType
 FN:71,MyEnvironment_getVarOrFuncFromName
-FN:77,MyEnvironment_getVarTypeOfVar
+FN:77,MyEnvironment_getVarType
 FN:85,MyEnvironment_getTypeFromName
-FN:92,MyEnvironment_getFormalTypesOfFunc
-FN:100,MyEnvironment_getReturnTypeOfFunc
+FN:92,MyEnvironment_getFuncFormalTypes
+FN:100,MyEnvironment_getFuncReturnType
 FN:107,MyEnvironment_setTypeFromName
 FN:119,myEnvironment_BaseVarAndFunc
 FN:197,myEnvironment_BaseType
@@ -21,10 +21,10 @@ FNDA:3,myEnvironment_isFuncEntry
 FNDA:1,MyEnvironment_addNewVarOrFunc
 FNDA:2,MyEnvironment_addNewType
 FNDA:1,MyEnvironment_getVarOrFuncFromName
-FNDA:1,MyEnvironment_getVarTypeOfVar
+FNDA:1,MyEnvironment_getVarType
 FNDA:2,MyEnvironment_getTypeFromName
-FNDA:1,MyEnvironment_getFormalTypesOfFunc
-FNDA:1,MyEnvironment_getReturnTypeOfFunc
+FNDA:1,MyEnvironment_getFuncFormalTypes
+FNDA:1,MyEnvironment_getFuncReturnType
 FNDA:1,MyEnvironment_setTypeFromName
 FNDA:2,myEnvironment_BaseVarAndFunc
 FNDA:3,myEnvironment_BaseType

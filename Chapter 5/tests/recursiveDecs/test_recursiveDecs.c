@@ -3,31 +3,31 @@
 
 #include "../../recursiveDecs.h"
 #include "../../myEnvironment.h"
+#include "../../mySemantic.h"
 #include "../../abstractSyntaxMaker.h"
 #include "../../typeChecker.h"
 #include "../../typeMaker.h"
 
 //////////////////////////////////////////////////////////////////////
 //  forwards of tested functions
-bool MySemantic_Dec_Type_OnePass(
-    myTable typeEnv, myTypeDec typeDec);
+bool MySemantic_Dec_Type_OnePass(myTypeDec typeDec);
 bool MySemantic_Dec_Func_Procedure_OnePass(
-    myTable varAndFuncEnv, myTable typeEnv, myProcedureDec procedureDec);
+    myProcedureDec procedureDec);
 bool MySemantic_Dec_Func_Function_OnePass(
-    myTable varAndFuncEnv, myTable typeEnv, myFunctionDec functionDec);
+    myFunctionDec functionDec);
 bool MySemantic_Dec_Type_Named_TwoPass(
-    myTable typeEnv, mySymbol newTypeName, mySymbol existedTypeName);
+    mySymbol newTypeName, mySymbol existedTypeName);
 bool MySemantic_Dec_Type_Record_TwoPass(
-    myTable typeEnv, mySymbol newTypeName, myTyFieldList fields);
+    mySymbol newTypeName, myTyFieldList fields);
 bool MySemantic_Dec_Type_Array_TwoPass(
-    myTable typeEnv, mySymbol newTypeName, mySymbol elementTypeName);
-bool MySemantic_Dec_Type_TwoPass(myTable typeEnv, myTypeDec typeDec);
+    mySymbol newTypeName, mySymbol elementTypeName);
+bool MySemantic_Dec_Type_TwoPass(myTypeDec typeDec);
 bool MySemantic_Dec_Func_Procedure_TwoPass(
-    myTable varAndFuncEnv, myTable typeEnv, myProcedureDec procedureDec);
+    myProcedureDec procedureDec);
 bool MySemantic_Dec_Func_Function_TwoPass(
-    myTable varAndFuncEnv, myTable typeEnv, myFunctionDec functionDec);
+    myFunctionDec functionDec);
 bool MySemantic_Decs_Recursive(
-    myTable varAndFuncEnv, myTable typeEnv, myDecList decs);
+    myDecList decs);
 
 //////////////////////////////////////////////////////////////////////
 
@@ -36,15 +36,17 @@ bool MySemantic_Decs_Recursive(
 
 void test_MySemanticDecTypeOnePass_ByDefault_ReturnTrueAndAddNullType(void)
 {
-    myTable typeEnv = myEnvironment_BaseType();
+    MySemantic_setTypeEnvironment(myEnvironment_BaseType());
 
     mySymbol typeName = MySymbol_MakeSymbol("typeName");
     myTypeDec typeDec = makeMyTyDec(typeName, makeMyTy_Named(makeOnePos(), makeSymbol_Int()));
 
 
-    bool result = MySemantic_Dec_Type_OnePass(typeEnv, typeDec);
+    bool result = MySemantic_Dec_Type_OnePass(typeDec);
 
-    myType typeGot = MyEnvironment_getTypeFromName(typeEnv, typeName);
+    myType typeGot = MyEnvironment_getTypeFromName(
+        MySemantic_getTypeEnvironment(),
+        typeName);
     CU_ASSERT_EQUAL(result, true);
     CU_ASSERT_EQUAL(typeGot->u.typeNamed->type, NULL);
 } 
@@ -53,8 +55,8 @@ void test_MySemanticDecTypeOnePass_ByDefault_ReturnTrueAndAddNullType(void)
 
 void test_MySemanticDecFuncProcedureOnePass_ParamTypesNotDefined_ReturnFalseAndNotAdd(void)
 {
-    myTable varAndFuncEnv = myEnvironment_BaseVarAndFunc();
-    myTable typeEnv = myEnvironment_BaseType();
+    MySemantic_setVarAndFuncEnvironment(myEnvironment_BaseVarAndFunc());
+    MySemantic_setTypeEnvironment(myEnvironment_BaseType());
 
     mySymbol procedureName = MySymbol_MakeSymbol("procedureName");
     mySymbol notDefinedTypeName=  MySymbol_MakeSymbol("not defined");
@@ -64,17 +66,18 @@ void test_MySemanticDecFuncProcedureOnePass_ParamTypesNotDefined_ReturnFalseAndN
         makeOneExp_NoValue());
 
 
-    bool result = MySemantic_Dec_Func_Procedure_OnePass(varAndFuncEnv, typeEnv, dec);
+    bool result = MySemantic_Dec_Func_Procedure_OnePass(dec);
 
-    myVarAndFuncEntry entryGot = MyEnvironment_getVarOrFuncFromName(varAndFuncEnv, procedureName);
+    myVarAndFuncEntry entryGot = MyEnvironment_getVarOrFuncFromName(
+        MySemantic_getVarAndFuncEnvironment(), procedureName);
     CU_ASSERT_EQUAL(result, false);
     CU_ASSERT_EQUAL(entryGot, NULL);
 }
 
 void test_MySemanticDecFuncProcedureOnePass_ParamTypesDefined_ReturnTrueAndAdded(void)
 {
-    myTable varAndFuncEnv = myEnvironment_BaseVarAndFunc();
-    myTable typeEnv = myEnvironment_BaseType();
+    MySemantic_setVarAndFuncEnvironment(myEnvironment_BaseVarAndFunc());
+    MySemantic_setTypeEnvironment(myEnvironment_BaseType());
 
     mySymbol procedureName = MySymbol_MakeSymbol("procedureName");
     myProcedureDec dec = makeMyProcedureDec(
@@ -83,9 +86,10 @@ void test_MySemanticDecFuncProcedureOnePass_ParamTypesDefined_ReturnTrueAndAdded
         makeOneExp_NoValue());
 
 
-    bool result = MySemantic_Dec_Func_Procedure_OnePass(varAndFuncEnv, typeEnv, dec);
+    bool result = MySemantic_Dec_Func_Procedure_OnePass(dec);
 
-    myVarAndFuncEntry entryGot = MyEnvironment_getVarOrFuncFromName(varAndFuncEnv, procedureName);
+    myVarAndFuncEntry entryGot = MyEnvironment_getVarOrFuncFromName(
+        MySemantic_getVarAndFuncEnvironment(), procedureName);
     CU_ASSERT_EQUAL(result, true);
     CU_ASSERT_NOT_EQUAL(entryGot, NULL);
     CU_ASSERT(myEnvironment_isFuncEntry(entryGot));
@@ -119,8 +123,8 @@ void test_MySemanticDecFuncFunctionOnePass_ReturnTypesNotDefined_ReturnFalseAndF
 
 void test_MySemanticDecFuncFunctionOnePass_TypesAllDefined_ReturnTrueAndFunctionAdded(void)
 {
-    myTable varAndFuncEnv = myEnvironment_BaseVarAndFunc();
-    myTable typeEnv = myEnvironment_BaseType();
+    MySemantic_setVarAndFuncEnvironment(myEnvironment_BaseVarAndFunc());
+    MySemantic_setTypeEnvironment(myEnvironment_BaseType());
 
     mySymbol functionName = MySymbol_MakeSymbol("name");
     myFunctionDec dec = makeMyFunctionDec(
@@ -130,10 +134,11 @@ void test_MySemanticDecFuncFunctionOnePass_TypesAllDefined_ReturnTrueAndFunction
         makeOneExp_NoValue());
 
     bool result =
-        MySemantic_Dec_Func_Function_OnePass(varAndFuncEnv, typeEnv, dec);
+        MySemantic_Dec_Func_Function_OnePass(dec);
 
     myVarAndFuncEntry entry =
-        MyEnvironment_getVarOrFuncFromName(varAndFuncEnv, functionName);
+        MyEnvironment_getVarOrFuncFromName(
+            MySemantic_getVarAndFuncEnvironment(), functionName);
     CU_ASSERT_EQUAL(result, true);
     CU_ASSERT_NOT_EQUAL(entry, NULL);
     CU_ASSERT(myEnvironment_isFuncEntry(entry));
@@ -143,8 +148,8 @@ void test_MySemanticDecFuncFunctionOnePass_TypesAllDefined_ReturnTrueAndFunction
 void test_IllegalFunctionDecOnePass_ReturnFalseAndFunctionNotAdd(
     mySymbol paramTypeName, mySymbol returnTypeName)
 {
-    myTable varAndFuncEnv = myEnvironment_BaseVarAndFunc();
-    myTable typeEnv = myEnvironment_BaseType();
+    MySemantic_setVarAndFuncEnvironment(myEnvironment_BaseVarAndFunc());
+    MySemantic_setTypeEnvironment(myEnvironment_BaseType());
 
     mySymbol functionName = MySymbol_MakeSymbol("name");
     myFunctionDec dec = makeMyFunctionDec(
@@ -154,10 +159,11 @@ void test_IllegalFunctionDecOnePass_ReturnFalseAndFunctionNotAdd(
         makeOneExp_NoValue());
 
     bool result =
-        MySemantic_Dec_Func_Function_OnePass(varAndFuncEnv, typeEnv, dec);
+        MySemantic_Dec_Func_Function_OnePass(dec);
 
     myVarAndFuncEntry entry =
-        MyEnvironment_getVarOrFuncFromName(varAndFuncEnv, functionName);
+        MyEnvironment_getVarOrFuncFromName(
+            MySemantic_getVarAndFuncEnvironment(), functionName);
     CU_ASSERT_EQUAL(result, false);
     CU_ASSERT_EQUAL(entry, NULL);
 }
@@ -167,12 +173,12 @@ void test_IllegalFunctionDecOnePass_ReturnFalseAndFunctionNotAdd(
 
 void test_MySemanticDecTypeNamedTwoPass_TypeNotDefined_ReturnFalse(void)
 {
-    myTable typeEnv = myEnvironment_BaseType();
+    MySemantic_setTypeEnvironment(myEnvironment_BaseType());
     mySymbol undefinedTypeName = MySymbol_MakeSymbol("undefined");
     mySymbol typeName = makeOneSymbol(); 
 
     bool result = MySemantic_Dec_Type_Named_TwoPass(
-        typeEnv, typeName , undefinedTypeName);
+        typeName , undefinedTypeName);
 
     CU_ASSERT_EQUAL(result, false);
 }
@@ -180,40 +186,43 @@ void test_MySemanticDecTypeNamedTwoPass_TypeNotDefined_ReturnFalse(void)
 
 void test_MySemanticDecTypeNamedTwoPass_TypeDefinedBodyReal_ReturnTrueAndTypeSet(void)
 {
-    myTable typeEnv = myEnvironment_BaseType();
+    MySemantic_setTypeEnvironment(myEnvironment_BaseType());
 
     mySymbol newTypeName = MySymbol_MakeSymbol("newType");
     myTypeDec typeDec = makeMyTyDec(
         newTypeName, makeMyTy_Named(makeOnePos(), makeSymbol_Int()));
-    MySemantic_Dec_Type_OnePass(typeEnv, typeDec);
+    MySemantic_Dec_Type_OnePass(typeDec);
 
 
     bool result = MySemantic_Dec_Type_Named_TwoPass(
-        typeEnv, newTypeName, makeSymbol_Int());
+        newTypeName, makeSymbol_Int());
 
-    myType typeGot = MyEnvironment_getTypeFromName(typeEnv, newTypeName);
+    myType typeGot = MyEnvironment_getTypeFromName(
+        MySemantic_getTypeEnvironment(), newTypeName);
     CU_ASSERT_EQUAL(result, true);
     CU_ASSERT(isTypeNamed(typeGot));   
 }
 
 void test_MySemanticDecTypeNamedTwoPass_TypeDefinedBodyEmpty_ReturnTrueAndTypeBLinkToTypeA(void)
 {
-    myTable typeEnv = myEnvironment_BaseType();
+    MySemantic_setTypeEnvironment(myEnvironment_BaseType());
 
     mySymbol typeNameB = MySymbol_MakeSymbol("typeB");
     mySymbol typeNameA = MySymbol_MakeSymbol("typeA");
     myTypeDec typeDec = makeMyTyDec(
         typeNameB, makeMyTy_Named(makeOnePos(), typeNameA));
-    MySemantic_Dec_Type_OnePass(typeEnv,
+    MySemantic_Dec_Type_OnePass(
         makeMyTyDec(typeNameA, makeMyTy_Named(makeOnePos(), makeSymbol_Int())));
-    MySemantic_Dec_Type_OnePass(typeEnv, typeDec);
+    MySemantic_Dec_Type_OnePass(typeDec);
 
 
     bool result = MySemantic_Dec_Type_Named_TwoPass(
-        typeEnv, typeNameB, typeNameA);
+        typeNameB, typeNameA);
 
-    myType typeGotB = MyEnvironment_getTypeFromName(typeEnv, typeNameB);
-    myType typeGotA = MyEnvironment_getTypeFromName(typeEnv, typeNameA);
+    myType typeGotB = MyEnvironment_getTypeFromName(
+        MySemantic_getTypeEnvironment(), typeNameB);
+    myType typeGotA = MyEnvironment_getTypeFromName(
+        MySemantic_getTypeEnvironment(), typeNameA);
     CU_ASSERT_EQUAL(result, true);
     CU_ASSERT_EQUAL(typeGotA, typeGotB->u.typeNamed->type);
 }
@@ -221,7 +230,7 @@ void test_MySemanticDecTypeNamedTwoPass_TypeDefinedBodyEmpty_ReturnTrueAndTypeBL
 
 void test_MySemanticDecTypeNamedPass_ManuallyRecursiveNamedType_Succeed(void)
 {
-    myTable typeEnv = myEnvironment_BaseType();
+    MySemantic_setTypeEnvironment(myEnvironment_BaseType());
 
     mySymbol typeNameA = MySymbol_MakeSymbol("A");
     mySymbol typeNameB = MySymbol_MakeSymbol("B");
@@ -231,13 +240,15 @@ void test_MySemanticDecTypeNamedPass_ManuallyRecursiveNamedType_Succeed(void)
         typeNameB, makeMyTy_Named(makeOnePos(), makeSymbol_Int()));
 
 
-    MySemantic_Dec_Type_OnePass(typeEnv, typeDecFirst);
-    MySemantic_Dec_Type_OnePass(typeEnv, typeDecSecond);
-    MySemantic_Dec_Type_TwoPass(typeEnv, typeDecFirst);
-    MySemantic_Dec_Type_TwoPass(typeEnv, typeDecSecond);
+    MySemantic_Dec_Type_OnePass(typeDecFirst);
+    MySemantic_Dec_Type_OnePass(typeDecSecond);
+    MySemantic_Dec_Type_TwoPass(typeDecFirst);
+    MySemantic_Dec_Type_TwoPass(typeDecSecond);
 
-    myType typeA = MyEnvironment_getTypeFromName(typeEnv, typeNameA);
-    myType typeB = MyEnvironment_getTypeFromName(typeEnv, typeNameB);
+    myType typeA = MyEnvironment_getTypeFromName(
+        MySemantic_getTypeEnvironment(), typeNameA);
+    myType typeB = MyEnvironment_getTypeFromName(
+        MySemantic_getTypeEnvironment(), typeNameB);
     CU_ASSERT(isTypeInt(typeB->u.typeNamed->type));
     CU_ASSERT(isTypeEqual(
         typeA->u.typeNamed->type->u.typeNamed->type, 
@@ -246,15 +257,15 @@ void test_MySemanticDecTypeNamedPass_ManuallyRecursiveNamedType_Succeed(void)
 
 void test_MySemanticDecTypeNamedPass_RecursiveNamed_ReturnFalse(void)
 {
-    myTable typeEnv = myEnvironment_BaseType();
+    MySemantic_setTypeEnvironment(myEnvironment_BaseType());
 
     mySymbol typeNameA = MySymbol_MakeSymbol("A");
     myTypeDec typeDec = makeMyTyDec(
         typeNameA, makeMyTy_Named(makeOnePos(), typeNameA));
 
 
-    MySemantic_Dec_Type_OnePass(typeEnv, typeDec);
-    bool result = MySemantic_Dec_Type_TwoPass(typeEnv, typeDec);
+    MySemantic_Dec_Type_OnePass(typeDec);
+    bool result = MySemantic_Dec_Type_TwoPass(typeDec);
 
     CU_ASSERT_EQUAL(result, false);
 }
@@ -263,37 +274,38 @@ void test_MySemanticDecTypeNamedPass_RecursiveNamed_ReturnFalse(void)
 
 void test_MySemanticDecTypeRecordTwoPass_FieldTypesNotDefined_ReturnFalse(void)
 {
-    myTable typeEnv = myEnvironment_BaseType();
+    MySemantic_setTypeEnvironment(myEnvironment_BaseType());
 
     mySymbol varName = makeOneSymbol();
     mySymbol typeName = MySymbol_MakeSymbol("typeA");
     mySymbol recordTypeName = makeOneSymbol();
     myTyFieldList tyFields = makeMyTyFieldList(
         makeMyTyField(varName, typeName), NULL);
-    MySemantic_Dec_Type_OnePass(typeEnv, makeMyTyDec(
+    MySemantic_Dec_Type_OnePass(makeMyTyDec(
         recordTypeName, makeMyTy_Record(makeOnePos(), tyFields)));
 
     bool result = MySemantic_Dec_Type_Record_TwoPass(
-        typeEnv, recordTypeName, tyFields);
+        recordTypeName, tyFields);
 
     CU_ASSERT_EQUAL(result, false);
 }
 
 void test_MySemanticDecTypeRecordTwoPass_FieldTypesDefined_ReturnTrueAndSetType(void)
 {
-    myTable typeEnv = myEnvironment_BaseType();
+    MySemantic_setTypeEnvironment(myEnvironment_BaseType());
     myTyFieldList tyFields = makeMyTyFieldList(
         makeMyTyField(makeOneSymbol(), MySymbol_MakeSymbol("int")),
         NULL);
     mySymbol recordTypeName = MySymbol_MakeSymbol("recordType");
-    MySemantic_Dec_Type_OnePass(typeEnv, makeMyTyDec(
+    MySemantic_Dec_Type_OnePass(makeMyTyDec(
         recordTypeName, makeMyTy_Record(makeOnePos(), tyFields)));
     
 
     bool result = MySemantic_Dec_Type_Record_TwoPass(
-        typeEnv, recordTypeName, tyFields);
+        recordTypeName, tyFields);
 
-    myType recordType = MyEnvironment_getTypeFromName(typeEnv, recordTypeName); 
+    myType recordType = MyEnvironment_getTypeFromName(
+        MySemantic_getTypeEnvironment(), recordTypeName); 
     CU_ASSERT_EQUAL(result, true);
     CU_ASSERT(isTypeRecord(recordType));
     CU_ASSERT(isTypeInt(recordType->u.typeRecord->fieldList->head->type));
@@ -301,26 +313,28 @@ void test_MySemanticDecTypeRecordTwoPass_FieldTypesDefined_ReturnTrueAndSetType(
 
 void test_MySemanticDecTypeRecordTwoPass_ManuallyRecursiveType_ReturnTrueAndLink(void)
 {
-    myTable typeEnv = myEnvironment_BaseType();
+    MySemantic_setTypeEnvironment(myEnvironment_BaseType());
 
     mySymbol typeNameA = MySymbol_MakeSymbol("typeA");
     mySymbol recordTypeName = MySymbol_MakeSymbol("recordType");
-    MySemantic_Dec_Type_OnePass(typeEnv,
+    MySemantic_Dec_Type_OnePass(
         makeMyTyDec(typeNameA, makeMyTy_Named(makeOnePos(), recordTypeName)));
 
     myTyFieldList tyFields = makeMyTyFieldList(
         makeMyTyField(makeOneSymbol(), makeSymbol_Int()), NULL);
-    MySemantic_Dec_Type_OnePass(typeEnv, makeMyTyDec(
+    MySemantic_Dec_Type_OnePass(makeMyTyDec(
         recordTypeName, makeMyTy_Record(makeOnePos(), tyFields)));
     
 
     MySemantic_Dec_Type_Named_TwoPass(
-        typeEnv, typeNameA, recordTypeName);
+        typeNameA, recordTypeName);
     bool result = MySemantic_Dec_Type_Record_TwoPass(
-        typeEnv, recordTypeName, tyFields);
+        recordTypeName, tyFields);
 
-    myType typeA = MyEnvironment_getTypeFromName(typeEnv, typeNameA);
-    myType recordType = MyEnvironment_getTypeFromName(typeEnv, recordTypeName);
+    myType typeA = MyEnvironment_getTypeFromName(
+        MySemantic_getTypeEnvironment(), typeNameA);
+    myType recordType = MyEnvironment_getTypeFromName(
+        MySemantic_getTypeEnvironment(), recordTypeName);
     CU_ASSERT_EQUAL(result, true);
     CU_ASSERT_EQUAL(
         typeA->u.typeNamed->type,
@@ -329,7 +343,7 @@ void test_MySemanticDecTypeRecordTwoPass_ManuallyRecursiveType_ReturnTrueAndLink
 
 void test_MySemanticDecTypeRecordTwoPass_RecursiveType_ReturnTrueAndLink(void)
 {
-    myTable typeEnv = myEnvironment_BaseType();
+    MySemantic_setTypeEnvironment(myEnvironment_BaseType());
 
     mySymbol recordTypeName = MySymbol_MakeSymbol("recursiveType");
     myTyFieldList tyFields = makeMyTyFieldList(
@@ -337,11 +351,12 @@ void test_MySemanticDecTypeRecordTwoPass_RecursiveType_ReturnTrueAndLink(void)
     myTypeDec typeDec = makeMyTyDec(
         recordTypeName, makeMyTy_Record(makeOnePos(), tyFields));
 
-    MySemantic_Dec_Type_OnePass(typeEnv, typeDec);
+    MySemantic_Dec_Type_OnePass(typeDec);
     bool result =
-        MySemantic_Dec_Type_Record_TwoPass(typeEnv, recordTypeName, tyFields);
+        MySemantic_Dec_Type_Record_TwoPass(recordTypeName, tyFields);
 
-    myType typeGot = MyEnvironment_getTypeFromName(typeEnv, recordTypeName);
+    myType typeGot = MyEnvironment_getTypeFromName(
+        MySemantic_getTypeEnvironment(), recordTypeName);
     CU_ASSERT_EQUAL(result, true);
     CU_ASSERT_EQUAL(typeGot->u.typeRecord->fieldList->head->type, typeGot);
 }
@@ -350,30 +365,31 @@ void test_MySemanticDecTypeRecordTwoPass_RecursiveType_ReturnTrueAndLink(void)
 
 void test_MySemanticDecTypeArrayTwoPass_ElementTypeNotDefined_ReturnFalse(void)
 {
-    myTable typeEnv = myEnvironment_BaseType();
+    MySemantic_setTypeEnvironment(myEnvironment_BaseType());
     mySymbol newTypeName = MySymbol_MakeSymbol("newTypeName");
     mySymbol elementTypeName = MySymbol_MakeSymbol("elementType");
 
     bool result = MySemantic_Dec_Type_Array_TwoPass(
-        typeEnv, newTypeName, elementTypeName);
+        newTypeName, elementTypeName);
 
     CU_ASSERT_EQUAL(result, false);
 }
 
 void test_MySemanticDecTypeArray_ElementTypeDefinedAndNotEmpty_ReturnTrueAndSetType(void)
 {
-    myTable typeEnv = myEnvironment_BaseType();
+    MySemantic_setTypeEnvironment(myEnvironment_BaseType());
 
     mySymbol newTypeName = MySymbol_MakeSymbol("newTypeName");
     mySymbol elementTypeName = MySymbol_MakeSymbol("int");
-    MySemantic_Dec_Type_OnePass(typeEnv, makeMyTyDec(
+    MySemantic_Dec_Type_OnePass(makeMyTyDec(
         newTypeName, makeMyTy_Array(makeOnePos(), elementTypeName)));
 
 
     bool result = MySemantic_Dec_Type_Array_TwoPass(
-        typeEnv, newTypeName, elementTypeName);
+        newTypeName, elementTypeName);
 
-    myType arrayType = MyEnvironment_getTypeFromName(typeEnv, newTypeName);
+    myType arrayType = MyEnvironment_getTypeFromName(
+        MySemantic_getTypeEnvironment(), newTypeName);
     CU_ASSERT_EQUAL(result, true);
     CU_ASSERT(isTypeArray(arrayType));
     CU_ASSERT(isTypeInt(arrayType->u.typeArray->type));
@@ -381,25 +397,27 @@ void test_MySemanticDecTypeArray_ElementTypeDefinedAndNotEmpty_ReturnTrueAndSetT
 
 void test_MySemanticDecTypeArray_ManuallyRecursiveType_ReturnTrueAndLinkToElementType(void)
 {
-    myTable typeEnv = myEnvironment_BaseType();
+    MySemantic_setTypeEnvironment(myEnvironment_BaseType());
 
     mySymbol outerArrayTypeName = MySymbol_MakeSymbol("newTypeName");
 
     mySymbol innerArrayTypeName = MySymbol_MakeSymbol("files");
 
-    MySemantic_Dec_Type_OnePass(typeEnv, makeMyTyDec(
+    MySemantic_Dec_Type_OnePass(makeMyTyDec(
         outerArrayTypeName, makeMyTy_Array(makeOnePos(), innerArrayTypeName)));
-    MySemantic_Dec_Type_OnePass(typeEnv, makeMyTyDec(
+    MySemantic_Dec_Type_OnePass(makeMyTyDec(
         innerArrayTypeName, makeMyTy_Array(makeOnePos(), MySymbol_MakeSymbol("int"))));
     
 
     bool resultOuter = MySemantic_Dec_Type_Array_TwoPass(
-        typeEnv, outerArrayTypeName, innerArrayTypeName); 
+        outerArrayTypeName, innerArrayTypeName); 
     bool resultInner = MySemantic_Dec_Type_Array_TwoPass(
-        typeEnv, innerArrayTypeName, makeSymbol_Int());
+        innerArrayTypeName, makeSymbol_Int());
 
-    myType outerArrayType = MyEnvironment_getTypeFromName(typeEnv, outerArrayTypeName);
-    myType innerArrayType = MyEnvironment_getTypeFromName(typeEnv, innerArrayTypeName);  
+    myType outerArrayType = MyEnvironment_getTypeFromName(
+        MySemantic_getTypeEnvironment(), outerArrayTypeName);
+    myType innerArrayType = MyEnvironment_getTypeFromName(
+        MySemantic_getTypeEnvironment(), innerArrayTypeName);  
     CU_ASSERT_EQUAL(resultInner, true);
     CU_ASSERT_EQUAL(resultOuter, true);
     CU_ASSERT_EQUAL(outerArrayType->u.typeArray->type, innerArrayType);
@@ -407,15 +425,15 @@ void test_MySemanticDecTypeArray_ManuallyRecursiveType_ReturnTrueAndLinkToElemen
 
 void test_MySemanticDecTypeArray_RecursievType_ReturnFalse(void)
 {
-    myTable typeEnv = myEnvironment_BaseType();
+    MySemantic_setTypeEnvironment(myEnvironment_BaseType());
 
     mySymbol arrayTypeName = MySymbol_MakeSymbol("arrayTypeName");
     myTypeDec recursiveTypeDec = makeMyTyDec(
         arrayTypeName, makeMyTy_Array(makeOnePos(), arrayTypeName));
 
-    MySemantic_Dec_Type_OnePass(typeEnv, recursiveTypeDec);
+    MySemantic_Dec_Type_OnePass(recursiveTypeDec);
     bool result =
-        MySemantic_Dec_Type_Array_TwoPass(typeEnv, recursiveTypeDec->name,
+        MySemantic_Dec_Type_Array_TwoPass(recursiveTypeDec->name,
             recursiveTypeDec->type->u.arrayTypeName);
 
     CU_ASSERT_EQUAL(result, false);
@@ -442,8 +460,8 @@ void test_MySemanticDecFuncProcedureTwoPass_BodyTypeNoReturn_ReturnTrue(void)
 
 void test_MySemanticDecFuncProcedureTwoPass_RecursiveProcedure_ReturnTrue(void)
 {
-    myTable varAndFuncEnv = myEnvironment_BaseVarAndFunc();
-    myTable typeEnv = myEnvironment_BaseType();
+    MySemantic_setVarAndFuncEnvironment(myEnvironment_BaseVarAndFunc());
+    MySemantic_setTypeEnvironment(myEnvironment_BaseType());
 
     mySymbol functionName = MySymbol_MakeSymbol("procedureName"); 
     myProcedureDec proceOne = makeMyProcedureDec(
@@ -453,17 +471,17 @@ void test_MySemanticDecFuncProcedureTwoPass_RecursiveProcedure_ReturnTrue(void)
             makeMyNoParamFunctionCallExp(functionName))));
 
 
-    MySemantic_Dec_Func_Procedure_OnePass(varAndFuncEnv, typeEnv, proceOne);
+    MySemantic_Dec_Func_Procedure_OnePass(proceOne);
     bool result =
-        MySemantic_Dec_Func_Procedure_TwoPass(varAndFuncEnv, typeEnv, proceOne);
+        MySemantic_Dec_Func_Procedure_TwoPass(proceOne);
 
     CU_ASSERT_EQUAL(result, true);
 }
 
 void test_MySemanticDecFuncProcedureTwoPass_ManuallyRecursiveProcedure_ReturnTrue(void)
 {
-    myTable varAndFuncEnv = myEnvironment_BaseVarAndFunc();
-    myTable typeEnv = myEnvironment_BaseType();
+    MySemantic_setVarAndFuncEnvironment(myEnvironment_BaseVarAndFunc());
+    MySemantic_setTypeEnvironment(myEnvironment_BaseType());
 
     mySymbol functionNameA = MySymbol_MakeSymbol("procedureNameA");
     mySymbol functionNameB = MySymbol_MakeSymbol("procedureNameB");
@@ -480,12 +498,12 @@ void test_MySemanticDecFuncProcedureTwoPass_ManuallyRecursiveProcedure_ReturnTru
             makeMyNoParamFunctionCallExp(functionNameA))));
 
 
-    MySemantic_Dec_Func_Procedure_OnePass(varAndFuncEnv, typeEnv, proceOneA);
-    MySemantic_Dec_Func_Procedure_OnePass(varAndFuncEnv, typeEnv, proceOneB);
+    MySemantic_Dec_Func_Procedure_OnePass(proceOneA);
+    MySemantic_Dec_Func_Procedure_OnePass(proceOneB);
     bool resultA = 
-        MySemantic_Dec_Func_Procedure_TwoPass(varAndFuncEnv, typeEnv, proceOneA);
+        MySemantic_Dec_Func_Procedure_TwoPass(proceOneA);
     bool resultB =
-        MySemantic_Dec_Func_Procedure_TwoPass(varAndFuncEnv, typeEnv, proceOneB);
+        MySemantic_Dec_Func_Procedure_TwoPass(proceOneB);
 
     CU_ASSERT_EQUAL(resultA, true);
     CU_ASSERT_EQUAL(resultB, true);
@@ -494,11 +512,11 @@ void test_MySemanticDecFuncProcedureTwoPass_ManuallyRecursiveProcedure_ReturnTru
 //  a parameterized test
 void testProcedureTwoPass_BodyExp_ReturnTrueOrFalse(myExp body, bool value)
 {
-    myTable varAndFuncEnv = myEnvironment_BaseVarAndFunc();
-    myTable typeEnv = myEnvironment_BaseType();
+    MySemantic_setVarAndFuncEnvironment(myEnvironment_BaseVarAndFunc());
+    MySemantic_setTypeEnvironment(myEnvironment_BaseType());
     myProcedureDec dec = makeOneProcedureDec_Body(body);
 
-    bool result = MySemantic_Dec_Func_Procedure_TwoPass(varAndFuncEnv, typeEnv, dec);
+    bool result = MySemantic_Dec_Func_Procedure_TwoPass(dec);
 
     CU_ASSERT_EQUAL(result, value);
 }
@@ -534,26 +552,27 @@ void test_MySemanticDecFuncFunctionTwoPass_ReturnTypeMatches_ReturnTrue(void)
 
 void test_MySemanticDecFuncFunctionTwoPass_ReturnTypeRecordBodyNil_ReturnTrue(void)
 {
-    myTable varAndFuncEnv = myEnvironment_BaseVarAndFunc();
-    myTable typeEnv = myEnvironment_BaseType();
+    MySemantic_setVarAndFuncEnvironment(myEnvironment_BaseVarAndFunc());
+    MySemantic_setTypeEnvironment(myEnvironment_BaseType());
 
     mySymbol recordTypeName = MySymbol_MakeSymbol("recordType");
     myType recordType = makeType_Record(NULL);
-    MyEnvironment_addNewType(typeEnv, recordTypeName, recordType); 
+    MyEnvironment_addNewType(MySemantic_getTypeEnvironment(),
+        recordTypeName, recordType); 
 
     myExp nilBody = makeMyExp_Nil(makeOnePos(), makeMyNilExp());
     myFunctionDec dec = makeOneFunctionDec_Body(nilBody, recordTypeName);
 
 
-    bool result = MySemantic_Dec_Func_Function_TwoPass(varAndFuncEnv, typeEnv, dec);
+    bool result = MySemantic_Dec_Func_Function_TwoPass(dec);
 
     CU_ASSERT_EQUAL(result, true);
 }
 
 void test_MySemanticDecFuncFunctionTwoPass_RecursiveFunction_ReturnTrue(void)
 {
-    myTable varAndFuncEnv = myEnvironment_BaseVarAndFunc();
-    myTable typeEnv = myEnvironment_BaseType();
+    MySemantic_setVarAndFuncEnvironment(myEnvironment_BaseVarAndFunc());
+    MySemantic_setTypeEnvironment(myEnvironment_BaseType());
 
     mySymbol functionName = MySymbol_MakeSymbol("functionName");
     myExp body = makeMyExp_FunctionCall(makeOnePos(), makeMyFunctionCallExp_Param(
@@ -562,16 +581,16 @@ void test_MySemanticDecFuncFunctionTwoPass_RecursiveFunction_ReturnTrue(void)
     myFunctionDec dec = makeOneFunctionDec_Int(functionName, body, makeSymbol_Int());
     
 
-    MySemantic_Dec_Func_Function_OnePass(varAndFuncEnv, typeEnv, dec);
-    bool result = MySemantic_Dec_Func_Function_TwoPass(varAndFuncEnv, typeEnv, dec);
+    MySemantic_Dec_Func_Function_OnePass(dec);
+    bool result = MySemantic_Dec_Func_Function_TwoPass(dec);
 
     CU_ASSERT_EQUAL(result, true);
 }
 
 void test_MySemanticDecFuncFunctionTwoPass_ManuallyRecursiveFunction_ReturnTrue(void)
 {
-    myTable varAndFuncEnv = myEnvironment_BaseVarAndFunc();
-    myTable typeEnv = myEnvironment_BaseType();
+    MySemantic_setVarAndFuncEnvironment(myEnvironment_BaseVarAndFunc());
+    MySemantic_setTypeEnvironment(myEnvironment_BaseType());
 
     mySymbol functionNameA = MySymbol_MakeSymbol("functionNameA");
     mySymbol functionNameB = MySymbol_MakeSymbol("functionNameB");
@@ -590,12 +609,12 @@ void test_MySemanticDecFuncFunctionTwoPass_ManuallyRecursiveFunction_ReturnTrue(
             makeMyNoParamFunctionCallExp(functionNameA))));
 
 
-    MySemantic_Dec_Func_Function_OnePass(varAndFuncEnv, typeEnv, funcOneA);
-    MySemantic_Dec_Func_Function_OnePass(varAndFuncEnv, typeEnv, funcOneB);
+    MySemantic_Dec_Func_Function_OnePass(funcOneA);
+    MySemantic_Dec_Func_Function_OnePass(funcOneB);
     bool resultA = 
-        MySemantic_Dec_Func_Function_TwoPass(varAndFuncEnv, typeEnv, funcOneA);
+        MySemantic_Dec_Func_Function_TwoPass(funcOneA);
     bool resultB =
-        MySemantic_Dec_Func_Function_TwoPass(varAndFuncEnv, typeEnv, funcOneB);
+        MySemantic_Dec_Func_Function_TwoPass(funcOneB);
 
     CU_ASSERT_EQUAL(resultA, true);
     CU_ASSERT_EQUAL(resultB, true);
@@ -605,11 +624,11 @@ void test_MySemanticDecFuncFunctionTwoPass_ManuallyRecursiveFunction_ReturnTrue(
 void testFunctionTwoPass_BodyExp_ReturnTrueOrFalse(
     myExp body, mySymbol returnTypeName, bool value)
 {
-    myTable varAndFuncEnv = myEnvironment_BaseVarAndFunc();
-    myTable typeEnv = myEnvironment_BaseType();
+    MySemantic_setVarAndFuncEnvironment(myEnvironment_BaseVarAndFunc());
+    MySemantic_setTypeEnvironment(myEnvironment_BaseType());
     myFunctionDec dec = makeOneFunctionDec_Body(body, returnTypeName);
 
-    bool result = MySemantic_Dec_Func_Function_TwoPass(varAndFuncEnv, typeEnv, dec);
+    bool result = MySemantic_Dec_Func_Function_TwoPass(dec);
 
     CU_ASSERT_EQUAL(result, value);
 }
@@ -618,30 +637,30 @@ void testFunctionTwoPass_BodyExp_ReturnTrueOrFalse(
 
 void test_MySemanticDecsRecursive_LegalVars_ReturnTrue(void)
 {
-    myTable varAndFuncEnv = myEnvironment_BaseVarAndFunc();
-    myTable typeEnv = myEnvironment_BaseType();
+    MySemantic_setVarAndFuncEnvironment(myEnvironment_BaseVarAndFunc());
+    MySemantic_setTypeEnvironment(myEnvironment_BaseType());
     myDecList varDecs = makeLegalVars();
 
-    bool result = MySemantic_Decs_Recursive(varAndFuncEnv, typeEnv, varDecs);
+    bool result = MySemantic_Decs_Recursive(varDecs);
 
     CU_ASSERT_EQUAL(result, true); 
 }
 
 void test_MySemanticDecsRecursive_IllegalVars_ReturnFalse(void)
 {
-    myTable varAndFuncEnv = myEnvironment_BaseVarAndFunc();
-    myTable typeEnv = myEnvironment_BaseType();
+    MySemantic_setVarAndFuncEnvironment(myEnvironment_BaseVarAndFunc());
+    MySemantic_setTypeEnvironment(myEnvironment_BaseType());
     myDecList varDecs = makeIllegalVars();
 
-    bool result = MySemantic_Decs_Recursive(varAndFuncEnv, typeEnv, varDecs);
+    bool result = MySemantic_Decs_Recursive(varDecs);
 
     CU_ASSERT_EQUAL(result, false); 
 }
 
 void test_MySemanticDecsRecursive_LegalRecursiveTypes_ReturnTrue(void)
 {
-    myTable varAndFuncEnv = myEnvironment_BaseVarAndFunc();
-    myTable typeEnv = myEnvironment_BaseType();
+    MySemantic_setVarAndFuncEnvironment(myEnvironment_BaseVarAndFunc());
+    MySemantic_setTypeEnvironment(myEnvironment_BaseType());
 
     mySymbol typeNameA = MySymbol_MakeSymbol("A");
     mySymbol typeNameB = MySymbol_MakeSymbol("B");
@@ -649,15 +668,15 @@ void test_MySemanticDecsRecursive_LegalRecursiveTypes_ReturnTrue(void)
     myDecList typeDecs = makeLegalRecursiveNamedDecs(typeNameA, typeNameB, typeNameC);
 
 
-    bool result = MySemantic_Decs_Recursive(varAndFuncEnv, typeEnv, typeDecs);
+    bool result = MySemantic_Decs_Recursive(typeDecs);
 
     CU_ASSERT_EQUAL(result, true);
 }
 
 void test_MySemanticDecsRecursive_IllegalRecursiveTypes_ReturnFalse(void)
 {
-    myTable varAndFuncEnv = myEnvironment_BaseVarAndFunc();
-    myTable typeEnv = myEnvironment_BaseType();
+    MySemantic_setVarAndFuncEnvironment(myEnvironment_BaseVarAndFunc());
+    MySemantic_setTypeEnvironment(myEnvironment_BaseType());
 
     mySymbol typeNameA = MySymbol_MakeSymbol("A");
     mySymbol typeNameB = MySymbol_MakeSymbol("B");
@@ -668,8 +687,8 @@ void test_MySemanticDecsRecursive_IllegalRecursiveTypes_ReturnFalse(void)
 
 
 
-    bool resultOne = MySemantic_Decs_Recursive(varAndFuncEnv, typeEnv, typeDecsOne);
-    bool resultTwo = MySemantic_Decs_Recursive(varAndFuncEnv, typeEnv, typeDecsTwo);
+    bool resultOne = MySemantic_Decs_Recursive(typeDecsOne);
+    bool resultTwo = MySemantic_Decs_Recursive(typeDecsTwo);
 
     CU_ASSERT_EQUAL(resultOne, false);
     CU_ASSERT_EQUAL(resultTwo, false);
@@ -677,8 +696,8 @@ void test_MySemanticDecsRecursive_IllegalRecursiveTypes_ReturnFalse(void)
 
 void test_MySemanticDecsRecursive_LegalRecursiveFuncs_ReturnTrue(void)
 {
-    myTable varAndFuncEnv = myEnvironment_BaseVarAndFunc();
-    myTable typeEnv = myEnvironment_BaseType();
+    MySemantic_setVarAndFuncEnvironment(myEnvironment_BaseVarAndFunc());
+    MySemantic_setTypeEnvironment(myEnvironment_BaseType());
 
     mySymbol funcNameA = MySymbol_MakeSymbol("A");
     mySymbol funcNameB = MySymbol_MakeSymbol("B");
@@ -686,15 +705,15 @@ void test_MySemanticDecsRecursive_LegalRecursiveFuncs_ReturnTrue(void)
     myDecList funcDecs = makeLegalRecursiveFuncDecs(funcNameA, funcNameB, funcNameC);
 
 
-    bool result = MySemantic_Decs_Recursive(varAndFuncEnv, typeEnv, funcDecs);
+    bool result = MySemantic_Decs_Recursive(funcDecs);
 
     CU_ASSERT_EQUAL(result, true);
 }
 
 void test_MySemanticDecsRecursive_IllegalRecursiveFuncs_ReturnFalse(void)
 {
-    myTable varAndFuncEnv = myEnvironment_BaseVarAndFunc();
-    myTable typeEnv = myEnvironment_BaseType();
+    MySemantic_setVarAndFuncEnvironment(myEnvironment_BaseVarAndFunc());
+    MySemantic_setTypeEnvironment(myEnvironment_BaseType());
 
     mySymbol funcNameA = MySymbol_MakeSymbol("A");
     mySymbol funcNameB = MySymbol_MakeSymbol("B");
@@ -702,7 +721,7 @@ void test_MySemanticDecsRecursive_IllegalRecursiveFuncs_ReturnFalse(void)
     myDecList funcDecs = makeIllegalRecursiveFuncDecs();
 
 
-    bool result = MySemantic_Decs_Recursive(varAndFuncEnv, typeEnv, funcDecs);
+    bool result = MySemantic_Decs_Recursive(funcDecs);
 
     CU_ASSERT_EQUAL(result, false);
 }

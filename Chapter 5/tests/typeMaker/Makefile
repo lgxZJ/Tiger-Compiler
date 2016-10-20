@@ -1,5 +1,8 @@
-OBJECTS := test_typeMaker.o typeMaker.o makeMemory.o\
-	mySymbol.o myTable.o testHelper.o
+OUT_DIR := ./bin
+OBJECTS := $(OUT_DIR)/test_typeMaker.o	$(OUT_DIR)/typeMaker.o\
+	$(OUT_DIR)/makeMemory.o		$(OUT_DIR)/mySymbol.o\
+	$(OUT_DIR)/myTable.o		$(OUT_DIR)/testHelper.o
+
 COMPILE_FLAG := gcc -g -c -std=c99
 
 VPATH := ../../:../
@@ -7,33 +10,36 @@ VPATH := ../../:../
 ANOTHER_INCLUDE := -I/home/lgxZJ/Libraries/CUnit/include
 ANOTHER_LIB := -L/home/lgxZJ/Libraries/CUnit/lib 
 
-tests.out : $(OBJECTS)
-	gcc -g $(ANOTHER_LIB) -lcunit -coverage -o tests.out $(OBJECTS)
 
-typeMaker.o : typeMaker.c
-	$(COMPILE_FLAG) $(ANOTHER_INCLUDE) -fprofile-arcs -ftest-coverage $<
+tests.out : $(OUT_DIR) $(OBJECTS)
+	gcc -g $(ANOTHER_LIB) -lcunit -coverage -o $(OUT_DIR)/tests.out $(OBJECTS)
 
-%.o : %.c
-	$(COMPILE_FLAG) $(ANOTHER_INCLUDE) $<
+$(OUT_DIR):
+	mkdir -p $(OUT_DIR)
 
-test_typeMaker.o : test_typeMaker.c typeMaker.h
-	$(COMPILE_FLAG)  $(ANOTHER_INCLUDE) $^
+
+$(OUT_DIR)/typeMaker.o : typeMaker.c
+	$(COMPILE_FLAG) $(ANOTHER_INCLUDE) -fprofile-arcs -ftest-coverage -o $@ $<
+
+$(OUT_DIR)/%.o : %.c
+	$(COMPILE_FLAG) $(ANOTHER_INCLUDE) -o $@ $<
+
 
 .PHONY: clean run retest show-coverage
 clean:
 	rm -f $(OBJECTS) tests.out
 
 run:
-	./tests.out
+	$(OUT_DIR)/tests.out
 
 retest:
 	make clean
 	make
-	./tests.out
+	$(OUT_DIR)/tests.out
 
 show-coverage:
 	lcov --directory . --zerocounters
-	./tests.out
+	$(OUT_DIR)/tests.out
 	lcov --directory . --capture --output-file coverage.info
 	genhtml coverage.info
-	firefox index.html
+	firefox index.html &

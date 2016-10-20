@@ -1,4 +1,7 @@
-OBJECTS := test_mySymbol.o makeMemory.o mySymbol.o myTable.o testHelper.o
+OUT_DIR := ./bin
+OBJECTS := $(OUT_DIR)/test_mySymbol.o	$(OUT_DIR)/makeMemory.o\
+	$(OUT_DIR)/mySymbol.o		$(OUT_DIR)/myTable.o\
+	$(OUT_DIR)/testHelper.o
 
 COMPILE_FLAGS := gcc -g -c -std=c99
 ADDITIONAL_INCLUDE := -I/home/lgxZJ/Libraries/CUnit/include
@@ -7,33 +10,36 @@ COVERAGE_OPTIONS := -fprofile-arcs -ftest-coverage
 
 VPATH := ../../:../
 
-all.out : $(OBJECTS)
-	gcc $(ADDITIONAL_INCLUDE) $(ADDITIONAL_LIB) -lcunit -coverage -o all.out $(OBJECTS)
+all.out : $(OUT_DIR) $(OBJECTS)
+	gcc $(ADDITIONAL_INCLUDE) $(ADDITIONAL_LIB) -lcunit -coverage -o $(OUT_DIR)/all.out $(OBJECTS)
 
-mySymbol.o : mySymbol.c
-	$(COMPILE_FLAGS) $(ADDITIONAL_INCLUDE) $(COVERAGE_OPTIONS) $<
+$(OUT_DIR):
+	mkdir -p $(OUT_DIR)
 
-%.o : %.c
-	$(COMPILE_FLAGS) $(ADDITIONAL_INCLUDE) $<
+$(OUT_DIR)/mySymbol.o : mySymbol.c
+	$(COMPILE_FLAGS) $(ADDITIONAL_INCLUDE) $(COVERAGE_OPTIONS) -o $@ $<
+
+$(OUT_DIR)/%.o : %.c
+	$(COMPILE_FLAGS) $(ADDITIONAL_INCLUDE) -o $@ $<
 
 
 
 .PHONY: clean run retest show-coverage
 
 clean:
-	rm -f $(OBJECTS) all.out *.gcda *.gcno
+	rm -f $(OBJECTS) $(OUT_DIR)/all.out *.gcda *.gcno
 
 run:
-	./all.out
+	$(OUT_DIR)/all.out
 
 retest:
 	make clean
 	make
-	./all.out
+	$(OUT_DIR)/all.out
 
 show-coverage:
 	lcov --directory . --zerocounters
-	./all.out
+	$(OUT_DIR)/all.out
 	lcov --directory . --capture --output-file code-coverage.info
 	genhtml code-coverage.info
-	firefox index.html
+	firefox index.html &

@@ -21,44 +21,44 @@
 //  some dalegates to called the recursive versions.
 
 bool MySemantic_Dec_Type_Named(
-    myTable typeEnv, mySymbol newTypeName, mySymbol existedTypeName)
+    mySymbol newTypeName, mySymbol existedTypeName)
 {
     myTypeDec dec =
         makeMyTyDec(newTypeName, makeMyTy_Named(makeOnePos(), existedTypeName));
-    return MySemantic_Dec_Type_OnePass(typeEnv, dec) &&
-            MySemantic_Dec_Type_Named_TwoPass(typeEnv, newTypeName, existedTypeName);
+    return MySemantic_Dec_Type_OnePass(dec) &&
+            MySemantic_Dec_Type_Named_TwoPass(newTypeName, existedTypeName);
 }
 
 bool MySemantic_Dec_Type_Record(
-    myTable typeEnv, mySymbol newTypeName, myTyFieldList fields)
+    mySymbol newTypeName, myTyFieldList fields)
 {
     myTypeDec dec =
         makeMyTyDec(newTypeName, makeMyTy_Record(makeOnePos(), fields));
-    return MySemantic_Dec_Type_OnePass(typeEnv, dec) &&
-            MySemantic_Dec_Type_Record_TwoPass(typeEnv, newTypeName, fields);
+    return MySemantic_Dec_Type_OnePass(dec) &&
+            MySemantic_Dec_Type_Record_TwoPass(newTypeName, fields);
 }
 
 bool MySemantic_Dec_Type_Array(
-    myTable typeEnv, mySymbol newTypeName, mySymbol elementTypeName)
+    mySymbol newTypeName, mySymbol elementTypeName)
 {
     myTypeDec dec =
         makeMyTyDec(newTypeName, makeMyTy_Array(makeOnePos(), elementTypeName));
-    return MySemantic_Dec_Type_OnePass(typeEnv, dec) &&
-            MySemantic_Dec_Type_Array_TwoPass(typeEnv, newTypeName, elementTypeName);
+    return MySemantic_Dec_Type_OnePass(dec) &&
+            MySemantic_Dec_Type_Array_TwoPass(newTypeName, elementTypeName);
 }
 
 bool MySemantic_Dec_Func_Procedure(
-    myTable varAndFuncEnv, myTable typeEnv, myProcedureDec procedureDec)
+    myProcedureDec procedureDec)
 {
-    return MySemantic_Dec_Func_Procedure_OnePass(varAndFuncEnv, typeEnv, procedureDec) &&
-        MySemantic_Dec_Func_Procedure_TwoPass(varAndFuncEnv, typeEnv, procedureDec);
+    return MySemantic_Dec_Func_Procedure_OnePass(procedureDec) &&
+        MySemantic_Dec_Func_Procedure_TwoPass(procedureDec);
 }
 
 bool MySemantic_Dec_Func_Function(
-    myTable varAndFuncEnv, myTable typeEnv, myFunctionDec functionDec)
+    myFunctionDec functionDec)
 {
-    return MySemantic_Dec_Func_Function_OnePass(varAndFuncEnv, typeEnv, functionDec) &&
-        MySemantic_Dec_Func_Function_TwoPass(varAndFuncEnv, typeEnv, functionDec);
+    return MySemantic_Dec_Func_Function_OnePass(functionDec) &&
+        MySemantic_Dec_Func_Function_TwoPass(functionDec);
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -85,22 +85,22 @@ void test_typeContainsLValueAux_CheckRecord_ReturnTypeOfOneField(void)
     mySymbol symbol2 = MySymbol_MakeSymbol("field2");
     mySymbol symbolRecord = MySymbol_MakeSymbol("recordd");
 
-    myTable varAndFuncEnv = myEnvironment_BaseVarAndFunc();
+    MySemantic_setVarAndFuncEnvironment(myEnvironment_BaseVarAndFunc());
     myVarAndFuncEntry entry = myEnvironment_makeVarEntry(makeType_Record(makeType_TypeFieldList(
         makeType_TypeField(symbol1, makeType_Int()),
         makeType_TypeFieldList(
             makeType_TypeField(symbol2, makeType_String()),
             NULL))));
-    MySymbol_Enter(varAndFuncEnv, symbolRecord, entry);
+    MySymbol_Enter(MySemantic_getVarAndFuncEnvironment(), symbolRecord, entry);
 
     myLValueAux aux1 = makeMyLValueAux(symbol1, NULL, NULL);
     myType typeReturn1 = typeContainsLValueAux(
-        varAndFuncEnv, NULL, MyEnvironment_getVarType(entry), aux1);
+        MyEnvironment_getVarType(entry), aux1);
     myLValueAux aux2 = makeMyLValueAux(symbol2, NULL, NULL);
 
 
     myType typeReturn2 = typeContainsLValueAux(
-        varAndFuncEnv, NULL, MyEnvironment_getVarType(entry), aux2);
+        MyEnvironment_getVarType(entry), aux2);
     
     CU_ASSERT(typeReturn1->kind == TypeInt);
     CU_ASSERT(typeReturn2->kind == TypeString);
@@ -112,19 +112,19 @@ void test_typeContainsLValueAux_CheckRecord_ReturnTypeOfNestedField(void)
     mySymbol symbol2 = MySymbol_MakeSymbol("field2");
     mySymbol symbolRecord = MySymbol_MakeSymbol("recordd");
 
-    myTable varAndFuncEnv = myEnvironment_BaseVarAndFunc();
+    MySemantic_setVarAndFuncEnvironment(myEnvironment_BaseVarAndFunc());
     myType nestedRecordType = makeType_Record(makeType_TypeFieldList(
         makeType_TypeField(symbol2, makeType_String()), NULL));
     myVarAndFuncEntry entry = myEnvironment_makeVarEntry(makeType_Record(makeType_TypeFieldList(
         makeType_TypeField(symbol1, nestedRecordType), NULL)));
-    MySymbol_Enter(varAndFuncEnv, symbolRecord, entry);
+    MySymbol_Enter(MySemantic_getVarAndFuncEnvironment(), symbolRecord, entry);
 
     myLValueAux aux = makeMyLValueAux(symbol1, NULL,
         makeMyLValueAux(symbol2, NULL, NULL));
 
 
     myType typeReturn = typeContainsLValueAux(
-        varAndFuncEnv, NULL, MyEnvironment_getVarType(entry), aux);
+        MyEnvironment_getVarType(entry), aux);
     
     CU_ASSERT(typeReturn->kind == TypeString);
 }
@@ -134,19 +134,19 @@ void test_typeContainsLValueAux_CheckArray_ReturnTypeOfOneField(void)
     mySymbol symbol = MySymbol_MakeSymbol("field1");
     mySymbol symbolArray = MySymbol_MakeSymbol("recordd");
 
-    myTable varAndFuncEnv = myEnvironment_BaseVarAndFunc();
-    myTable typeEnv = myEnvironment_BaseType();
+    MySemantic_setVarAndFuncEnvironment(myEnvironment_BaseVarAndFunc());
+    MySemantic_setTypeEnvironment(myEnvironment_BaseType());
 
     myVarAndFuncEntry entry = myEnvironment_makeVarEntry(makeType_Array(
         makeType_Int()));
-    MySymbol_Enter(varAndFuncEnv, symbolArray, entry);
+    MySymbol_Enter(MySemantic_getVarAndFuncEnvironment(), symbolArray, entry);
 
     myLValueAux aux = makeMyLValueAux(NULL, 
         makeOneExp_Integer(), NULL);
 
 
     myType typeReturn = typeContainsLValueAux(
-        varAndFuncEnv, typeEnv, MyEnvironment_getVarType(entry), aux);
+        MyEnvironment_getVarType(entry), aux);
     
     CU_ASSERT(typeReturn->kind == TypeInt);
 }
@@ -155,12 +155,12 @@ void test_typeContainsLValueAux_CheckArray_ReturnTypeOfNestedField(void)
 {
     mySymbol symbolArray = MySymbol_MakeSymbol("recordd");
 
-    myTable varAndFuncEnv = myEnvironment_BaseVarAndFunc();
-    myTable typeEnv = myEnvironment_BaseType();
+    MySemantic_setVarAndFuncEnvironment(myEnvironment_BaseVarAndFunc());
+    MySemantic_setTypeEnvironment(myEnvironment_BaseType());
 
     myType arrayType = makeType_Array(makeType_String());
     myVarAndFuncEntry entry = myEnvironment_makeVarEntry(makeType_Array(arrayType));
-    MySymbol_Enter(varAndFuncEnv, symbolArray, entry);
+    MySymbol_Enter(MySemantic_getVarAndFuncEnvironment(), symbolArray, entry);
 
     myExp exp = makeOneExp_Integer();
     myLValueAux aux = makeMyLValueAux(NULL, 
@@ -168,7 +168,7 @@ void test_typeContainsLValueAux_CheckArray_ReturnTypeOfNestedField(void)
 
 
     myType typeReturn = typeContainsLValueAux(
-        varAndFuncEnv, typeEnv, MyEnvironment_getVarType(entry), aux);
+        MyEnvironment_getVarType(entry), aux);
     
     CU_ASSERT(typeReturn->kind == TypeString);
 }
@@ -177,12 +177,12 @@ void test_typeContainsLValueAux_CheckArray_ReturnTypeOfNestedField(void)
 
 void test_MySemanticLValueExpSimpleVar_VarNotDeclared_ReturnNull(void)
 {
-    myTable varAndFuncEnv = myEnvironment_BaseVarAndFunc();
+    MySemantic_setVarAndFuncEnvironment(myEnvironment_BaseVarAndFunc());
     myLValueExp simpleVarExp = makeMyLValue(
         makeOnePos(), makeOneSymbol(), NULL);
 
     myTranslationAndType result = MySemantic_LValueExp_SimpleVar(
-        varAndFuncEnv, simpleVarExp);
+        simpleVarExp);
 
     CU_ASSERT_EQUAL(result, SEMANTIC_ERROR);
 }
@@ -190,15 +190,15 @@ void test_MySemanticLValueExpSimpleVar_VarNotDeclared_ReturnNull(void)
 void test_MySemanticLValueExpSimpleVar_LegalExp_ReturnTypeOfSimpleVar(void)
 {
     mySymbol symbol = MySymbol_MakeSymbol("bolOne");
-    myTable varAndFuncEnv = myEnvironment_BaseVarAndFunc();
+    MySemantic_setVarAndFuncEnvironment(myEnvironment_BaseVarAndFunc());
     myVarAndFuncEntry entry = myEnvironment_makeVarEntry(makeType_Record(NULL));
-    MySymbol_Enter(varAndFuncEnv, symbol, entry);
+    MySymbol_Enter(MySemantic_getVarAndFuncEnvironment(), symbol, entry);
 
     myLValueExp exp = makeMyLValue(makeOnePos(), symbol, NULL);
 
 
     myTranslationAndType result =
-        MySemantic_LValueExp_SimpleVar(varAndFuncEnv, exp);
+        MySemantic_LValueExp_SimpleVar(exp);
 
     CU_ASSERT(isTypeRecord(result->type));
 }
@@ -207,35 +207,35 @@ void test_MySemanticLValueExpSimpleVar_LegalExp_ReturnTypeOfSimpleVar(void)
 
 void test_MySemanticLValueExpRecordField_VariableNotDeclared_ReturnNull(void)
 {
-    myTable varAndFuncenv = myEnvironment_BaseVarAndFunc();
-    myTable typeEnv = myEnvironment_BaseType();
+    MySemantic_setVarAndFuncEnvironment(myEnvironment_BaseVarAndFunc());
+    MySemantic_setTypeEnvironment(myEnvironment_BaseType());
 
     myLValueExp recordExp = makeMyLValue(makeOnePos(), makeOneSymbol(), 
         makeMyLValueAux(makeOneSymbol(), NULL, NULL));
 
 
     myTranslationAndType result = MySemantic_LValueExp_RecordField(
-        varAndFuncenv, typeEnv, recordExp);
+        recordExp);
 
     CU_ASSERT_EQUAL(result, SEMANTIC_ERROR);
 }
 
 void test_MySemanticLValueExpRecordField_VariableNotRecord_ReturnNull(void)
 {
-    myTable varAndFuncenv = myEnvironment_BaseVarAndFunc();
-    myTable typeEnv = myEnvironment_BaseType();
+    MySemantic_setVarAndFuncEnvironment(myEnvironment_BaseVarAndFunc());
+    MySemantic_setTypeEnvironment(myEnvironment_BaseType());
     mySymbol symbolRecord = MySymbol_MakeSymbol("record");
     mySymbol symbolField = MySymbol_MakeSymbol("field");
 
     myVarAndFuncEntry intEntry = myEnvironment_makeVarEntry(makeType_Int());
-    MySymbol_Enter(varAndFuncenv, symbolRecord, intEntry);
+    MySymbol_Enter(MySemantic_getVarAndFuncEnvironment(), symbolRecord, intEntry);
 
     myLValueExp recordExp = makeMyLValue(makeOnePos(), symbolRecord, 
         makeMyLValueAux(symbolField, NULL, NULL));
 
 
     myTranslationAndType result = MySemantic_LValueExp_RecordField(
-        varAndFuncenv, typeEnv, recordExp);
+        recordExp);
 
     CU_ASSERT_EQUAL(result, SEMANTIC_ERROR);
 }
@@ -246,20 +246,20 @@ void test_MySemanticLValueExpRecordField_FieldNamesNotMatch_ReturnNull(void)
     mySymbol symbolField = MySymbol_MakeSymbol("field");
 
     myTable variableSymbolTable = myEnvironment_BaseVarAndFunc();
-    myTable typeEnv = myEnvironment_BaseType();
+    MySemantic_setVarAndFuncEnvironment(myEnvironment_BaseVarAndFunc());
+    MySemantic_setTypeEnvironment(myEnvironment_BaseType());
 
     myVarAndFuncEntry entry = myEnvironment_makeVarEntry(makeType_Record(makeType_TypeFieldList(
         makeType_TypeField(symbolField, makeType_Int()),
         NULL)));
-    MySymbol_Enter(variableSymbolTable, symbolRecord, entry);
+    MySymbol_Enter(MySemantic_getVarAndFuncEnvironment(), symbolRecord, entry);
 
     mySymbol anotherField = MySymbol_MakeSymbol("anotherField");
     myLValueExp exp = makeMyLValue(makeOnePos(), symbolRecord, 
         makeMyLValueAux(anotherField, NULL, NULL));
 
 
-    myTranslationAndType result = MySemantic_LValueExp_RecordField(
-        variableSymbolTable, typeEnv, exp);
+    myTranslationAndType result = MySemantic_LValueExp_RecordField(exp);
 
     CU_ASSERT_EQUAL(result, SEMANTIC_ERROR);
 }
@@ -269,8 +269,8 @@ void test_MySemanticLValueExpRecordField_LegalExp_ReturnTypeOfRecordField(void)
     mySymbol symbolRecord = MySymbol_MakeSymbol("record");
     mySymbol symbolField = MySymbol_MakeSymbol("field");
 
-    myTable variableSymbolTable = myEnvironment_BaseVarAndFunc();
-    myTable typeEnv = myEnvironment_BaseType();
+    MySemantic_setVarAndFuncEnvironment(myEnvironment_BaseVarAndFunc());
+    MySemantic_setTypeEnvironment(myEnvironment_BaseType());
 
     myType innerRecordType = makeType_Record(makeType_TypeFieldList(
         makeType_TypeField(symbolField, makeType_Int()),
@@ -278,15 +278,14 @@ void test_MySemanticLValueExpRecordField_LegalExp_ReturnTypeOfRecordField(void)
     myVarAndFuncEntry entry = myEnvironment_makeVarEntry(makeType_Record(makeType_TypeFieldList(
         makeType_TypeField(symbolField, innerRecordType),
         NULL)));
-    MySymbol_Enter(variableSymbolTable, symbolRecord, entry);
+    MySymbol_Enter(MySemantic_getVarAndFuncEnvironment(), symbolRecord, entry);
 
     myLValueExp exp = makeMyLValue(makeOnePos(), symbolRecord, 
         makeMyLValueAux(symbolField, NULL, 
             makeMyLValueAux(symbolField, NULL, NULL)));
 
 
-    myTranslationAndType result = MySemantic_LValueExp_RecordField(
-        variableSymbolTable, typeEnv, exp);
+    myTranslationAndType result = MySemantic_LValueExp_RecordField(exp);
 
     CU_ASSERT(isTypeInt(result->type));
 }
@@ -295,40 +294,40 @@ void test_MySemanticLValueExpRecordField_LegalExp_ReturnTypeOfRecordField(void)
 
  void test_MySemanticLValueExpArraySubscript_ArrayVarNotDeclared_ReturnNull(void)
  {
-     myTable varAndFuncEnv = myEnvironment_BaseVarAndFunc();
-     myTable typeEnv = myEnvironment_BaseType();
+     MySemantic_setVarAndFuncEnvironment(myEnvironment_BaseVarAndFunc());
+     MySemantic_setTypeEnvironment(myEnvironment_BaseType());
      myLValueExp lValueExp = makeOneLValueExp_TwoIntArraySubscript(
          makeOneSymbol(), makeOneExp_Integer(), makeOneExp_Integer());
 
     myTranslationAndType result = MySemantic_LValueExp_ArraySubscript(
-        varAndFuncEnv, typeEnv, lValueExp);
+        lValueExp);
 
     CU_ASSERT_EQUAL(result, SEMANTIC_ERROR);
  }
 
 void test_MySemanticLValueExpArraySubscript_VarNotArrayType_ReturnNull(void)
 {
-    myTable varAndFuncEnv = myEnvironment_BaseVarAndFunc();
-    myTable typeEnv = myEnvironment_BaseType();
+    MySemantic_setVarAndFuncEnvironment(myEnvironment_BaseVarAndFunc());
+    MySemantic_setTypeEnvironment(myEnvironment_BaseType());
 
     mySymbol arrayName = makeOneSymbol();
     myLValueExp lValueExp = makeOneLValueExp_TwoIntArraySubscript(
          arrayName, makeOneExp_Integer(), makeOneExp_Integer());
 
     myVarAndFuncEntry entry = myEnvironment_makeVarEntry(makeType_Int()); 
-    MySymbol_Enter(varAndFuncEnv, arrayName, entry);
+    MySymbol_Enter(MySemantic_getVarAndFuncEnvironment(), arrayName, entry);
 
 
     myTranslationAndType result = MySemantic_LValueExp_ArraySubscript(
-        varAndFuncEnv, typeEnv, lValueExp);
+        lValueExp);
 
     CU_ASSERT_EQUAL(result, SEMANTIC_ERROR);
 }
 
 void test_MySemanticLValueExpArraySubscript_SubscriptNotInt_ReturnNull(void)
 {
-    myTable varAndFuncEnv = myEnvironment_BaseVarAndFunc();
-    myTable typeEnv = myEnvironment_BaseType();
+    MySemantic_setVarAndFuncEnvironment(myEnvironment_BaseVarAndFunc());
+    MySemantic_setTypeEnvironment(myEnvironment_BaseType());
 
     mySymbol arrayName = makeOneSymbol();
     myLValueExp lValueExp = makeOneLValueExp_TwoIntArraySubscript(
@@ -336,32 +335,31 @@ void test_MySemanticLValueExpArraySubscript_SubscriptNotInt_ReturnNull(void)
 
     myType arrayType = makeOneArray_StringArrayArray();
     myVarAndFuncEntry entry = myEnvironment_makeVarEntry(arrayType);
-    MySymbol_Enter(varAndFuncEnv, arrayName, entry);
-    MySymbol_Enter(typeEnv, arrayName, arrayType);
+    MySymbol_Enter(MySemantic_getVarAndFuncEnvironment(), arrayName, entry);
+    MySymbol_Enter(MySemantic_getTypeEnvironment(), arrayName, arrayType);
 
 
     myTranslationAndType result = MySemantic_LValueExp_ArraySubscript(
-        varAndFuncEnv, typeEnv, lValueExp);
+        lValueExp);
 
     CU_ASSERT_EQUAL(result, SEMANTIC_ERROR);
 }
 
 void test_MySemanticLValueExpArraySubscript_LegalExp_ReturnTypeOfArray(void)
 {
-    myTable typeEnv = myEnvironment_BaseType();
-    myTable variableSymbolTable = myEnvironment_BaseVarAndFunc();
+    MySemantic_setTypeEnvironment(myEnvironment_BaseType());
+    MySemantic_setVarAndFuncEnvironment(myEnvironment_BaseVarAndFunc());
     myVarAndFuncEntry entry = myEnvironment_makeVarEntry(makeOneArray_StringArrayArray());
 
     mySymbol symbolArray = MySymbol_MakeSymbol("array");
-    MySymbol_Enter(variableSymbolTable, symbolArray, entry);
-    MySymbol_Enter(typeEnv, symbolArray, MyEnvironment_getVarType(entry));
+    MySymbol_Enter(MySemantic_getVarAndFuncEnvironment(), symbolArray, entry);
+    MySymbol_Enter(MySemantic_getTypeEnvironment(), symbolArray, MyEnvironment_getVarType(entry));
 
     myLValueExp exp = makeOneLValueExp_TwoIntArraySubscript(symbolArray,
         makeOneExp_Integer(), makeOneExp_Integer());
 
 
-    myTranslationAndType result = MySemantic_LValueExp_ArraySubscript(
-        variableSymbolTable, typeEnv, exp);
+    myTranslationAndType result = MySemantic_LValueExp_ArraySubscript(exp);
 
     CU_ASSERT(isTypeString(result->type));
 }
@@ -376,7 +374,7 @@ void test_MySemanticNilExp_ByDefault_ReturnNilType(void)
     myPos pos;  pos.column = pos.line = 0;
     myNilExp exp = makeMyNilExp();
 
-    myTranslationAndType result = MySemantic_NilExp(varAndFuncEnv, typeEnv, exp);
+    myTranslationAndType result = MySemantic_NilExp(exp);
 
     CU_ASSERT(isTypeNil(result->type));
 }
@@ -392,7 +390,7 @@ void test_MySemanticIntegerLiteralExp_ByDefault_ReturnIntType(void)
     myIntegerLiteralExp exp = makeMyIntegerLiteralExp(1);
 
     myTranslationAndType result = 
-        MySemantic_IntegerLiteralExp(varAndFuncEnv, typeEnv, exp);
+        MySemantic_IntegerLiteralExp(exp);
 
     CU_ASSERT(isTypeInt(result->type));
 }
@@ -408,7 +406,7 @@ void test_MySemanticStringLiteralExp_ByDefault_ReturnStringType(void)
     myStringLiteralExp exp = makeMyStringLiteralExp("1");
 
     myTranslationAndType result = 
-        MySemantic_StringLiteralExp(varAndFuncEnv, typeEnv, exp);
+        MySemantic_StringLiteralExp(exp);
 
     CU_ASSERT(isTypeString(result->type));
 }
@@ -424,7 +422,7 @@ void test_MySemanticNoValueExp_ByDefault_ReturnNoReturnType(void)
     myNoValueExp exp = makeMyNoValueExp();
 
     myTranslationAndType result = 
-        MySemantic_NoValueExp(varAndFuncEnv, typeEnv, exp);
+        MySemantic_NoValueExp(exp);
 
     CU_ASSERT(isTypeNoReturn(result->type));
 }
@@ -439,7 +437,7 @@ void test_MySemanticBreakExp_InsideLoop_ReturnNoReturnType(void)
 
     enterLoop();
     myTranslationAndType result = 
-        MySemantic_BreakExp(varAndFuncEnv, typeEnv, exp);
+        MySemantic_BreakExp(exp);
 
     CU_ASSERT(result != SEMANTIC_ERROR && isTypeNoReturn(result->type));
 }
@@ -452,7 +450,7 @@ void test_MySemanticBreakExp_NotInsideLoop_ReturnSemanticError(void)
 
     leaveLoop();
     myTranslationAndType result = 
-        MySemantic_BreakExp(varAndFuncEnv, typeEnv, exp);
+        MySemantic_BreakExp(exp);
 
     CU_ASSERT_EQUAL(result, SEMANTIC_ERROR);
 }
@@ -461,8 +459,8 @@ void test_MySemanticBreakExp_NotInsideLoop_ReturnSemanticError(void)
 
 void test_MySemanticFunctionCallExpParam_FunctionNotDefined_ReturnNull(void)
 {
-    myTable varAndFuncEnv = myEnvironment_BaseVarAndFunc();
-    myTable typeEnv = myEnvironment_BaseType();
+    MySemantic_setVarAndFuncEnvironment(myEnvironment_BaseVarAndFunc());
+    MySemantic_setTypeEnvironment(myEnvironment_BaseType());
     myParamFunctionCallExp exp = makeMyParamFunctionCallExp(
         makeOneSymbol(),
         makeMyExpList(
@@ -471,7 +469,7 @@ void test_MySemanticFunctionCallExpParam_FunctionNotDefined_ReturnNull(void)
 
 
     myTranslationAndType result = MySemantic_FunctionCallExp_Param(
-        varAndFuncEnv, typeEnv, exp);
+        exp);
 
     
     CU_ASSERT_EQUAL(result, SEMANTIC_ERROR);
@@ -479,8 +477,8 @@ void test_MySemanticFunctionCallExpParam_FunctionNotDefined_ReturnNull(void)
 
 void test_MySemanticFunctionCallExpParam_ParamsTypeNotMatch_ReturnNull(void)
 {
-    myTable varAndFuncEnv = myEnvironment_BaseVarAndFunc();
-    myTable typeEnv = myEnvironment_BaseType();
+    MySemantic_setVarAndFuncEnvironment(myEnvironment_BaseVarAndFunc());
+    MySemantic_setTypeEnvironment(myEnvironment_BaseType());
 
     mySymbol functionSymbol = MySymbol_MakeSymbol("function");
     myVarAndFuncEntry functionEntry = myEnvironment_makeFuncEntry(
@@ -488,7 +486,7 @@ void test_MySemanticFunctionCallExpParam_ParamsTypeNotMatch_ReturnNull(void)
             makeType_String(),
             makeType_TypeList(makeType_String(), NULL)),
         makeType_Int());
-    MySymbol_Enter(varAndFuncEnv, functionSymbol, functionEntry);
+    MySymbol_Enter(MySemantic_getVarAndFuncEnvironment(), functionSymbol, functionEntry);
 
     myParamFunctionCallExp functionExp = makeMyParamFunctionCallExp(
         functionSymbol,
@@ -498,15 +496,15 @@ void test_MySemanticFunctionCallExpParam_ParamsTypeNotMatch_ReturnNull(void)
 
 
     myTranslationAndType result = MySemantic_FunctionCallExp_Param(
-        varAndFuncEnv, typeEnv, functionExp);
+        functionExp);
 
     CU_ASSERT_EQUAL(result, SEMANTIC_ERROR);
 }
 
 void test_MySemanticFunctionCallExpParam_LegalExp_ReturnTypeOfFunctionResult(void)
 { 
-    myTable varAndFuncEnv = myEnvironment_BaseVarAndFunc();
-    myTable typeEnv = myEnvironment_BaseType();
+    MySemantic_setVarAndFuncEnvironment(myEnvironment_BaseVarAndFunc());
+    MySemantic_setTypeEnvironment(myEnvironment_BaseType());
 
     mySymbol functionSymbol = MySymbol_MakeSymbol("function");
     myVarAndFuncEntry functionEntry = myEnvironment_makeFuncEntry(
@@ -514,7 +512,7 @@ void test_MySemanticFunctionCallExpParam_LegalExp_ReturnTypeOfFunctionResult(voi
             makeType_Int(),
             makeType_TypeList(makeType_String(), NULL)),
         makeType_Int());
-    MySymbol_Enter(varAndFuncEnv, functionSymbol, functionEntry);
+    MySymbol_Enter(MySemantic_getVarAndFuncEnvironment(), functionSymbol, functionEntry);
 
     myParamFunctionCallExp exp = makeMyParamFunctionCallExp(
         functionSymbol,
@@ -524,7 +522,7 @@ void test_MySemanticFunctionCallExpParam_LegalExp_ReturnTypeOfFunctionResult(voi
 
 
     myTranslationAndType result = MySemantic_FunctionCallExp_Param(
-        varAndFuncEnv, typeEnv, exp);
+        exp);
 
     
     CU_ASSERT(result != SEMANTIC_ERROR && isTypeInt(result->type));
@@ -532,11 +530,12 @@ void test_MySemanticFunctionCallExpParam_LegalExp_ReturnTypeOfFunctionResult(voi
 
 void test_MySemanticFunctionCallExpParam_NilValueOfRecordParamType_Succeed(void)
 {
-    myTable varAndFuncEnv = myEnvironment_BaseVarAndFunc();
-    myTable typeEnv = myEnvironment_BaseType();
+    MySemantic_setVarAndFuncEnvironment(myEnvironment_BaseVarAndFunc());
+    MySemantic_setTypeEnvironment(myEnvironment_BaseType());
 
     mySymbol recordTypeName = MySymbol_MakeSymbol("record type");
-    myType recordType = makeAndAddOneType_NoFieldRecord(typeEnv, recordTypeName);
+    myType recordType = makeAndAddOneType_NoFieldRecord(
+        recordTypeName);
 
     mySymbol functionSymbol = MySymbol_MakeSymbol("function");
     myVarAndFuncEntry functionEntry = myEnvironment_makeFuncEntry(
@@ -546,7 +545,7 @@ void test_MySemanticFunctionCallExpParam_NilValueOfRecordParamType_Succeed(void)
                 NULL)),
             NULL),
         makeType_Int());
-    MySymbol_Enter(varAndFuncEnv, functionSymbol, functionEntry);
+    MySymbol_Enter(MySemantic_getVarAndFuncEnvironment(), functionSymbol, functionEntry);
 
     myParamFunctionCallExp exp = makeMyParamFunctionCallExp(
         functionSymbol,
@@ -555,7 +554,7 @@ void test_MySemanticFunctionCallExpParam_NilValueOfRecordParamType_Succeed(void)
 
 
     myTranslationAndType result = MySemantic_FunctionCallExp_Param(
-        varAndFuncEnv, typeEnv, exp);
+        exp);
 
     
     CU_ASSERT(result != SEMANTIC_ERROR);
@@ -565,32 +564,32 @@ void test_MySemanticFunctionCallExpParam_NilValueOfRecordParamType_Succeed(void)
 
 void test_MySemanticFunctionCallExpNoParam_FunctionNotDefined_ReturnNull(void)
 {
-    myTable varAndFuncEnv = myEnvironment_BaseVarAndFunc();
-    myTable typeEnv = myEnvironment_BaseType();
+    MySemantic_setVarAndFuncEnvironment(myEnvironment_BaseVarAndFunc());
+    MySemantic_setTypeEnvironment(myEnvironment_BaseType());
     myNoParamFunctionCallExp exp = makeMyNoParamFunctionCallExp(
         makeOneSymbol());
 
     myTranslationAndType result = MySemantic_FunctionCallExp_NoParam(
-        varAndFuncEnv, typeEnv, exp);
+        exp);
 
     CU_ASSERT_EQUAL(result, SEMANTIC_ERROR);
 }
 
 void test_MySemanticFunctionCallExpNoParam_LegalExp_ReturnTypeOfFunctionResult(void)
 {
-    myTable varAndFuncEnv = myEnvironment_BaseVarAndFunc();
-    myTable typeEnv = myEnvironment_BaseType();
+    MySemantic_setVarAndFuncEnvironment(myEnvironment_BaseVarAndFunc());
+    MySemantic_setTypeEnvironment(myEnvironment_BaseType());
 
     mySymbol functionSymbol = MySymbol_MakeSymbol("function"); 
     myVarAndFuncEntry functionEntry = myEnvironment_makeFuncEntry(
         NULL, makeType_Int());
-    MySymbol_Enter(varAndFuncEnv, functionSymbol, functionEntry);
+    MySymbol_Enter(MySemantic_getVarAndFuncEnvironment(), functionSymbol, functionEntry);
 
     myNoParamFunctionCallExp exp = makeMyNoParamFunctionCallExp(
         functionSymbol);
 
     myTranslationAndType result = MySemantic_FunctionCallExp_NoParam(
-        varAndFuncEnv, typeEnv, exp);
+        exp);
 
     CU_ASSERT(result != SEMANTIC_ERROR && isTypeInt(result->type));
 }
@@ -604,15 +603,15 @@ void test_IllegalIntArrayCreation_ReturnNull(myExp length, myExp initial);
 
 void test_MySemanticArrayCreationExp_ArrayTypeNotDefined_ReturnNull(void)
 {
-    myTable varAndFuncEnv = myEnvironment_BaseVarAndFunc();
-    myTable typeEnv = myEnvironment_BaseType();
+    MySemantic_setVarAndFuncEnvironment(myEnvironment_BaseVarAndFunc());
+    MySemantic_setTypeEnvironment(myEnvironment_BaseType());
 
     myArrayCreationExp arrayCreationExp = makeMyArrayCreationExp(
         makeOneSymbol(), makeOneExp_Integer(), makeOneExp_Integer());
 
 
     myTranslationAndType result = MySemantic_ArrayCreationExp(
-        varAndFuncEnv, typeEnv, arrayCreationExp);
+        arrayCreationExp);
 
     CU_ASSERT_EQUAL(result, SEMANTIC_ERROR);
 }
@@ -641,13 +640,13 @@ void test_MySemanticArrayCreationExp_LegalExp_ReturnArrayType(void)
     myExp initial = makeOneExp_Integer();
     myArrayCreationExp exp = makeMyArrayCreationExp(arrayName, length, initial);
 
-    myTable varAndFuncEnv = myEnvironment_BaseVarAndFunc();
-    myTable typeEnv = myEnvironment_BaseType();
+    MySemantic_setVarAndFuncEnvironment(myEnvironment_BaseVarAndFunc());
+    MySemantic_setTypeEnvironment(myEnvironment_BaseType());
     myType arrayType = makeType_Array(makeType_Int());
-    MySymbol_Enter(typeEnv, arrayName, arrayType);
+    MySymbol_Enter(MySemantic_getTypeEnvironment(), arrayName, arrayType);
 
     myTranslationAndType result = 
-        MySemantic_ArrayCreationExp(varAndFuncEnv, typeEnv, exp);
+        MySemantic_ArrayCreationExp(exp);
 
     CU_ASSERT(result != SEMANTIC_ERROR && isTypeEqual(result->type, arrayType));
 }
@@ -658,15 +657,16 @@ void test_MySemanticArrayCreationExp_NilInitialValueOfRecordElement_Succeed(void
     myArrayCreationExp nilValueExp = makeMyArrayCreationExp(
         arrayName, makeOneExp_Integer(), makeOneExp_Nil());
 
-    myTable varAndFuncEnv = myEnvironment_BaseVarAndFunc();
-    myTable typeEnv = myEnvironment_BaseType();
+    MySemantic_setVarAndFuncEnvironment(myEnvironment_BaseVarAndFunc());
+    MySemantic_setTypeEnvironment(myEnvironment_BaseType());
     myType arrayType = makeType_Array(
-        makeAndAddOneType_NoFieldRecord(typeEnv, makeOneSymbol()));
-    MySymbol_Enter(typeEnv, arrayName, arrayType);
+        makeAndAddOneType_NoFieldRecord(
+            makeOneSymbol()));
+    MySymbol_Enter(MySemantic_getTypeEnvironment(), arrayName, arrayType);
 
 
     myTranslationAndType result = 
-        MySemantic_ArrayCreationExp(varAndFuncEnv, typeEnv, nilValueExp);
+        MySemantic_ArrayCreationExp(nilValueExp);
 
     CU_ASSERT(result != SEMANTIC_ERROR);
 }
@@ -674,18 +674,18 @@ void test_MySemanticArrayCreationExp_NilInitialValueOfRecordElement_Succeed(void
 //  a parameterized test
 void test_IllegalIntArrayCreation_ReturnNull(myExp length, myExp initial)
 {
-    myTable varAndFuncEnv = myEnvironment_BaseVarAndFunc();
-    myTable typeEnv = myEnvironment_BaseType();
+    MySemantic_setVarAndFuncEnvironment(myEnvironment_BaseVarAndFunc());
+    MySemantic_setTypeEnvironment(myEnvironment_BaseType());
 
     mySymbol arrayTypeName = MySymbol_MakeSymbol("array");
     myArrayCreationExp exp = makeMyArrayCreationExp(arrayTypeName, length, initial);
 
     myType arrayType = makeType_Array(makeType_Int());
-    MySymbol_Enter(typeEnv, arrayTypeName, arrayType);
+    MySymbol_Enter(MySemantic_getTypeEnvironment(), arrayTypeName, arrayType);
 
 
     myTranslationAndType result = MySemantic_ArrayCreationExp(
-        varAndFuncEnv, typeEnv, exp);
+        exp);
 
     CU_ASSERT_EQUAL(result, SEMANTIC_ERROR);
 }
@@ -694,33 +694,32 @@ void test_IllegalIntArrayCreation_ReturnNull(myExp length, myExp initial)
 
 void test_MySemanticRecordCreationExpNoField_RecordTypeNotDefined_ReturnNull(void)
 {
-    myTable varAndFuncEnv = myEnvironment_BaseVarAndFunc();
-    myTable typeEnv = myEnvironment_BaseType();
+    MySemantic_setVarAndFuncEnvironment(myEnvironment_BaseVarAndFunc());
+    MySemantic_setTypeEnvironment(myEnvironment_BaseType());
 
     myNoFieldRecordCreationExp noFieldRecordCreationExp = 
         makeOneNoFieldCreationExp();
 
     myTranslationAndType result =
-        MySemantic_RecordCreationExp_NoField(varAndFuncEnv, typeEnv,
-            noFieldRecordCreationExp);
+        MySemantic_RecordCreationExp_NoField(noFieldRecordCreationExp);
 
     CU_ASSERT_EQUAL(result, SEMANTIC_ERROR);
 }
 
 void test_MySemanticRecordCreationExpNoField_TypeNotRecord_ReturnNull(void)
 {
-    myTable varAndFuncEnv = myEnvironment_BaseVarAndFunc();
-    myTable typeEnv = myEnvironment_BaseType();
+    MySemantic_setVarAndFuncEnvironment(myEnvironment_BaseVarAndFunc());
+    MySemantic_setTypeEnvironment(myEnvironment_BaseType());
 
     mySymbol recordTypeName = MySymbol_MakeSymbol("recordType");
-    MySymbol_Enter(typeEnv, recordTypeName, makeType_Int());
+    MySymbol_Enter(MySemantic_getTypeEnvironment(), recordTypeName, makeType_Int());
 
     myNoFieldRecordCreationExp noFieldRecordCreationExp =
         makeMyNoFieldRecordCreationExp(recordTypeName);
 
     
     myTranslationAndType result = MySemantic_RecordCreationExp_NoField(
-        varAndFuncEnv, typeEnv, noFieldRecordCreationExp);
+        noFieldRecordCreationExp);
 
     CU_ASSERT_EQUAL(result, SEMANTIC_ERROR);
 }
@@ -736,23 +735,23 @@ void test_MySemanticRecordCreationExpNoField_LegalExp_ReturnRecordType(void)
     myType recordType = makeType_Record(makeType_TypeFieldList(
             makeType_TypeField(fieldName, makeType_Int()),
             NULL));
-    myTable varAndFuncEnv = myEnvironment_BaseVarAndFunc();
-    myTable typeEnv = myEnvironment_BaseType();
-    MySymbol_Enter(typeEnv, recordTypeName, recordType);
+    MySemantic_setVarAndFuncEnvironment(myEnvironment_BaseVarAndFunc());
+    MySemantic_setTypeEnvironment(myEnvironment_BaseType());
+    MySymbol_Enter(MySemantic_getTypeEnvironment(), recordTypeName, recordType);
 
 
     myTranslationAndType result = 
-        MySemantic_RecordCreationExp_NoField(varAndFuncEnv, typeEnv, exp);
+        MySemantic_RecordCreationExp_NoField(exp);
 
     CU_ASSERT(isTypeEqual(result->type, recordType));    
 }
 
 /////////////////////////////////////////////////////////////////////////////
-
+//todo: change mysymbol_enter to ..
 void test_MySemanticRecordCreationExpField_TypeNotRecord_ReturnNull(void)
 {
-    myTable varAndFuncEnv = myEnvironment_BaseVarAndFunc();
-    myTable typeEnv = myEnvironment_BaseType();
+    MySemantic_setVarAndFuncEnvironment(myEnvironment_BaseVarAndFunc());
+    MySemantic_setTypeEnvironment(myEnvironment_BaseType());
 
     mySymbol recordTypeName = MySymbol_MakeSymbol("FieldRecord");
     mySymbol fieldName = MySymbol_MakeSymbol("field");
@@ -763,10 +762,10 @@ void test_MySemanticRecordCreationExpField_TypeNotRecord_ReturnNull(void)
                 makeMyRecordField(fieldName, makeOneExp_Integer()),
                 NULL));
 
-    MySymbol_Enter(typeEnv, recordTypeName, makeType_Int());
+    MySymbol_Enter(MySemantic_getTypeEnvironment(), recordTypeName, makeType_Int());
 
     myTranslationAndType result = 
-        MySemantic_RecordCreationExp_Field(varAndFuncEnv, typeEnv, exp);
+        MySemantic_RecordCreationExp_Field(exp);
 
     CU_ASSERT_EQUAL(result, SEMANTIC_ERROR);
 }
@@ -783,12 +782,12 @@ void test_MySemanticRecordCreationExpField_RecordTypeNotDefined_ReturnNull(void)
                 makeMyRecordField(fieldName, makeOneExp_Integer()),
                 NULL));
 
-    myTable varAndFuncEnv = myEnvironment_BaseVarAndFunc();
-    myTable typeEnv = myEnvironment_BaseType();
+    MySemantic_setVarAndFuncEnvironment(myEnvironment_BaseVarAndFunc());
+    MySemantic_setTypeEnvironment(myEnvironment_BaseType());
 
 
     myTranslationAndType result = 
-        MySemantic_RecordCreationExp_Field(varAndFuncEnv, typeEnv, exp);
+        MySemantic_RecordCreationExp_Field(exp);
 
     CU_ASSERT_EQUAL(result, SEMANTIC_ERROR);   
 }
@@ -809,13 +808,13 @@ void test_MySemanticRecordCreationExpField_RecordFieldsNotMatch_ReturnNull(void)
     myType recordType = makeType_Record(makeType_TypeFieldList(
             makeType_TypeField(recordFieldName, makeType_Int()),
             NULL));
-    myTable varAndFuncEnv = myEnvironment_BaseVarAndFunc();
-    myTable typeEnv = myEnvironment_BaseType();
-    MySymbol_Enter(typeEnv, recordTypeName, recordType);
+    MySemantic_setVarAndFuncEnvironment(myEnvironment_BaseVarAndFunc());
+    MySemantic_setTypeEnvironment(myEnvironment_BaseType());
+    MySymbol_Enter(MySemantic_getTypeEnvironment(), recordTypeName, recordType);
 
 
     myTranslationAndType result = 
-        MySemantic_RecordCreationExp_Field(varAndFuncEnv, typeEnv, exp);
+        MySemantic_RecordCreationExp_Field(exp);
 
     CU_ASSERT_EQUAL(result, SEMANTIC_ERROR);   
 }
@@ -835,26 +834,26 @@ void test_MySemanticRecordCreationExpField_LegalExp_ReturnRecordType(void)
     myType recordType = makeType_Record(makeType_TypeFieldList(
             makeType_TypeField(fieldName, makeType_Int()),
             NULL));
-    myTable varAndFuncEnv = myEnvironment_BaseVarAndFunc();
-    myTable typeEnv = myEnvironment_BaseType();
-    MySymbol_Enter(typeEnv, recordTypeName, recordType);
+    MySemantic_setVarAndFuncEnvironment(myEnvironment_BaseVarAndFunc());
+    MySemantic_setTypeEnvironment(myEnvironment_BaseType());
+    MySymbol_Enter(MySemantic_getTypeEnvironment(), recordTypeName, recordType);
 
 
     myTranslationAndType result = 
-        MySemantic_RecordCreationExp_Field(varAndFuncEnv, typeEnv, exp);
+        MySemantic_RecordCreationExp_Field(exp);
 
     CU_ASSERT(isTypeEqual(result->type, recordType));   
 }
 
 void test_MySemanticRecordCreationExpField_NilValueOfRecordField_Succeed(void)
 {
-    myTable varAndFuncEnv = myEnvironment_BaseVarAndFunc();
-    myTable typeEnv = myEnvironment_BaseType();
+    MySemantic_setVarAndFuncEnvironment(myEnvironment_BaseVarAndFunc());
+    MySemantic_setTypeEnvironment(myEnvironment_BaseType());
     mySymbol recordTypeName = MySymbol_MakeSymbol("FieldRecord");
     mySymbol fieldName = MySymbol_MakeSymbol("field");
     mySymbol anotherRecordTypeName = MySymbol_MakeSymbol("fieldfield");
     myType anotherRecordType = makeAndAddOneType_NoFieldRecord(
-        typeEnv, anotherRecordTypeName);
+        anotherRecordTypeName);
 
     myFieldRecordCreationExp exp = 
         makeMyFieldRecordCreationExp(
@@ -865,11 +864,11 @@ void test_MySemanticRecordCreationExpField_NilValueOfRecordField_Succeed(void)
     myType recordType = makeType_Record(makeType_TypeFieldList(
             makeType_TypeField(fieldName, anotherRecordType),
             NULL));
-    MySymbol_Enter(typeEnv, recordTypeName, recordType);
+    MySymbol_Enter(MySemantic_getTypeEnvironment(), recordTypeName, recordType);
 
 
     myTranslationAndType result = 
-        MySemantic_RecordCreationExp_Field(varAndFuncEnv, typeEnv, exp);
+        MySemantic_RecordCreationExp_Field(exp);
 
     CU_ASSERT(result != SEMANTIC_ERROR);   
 }
@@ -878,8 +877,8 @@ void test_MySemanticRecordCreationExpField_NilValueOfRecordField_Succeed(void)
 
 void test_MySemanticArithmeticExp_IllegalExp_ReturnNull(void)
 {
-    myTable varAndFuncEnv = myEnvironment_BaseVarAndFunc();
-    myTable typeEnv = myEnvironment_BaseType();
+    MySemantic_setVarAndFuncEnvironment(myEnvironment_BaseVarAndFunc());
+    MySemantic_setTypeEnvironment(myEnvironment_BaseType());
 
     myArithmeticExp incorrectLeftOperand = makeMyArithmeticExp_Divide(
         makeOneExp_Integer(), makeOneExp_String());
@@ -889,11 +888,11 @@ void test_MySemanticArithmeticExp_IllegalExp_ReturnNull(void)
         makeOneExp_NoValue(), makeOneExp_String());
 
     myTranslationAndType resultLeftOperand = 
-        MySemantic_ArithmeticExp(varAndFuncEnv, typeEnv, incorrectLeftOperand);
+        MySemantic_ArithmeticExp(incorrectLeftOperand);
     myTranslationAndType resultRightOperand = 
-        MySemantic_ArithmeticExp(varAndFuncEnv, typeEnv, incorrectRightOperand);
+        MySemantic_ArithmeticExp(incorrectRightOperand);
     myTranslationAndType resultBothOperands = 
-        MySemantic_ArithmeticExp(varAndFuncEnv, typeEnv, incorrectBothOperands);
+        MySemantic_ArithmeticExp(incorrectBothOperands);
 
     CU_ASSERT_EQUAL(resultLeftOperand, SEMANTIC_ERROR);
     CU_ASSERT_EQUAL(resultRightOperand, SEMANTIC_ERROR);
@@ -902,14 +901,14 @@ void test_MySemanticArithmeticExp_IllegalExp_ReturnNull(void)
 
 void test_MySemanticArithmeticExp_LegalExp_ReturnIntType(void)
 {
-    myTable varAndFuncEnv = myEnvironment_BaseVarAndFunc();
-    myTable typeEnv = myEnvironment_BaseType();
+    MySemantic_setVarAndFuncEnvironment(myEnvironment_BaseVarAndFunc());
+    MySemantic_setTypeEnvironment(myEnvironment_BaseType());
 
     myArithmeticExp correctExp = makeMyArithmeticExp_Divide(
         makeOneExp_Integer(), makeOneExp_Integer());
     
     myTranslationAndType correctResult = 
-        MySemantic_ArithmeticExp(varAndFuncEnv, typeEnv, correctExp);
+        MySemantic_ArithmeticExp(correctExp);
 
     CU_ASSERT(correctResult != SEMANTIC_ERROR && isTypeInt(correctResult->type));
 }
@@ -918,17 +917,17 @@ void test_MySemanticArithmeticExp_LegalExp_ReturnIntType(void)
 
 void test_MySemanticParenthesesExp_BeDefault_ReturnInnerResult(void)
 {
-    myTable varAndFuncEnv = myEnvironment_BaseVarAndFunc();
-    myTable typeEnv = myEnvironment_BaseType();
+    MySemantic_setVarAndFuncEnvironment(myEnvironment_BaseVarAndFunc());
+    MySemantic_setTypeEnvironment(myEnvironment_BaseType());
 
     myIntegerLiteralExp innerExp = makeMyIntegerLiteralExp(1);
     myParenthesesExp exp = makeMyParenthesesExp(
         makeMyExp_IntegerLiteral(makeOnePos(), innerExp));
 
     myTranslationAndType result =
-        MySemantic_ParenthesesExp(varAndFuncEnv, typeEnv, exp);
+        MySemantic_ParenthesesExp(exp);
     myTranslationAndType resultInner =
-        MySemantic_IntegerLiteralExp(varAndFuncEnv, typeEnv, innerExp);
+        MySemantic_IntegerLiteralExp(innerExp);
 
     CU_ASSERT(isTypeEqual(resultInner->type, result->type)); 
 }
@@ -937,8 +936,8 @@ void test_MySemanticParenthesesExp_BeDefault_ReturnInnerResult(void)
 
 void test_MySemanticSequencingExp_AnyOneIllegal_ReturnNull(void)
 {
-    myTable varAndFuncEnv = myEnvironment_BaseVarAndFunc();
-    myTable typeEnv = myEnvironment_BaseType();
+    MySemantic_setVarAndFuncEnvironment(myEnvironment_BaseVarAndFunc());
+    MySemantic_setTypeEnvironment(myEnvironment_BaseType());
 
     myExp illegalForExp = makeMyExp_For(makeOnePos(),
         makeMyForExp(MySymbol_MakeSymbol("var"),
@@ -955,11 +954,11 @@ void test_MySemanticSequencingExp_AnyOneIllegal_ReturnNull(void)
             makeMyExpList(illegalForExp, NULL)));
 
     myTranslationAndType resultOne =
-        MySemantic_SequencingExp(varAndFuncEnv, typeEnv, illegalOne);
+        MySemantic_SequencingExp(illegalOne);
     myTranslationAndType resultTwo =
-        MySemantic_SequencingExp(varAndFuncEnv, typeEnv, illegalTwo);
+        MySemantic_SequencingExp(illegalTwo);
     myTranslationAndType resultThree =
-        MySemantic_SequencingExp(varAndFuncEnv, typeEnv, illegalThree);
+        MySemantic_SequencingExp(illegalThree);
 
     CU_ASSERT_EQUAL(resultOne, SEMANTIC_ERROR);
     CU_ASSERT_EQUAL(resultTwo, SEMANTIC_ERROR);
@@ -968,8 +967,8 @@ void test_MySemanticSequencingExp_AnyOneIllegal_ReturnNull(void)
 
 void test_MySemanticSequencingExp_LegalExp_ReturnLastExpressionResult(void)
 {
-    myTable varAndFuncEnv = myEnvironment_BaseVarAndFunc();
-    myTable typeEnv = myEnvironment_BaseType();
+    MySemantic_setVarAndFuncEnvironment(myEnvironment_BaseVarAndFunc());
+    MySemantic_setTypeEnvironment(myEnvironment_BaseType());
 
     mySequencingExp expOne = makeMySequencingExp(
         makeOneExp_Integer(), makeOneExp_Integer(), NULL);
@@ -980,9 +979,9 @@ void test_MySemanticSequencingExp_LegalExp_ReturnLastExpressionResult(void)
             makeMyExpList(makeOneExp_String(), NULL)));
     
     myTranslationAndType resultOne = 
-        MySemantic_SequencingExp(varAndFuncEnv, typeEnv, expOne);
+        MySemantic_SequencingExp(expOne);
     myTranslationAndType resultTwo = 
-        MySemantic_SequencingExp(varAndFuncEnv, typeEnv, expTwo);
+        MySemantic_SequencingExp(expTwo);
     
     CU_ASSERT(isTypeInt(resultOne->type));
     CU_ASSERT(isTypeString(resultTwo->type));
@@ -1024,8 +1023,8 @@ void test_MySemanticForExp_OnlybodyNotTypeNoReturn_ReturnNullt(void)
 
 void test_MySemanticForExp_LegalForExp_ReturnTypeNoReturn(void)
 {
-    myTable varAndFuncEnv = myEnvironment_BaseVarAndFunc();
-    myTable typeEnv = myEnvironment_BaseType();
+    MySemantic_setVarAndFuncEnvironment(myEnvironment_BaseVarAndFunc());
+    MySemantic_setTypeEnvironment(myEnvironment_BaseType());
 
     mySymbol forVarName = MySymbol_MakeSymbol("var"); 
     myForExp forExp = makeMyForExp(
@@ -1035,15 +1034,15 @@ void test_MySemanticForExp_LegalForExp_ReturnTypeNoReturn(void)
         makeOneExp_NoValue());
 
     myTranslationAndType result =
-        MySemantic_ForExp(varAndFuncEnv, typeEnv, forExp);
+        MySemantic_ForExp(forExp);
     
     CU_ASSERT(isTypeNoReturn(result->type));
 }
 
 void test_MySemanticForExp_LegalForExp_ConditionVarCanBeUsedInBody(void)
 {
-    myTable varAndFuncEnv = myEnvironment_BaseVarAndFunc();
-    myTable typeEnv = myEnvironment_BaseType();
+    MySemantic_setVarAndFuncEnvironment(myEnvironment_BaseVarAndFunc());
+    MySemantic_setTypeEnvironment(myEnvironment_BaseType());
 
     mySymbol forVarName = MySymbol_MakeSymbol("var"); 
     myForExp forExp = makeMyForExp(
@@ -1056,7 +1055,7 @@ void test_MySemanticForExp_LegalForExp_ConditionVarCanBeUsedInBody(void)
                 makeOneExp_Integer())));
 
     myTranslationAndType result =
-        MySemantic_ForExp(varAndFuncEnv, typeEnv, forExp);
+        MySemantic_ForExp(forExp);
     
     CU_ASSERT_NOT_EQUAL(result, SEMANTIC_ERROR);
 }
@@ -1064,14 +1063,14 @@ void test_MySemanticForExp_LegalForExp_ConditionVarCanBeUsedInBody(void)
 //  a parameterized test
 void test_IllegalForExp_ReturnNull(myExp low, myExp high, myExp body)
 {
-    myTable varAndFuncEnv = myEnvironment_BaseVarAndFunc();
-    myTable typeEnv = myEnvironment_BaseType();
+    MySemantic_setVarAndFuncEnvironment(myEnvironment_BaseVarAndFunc());
+    MySemantic_setTypeEnvironment(myEnvironment_BaseType());
 
     mySymbol forVarName = MySymbol_MakeSymbol("var"); 
     myForExp forExp = makeMyForExp(forVarName, low, high, body);
 
     myTranslationAndType result =
-        MySemantic_ForExp(varAndFuncEnv, typeEnv, forExp);
+        MySemantic_ForExp(forExp);
     
     CU_ASSERT_EQUAL(result, SEMANTIC_ERROR);
 }
@@ -1125,24 +1124,25 @@ void test_MySemanticIfThenElseExp_OnlyThenElseTypeMismatch_ReturnNull(void)
 
 void test_MySemanticIfThenElseExp_LegalExpression_ReturnClauseType(void)
 {
-    myTable varAndFuncEnv = myEnvironment_BaseVarAndFunc();
-    myTable typeEnv = myEnvironment_BaseType();
+    MySemantic_setVarAndFuncEnvironment(myEnvironment_BaseVarAndFunc());
+    MySemantic_setTypeEnvironment(myEnvironment_BaseType());
 
     myIfThenElseExp exp = makeMyIfThenElseExp(
         makeOneExp_Integer(), makeOneExp_String(), makeOneExp_String());
 
     myTranslationAndType result = 
-        MySemantic_IfThenElseExp(varAndFuncEnv, typeEnv, exp);
+        MySemantic_IfThenElseExp(exp);
 
     CU_ASSERT(isTypeString(result->type));
 }
 
 void test_MySemanticIfThenElseExp_OneNilAnotherRecord_Succeed(void)
 {
-    myTable varAndFuncEnv = myEnvironment_BaseVarAndFunc();
-    myTable typeEnv = myEnvironment_BaseType();
+    MySemantic_setVarAndFuncEnvironment(myEnvironment_BaseVarAndFunc());
+    MySemantic_setTypeEnvironment(myEnvironment_BaseType());
     mySymbol recordTypeName = MySymbol_MakeSymbol("record type");
-    myType recordType = makeAndAddOneType_NoFieldRecord(typeEnv, recordTypeName);
+    myType recordType = makeAndAddOneType_NoFieldRecord(
+        recordTypeName);
 
     myIfThenElseExp expOne = makeMyIfThenElseExp(
         makeOneExp_Integer(), makeOneExp_Record(recordTypeName), makeOneExp_Nil());
@@ -1150,9 +1150,9 @@ void test_MySemanticIfThenElseExp_OneNilAnotherRecord_Succeed(void)
         makeOneExp_Integer(), makeOneExp_Nil(), makeOneExp_Record(recordTypeName));
 
     myTranslationAndType resultOne = 
-        MySemantic_IfThenElseExp(varAndFuncEnv, typeEnv, expOne);
+        MySemantic_IfThenElseExp(expOne);
     myTranslationAndType resultTwo = 
-        MySemantic_IfThenElseExp(varAndFuncEnv, typeEnv, expTwo);
+        MySemantic_IfThenElseExp(expTwo);
 
     CU_ASSERT(resultOne != SEMANTIC_ERROR);
     CU_ASSERT(resultTwo != SEMANTIC_ERROR);
@@ -1161,13 +1161,13 @@ void test_MySemanticIfThenElseExp_OneNilAnotherRecord_Succeed(void)
 //  a parameterized test
 void test_IllegalIfThenElseExp_ReturnNull(myExp ifExp, myExp thenExp, myExp elseExp)
 {
-    myTable varAndFuncEnv = myEnvironment_BaseVarAndFunc();
-    myTable typeEnv = myEnvironment_BaseType();
+    MySemantic_setVarAndFuncEnvironment(myEnvironment_BaseVarAndFunc());
+    MySemantic_setTypeEnvironment(myEnvironment_BaseType());
 
     myIfThenElseExp exp = makeMyIfThenElseExp(ifExp, thenExp, elseExp);
 
     myTranslationAndType result = 
-        MySemantic_IfThenElseExp(varAndFuncEnv, typeEnv, exp);
+        MySemantic_IfThenElseExp(exp);
 
     CU_ASSERT_EQUAL(result, SEMANTIC_ERROR);
 }
@@ -1197,13 +1197,13 @@ void test_MySemanticIfThenExp_OnlyThenClauseNotNoReturn_ReturnNull(void)
 
 void test_MySemanticIfThenExp_LegalExp_ReturnNoReturnType(void)
 {
-    myTable varAndFuncEnv = myEnvironment_BaseVarAndFunc();
-    myTable typeEnv = myEnvironment_BaseType();
+    MySemantic_setVarAndFuncEnvironment(myEnvironment_BaseVarAndFunc());
+    MySemantic_setTypeEnvironment(myEnvironment_BaseType());
     myIfThenExp ifThenExp = makeMyIfThenExp(
         makeOneExp_Integer(), makeOneExp_NoValue());
 
     myTranslationAndType result =
-        MySemantic_IfThenExp(varAndFuncEnv, typeEnv, ifThenExp);
+        MySemantic_IfThenExp(ifThenExp);
 
     CU_ASSERT(isTypeNoReturn(result->type));
 }
@@ -1211,12 +1211,12 @@ void test_MySemanticIfThenExp_LegalExp_ReturnNoReturnType(void)
 //  a parameterized test
 void test_IllegalIfThenExp_ReturnNull(myExp ifExp, myExp thenExp)
 {
-    myTable varAndFuncEnv = myEnvironment_BaseVarAndFunc();
-    myTable typeEnv = myEnvironment_BaseType();
+    MySemantic_setVarAndFuncEnvironment(myEnvironment_BaseVarAndFunc());
+    MySemantic_setTypeEnvironment(myEnvironment_BaseType());
     myIfThenExp ifThenExp = makeMyIfThenExp(ifExp, thenExp);
 
     myTranslationAndType result =
-        MySemantic_IfThenExp(varAndFuncEnv, typeEnv, ifThenExp);
+        MySemantic_IfThenExp(ifThenExp);
 
     CU_ASSERT_EQUAL(result, SEMANTIC_ERROR);
 }
@@ -1262,23 +1262,24 @@ void test_MySemanticComparisonExp_OperandsTypesAllNoReturn_ReturnNull(void)
 
 void test_MySemanticComparisonExp_LegalExp_ReturnIntType(void)
 {
-    myTable varAndFuncenv = myEnvironment_BaseVarAndFunc();
-    myTable typeEnv = myEnvironment_BaseType();
+    MySemantic_setVarAndFuncEnvironment(myEnvironment_BaseVarAndFunc());
+    MySemantic_setTypeEnvironment(myEnvironment_BaseType());
     myComparisonExp intComparison = makeMyComparisonExp_Equal(
         makeOneExp_Integer(), makeOneExp_Integer());
     
     myTranslationAndType result = MySemantic_ComparisonExp(
-        varAndFuncenv, typeEnv, intComparison);
+        intComparison);
 
     CU_ASSERT(isTypeInt(result->type));
 }
 
 void test_MySemanticComparisonExp_OneRecordAnotherNil_Succeed(void)
 {
-    myTable varAndFuncenv = myEnvironment_BaseVarAndFunc();
-    myTable typeEnv = myEnvironment_BaseType();
+    MySemantic_setVarAndFuncEnvironment(myEnvironment_BaseVarAndFunc());
+    MySemantic_setTypeEnvironment(myEnvironment_BaseType());
     mySymbol recordTypeName = makeOneSymbol();
-    makeAndAddOneType_NoFieldRecord(typeEnv, recordTypeName);
+    makeAndAddOneType_NoFieldRecord(
+        recordTypeName);
 
     myComparisonExp intComparisonOne = makeMyComparisonExp_Equal(
        makeOneExp_Record(recordTypeName) , makeOneExp_Nil());
@@ -1286,9 +1287,9 @@ void test_MySemanticComparisonExp_OneRecordAnotherNil_Succeed(void)
        makeOneExp_Nil(), makeOneExp_Record(recordTypeName));
     
     myTranslationAndType resultOne = MySemantic_ComparisonExp(
-        varAndFuncenv, typeEnv, intComparisonOne);
+        intComparisonOne);
     myTranslationAndType resultTwo = MySemantic_ComparisonExp(
-        varAndFuncenv, typeEnv, intComparisonTwo);
+        intComparisonTwo);
 
     CU_ASSERT(resultOne != SEMANTIC_ERROR);
     CU_ASSERT(resultTwo != SEMANTIC_ERROR);
@@ -1297,12 +1298,12 @@ void test_MySemanticComparisonExp_OneRecordAnotherNil_Succeed(void)
 //  a parameterized test
 void test_IllegalComparisonExp_ReturnNull(myExp lhs, myExp rhs)
 {
-    myTable varAndFuncEnv = myEnvironment_BaseVarAndFunc();
-    myTable typeEnv = myEnvironment_BaseType();
+    MySemantic_setVarAndFuncEnvironment(myEnvironment_BaseVarAndFunc());
+    MySemantic_setTypeEnvironment(myEnvironment_BaseType());
     myComparisonExp comparisonExp = makeMyComparisonExp_Equal(lhs, rhs);
 
     myTranslationAndType result = MySemantic_ComparisonExp(
-        varAndFuncEnv, typeEnv, comparisonExp);
+        comparisonExp);
 
     CU_ASSERT_EQUAL(result, SEMANTIC_ERROR);
 }
@@ -1333,13 +1334,13 @@ void test_MySemanticBooleanOperateExp_OnlyRightOperandNotInt_ReturnNull(void)
 
 void test_MySemanticBooleanOperateExp_LegalExp_ReturnIntType(void)
 {
-    myTable varAndFuncEnv = myEnvironment_BaseVarAndFunc();
-    myTable typeEnv = myEnvironment_BaseType();
+    MySemantic_setVarAndFuncEnvironment(myEnvironment_BaseVarAndFunc());
+    MySemantic_setTypeEnvironment(myEnvironment_BaseType());
     myBooleanOperateExp exp = makeMyBooleanOperateExp_Or(
         makeOneExp_Integer(), makeOneExp_Integer());
 
     myTranslationAndType result = MySemantic_BooleanOperateExp(
-        varAndFuncEnv, typeEnv, exp);
+        exp);
 
     CU_ASSERT(isTypeInt(result->type));
 }
@@ -1348,13 +1349,13 @@ void test_MySemanticBooleanOperateExp_LegalExp_ReturnIntType(void)
 void test_IllegalBooleanOperateExp_ReturnNull(
     myExp leftOperand, myExp rightOperand)
 {
-    myTable varAndFuncEnv = myEnvironment_BaseVarAndFunc();
-    myTable typeEnv = myEnvironment_BaseType();
+    MySemantic_setVarAndFuncEnvironment(myEnvironment_BaseVarAndFunc());
+    MySemantic_setTypeEnvironment(myEnvironment_BaseType());
     myBooleanOperateExp exp = makeMyBooleanOperateExp_Or(
         leftOperand, rightOperand);
 
     myTranslationAndType result = MySemantic_BooleanOperateExp(
-        varAndFuncEnv, typeEnv, exp);
+        exp);
 
     CU_ASSERT_EQUAL(result, SEMANTIC_ERROR);
 }
@@ -1363,20 +1364,20 @@ void test_IllegalBooleanOperateExp_ReturnNull(
 
 //  forwards
 void test_IllegalAssignmentExp_ReturnNull(
-    myTable varAndFuncEnv, myTable typeEnv,
     myLValueExp leftOperand, myExp rightOperand);
 
 ////////////////////
 
 void test_MySemanticAssignmentExp_OnlyLeftOperandIllegal_ReturnNull(void)
 {
+    MySemantic_setVarAndFuncEnvironment(myEnvironment_BaseVarAndFunc());
+    MySemantic_setTypeEnvironment(myEnvironment_BaseType());
+
     myLValueExp illegalLeftOperand =
         makeMyLValue(makeOnePos(), makeOneSymbol(), NULL);
     myExp legalRightOperand = makeOneExp_Integer();
 
     test_IllegalAssignmentExp_ReturnNull(
-        myEnvironment_BaseVarAndFunc(),
-        myEnvironment_BaseType(),
         illegalLeftOperand, legalRightOperand);
 }
 
@@ -1384,86 +1385,83 @@ void test_MySemanticAssignmentExp_OnlyLeftOperandIllegal_ReturnNull(void)
 
 void test_MySemanticAssignmentExp_OnlyRightOperandIllegal_ReturnNull(void)
 {
-    myTable varAndFuncEnv = myEnvironment_BaseVarAndFunc();
-    myTable typeEnv = myEnvironment_BaseType();
+    MySemantic_setVarAndFuncEnvironment(myEnvironment_BaseVarAndFunc());
+    MySemantic_setTypeEnvironment(myEnvironment_BaseType());
 
     myLValueExp legalLeftOperand =
-        makeOneLegalLValueExp_SimpleVar_Int(varAndFuncEnv, typeEnv);
+        makeOneLegalLValueExp_SimpleVar_Int();
     myExp illegalRightOperand = makeOneIllegalExp_Integer();
 
     test_IllegalAssignmentExp_ReturnNull(
-        varAndFuncEnv, typeEnv, legalLeftOperand, illegalRightOperand);    
+        legalLeftOperand, illegalRightOperand);    
 }
 
 void test_MySemanticAssignmentExp_OperandsTypeNotMatch_ReturnNull(void)
 {
-    myTable varAndFuncEnv = myEnvironment_BaseVarAndFunc();
-    myTable typeEnv = myEnvironment_BaseType();
+    MySemantic_setVarAndFuncEnvironment(myEnvironment_BaseVarAndFunc());
+    MySemantic_setTypeEnvironment(myEnvironment_BaseType());
     myLValueExp intLeftOperand =
-        makeOneLegalLValueExp_SimpleVar_Int(varAndFuncEnv, typeEnv); 
+        makeOneLegalLValueExp_SimpleVar_Int(); 
     myExp stringRightOperand = makeOneExp_String();
 
     test_IllegalAssignmentExp_ReturnNull(
-        varAndFuncEnv, typeEnv, 
         intLeftOperand, stringRightOperand);
 }
 
 void test_MySemanticAssignmentExp_RightOperandTypeNoReturn_ReturnNull(void)
 {
-    myTable varAndFuncEnv = myEnvironment_BaseVarAndFunc();
-    myTable typeEnv = myEnvironment_BaseType();
+    MySemantic_setVarAndFuncEnvironment(myEnvironment_BaseVarAndFunc());
+    MySemantic_setTypeEnvironment(myEnvironment_BaseType());
     myLValueExp intLeftOperand =
-        makeOneLegalLValueExp_SimpleVar_Int(varAndFuncEnv, typeEnv); 
+        makeOneLegalLValueExp_SimpleVar_Int(); 
     myExp breakExp = makeOneExp_NoValue();
 
     test_IllegalAssignmentExp_ReturnNull(
-        varAndFuncEnv, typeEnv, 
         intLeftOperand, breakExp);
 }
 
 void test_MySemanticAssignmentExp_LegalExp_ReturnNoReturnType(void)
 {
-    myTable varAndFuncEnv = myEnvironment_BaseVarAndFunc();
-    myTable typeEnv = myEnvironment_BaseType();
+    MySemantic_setVarAndFuncEnvironment(myEnvironment_BaseVarAndFunc());
+    MySemantic_setTypeEnvironment(myEnvironment_BaseType());
     myAssignmentExp assignmentExp =
         makeMyAssignmentExp(
-            makeOneLegalLValueExp_SimpleVar_Int(varAndFuncEnv, typeEnv),
+            makeOneLegalLValueExp_SimpleVar_Int(),
             makeOneExp_Integer());
 
     myTranslationAndType result = MySemantic_AssignmentExp(
-        varAndFuncEnv, typeEnv, assignmentExp);
+        assignmentExp);
 
     CU_ASSERT(isTypeNoReturn(result->type));
 }
 
 void test_MySemanticAssignmentExp_LeftRecordRightNil_Succeed(void)
 {
-    myTable varAndFuncEnv = myEnvironment_BaseVarAndFunc();
-    myTable typeEnv = myEnvironment_BaseType();
+    MySemantic_setVarAndFuncEnvironment(myEnvironment_BaseVarAndFunc());
+    MySemantic_setTypeEnvironment(myEnvironment_BaseType());
     myAssignmentExp assignmentExp =
         makeMyAssignmentExp(
             makeOneLegalLValueExp_Record(
-                varAndFuncEnv, 
-                makeAndAddOneType_NoFieldRecord(typeEnv, makeOneSymbol())),    
+                makeAndAddOneType_NoFieldRecord(
+                    makeOneSymbol())),    
             makeOneExp_Nil());
 
 
     myTranslationAndType result = MySemantic_AssignmentExp(
-        varAndFuncEnv, typeEnv, assignmentExp);
+        assignmentExp);
 
     CU_ASSERT(result != SEMANTIC_ERROR);
 }
 
 //  a parameterized test
 void test_IllegalAssignmentExp_ReturnNull(
-    myTable varAndFuncEnv, myTable typeEnv,
     myLValueExp leftOperand, myExp rightOperand)
 {
     myAssignmentExp assignmentExp = makeMyAssignmentExp(
         leftOperand, rightOperand);
 
     myTranslationAndType result = MySemantic_AssignmentExp(
-        varAndFuncEnv, typeEnv, assignmentExp);
+        assignmentExp);
 
     CU_ASSERT_EQUAL(result, SEMANTIC_ERROR);
 }
@@ -1493,13 +1491,13 @@ void test_MySemanticWhileExp_OnlyBodyNotNoReturn_ReturnNull(void)
 
 void test_MySemanticWhileExp_LegalExp_ReturnNoReturnType(void)
 {
-    myTable varAndFuncEnv = myEnvironment_BaseVarAndFunc();
-    myTable typeEnv = myEnvironment_BaseType();
+    MySemantic_setVarAndFuncEnvironment(myEnvironment_BaseVarAndFunc());
+    MySemantic_setTypeEnvironment(myEnvironment_BaseType());
     myWhileExp whileExp = makeMyWhileExp(
         makeOneExp_Integer(), makeOneExp_NoValue());
 
     myTranslationAndType result =
-        MySemantic_WhileExp(varAndFuncEnv, typeEnv, whileExp);
+        MySemantic_WhileExp(whileExp);
 
     CU_ASSERT(isTypeNoReturn(result->type));
 }
@@ -1507,12 +1505,12 @@ void test_MySemanticWhileExp_LegalExp_ReturnNoReturnType(void)
 //  a parameterized test
 void test_IllegalWhileExp_ReturnNull(myExp conditionExp, myExp bodyExp)
 {
-    myTable varAndFuncEnv = myEnvironment_BaseVarAndFunc();
-    myTable typeEnv = myEnvironment_BaseType();
+    MySemantic_setVarAndFuncEnvironment(myEnvironment_BaseVarAndFunc());
+    MySemantic_setTypeEnvironment(myEnvironment_BaseType());
     myWhileExp whileExp = makeMyWhileExp(conditionExp, bodyExp);
 
     myTranslationAndType result =
-        MySemantic_WhileExp(varAndFuncEnv, typeEnv, whileExp);
+        MySemantic_WhileExp(whileExp);
 
     CU_ASSERT_EQUAL(result, SEMANTIC_ERROR);
 }
@@ -1521,24 +1519,24 @@ void test_IllegalWhileExp_ReturnNull(myExp conditionExp, myExp bodyExp)
 
 void test_MySemanticNegationExp_ExpNotInt_ReturnNull(void)
 {
-    myTable varAndFuncEnv = myEnvironment_BaseVarAndFunc();
-    myTable typeEnv = myEnvironment_BaseType();
+    MySemantic_setVarAndFuncEnvironment(myEnvironment_BaseVarAndFunc());
+    MySemantic_setTypeEnvironment(myEnvironment_BaseType());
     myNegationExp negationExp = makeMyNegationExp(makeOneExp_NoValue());
 
     myTranslationAndType result =
-        MySemantic_NegationExp(varAndFuncEnv, typeEnv, negationExp);
+        MySemantic_NegationExp(negationExp);
 
     CU_ASSERT_EQUAL(result, SEMANTIC_ERROR);
 }
 
 void test_MySemanticNegationExp_LegalExp_ReturnIntType(void)
 {
-    myTable varAndFuncEnv = myEnvironment_BaseVarAndFunc();
-    myTable typeEnv = myEnvironment_BaseType();
+    MySemantic_setVarAndFuncEnvironment(myEnvironment_BaseVarAndFunc());
+    MySemantic_setTypeEnvironment(myEnvironment_BaseType());
     myNegationExp negationExp = makeMyNegationExp(makeOneExp_Integer());
 
     myTranslationAndType result =
-        MySemantic_NegationExp(varAndFuncEnv, typeEnv, negationExp);
+        MySemantic_NegationExp(negationExp);
 
     CU_ASSERT(isTypeInt(result->type));
 }
@@ -1547,42 +1545,50 @@ void test_MySemanticNegationExp_LegalExp_ReturnIntType(void)
 
 void test_MySemanticDecTypeNamed_NamedTypeNotDefined_ReturnFalse(void)
 {
-    myTable typeEnv = myEnvironment_BaseType();
+    MySemantic_setTypeEnvironment(myEnvironment_BaseType());
     mySymbol undefinedTypeName = MySymbol_MakeSymbol("undefined");
     mySymbol typeName = makeOneSymbol(); 
 
     bool result = MySemantic_Dec_Type_Named(
-        typeEnv, typeName , undefinedTypeName);
+        typeName , undefinedTypeName);
 
     CU_ASSERT_EQUAL(result, false);
 }
 
 void test_MySemanticDecTypeNamed_NamedTypeOfBuildInt_AddedActualTypeIsInt(void)
 {
-    myTable typeEnv = myEnvironment_BaseType();
+    MySemantic_setTypeEnvironment(myEnvironment_BaseType());
     mySymbol newTypeName = MySymbol_MakeSymbol("newType");
     mySymbol buildIntTypeName = MySymbol_MakeSymbol("int");
 
-    bool result =MySemantic_Dec_Type_Named(typeEnv, newTypeName, buildIntTypeName);
+    bool result =MySemantic_Dec_Type_Named(newTypeName, buildIntTypeName);
 
-    myType expectedType = MyEnvironment_getTypeFromName(typeEnv, buildIntTypeName);
-    myType actualType = MyEnvironment_getTypeFromName(typeEnv, newTypeName);
+    myType expectedType = MyEnvironment_getTypeFromName(
+        MySemantic_getTypeEnvironment(),
+        buildIntTypeName);
+    myType actualType = MyEnvironment_getTypeFromName(
+        MySemantic_getTypeEnvironment(),
+        newTypeName);
     CU_ASSERT_EQUAL(result, true);
     CU_ASSERT_EQUAL(expectedType, actualType->u.typeNamed->type);
 }
 
 void test_MySemanticDecTypeNamed_NamedTypeOfNamedOne_AddedTypeIsNamedActualType(void)
 {
-    myTable typeEnv = myEnvironment_BaseType();
+    MySemantic_setTypeEnvironment(myEnvironment_BaseType());
     mySymbol namedTypeName = MySymbol_MakeSymbol("namedType");
     mySymbol buildIntTypeName = MySymbol_MakeSymbol("int");
-    MySemantic_Dec_Type_Named(typeEnv, namedTypeName, buildIntTypeName);
+    MySemantic_Dec_Type_Named(namedTypeName, buildIntTypeName);
 
     mySymbol newTypeName = MySymbol_MakeSymbol("newType");
-    bool result = MySemantic_Dec_Type_Named(typeEnv, newTypeName, namedTypeName);
+    bool result = MySemantic_Dec_Type_Named(newTypeName, namedTypeName);
 
-    myType actualType = MyEnvironment_getTypeFromName(typeEnv, newTypeName);
-    myType expectedType = MyEnvironment_getTypeFromName(typeEnv, buildIntTypeName);
+    myType actualType = MyEnvironment_getTypeFromName(
+        MySemantic_getTypeEnvironment(),
+        newTypeName);
+    myType expectedType = MyEnvironment_getTypeFromName(
+        MySemantic_getTypeEnvironment(),
+        buildIntTypeName);
     CU_ASSERT_EQUAL(result, true);
     CU_ASSERT_EQUAL(expectedType, actualType->u.typeNamed->type->u.typeNamed->type);
 }
@@ -1591,28 +1597,30 @@ void test_MySemanticDecTypeNamed_NamedTypeOfNamedOne_AddedTypeIsNamedActualType(
 
 void test_MySemanticDecTypeRecord_FieldTypeNotDefined_ReturnFalse(void)
 {
-    myTable typeEnv = myEnvironment_BaseType();
+    MySemantic_setTypeEnvironment(myEnvironment_BaseType());
     mySymbol varName = makeOneSymbol();
     mySymbol typeName = MySymbol_MakeSymbol("not defined type");
     mySymbol recordTypeName = makeOneSymbol();
     myTyFieldList tyFields = makeMyTyFieldList(makeMyTyField(varName, typeName), NULL);
 
-    bool result = MySemantic_Dec_Type_Record(typeEnv, recordTypeName, tyFields);
+    bool result = MySemantic_Dec_Type_Record(recordTypeName, tyFields);
 
     CU_ASSERT_EQUAL(result, false);
 }
 
 void test_MySemanticDecTypeRecord_LegalParam_AddOneRecordType(void)
 {
-    myTable typeEnv = myEnvironment_BaseType();
+    MySemantic_setTypeEnvironment(myEnvironment_BaseType());
     myTyFieldList tyFields = makeMyTyFieldList(
         makeMyTyField(makeOneSymbol(), MySymbol_MakeSymbol("int")),
         NULL);
     mySymbol recordTypeName = MySymbol_MakeSymbol("recordType");
 
-    bool result = MySemantic_Dec_Type_Record(typeEnv, recordTypeName, tyFields);
+    bool result = MySemantic_Dec_Type_Record(recordTypeName, tyFields);
 
-    bool recordAdded = MyEnvironment_getTypeFromName(typeEnv, recordTypeName) != NULL; 
+    bool recordAdded = MyEnvironment_getTypeFromName(
+        MySemantic_getTypeEnvironment(),
+        recordTypeName) != NULL; 
     CU_ASSERT_EQUAL(result, true);
     CU_ASSERT(recordAdded);
 }
@@ -1621,24 +1629,26 @@ void test_MySemanticDecTypeRecord_LegalParam_AddOneRecordType(void)
 
 void test_MySemanticDecTypeArray_ElementTypeNotDefined_ReturnFalse(void)
 {
-    myTable typeEnv = myEnvironment_BaseType();
+    MySemantic_setTypeEnvironment(myEnvironment_BaseType());
     mySymbol newTypeName = MySymbol_MakeSymbol("newTypeName");
     mySymbol elementTypeName = MySymbol_MakeSymbol("elementType");
 
-    bool result = MySemantic_Dec_Type_Array(typeEnv, newTypeName, elementTypeName);
+    bool result = MySemantic_Dec_Type_Array(newTypeName, elementTypeName);
 
     CU_ASSERT_EQUAL(result, false);
 }
 
 void test_MySemanticDecTypeArray_LegalParam_TypeAdded(void)
 {
-    myTable typeEnv = myEnvironment_BaseType();
+    MySemantic_setTypeEnvironment(myEnvironment_BaseType());
     mySymbol newTypeName = MySymbol_MakeSymbol("newTypeName");
     mySymbol elementTypeName = MySymbol_MakeSymbol("int");
 
-    bool result = MySemantic_Dec_Type_Array(typeEnv, newTypeName, elementTypeName);
+    bool result = MySemantic_Dec_Type_Array(newTypeName, elementTypeName);
 
-    bool typeAdded = MyEnvironment_getTypeFromName(typeEnv, newTypeName) != NULL;
+    bool typeAdded = MyEnvironment_getTypeFromName(
+        MySemantic_getTypeEnvironment(),
+        newTypeName) != NULL;
     CU_ASSERT_EQUAL(result, true);
     CU_ASSERT(typeAdded);
 }
@@ -1671,17 +1681,20 @@ void test_MySemanticDecVarShortForm_NilOrNoReturnTypeExp_ReturnFalse(void)
 
 void test_MySemanticDecVarShortForm_LegalIntShortVar_ValueTypedAdded(void)
 {
-    myTable typeEnv = myEnvironment_BaseType();
-    myTable varAndFuncEnv = myEnvironment_BaseVarAndFunc();
+    MySemantic_setTypeEnvironment(myEnvironment_BaseType());
+    MySemantic_setVarAndFuncEnvironment(myEnvironment_BaseVarAndFunc());
+
     mySymbol typeName = makeOneSymbol(); 
     myShortFormVar legalShortVar = makeMyShortFormVar(
         typeName, makeOneExp_Integer());
 
     bool result = 
-        MySemantic_Dec_Var_ShortForm(varAndFuncEnv, typeEnv, legalShortVar);
+        MySemantic_Dec_Var_ShortForm(legalShortVar);
 
     myType addedType = MyEnvironment_getVarType(
-        MyEnvironment_getVarOrFuncFromName(varAndFuncEnv, typeName));
+        MyEnvironment_getVarOrFuncFromName(
+            MySemantic_getVarAndFuncEnvironment(),
+            typeName));
     CU_ASSERT_EQUAL(result, true);
     CU_ASSERT(isTypeInt(addedType));
 }
@@ -1689,10 +1702,10 @@ void test_MySemanticDecVarShortForm_LegalIntShortVar_ValueTypedAdded(void)
 //  a parameterized test
 void test_IllegalShortFormVar_ReturnFalse(myShortFormVar var)
 {
-    myTable varAndFncEnv = myEnvironment_BaseVarAndFunc();
-    myTable typeEnv = myEnvironment_BaseType();
+    MySemantic_setVarAndFuncEnvironment(myEnvironment_BaseVarAndFunc());
+    MySemantic_setTypeEnvironment(myEnvironment_BaseType());
 
-    bool result = MySemantic_Dec_Var_ShortForm(varAndFncEnv, typeEnv, var);
+    bool result = MySemantic_Dec_Var_ShortForm(var);
 
     CU_ASSERT_EQUAL(result, false);
 }
@@ -1701,59 +1714,62 @@ void test_IllegalShortFormVar_ReturnFalse(myShortFormVar var)
 
 void test_MySemanticDecVarLongForm_VariableTypeNotDefined_ReturnFalse(void)
 {
-    myTable varAndFuncEnv = myEnvironment_BaseVarAndFunc();
-    myTable typeEnv = myEnvironment_BaseType();
+    MySemantic_setVarAndFuncEnvironment(myEnvironment_BaseVarAndFunc());
+    MySemantic_setTypeEnvironment(myEnvironment_BaseType());
     myLongFormVar longFormVar = makeMyLongFormVar(
         makeOneSymbol(), makeOneSymbol(), makeOneExp_Integer());
 
     bool result =
-        MySemantic_Dec_Var_LongForm(varAndFuncEnv, typeEnv, longFormVar);
+        MySemantic_Dec_Var_LongForm(longFormVar);
 
     CU_ASSERT_EQUAL(result, false);
 }
 
 void test_MySemanticDecVarLongForm_VariableTypeNotMatchExpType_ReturnFalse(void)
 {
-    myTable varAndFuncEnv = myEnvironment_BaseVarAndFunc();
-    myTable typeEnv = myEnvironment_BaseType();
+    MySemantic_setVarAndFuncEnvironment(myEnvironment_BaseVarAndFunc());
+    MySemantic_setTypeEnvironment(myEnvironment_BaseType());
     myLongFormVar longFormVar = makeMyLongFormVar(
         makeOneSymbol(), MySymbol_MakeSymbol("int"), makeOneExp_String());
 
     bool result =
-        MySemantic_Dec_Var_LongForm(varAndFuncEnv, typeEnv, longFormVar);
+        MySemantic_Dec_Var_LongForm(longFormVar);
 
     CU_ASSERT_EQUAL(result, false);
 }
 
 void test_MySemanticDecVarLongForm_NilValueOfNonRecordType_ReturnFalse(void)
 {
-    myTable varAndFuncEnv = myEnvironment_BaseVarAndFunc();
-    myTable typeEnv = myEnvironment_BaseType();
+    MySemantic_setVarAndFuncEnvironment(myEnvironment_BaseVarAndFunc());
+    MySemantic_setTypeEnvironment(myEnvironment_BaseType());
     myLongFormVar longFormVar = makeMyLongFormVar(
         makeOneSymbol(), MySymbol_MakeSymbol("int"), makeOneExp_Nil());
 
     bool result =
-        MySemantic_Dec_Var_LongForm(varAndFuncEnv, typeEnv, longFormVar);
+        MySemantic_Dec_Var_LongForm(longFormVar);
 
     CU_ASSERT_EQUAL(result, false);
 }
 
 void test_MySemanticDecVarLongForm_NilValueOfRecordType_VarAdded(void)
 {
-    myTable varAndFuncEnv = myEnvironment_BaseVarAndFunc();
-    myTable typeEnv = myEnvironment_BaseType();
+    MySemantic_setVarAndFuncEnvironment(myEnvironment_BaseVarAndFunc());
+    MySemantic_setTypeEnvironment(myEnvironment_BaseType());
 
     mySymbol recordTypeName = MySymbol_MakeSymbol("recordType");
-    myType recordType = makeAndAddOneType_NoFieldRecord(typeEnv, recordTypeName);
+    myType recordType = makeAndAddOneType_NoFieldRecord(
+        recordTypeName);
 
     mySymbol varName = makeOneSymbol();
     myLongFormVar longFormVar = makeMyLongFormVar(
         varName , recordTypeName, makeOneExp_Nil());
 
     bool result =
-        MySemantic_Dec_Var_LongForm(varAndFuncEnv, typeEnv, longFormVar);
+        MySemantic_Dec_Var_LongForm(longFormVar);
 
-    myVarAndFuncEntry varEntry = MyEnvironment_getVarOrFuncFromName(varAndFuncEnv, varName);
+    myVarAndFuncEntry varEntry = MyEnvironment_getVarOrFuncFromName(
+        MySemantic_getVarAndFuncEnvironment(),
+        varName);
     CU_ASSERT_EQUAL(result, true);
     CU_ASSERT(myEnvironment_isVarEntry(varEntry));
     CU_ASSERT(isTypeEqual(MyEnvironment_getVarType(varEntry), recordType));
@@ -1761,17 +1777,19 @@ void test_MySemanticDecVarLongForm_NilValueOfRecordType_VarAdded(void)
 
 void test_MySemanticDecVarLongForm_LegalParam_VarAdded(void)
 {
-    myTable varAndFuncEnv = myEnvironment_BaseVarAndFunc();
-    myTable typeEnv = myEnvironment_BaseType();
+    MySemantic_setVarAndFuncEnvironment(myEnvironment_BaseVarAndFunc());
+    MySemantic_setTypeEnvironment(myEnvironment_BaseType());
 
     mySymbol varName = makeOneSymbol(); 
     myLongFormVar longFormVar = makeMyLongFormVar(
         varName, MySymbol_MakeSymbol("int"), makeOneExp_Integer());
 
     bool result =
-        MySemantic_Dec_Var_LongForm(varAndFuncEnv, typeEnv, longFormVar);
+        MySemantic_Dec_Var_LongForm(longFormVar);
 
-    myVarAndFuncEntry varEntry = MyEnvironment_getVarOrFuncFromName(varAndFuncEnv, varName);
+    myVarAndFuncEntry varEntry = MyEnvironment_getVarOrFuncFromName(
+        MySemantic_getVarAndFuncEnvironment(),
+        varName);
     CU_ASSERT_EQUAL(result, true);
     CU_ASSERT(myEnvironment_isVarEntry(varEntry));
     CU_ASSERT(isTypeInt(MyEnvironment_getVarType(varEntry)));
@@ -1779,15 +1797,16 @@ void test_MySemanticDecVarLongForm_LegalParam_VarAdded(void)
 
 void test_MySemanticDecVarLongForm_NilValueOfRecordType_Succeed(void)
 {
-    myTable varAndFuncEnv = myEnvironment_BaseVarAndFunc();
-    myTable typeEnv = myEnvironment_BaseType();
+    MySemantic_setVarAndFuncEnvironment(myEnvironment_BaseVarAndFunc());
+    MySemantic_setTypeEnvironment(myEnvironment_BaseType());
     mySymbol recordTypeName = MySymbol_MakeSymbol("typeee");
-    makeAndAddOneType_NoFieldRecord(typeEnv, recordTypeName);
+    makeAndAddOneType_NoFieldRecord(
+        recordTypeName);
     myLongFormVar longFormVar = makeMyLongFormVar(
         makeOneSymbol(), recordTypeName, makeOneExp_Nil());
 
     bool result =
-        MySemantic_Dec_Var_LongForm(varAndFuncEnv, typeEnv, longFormVar);
+        MySemantic_Dec_Var_LongForm(longFormVar);
 
     CU_ASSERT_EQUAL(result, true);
 }
@@ -1837,8 +1856,8 @@ void test_MySemanticDecFuncProcedure_BodyExpNotNoReturn_ReturnFalse(void)
 
 void test_MySemanticDecFuncProcedure_LegalDec_ReturnTrue(void)
 {
-    myTable varAndFuncEnv = myEnvironment_BaseVarAndFunc();
-    myTable typeEnv = myEnvironment_BaseType();
+    MySemantic_setVarAndFuncEnvironment(myEnvironment_BaseVarAndFunc());
+    MySemantic_setTypeEnvironment(myEnvironment_BaseType());
 
     mySymbol fieldTypeName = MySymbol_MakeSymbol("int");
     myTyFieldList funcFields = makeMyTyFieldList(makeMyTyField(
@@ -1851,15 +1870,15 @@ void test_MySemanticDecFuncProcedure_LegalDec_ReturnTrue(void)
 
 
     bool result = 
-        MySemantic_Dec_Func_Procedure(varAndFuncEnv, typeEnv, procedureDec);
+        MySemantic_Dec_Func_Procedure(procedureDec);
 
     CU_ASSERT_EQUAL(result, true);
 }
 
 void test_MySemanticDecFuncProcedure_LegalDec_FormalsCanBeUsedInBody(void)
 {
-    myTable varAndFuncEnv = myEnvironment_BaseVarAndFunc();
-    myTable typeEnv = myEnvironment_BaseType();
+    MySemantic_setVarAndFuncEnvironment(myEnvironment_BaseVarAndFunc());
+    MySemantic_setTypeEnvironment(myEnvironment_BaseType());
 
     mySymbol formalName = MySymbol_MakeSymbol("formal");
     myExp formalUsedBody = makeMyExp_Assignment(makeOnePos(),
@@ -1874,15 +1893,15 @@ void test_MySemanticDecFuncProcedure_LegalDec_FormalsCanBeUsedInBody(void)
 
 
     bool result = 
-        MySemantic_Dec_Func_Procedure(varAndFuncEnv, typeEnv, procedureDec);
+        MySemantic_Dec_Func_Procedure(procedureDec);
 
     CU_ASSERT_EQUAL(result, true);
 }
 
 void test_MySemanticDecFuncProcedure_LegalDec_FuncAdded(void)
 {
-    myTable varAndFuncEnv = myEnvironment_BaseVarAndFunc();
-    myTable typeEnv = myEnvironment_BaseType();
+    MySemantic_setVarAndFuncEnvironment(myEnvironment_BaseVarAndFunc());
+    MySemantic_setTypeEnvironment(myEnvironment_BaseType());
 
     mySymbol fieldTypeName = MySymbol_MakeSymbol("int");
     myTyFieldList funcFields = makeMyTyFieldList(makeMyTyField(
@@ -1895,10 +1914,12 @@ void test_MySemanticDecFuncProcedure_LegalDec_FuncAdded(void)
 
 
     bool result = 
-        MySemantic_Dec_Func_Procedure(varAndFuncEnv, typeEnv, procedureDec);
+        MySemantic_Dec_Func_Procedure(procedureDec);
 
     myVarAndFuncEntry funcEntry =
-        MyEnvironment_getVarOrFuncFromName(varAndFuncEnv, funcName);
+        MyEnvironment_getVarOrFuncFromName(
+            MySemantic_getVarAndFuncEnvironment(),
+            funcName);
     CU_ASSERT_EQUAL(result, true);
     CU_ASSERT(myEnvironment_isFuncEntry(funcEntry));
     CU_ASSERT(isTypeInt(MyEnvironment_getFuncFormalTypes(funcEntry)->head));
@@ -1909,14 +1930,14 @@ void test_MySemanticDecFuncProcedure_LegalDec_FuncAdded(void)
 void test_IllegalProcedureDec_ReturnFalse(
     myTyFieldList funcFields, myExp funcBody)
 {
-    myTable varAndFuncEnv = myEnvironment_BaseVarAndFunc();
-    myTable typeEnv = myEnvironment_BaseType();
+    MySemantic_setVarAndFuncEnvironment(myEnvironment_BaseVarAndFunc());
+    MySemantic_setTypeEnvironment(myEnvironment_BaseType());
     mySymbol funcName = makeOneSymbol(); 
     myProcedureDec procedureDec = makeMyProcedureDec(
         funcName, funcFields, funcBody);
 
     bool result = 
-        MySemantic_Dec_Func_Procedure(varAndFuncEnv, typeEnv, procedureDec);
+        MySemantic_Dec_Func_Procedure(procedureDec);
 
     CU_ASSERT_EQUAL(result, false);
 }
@@ -1925,14 +1946,14 @@ void test_IllegalProcedureDec_ReturnFalse(
 
 //  forwards
 void test_IllegalFunctionDec_ReturnFalseAndFunctionNotAdded(
-    myTable varAndFuncEnv, myTable typeEnv, myFunctionDec functionDec);
+    myFunctionDec functionDec);
 
 /////////////////
 
 void test_MySemanticDecFuncFunction_ParamTypesNotDefined_ReturnFalseAndFunctionNotAdd(void)
 {
-    myTable varAndFuncEnv = myEnvironment_BaseVarAndFunc();
-    myTable typeEnv = myEnvironment_BaseType();
+    MySemantic_setVarAndFuncEnvironment(myEnvironment_BaseVarAndFunc());
+    MySemantic_setTypeEnvironment(myEnvironment_BaseType());
     mySymbol notDefinedParamTypeName = makeOneSymbol();
     myFunctionDec dec = makeMyFunctionDec(
         makeOneSymbol(),
@@ -1940,14 +1961,13 @@ void test_MySemanticDecFuncFunction_ParamTypesNotDefined_ReturnFalseAndFunctionN
         makeSymbol_Int(),
         makeOneExp_Integer());
 
-    test_IllegalFunctionDec_ReturnFalseAndFunctionNotAdded(
-        varAndFuncEnv, typeEnv, dec);
+    test_IllegalFunctionDec_ReturnFalseAndFunctionNotAdded(dec);
 }
 
 void test_MySemanticDecFuncFunction_ReturnTypeNotDefined_ReturnFalseAndFunctionNotAdd(void)
 {
-    myTable varAndFuncEnv = myEnvironment_BaseVarAndFunc();
-    myTable typeEnv = myEnvironment_BaseType();
+    MySemantic_setVarAndFuncEnvironment(myEnvironment_BaseVarAndFunc());
+    MySemantic_setTypeEnvironment(myEnvironment_BaseType());
     mySymbol notDefinedReturnType = makeOneSymbol();
     myFunctionDec dec = makeMyFunctionDec(
         makeOneSymbol(),
@@ -1955,14 +1975,13 @@ void test_MySemanticDecFuncFunction_ReturnTypeNotDefined_ReturnFalseAndFunctionN
         notDefinedReturnType,
         makeOneExp_Integer());
 
-    test_IllegalFunctionDec_ReturnFalseAndFunctionNotAdded(
-        varAndFuncEnv, typeEnv, dec);
+    test_IllegalFunctionDec_ReturnFalseAndFunctionNotAdded(dec);
 }
 
 void test_MySemanticDecFuncFunction_BodyNotlegal_ReturnFalseAndFunctionNotAdd(void)
 {
-    myTable varAndFuncEnv = myEnvironment_BaseVarAndFunc();
-    myTable typeEnv = myEnvironment_BaseType();
+    MySemantic_setVarAndFuncEnvironment(myEnvironment_BaseVarAndFunc());
+    MySemantic_setTypeEnvironment(myEnvironment_BaseType());
     myExp illegalBody = makeOneIllegalExp_Integer(); 
     myFunctionDec dec = makeMyFunctionDec(
         makeOneSymbol(),
@@ -1970,14 +1989,13 @@ void test_MySemanticDecFuncFunction_BodyNotlegal_ReturnFalseAndFunctionNotAdd(vo
         makeOneSymbol(),
         illegalBody);
 
-    test_IllegalFunctionDec_ReturnFalseAndFunctionNotAdded(
-        varAndFuncEnv, typeEnv, dec);
+    test_IllegalFunctionDec_ReturnFalseAndFunctionNotAdded(dec);
 }
 
 void test_MySemanticDecFuncFunction_ReturnTypeNotMatch_ReturnFalseAndFunctionNotAdd(void)
 {
-    myTable varAndFuncEnv = myEnvironment_BaseVarAndFunc();
-    myTable typeEnv = myEnvironment_BaseType();
+    MySemantic_setVarAndFuncEnvironment(myEnvironment_BaseVarAndFunc());
+    MySemantic_setTypeEnvironment(myEnvironment_BaseType());
     myExp intBody = makeOneExp_Integer(); 
     mySymbol stringReturnType = makeSymbol_String();
     myFunctionDec dec = makeMyFunctionDec(
@@ -1986,24 +2004,25 @@ void test_MySemanticDecFuncFunction_ReturnTypeNotMatch_ReturnFalseAndFunctionNot
         stringReturnType,
         intBody);
 
-    test_IllegalFunctionDec_ReturnFalseAndFunctionNotAdded(
-        varAndFuncEnv, typeEnv, dec);
+    test_IllegalFunctionDec_ReturnFalseAndFunctionNotAdded(dec);
 }
 
 void test_MySemanticDecFuncFunction_LegalFunctionDec_ReturnTrueAndFunctionAdded(void)
 {
-    myTable varAndFuncEnv = myEnvironment_BaseVarAndFunc();
-    myTable typeEnv = myEnvironment_BaseType();
+    MySemantic_setVarAndFuncEnvironment(myEnvironment_BaseVarAndFunc());
+    MySemantic_setTypeEnvironment(myEnvironment_BaseType());
     myFunctionDec dec = makeMyFunctionDec(
         makeOneSymbol(),
         makeMyTyFieldList(makeMyTyField(makeOneSymbol(), makeSymbol_Int()), NULL),
         makeSymbol_Int(),
         makeOneExp_Integer());
 
-    bool result = MySemantic_Dec_Func_Function(varAndFuncEnv, typeEnv, dec);
+    bool result = MySemantic_Dec_Func_Function(dec);
 
     myVarAndFuncEntry funcEntry =
-        MyEnvironment_getVarOrFuncFromName(varAndFuncEnv, dec->name);
+        MyEnvironment_getVarOrFuncFromName(
+            MySemantic_getVarAndFuncEnvironment(),
+            dec->name);
     CU_ASSERT_EQUAL(result, true);
     CU_ASSERT(myEnvironment_isFuncEntry(funcEntry));
     CU_ASSERT(isTypeInt(MyEnvironment_getFuncFormalTypes(funcEntry)->head));
@@ -2012,8 +2031,8 @@ void test_MySemanticDecFuncFunction_LegalFunctionDec_ReturnTrueAndFunctionAdded(
 
 void test_MySemanticDecFuncFunction_LegalFunctionDec_FormalsCanBeUsedInBody(void)
 {
-    myTable varAndFuncEnv = myEnvironment_BaseVarAndFunc();
-    myTable typeEnv = myEnvironment_BaseType();
+    MySemantic_setVarAndFuncEnvironment(myEnvironment_BaseVarAndFunc());
+    MySemantic_setTypeEnvironment(myEnvironment_BaseType());
     mySymbol formalVarName = MySymbol_MakeSymbol("formal var");
     myFunctionDec dec = makeMyFunctionDec(
         makeOneSymbol(),
@@ -2021,35 +2040,38 @@ void test_MySemanticDecFuncFunction_LegalFunctionDec_FormalsCanBeUsedInBody(void
         makeSymbol_Int(),
         makeMyExp_LValue(makeOnePos(),makeMyLValue(makeOnePos(), formalVarName, NULL)));
 
-    bool result = MySemantic_Dec_Func_Function(varAndFuncEnv, typeEnv, dec);
+    bool result = MySemantic_Dec_Func_Function(dec);
 
     CU_ASSERT_EQUAL(result, true);    
 }
 
 void test_MySemanticDecFuncFunction_NilBodyOfRecordReturnType_Succeed(void)
 {
-    myTable varAndFuncEnv = myEnvironment_BaseVarAndFunc();
-    myTable typeEnv = myEnvironment_BaseType();
+    MySemantic_setVarAndFuncEnvironment(myEnvironment_BaseVarAndFunc());
+    MySemantic_setTypeEnvironment(myEnvironment_BaseType());
     mySymbol recordTypeName = MySymbol_MakeSymbol("record type");
-    makeAndAddOneType_NoFieldRecord(typeEnv, recordTypeName);
+    makeAndAddOneType_NoFieldRecord(
+        recordTypeName);
     myFunctionDec dec = makeMyFunctionDec(
         makeOneSymbol(),
         makeMyTyFieldList(makeMyTyField(makeOneSymbol(), makeSymbol_Int()), NULL),
         recordTypeName,
         makeOneExp_Nil());
 
-    bool result = MySemantic_Dec_Func_Function(varAndFuncEnv, typeEnv, dec);
+    bool result = MySemantic_Dec_Func_Function(dec);
 
     CU_ASSERT_EQUAL(result, true);
 }
 
 //  a parameterized test
 void test_IllegalFunctionDec_ReturnFalseAndFunctionNotAdded(
-    myTable varAndFuncEnv, myTable typeEnv, myFunctionDec functionDec)
+    myFunctionDec functionDec)
 {
-    bool result = MySemantic_Dec_Func_Function(varAndFuncEnv, typeEnv, functionDec);
+    bool result = MySemantic_Dec_Func_Function(functionDec);
 
-    bool functionNotAdded = MyEnvironment_getVarOrFuncFromName(varAndFuncEnv, functionDec->name)
+    bool functionNotAdded = MyEnvironment_getVarOrFuncFromName(
+        MySemantic_getVarAndFuncEnvironment(),
+        functionDec->name)
         == NULL;
     CU_ASSERT_EQUAL(result, false);
     CU_ASSERT(functionNotAdded);
@@ -2059,8 +2081,8 @@ void test_IllegalFunctionDec_ReturnFalseAndFunctionNotAdded(
 
 void test_MySemanticDecs_DecsContainsIllegalDec_ReturnFalse(void)
 {
-    myTable varAndFuncEnv = myEnvironment_BaseVarAndFunc();
-    myTable typeEnv = myEnvironment_BaseType();
+    MySemantic_setVarAndFuncEnvironment(myEnvironment_BaseVarAndFunc());
+    MySemantic_setTypeEnvironment(myEnvironment_BaseType());
 
     myVarDec varDec = makeMyVarDec_ShortForm(
         makeMyShortFormVar(makeOneSymbol(), makeOneExp_Integer()));
@@ -2076,15 +2098,15 @@ void test_MySemanticDecs_DecsContainsIllegalDec_ReturnFalse(void)
                 makeMyDec_Type(makeOnePos(), illegalTypeDec),
                 NULL)));
 
-    bool result = MySemantic_Decs(varAndFuncEnv, typeEnv, decs);
+    bool result = MySemantic_Decs(decs);
 
     CU_ASSERT_EQUAL(result, false);
 }
 
 void test_MySemanticDecs_ConsecutiveSameFuncOrTypeDecs_ReturnFalse(void)
 {
-    myTable varAndFuncEnv = myEnvironment_BaseVarAndFunc();
-    myTable typeEnv = myEnvironment_BaseType();
+    MySemantic_setVarAndFuncEnvironment(myEnvironment_BaseVarAndFunc());
+    MySemantic_setTypeEnvironment(myEnvironment_BaseType());
 
     myFuncDec funcDec = makeMyFuncDec_Function(
         makeMyFunctionDec(MySymbol_MakeSymbol("funcname"), NULL, makeSymbol_String(), makeOneExp_String()));
@@ -2101,8 +2123,8 @@ void test_MySemanticDecs_ConsecutiveSameFuncOrTypeDecs_ReturnFalse(void)
             makeMyDec_Type(makeOnePos(), typeDec),NULL));
 
 
-    bool resultSameFunc = MySemantic_Decs(varAndFuncEnv, typeEnv, sameFuncDecs);
-    bool resultSameType = MySemantic_Decs(varAndFuncEnv, typeEnv, sameTypeDecs);
+    bool resultSameFunc = MySemantic_Decs(sameFuncDecs);
+    bool resultSameType = MySemantic_Decs(sameTypeDecs);
 
     CU_ASSERT_EQUAL(resultSameFunc, false);
     CU_ASSERT_EQUAL(resultSameType, false);
@@ -2110,8 +2132,8 @@ void test_MySemanticDecs_ConsecutiveSameFuncOrTypeDecs_ReturnFalse(void)
 
 void test_MySemanticDecs_NotConsecutiveSameFuncOrTypeDecs_ReturnTrue(void)
 {
-    myTable varAndFuncEnv = myEnvironment_BaseVarAndFunc();
-    myTable typeEnv = myEnvironment_BaseType();
+    MySemantic_setVarAndFuncEnvironment(myEnvironment_BaseVarAndFunc());
+    MySemantic_setTypeEnvironment(myEnvironment_BaseType());
 
     myFuncDec funcDec = makeMyFuncDec_Function(
         makeMyFunctionDec(MySymbol_MakeSymbol("funcname"), NULL, makeSymbol_String(), makeOneExp_String()));
@@ -2132,8 +2154,8 @@ void test_MySemanticDecs_NotConsecutiveSameFuncOrTypeDecs_ReturnTrue(void)
             makeMyDec_Type(makeOnePos(), typeDec),NULL)));
 
 
-    bool resultFunc = MySemantic_Decs(varAndFuncEnv, typeEnv, notConsecutiveFuncs);
-    bool resultType = MySemantic_Decs(varAndFuncEnv, typeEnv, notConsecutiveTypes);
+    bool resultFunc = MySemantic_Decs(notConsecutiveFuncs);
+    bool resultType = MySemantic_Decs(notConsecutiveTypes);
 
     CU_ASSERT_EQUAL(resultFunc, true);
     CU_ASSERT_EQUAL(resultType, true);
@@ -2141,8 +2163,8 @@ void test_MySemanticDecs_NotConsecutiveSameFuncOrTypeDecs_ReturnTrue(void)
 
 void test_MySemanticDecs_ConsecutiveSameVarDecs_ReturnTrue(void)
 {
-    myTable varAndFuncEnv = myEnvironment_BaseVarAndFunc();
-    myTable typeEnv = myEnvironment_BaseType();
+    MySemantic_setVarAndFuncEnvironment(myEnvironment_BaseVarAndFunc());
+    MySemantic_setTypeEnvironment(myEnvironment_BaseType());
 
     myVarDec varDec = makeMyVarDec_ShortForm(
         makeMyShortFormVar(MySymbol_MakeSymbol("var name"), makeOneExp_Integer()));
@@ -2152,15 +2174,15 @@ void test_MySemanticDecs_ConsecutiveSameVarDecs_ReturnTrue(void)
             makeMyDec_Var(makeOnePos(), varDec),NULL));
 
 
-    bool resultSameVar = MySemantic_Decs(varAndFuncEnv, typeEnv, sameVarDecs);
+    bool resultSameVar = MySemantic_Decs(sameVarDecs);
 
     CU_ASSERT_EQUAL(resultSameVar, true);
 }
 
 void test_MySemanticDecs_DecsContainsLegalDec_ReturnTrueAndDecsAdded(void)
 {
-    myTable varAndFuncEnv = myEnvironment_BaseVarAndFunc();
-    myTable typeEnv = myEnvironment_BaseType();
+    MySemantic_setVarAndFuncEnvironment(myEnvironment_BaseVarAndFunc());
+    MySemantic_setTypeEnvironment(myEnvironment_BaseType());
 
     mySymbol varName = MySymbol_MakeSymbol("variable");
     mySymbol typeName = MySymbol_MakeSymbol("typeName");
@@ -2180,13 +2202,19 @@ void test_MySemanticDecs_DecsContainsLegalDec_ReturnTrueAndDecsAdded(void)
                 makeMyDec_Type(makeOnePos(), typeDec),
                 NULL)));
 
-    bool result = MySemantic_Decs(varAndFuncEnv, typeEnv, decs);
+    bool result = MySemantic_Decs(decs);
 
     myVarAndFuncEntry funcEntry =
-        MyEnvironment_getVarOrFuncFromName(varAndFuncEnv, funcName);
+        MyEnvironment_getVarOrFuncFromName(
+            MySemantic_getVarAndFuncEnvironment(),
+            funcName);
     myVarAndFuncEntry varEntry =
-        MyEnvironment_getVarOrFuncFromName(varAndFuncEnv, varName);
-    myType type = MyEnvironment_getTypeFromName(typeEnv, typeName);
+        MyEnvironment_getVarOrFuncFromName(
+            MySemantic_getVarAndFuncEnvironment(),
+            varName);
+    myType type = MyEnvironment_getTypeFromName(
+        MySemantic_getTypeEnvironment(),
+        typeName);
     CU_ASSERT_EQUAL(result, true);
     CU_ASSERT(myEnvironment_isFuncEntry(funcEntry));
     CU_ASSERT(isTypeString(MyEnvironment_getFuncReturnType(funcEntry)));
@@ -2198,8 +2226,8 @@ void test_MySemanticDecs_DecsContainsLegalDec_ReturnTrueAndDecsAdded(void)
 
 void test_MySemanticLetExp_IllegalDeclarations_ReturnNull(void)
 {
-    myTable varAndFuncEnv = myEnvironment_BaseVarAndFunc();
-    myTable typeEnv = myEnvironment_BaseType();
+    MySemantic_setVarAndFuncEnvironment(myEnvironment_BaseVarAndFunc());
+    MySemantic_setTypeEnvironment(myEnvironment_BaseType());
 
     myDecList decs = makeMyDecList(
         makeMyDec_Var(makeOnePos(), 
@@ -2211,15 +2239,15 @@ void test_MySemanticLetExp_IllegalDeclarations_ReturnNull(void)
 
 
     myTranslationAndType result =
-        MySemantic_LetExp(varAndFuncEnv, typeEnv, letExp);
+        MySemantic_LetExp(letExp);
 
     CU_ASSERT_EQUAL(result, SEMANTIC_ERROR);
 }
 
 void test_MySemanticLetExp_IllegalBody_ReturnNull(void)
 {
-    myTable varAndFuncEnv = myEnvironment_BaseVarAndFunc();
-    myTable typeEnv = myEnvironment_BaseType();
+    MySemantic_setVarAndFuncEnvironment(myEnvironment_BaseVarAndFunc());
+    MySemantic_setTypeEnvironment(myEnvironment_BaseType());
 
     myDecList decs = NULL;
     myExpList exps = makeMyExpList(makeOneIllegalExp_Integer(), NULL);
@@ -2227,15 +2255,15 @@ void test_MySemanticLetExp_IllegalBody_ReturnNull(void)
 
 
     myTranslationAndType result =
-        MySemantic_LetExp(varAndFuncEnv, typeEnv, letExp);
+        MySemantic_LetExp(letExp);
 
     CU_ASSERT_EQUAL(result, SEMANTIC_ERROR);
 }
 
 void test_MySemanticLetExp_LegalExp_ReturnLastExpType(void)
 {
-    myTable varAndFuncEnv = myEnvironment_BaseVarAndFunc();
-    myTable typeEnv = myEnvironment_BaseType();
+    MySemantic_setVarAndFuncEnvironment(myEnvironment_BaseVarAndFunc());
+    MySemantic_setTypeEnvironment(myEnvironment_BaseType());
 
     myDecList decs = NULL;
     myExpList exps = makeMyExpList(makeOneExp_Integer(), NULL);
@@ -2243,15 +2271,15 @@ void test_MySemanticLetExp_LegalExp_ReturnLastExpType(void)
 
 
     myTranslationAndType result =
-        MySemantic_LetExp(varAndFuncEnv, typeEnv, letExp);
+        MySemantic_LetExp(letExp);
 
     CU_ASSERT(isTypeInt(result->type));
 }
 
 void test_MySemanticLetExp_LegalExp_VarInDecsCanBeUsedInExps(void)
 {
-    myTable varAndFuncEnv = myEnvironment_BaseVarAndFunc();
-    myTable typeEnv = myEnvironment_BaseType();
+    MySemantic_setVarAndFuncEnvironment(myEnvironment_BaseVarAndFunc());
+    MySemantic_setTypeEnvironment(myEnvironment_BaseType());
 
     mySymbol varName = makeOneSymbol();
     myDecList decs = makeMyDecList(
@@ -2266,7 +2294,7 @@ void test_MySemanticLetExp_LegalExp_VarInDecsCanBeUsedInExps(void)
 
 
     myTranslationAndType result =
-        MySemantic_LetExp(varAndFuncEnv, typeEnv, letExp);
+        MySemantic_LetExp(letExp);
 
     CU_ASSERT(result != SEMANTIC_ERROR);
     CU_ASSERT(isTypeInt(result->type));
@@ -2274,8 +2302,8 @@ void test_MySemanticLetExp_LegalExp_VarInDecsCanBeUsedInExps(void)
 
 void test_MySemanticLetExp_LegalExp_TypesInDecsCanBeUsedInExps(void)
 {
-    myTable varAndFuncEnv = myEnvironment_BaseVarAndFunc();
-    myTable typeEnv = myEnvironment_BaseType();
+    MySemantic_setVarAndFuncEnvironment(myEnvironment_BaseVarAndFunc());
+    MySemantic_setTypeEnvironment(myEnvironment_BaseType());
 
     mySymbol typeName = MySymbol_MakeSymbol("typeName");
     myTypeDec typeDec = makeMyTyDec(
@@ -2290,7 +2318,7 @@ void test_MySemanticLetExp_LegalExp_TypesInDecsCanBeUsedInExps(void)
 
 
     myTranslationAndType result =
-        MySemantic_LetExp(varAndFuncEnv, typeEnv, letExp);
+        MySemantic_LetExp(letExp);
 
     CU_ASSERT(result != SEMANTIC_ERROR);
     CU_ASSERT(isTypeArray(result->type));
@@ -2298,8 +2326,8 @@ void test_MySemanticLetExp_LegalExp_TypesInDecsCanBeUsedInExps(void)
 
 void test_MySemanticLetExp_LegalExp_FuncsInDecsCanBeUsedInExps(void)
 {
-    myTable varAndFuncEnv = myEnvironment_BaseVarAndFunc();
-    myTable typeEnv = myEnvironment_BaseType();
+    MySemantic_setVarAndFuncEnvironment(myEnvironment_BaseVarAndFunc());
+    MySemantic_setTypeEnvironment(myEnvironment_BaseType());
 
     mySymbol funcName = MySymbol_MakeSymbol("funct");
     myFuncDec funcDec = makeMyFuncDec_Function(
@@ -2314,7 +2342,7 @@ void test_MySemanticLetExp_LegalExp_FuncsInDecsCanBeUsedInExps(void)
 
 
     myTranslationAndType result =
-        MySemantic_LetExp(varAndFuncEnv, typeEnv, letExp);
+        MySemantic_LetExp(letExp);
 
     myType letReturnType = makeType_String();
     CU_ASSERT(result != SEMANTIC_ERROR);
@@ -2325,24 +2353,24 @@ void test_MySemanticLetExp_LegalExp_FuncsInDecsCanBeUsedInExps(void)
 
 void test_MySemanticExp_IllegalBreak_Failed(void)
 {
-    myTable varAndFuncEnv = myEnvironment_BaseVarAndFunc();
-    myTable typeEnv = myEnvironment_BaseType();
+    MySemantic_setVarAndFuncEnvironment(myEnvironment_BaseVarAndFunc());
+    MySemantic_setTypeEnvironment(myEnvironment_BaseType());
     myExp illegalExp = makeMyExp_IfThen(makeOnePos(),
         makeMyIfThenExp(makeOneExp_Integer(), makeOneExp_Break()));
 
-    myTranslationAndType result = MySemantic_Exp(varAndFuncEnv, typeEnv, illegalExp);
+    myTranslationAndType result = MySemantic_Exp(illegalExp);
 
     CU_ASSERT_EQUAL(result, SEMANTIC_ERROR);
 }
 
 void test_MySemanticExp_LegalBreak_Succeed(void)
 {
-    myTable varAndFuncEnv = myEnvironment_BaseVarAndFunc();
-    myTable typeEnv = myEnvironment_BaseType();
+    MySemantic_setVarAndFuncEnvironment(myEnvironment_BaseVarAndFunc());
+    MySemantic_setTypeEnvironment(myEnvironment_BaseType());
     myExp legalExp = makeMyExp_While(makeOnePos(),
         makeMyWhileExp(makeOneExp_Integer(), makeOneExp_Break()));
 
-    myTranslationAndType result = MySemantic_Exp(varAndFuncEnv, typeEnv, legalExp);
+    myTranslationAndType result = MySemantic_Exp(legalExp);
 
     CU_ASSERT_NOT_EQUAL(result, SEMANTIC_ERROR);
 }
