@@ -87,6 +87,7 @@
 
 #define ERROR__FUNCTION_CALL__PARAM_TYPES_NOT_MATCH         49
 #define ERROR__RECURSIVE__ILLEGAL                           50
+#define ERROR__BREAK__NOT_INSIDE_LOOP                       51
 
 
 

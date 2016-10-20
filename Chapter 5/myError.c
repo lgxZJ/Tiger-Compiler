@@ -80,7 +80,8 @@ static char* g_errorStrings[] = {
 
         "parameter types of Function-Call not match!",
 
-        "illegal recursive types!"
+        "illegal recursive types!",
+        "breaks can only appear inside loops"
 };
 
 
