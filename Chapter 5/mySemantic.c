@@ -278,12 +278,13 @@ myTranslationAndType MySemantic_LValueExp_RecordField(
 myTranslationAndType MySemantic_LValueExp_ArraySubscript(
     myLValueExp lValueExp);
 
-//  FORM:
-//    ->  id
-//    ->  lvalue.id
-//    ->  lvalue[exp]
+
 /**
  *  @brief      Do semantic analysis on LValueExp.
+ *      FORM:
+ *          ->  id
+ *          ->  lvalue.id
+ *          ->  lvalue[exp]
  *
  *  @param[in]  varAndFuncEnv   A valid varaible and function symbol table of
  *              tiger source files.
@@ -316,11 +317,11 @@ myTranslationAndType MySemantic_LValueExp(
     }
 }
 
-//  FORM:
-//      id
 /**
  *  @brief  Do semantic analysis on SimpleVar, one kind of LValueExp.
  *
+ *          FORM:
+ *              id
  *          DO:
  *              1.check whether the variable is already declared.
  *              2.return the variable's type.
@@ -366,11 +367,13 @@ static myType recordContainsLValueAux(
 void processRecordFieldErrors(
     bool isVarDeclared, bool isVarAnRecord, mySymbol recordVarName);
 
-//  FORM:
-//      lvalue.id
+
 /**
  *  @brief  Do semantic analysis on RecordField, one kind of LValueExp.
  *
+ *          FORM:
+ *              lvalue.id
+ *          DO:
  *              1.check whether the variable is already declared.
  *              2.check whether the variable is of record type.
  *              3.check whether the fields can be found in record type.
@@ -554,15 +557,17 @@ void processArraySubscriptErrors(
     bool isArrayVariableDeclared, bool isVariableArrayType,
     bool isSubscriptExpInt, myLValueExp lValueExp);
 
-//  FORM:
-//      lvalue[exp]
+
 /**
  *  @brief  Do semantic analysis on ArraySubscript, one kind of LValueExp.
  *
- *          1.check whether the array variable is declared.
- *          2.check whether the declared variable is an array.
- *          3.check whether the subscript expression is of Integer type.
- *          4.return the last array element's type.
+ *          FORM:
+ *              lvalue[exp]
+ *          DO:
+ *              1.check whether the array variable is declared.
+ *              2.check whether the declared variable is an array.
+ *              3.check whether the subscript expression is of Integer type.
+ *              4.return the last array element's type.
  *
  *  @param[in]  varAndFuncEnv   A valid varaible and function symbol table of
  *              tiger source files.
@@ -827,12 +832,13 @@ bool isFormalTypeMatchesRealTypeOrNil(myType formalType, myType realType)
 
 /////////////////////////////////////////////////////////////////////////////////
 
-//  FORM:
-//      nil
 /**
  *  @brief  Semantic analysis of NilExp.
  *
- *          1.return myTypeNil Type.
+ *          FORM:
+ *              nil
+ *          DO:
+ *              1.return myTypeNil Type.
  *
  *  @return A \b valid(not SEMANTIC_ERROR) myTranslationAndType variable.
  *  @remark Since NilExp consists nothing, there is no more semantic
@@ -849,12 +855,13 @@ myTranslationAndType MySemantic_NilExp(
 
 ////////////////////////////////////////////////////////////////////////////////////
 
-//  FORM:
-//      integer literals
 /**
  *  @brief  Semantic analysis of IntegerLiteralExp.
  *
- *          1.return myTypeInt type.
+ *          FORM:
+ *              integer literals
+ *          DO:
+ *              1.return myTypeInt type.
  *
  *  @return A \b valid(not SEMANTIC_ERROR) myTranslationAndType variable.
  *  @remark Since IntegerLiteralExp only consists of integer literal,
@@ -872,12 +879,13 @@ myTranslationAndType MySemantic_IntegerLiteralExp(
 
 ///////////////////////////////////////////////////////////////////////////////////
 
-//  FORM:
-//      string literals
 /**
  *  @brief  Semantic analysis of StringLiteralExp.
  *
- *          1.return myTypeString type.
+ *          FORM:
+ *              string literals
+ *          DO:
+ *              1.return myTypeString type.
  *
  *  @return A \b valid(not SEMANTIC_ERROR) myTranslationAndType variable.
  *  @remark Since StringLiteralExp only consists of string literal,
@@ -1231,12 +1239,14 @@ myTranslationAndType MySemantic_ParenthesesExp(
 
 ///////////////////////////////////////////////////////////////////////////////
 
-//  FORM:
-//      ()
+
 /**
  *  @brief  Semantic analysis of NoValueExp.
  *
- *          1.return myTypeNoReturn type.
+ *          FORM:
+ *              ()
+ *          DO:
+ *              1.return myTypeNoReturn type.
  *
  *  @return A \b valid(not SEMANTIC_ERROR) myTranslationAndType variable.
  *  @remark Since NoValueExp only consists of parentheses, there is no more
@@ -1253,7 +1263,7 @@ myTranslationAndType MySemantic_NoValueExp(
 }
 
 ////////////////////////////////////////////////////////////////////////////
-//  todo: break
+
 //  FORM:
 //      (exp;exp;...exp)
 //  DO:
@@ -1298,7 +1308,6 @@ myTranslationAndType MySemantic_SequencingExp(
 void addLoopVarToScope(mySymbol varName);
 void processForErrors(bool isLowRangeInt, bool isHighRangeInt, bool isBodyNoReturn);
 
-//  todo: break
 //  FORM:
 //      for id := exp1 to exp2 do exp3
 //  DO:
@@ -1367,7 +1376,7 @@ void processIfThenElseErrors(
     bool isConditionExpInt, bool isThenClauseLegal,
     bool isElseClauseLegal, bool isThenAndElseClauseSameType);
 
-//  todo:   break
+
 //  FORM:
 //      if exp1 then exp2 else exp3
 //  DO:
@@ -1462,7 +1471,6 @@ void processIfThenElseErrors(
 //  forward declarations
 void processIfThenErrors(bool isIfConditionInt, bool isThenClauseNoReturn);
 
-//  todo:   break
 //  FORM:
 //      if exp1 then exp2
 //  DO:
@@ -1854,7 +1862,6 @@ myType getLastExpResultType(
 void processLetErrors(
     bool areDeclarationsLegal, bool isBodyLegal);
 
-//  todo:   break
 //  FORM:
 //      let decs in expseq end
 //  DO:
@@ -1931,7 +1938,6 @@ void processLetErrors(bool areDeclarationsLegal, bool isBodyLegal)
 //  forwards
 void processWhileErrors(bool isConditionInt, bool isBodyNoReturn);
 
-//  todo:   break
 //  FORM:
 //      while exp1 do exp2
 //  DO:
@@ -2011,6 +2017,7 @@ void processNegationErrors(bool isFollowingExpInt)
 
 /**
  *  @brief  Semantic analysis of BreakExp.
+ *          Break expression can only be inside loops.
  *
  *  @return A \b valid(not SEMANTIC_ERROR) myTranslationAndType variable.
  *  @remark Since BreakExp consists of nothing, there is no more semantic
