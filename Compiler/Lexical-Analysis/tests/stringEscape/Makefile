@@ -1,0 +1,45 @@
+OUT_DIR := ./bin
+OBJECTS := $(OUT_DIR)/test_stringEscape.o	$(OUT_DIR)/stringEscape.o\
+	$(OUT_DIR)/makeMemory.o
+
+VPATH := ../../:../../../Commom
+
+EXTRA_LIB := -L/home/lgxZJ/Libraries/CUnit/lib
+EXTRA_INCLUDE := -I/home/lgxZJ/Libraries/CUnit/include
+
+COVERAGE_OPTIONS := -fprofile-arcs -ftest-coverage
+COVERAGE_FOLDER := ./coverage
+LINK := gcc -g -std=c99
+COMPILE := gcc -g -c -std=c99
+
+all.out: $(OUT_DIR) $(OBJECTS)
+	$(LINK) $(EXTRA_LIB) -lcunit -coverage -o $(OUT_DIR)/all.out $(OBJECTS)
+
+$(OUT_DIR):
+	mkdir -p $@
+
+$(OUT_DIR)/stringEscape.o : stringEscape.c
+	$(COMPILE) $(EXTRA_INCLUDE) $(COVERAGE_OPTIONS) -o $@ $<
+
+$(OUT_DIR)/%.o: %.c
+	$(COMPILE) $(EXTRA_INCLUDE) -o $@ $<
+
+
+.PHONY: clean run retest show-coverage
+clean:
+	rm -f $(OBJECTS) tests.out
+
+run:
+	$(OUT_DIR)/tests.out
+
+retest:
+	make clean
+	make
+	$(OUT_DIR)/all.out
+
+show-coverage:
+	lcov --directory . --zerocounters
+	$(OUT_DIR)/all.out
+	lcov --directory . --capture --output-file $(COVERAGE_FOLDER)/coverage.info
+	genhtml -f $(COVERAGE_FOLDER)/coverage.info --output-directory $(COVERAGE_FOLDER)
+	firefox $(COVERAGE_FOLDER)/index.html &
