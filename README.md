@@ -39,6 +39,8 @@ This compiler project simply works through steps in tiger book, so there are mai
 
 
 ## Project Needed
+*	**`Lex`**, a computer program that generates lexical analyzers.
+*	**`Yacc`**, a LALR parser generator.
 *	**`CUnit`**, a unit test framework for C.
 *	**`LCOV`**,  a graphical front-end for GCC's coverage testing tool gcov.
 *	**`GCC`**, the GNU Compiler Collection.
