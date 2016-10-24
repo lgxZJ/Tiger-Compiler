@@ -1,0 +1,192 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - unnamed - Lexical-Analysis/myReport.c</title>
+  <link rel="stylesheet" type="text/css" href="../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../index.html" target="_parent">top level</a> - <a href="index.html" target="_parent">Lexical-Analysis</a> - myReport.c<span style="font-size: 80%;"> (source / <a href="myReport.c.func.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">unnamed</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">12</td>
+            <td class="headerCovTableEntry">74</td>
+            <td class="headerCovTableEntryLo">16.2 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2016-10-24</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">3</td>
+            <td class="headerCovTableEntry">5</td>
+            <td class="headerCovTableEntryLo">60.0 %</td>
+          </tr>
+          <tr><td><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : #include &quot;myReport.h&quot;</a>
+<span class="lineNum">       2 </span>            : #include &quot;myTokens.h&quot;
+<span class="lineNum">       3 </span>            : #include &quot;stdio.h&quot;
+<span class="lineNum">       4 </span>            : 
+<a name="5"><span class="lineNum">       5 </span>            : extern char* yytext;</a>
+<span class="lineNum">       6 </span>            : 
+<span class="lineNum">       7 </span>            : //      initial to zero
+<a name="8"><span class="lineNum">       8 </span>            : PosInfo g_posInfo = { 1, 0 };</a>
+<a name="9"><span class="lineNum">       9 </span>            : </a>
+<span class="lineNum">      10 </span><span class="lineCov">          1 : void resetPos()</span>
+<span class="lineNum">      11 </span>            : {
+<span class="lineNum">      12 </span><span class="lineCov">          1 :   g_posInfo.line = 1;</span>
+<a name="13"><span class="lineNum">      13 </span><span class="lineCov">          1 :   g_posInfo.column = 0;</span></a>
+<a name="14"><span class="lineNum">      14 </span><span class="lineCov">          1 : }</span></a>
+<span class="lineNum">      15 </span>            : 
+<span class="lineNum">      16 </span><span class="lineCov">          2 : void recordTokenPos (bool newLine, int textLength)</span>
+<a name="17"><span class="lineNum">      17 </span>            : {</a>
+<span class="lineNum">      18 </span><span class="lineCov">          2 :   if (newLine)  </span>
+<span class="lineNum">      19 </span><span class="lineCov">          1 :     g_posInfo.line += 1,</span>
+<span class="lineNum">      20 </span><span class="lineCov">          1 :     g_posInfo.column = 0;</span>
+<a name="21"><span class="lineNum">      21 </span>            : </a>
+<span class="lineNum">      22 </span><span class="lineCov">          2 :   g_posInfo.column += textLength;</span>
+<a name="23"><span class="lineNum">      23 </span><span class="lineCov">          2 : }</span></a>
+<span class="lineNum">      24 </span>            : 
+<a name="25"><span class="lineNum">      25 </span><span class="lineCov">          5 : PosInfo getCurrentPosInfo ()</span></a>
+<span class="lineNum">      26 </span>            : {
+<span class="lineNum">      27 </span><span class="lineCov">          5 :   return g_posInfo;</span>
+<span class="lineNum">      28 </span>            : }
+<a name="29"><span class="lineNum">      29 </span>            : </a>
+<span class="lineNum">      30 </span>            : //      @param  optionalText    a pointer from yytext()
+<a name="31"><span class="lineNum">      31 </span>            : //      if nullptr, ignore</a>
+<span class="lineNum">      32 </span>            : //      caller make sures pointer parameter is valid
+<a name="33"><span class="lineNum">      33 </span><span class="lineNoCov">          0 : int outputReport(int tokenNum, int optionalValue, char* optionalText)</span></a>
+<span class="lineNum">      34 </span>            : {
+<span class="lineNum">      35 </span><span class="lineNoCov">          0 :   if (tokenNum &lt;= 0 || tokenNum &gt; 47)     return -1;</span>
+<span class="lineNum">      36 </span>            : 
+<a name="37"><span class="lineNum">      37 </span>            :   //    a little bit fat -_-</a>
+<span class="lineNum">      38 </span><span class="lineNoCov">          0 :   char*         tokenStrings = NULL;</span>
+<span class="lineNum">      39 </span><span class="lineNoCov">          0 :   switch (tokenNum)</span>
+<span class="lineNum">      40 </span>            :   {
+<a name="41"><span class="lineNum">      41 </span><span class="lineNoCov">          0 :   case INTEGER_LITERAL:         tokenStrings = &quot;INTEGER_LITERAL&quot;;     break;</span></a>
+<span class="lineNum">      42 </span><span class="lineNoCov">          0 :   case ID:                      tokenStrings = &quot;ID&quot;;                  break;</span>
+<span class="lineNum">      43 </span><span class="lineNoCov">          0 :   case STRING_LITERAL:          tokenStrings = &quot;STRING_LITERAL&quot;;      break;</span>
+<span class="lineNum">      44 </span><span class="lineNoCov">          0 :   case INT:                     tokenStrings = &quot;int&quot;;                 break;</span>
+<a name="45"><span class="lineNum">      45 </span><span class="lineNoCov">          0 :   case STRING:                  tokenStrings = &quot;string&quot;;              break;</span></a>
+<span class="lineNum">      46 </span><span class="lineNoCov">          0 :   case TYPE:                    tokenStrings = &quot;type&quot;;                        break;</span>
+<span class="lineNum">      47 </span><span class="lineNoCov">          0 :   case ARRAY:                   tokenStrings = &quot;array&quot;;                       break;</span>
+<span class="lineNum">      48 </span><span class="lineNoCov">          0 :   case OF:                      tokenStrings = &quot;of&quot;;                  break;</span>
+<a name="49"><span class="lineNum">      49 </span><span class="lineNoCov">          0 :   case VAR:                     tokenStrings = &quot;var&quot;;                 break;</span></a>
+<span class="lineNum">      50 </span><span class="lineNoCov">          0 :   case FUNCTION:                tokenStrings = &quot;function&quot;;            break;</span>
+<span class="lineNum">      51 </span><span class="lineNoCov">          0 :   case NIL:                     tokenStrings = &quot;nil&quot;;                 break;</span>
+<span class="lineNum">      52 </span><span class="lineNoCov">          0 :   case LET:                     tokenStrings = &quot;let&quot;;                 break;</span>
+<a name="53"><span class="lineNum">      53 </span><span class="lineNoCov">          0 :   case IN:                      tokenStrings = &quot;in&quot;;                  break;</span></a>
+<span class="lineNum">      54 </span><span class="lineNoCov">          0 :   case END:                     tokenStrings = &quot;end&quot;;                 break;</span>
+<span class="lineNum">      55 </span><span class="lineNoCov">          0 :   case IF:                      tokenStrings = &quot;if&quot;;                  break;</span>
+<span class="lineNum">      56 </span><span class="lineNoCov">          0 :   case THEN:                    tokenStrings = &quot;then&quot;;                        break;</span>
+<a name="57"><span class="lineNum">      57 </span><span class="lineNoCov">          0 :   case ELSE:                    tokenStrings = &quot;else&quot;;                        break;</span></a>
+<span class="lineNum">      58 </span><span class="lineNoCov">          0 :   case WHILE:                   tokenStrings = &quot;while&quot;;                       break;</span>
+<span class="lineNum">      59 </span><span class="lineNoCov">          0 :   case DO:                      tokenStrings = &quot;do&quot;;                  break;</span>
+<span class="lineNum">      60 </span><span class="lineNoCov">          0 :   case FOR:                     tokenStrings = &quot;for&quot;;                 break;</span>
+<a name="61"><span class="lineNum">      61 </span><span class="lineNoCov">          0 :   case TO:                      tokenStrings = &quot;to&quot;;                  break;</span></a>
+<span class="lineNum">      62 </span><span class="lineNoCov">          0 :   case BREAK:                   tokenStrings = &quot;break&quot;;                       break;</span>
+<span class="lineNum">      63 </span><span class="lineNoCov">          0 :   case LEFT_CURLY_BRACE:        tokenStrings = &quot;{&quot;;                   break;</span>
+<span class="lineNum">      64 </span><span class="lineNoCov">          0 :   case RIGHT_CURLY_BRACE:       tokenStrings = &quot;}&quot;;                   break;</span>
+<a name="65"><span class="lineNum">      65 </span><span class="lineNoCov">          0 :   case COLON:                   tokenStrings = &quot;:&quot;;                   break;</span></a>
+<span class="lineNum">      66 </span><span class="lineNoCov">          0 :   case COMMA:                   tokenStrings = &quot;,&quot;;                   break;</span>
+<span class="lineNum">      67 </span><span class="lineNoCov">          0 :   case LEFT_PARENTHESIS:        tokenStrings = &quot;(&quot;;                   break;</span>
+<span class="lineNum">      68 </span><span class="lineNoCov">          0 :   case RIGHT_PARENTHESIS:       tokenStrings = &quot;)&quot;;                   break;</span>
+<a name="69"><span class="lineNum">      69 </span><span class="lineNoCov">          0 :   case DOT:                     tokenStrings = &quot;.&quot;;                   break;</span></a>
+<span class="lineNum">      70 </span><span class="lineNoCov">          0 :   case SEMICOLON:               tokenStrings = &quot;;&quot;;                   break;</span>
+<span class="lineNum">      71 </span><span class="lineNoCov">          0 :   case LEFT_BRACKET:            tokenStrings = &quot;[&quot;;                   break;</span>
+<span class="lineNum">      72 </span><span class="lineNoCov">          0 :   case RIGHT_BRACKET:           tokenStrings = &quot;]&quot;;                   break;</span>
+<a name="73"><span class="lineNum">      73 </span><span class="lineNoCov">          0 :   case ASSIGNMENT_SIGN:         tokenStrings = &quot;:=&quot;;                  break;</span></a>
+<span class="lineNum">      74 </span><span class="lineNoCov">          0 :   case LOGICAL_AND:             tokenStrings = &quot;&amp;&quot;;                       break;</span>
+<span class="lineNum">      75 </span><span class="lineNoCov">          0 :   case LOGICAL_OR:              tokenStrings = &quot;|&quot;;                   break;</span>
+<span class="lineNum">      76 </span><span class="lineNoCov">          0 :   case EQUAL_SIGN:              tokenStrings = &quot;=&quot;;                   break;</span>
+<a name="77"><span class="lineNum">      77 </span><span class="lineNoCov">          0 :   case NOT_EQUAL_SIGN:          tokenStrings = &quot;&lt;&gt;&quot;;                    break;</span></a>
+<span class="lineNum">      78 </span><span class="lineNoCov">          0 :   case GREATER_SIGN:            tokenStrings = &quot;&gt;&quot;;                        break;</span>
+<span class="lineNum">      79 </span><span class="lineNoCov">          0 :   case GREATER_EQUAL_SIGN:      tokenStrings = &quot;&gt;=&quot;;                       break;</span>
+<span class="lineNum">      80 </span><span class="lineNoCov">          0 :   case LESS_SIGN:               tokenStrings = &quot;&lt;&quot;;                        break;</span>
+<a name="81"><span class="lineNum">      81 </span><span class="lineNoCov">          0 :   case LESS_EQUAL_SIGN:         tokenStrings = &quot;&lt;=&quot;;                       break;</span></a>
+<span class="lineNum">      82 </span><span class="lineNoCov">          0 :   case ADD_SIGN:                tokenStrings = &quot;+&quot;;                   break;</span>
+<span class="lineNum">      83 </span><span class="lineNoCov">          0 :   case MINUS_SIGN:              tokenStrings = &quot;-&quot;;                   break;</span>
+<span class="lineNum">      84 </span><span class="lineNoCov">          0 :   case DIVIDE_SIGN:             tokenStrings = &quot;/&quot;;                   break;</span>
+<a name="85"><span class="lineNum">      85 </span><span class="lineNoCov">          0 :   case MULTIPLY_SIGN:           tokenStrings = &quot;*&quot;;                   break;</span></a>
+<span class="lineNum">      86 </span>            :   }
+<span class="lineNum">      87 </span>            : 
+<span class="lineNum">      88 </span><span class="lineNoCov">          0 :   int   number = 0, ret = 0;</span>
+<a name="89"><span class="lineNum">      89 </span>            : </a>
+<span class="lineNum">      90 </span><span class="lineNoCov">          0 :   number += fprintf (stdout, &quot;Token:\t%s\n&quot;, tokenStrings);</span>
+<span class="lineNum">      91 </span><span class="lineNoCov">          0 :   if (tokenNum == INTEGER_LITERAL)</span>
+<span class="lineNum">      92 </span>            :   {
+<a name="93"><span class="lineNum">      93 </span><span class="lineNoCov">          0 :     ret = fprintf (stdout, &quot;\tValue:\t%i\n&quot;, optionalValue);</span></a>
+<span class="lineNum">      94 </span><span class="lineNoCov">          0 :     if (ret &lt; 0)     return -1;</span>
+<span class="lineNum">      95 </span><span class="lineNoCov">          0 :     else                number += ret;</span>
+<span class="lineNum">      96 </span>            :   }
+<a name="97"><span class="lineNum">      97 </span><span class="lineNoCov">          0 :   if (optionalText)</span></a>
+<span class="lineNum">      98 </span>            :   {
+<span class="lineNum">      99 </span><span class="lineNoCov">          0 :     ret =  fprintf (stdout, &quot;\tText:\t%s\n&quot;, optionalText);</span>
+<span class="lineNum">     100 </span><span class="lineNoCov">          0 :     if (ret &lt; 0)     return -1;</span>
+<a name="101"><span class="lineNum">     101 </span><span class="lineNoCov">          0 :     else                number += ret;</span></a>
+<span class="lineNum">     102 </span>            :   }
+<span class="lineNum">     103 </span>            :   
+<span class="lineNum">     104 </span><span class="lineNoCov">          0 :   return number;</span>
+<a name="105"><span class="lineNum">     105 </span>            : }</a>
+<span class="lineNum">     106 </span>            : 
+<span class="lineNum">     107 </span><span class="lineNoCov">          0 : int errorReport (char* errorString)</span>
+<span class="lineNum">     108 </span>            : {
+<a name="109"><span class="lineNum">     109 </span><span class="lineNoCov">          0 :   return fprintf (stdout, </span></a>
+<span class="lineNum">     110 </span>            :                   &quot;%s\n%s&quot;,
+<span class="lineNum">     111 </span>            :                   errorString,
+<span class="lineNum">     112 </span>            :                   &quot;\tAt source----line:\t%4i\tcolumn:\t%4i\n\tAt text:\t%s\n&quot;,
+<a name="113"><span class="lineNum">     113 </span>            :                   g_posInfo.line,</a>
+<span class="lineNum">     114 </span>            :                   g_posInfo.column,
+<span class="lineNum">     115 </span>            :                   yytext);
+<span class="lineNum">     116 </span>            : }
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.10</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

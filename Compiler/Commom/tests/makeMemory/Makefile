@@ -6,7 +6,8 @@ ADDITIONAL_INCLUDE := -I/home/lgxZJ/Libraries/CUnit/include
 ADDITIONAL_LIB := -L/home/lgxZJ/Libraries/CUnit/lib
 COVERAGE_OPTIONS := -fprofile-arcs -ftest-coverage
 
-COVERAGE_FOLDER := ./coverage
+COVERAGE_FILE_FOLDER := ../../../Coverage-Report
+COVERAGE_REPORT_FOLDER := ./coverage
 
 VPATH := ../../
 
@@ -36,6 +37,6 @@ run:
 show-coverage:
 	lcov --directory . --zerocounters
 	$(OUT_DIR)/all.out
-	lcov --directory . --capture --output-file $(COVERAGE_FOLDER)/coverage.info
-	genhtml -f $(COVERAGE_FOLDER)/coverage.info --output-directory $(COVERAGE_FOLDER)
-	firefox $(COVERAGE_FOLDER)/index.html &
+	lcov --directory . --capture --output-file $(COVERAGE_FILE_FOLDER)/coverage-makeMemory.info
+	genhtml -f $(COVERAGE_FILE_FOLDER)/coverage-makeMemory.info --output-directory $(COVERAGE_REPORT_FOLDER)
+	firefox $(COVERAGE_REPORT_FOLDER)/index.html &

@@ -8,7 +8,8 @@ EXTRA_LIB := -L/home/lgxZJ/Libraries/CUnit/lib
 EXTRA_INCLUDE := -I/home/lgxZJ/Libraries/CUnit/include
 
 COVERAGE_OPTIONS := -fprofile-arcs -ftest-coverage
-COVERAGE_FOLDER := ./coverage
+COVERAGE_REPORT_FOLDER := ./coverage
+COVERAGE_FILE_FOLDER := ../../../Coverage-Report
 LINK := gcc -g -std=c99
 COMPILE := gcc -g -c -std=c99
 
@@ -30,7 +31,7 @@ clean:
 	rm -f $(OBJECTS) tests.out
 
 run:
-	$(OUT_DIR)/tests.out
+	$(OUT_DIR)/all.out
 
 retest:
 	make clean
@@ -40,6 +41,6 @@ retest:
 show-coverage:
 	lcov --directory . --zerocounters
 	$(OUT_DIR)/all.out
-	lcov --directory . --capture --output-file $(COVERAGE_FOLDER)/coverage.info
-	genhtml -f $(COVERAGE_FOLDER)/coverage.info --output-directory $(COVERAGE_FOLDER)
-	firefox $(COVERAGE_FOLDER)/index.html &
+	lcov --directory . --capture --output-file $(COVERAGE_FILE_FOLDER)/coverage-stringEscape.info
+	genhtml -f $(COVERAGE_FILE_FOLDER)/coverage-stringEscape.info --output-directory $(COVERAGE_REPORT_FOLDER)
+	firefox $(COVERAGE_REPORT_FOLDER)/index.html &
