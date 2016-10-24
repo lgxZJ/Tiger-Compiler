@@ -88,6 +88,7 @@ int 	outputReport		(int tokenNum, int optionalValue, char* optionalText);
  *	@brief	An alternative to \b yyerror() used to output error information
  *			when an error is encountered on lexical analysis.
  *
+ *	@param	An error string to be displayed.
  *	@return	On success, the total number of characters written is returned.
  *			On failsure, a negative number is returned.
  *
@@ -96,6 +97,6 @@ int 	outputReport		(int tokenNum, int optionalValue, char* optionalText);
  *			output.
  *	@sa		<a href="http://dinosaur.compilertools.net/lex/"> Lex</a>
  */
-int 	errorReport			();
+int 	errorReport			(char* errorString);
 
 #endif

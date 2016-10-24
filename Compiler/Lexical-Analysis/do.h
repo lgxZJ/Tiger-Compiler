@@ -1,5 +1,5 @@
-#ifndef LEXICAL_H
-#define LEXICAL_H
+#ifndef DO_LEXICAL_H
+#define DO_LEXICAL_H
 
 #include <stdbool.h>
 

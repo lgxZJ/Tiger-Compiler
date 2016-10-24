@@ -1,7 +1,12 @@
 %{
 
-#include "myTokens.h"
+#include "../Syntax-Analysis/myAbstractSyntax.h"
+#include "../Syntax-Analysis/y.tab.h"
+#include "../Syntax-Analysis/lexString.h"
 #include "myReport.h"
+#include "stringEscape.h"
+
+#include <stdio.h>	//	for fileno()
 
 bool g_errorDetected = false;
 
@@ -10,7 +15,7 @@ bool g_errorDetected = false;
 %option noyywrap
 %x C_COMMENT
 
-valid_string_line	[\]a-zA-Z0-9~`!@#$%^&*()_+=|{}\[,./<>?;': -]|\\\\|\\\"|\\n|\\t|\t|(\\^(@|[A-Z]|\[|\\\\|\]|^|_))|\\(0[0-7]{2}|1[0-7][0-7])
+valid_string_line	[\]a-zA-Z0-9~`!@#$%^&*()_+=|{}[,./<>?;': -]|\\\\|\\\"|\\n|\\t|\t|\\^[A-Z]|\\(0[0-9]{2}|11[0-9]|12[0-7])
 
 %%
 
@@ -60,21 +65,34 @@ string          { recordTokenPos(false, yyleng);        return STRING; }
 ":="		{ recordTokenPos(false, yyleng);        return ASSIGNMENT_SIGN; }
 
 
-[a-zA-Z][a-zA-Z0-9_]*	{ recordTokenPos(false, yyleng);        return ID; }
-[0-9]+			{ recordTokenPos(false, yyleng);        return INTEGER_LITERAL; }
+[a-zA-Z][a-zA-Z0-9_]*	{ 
+				recordTokenPos(false, yyleng);
+				yylval.myString_val = translateEscape(lexString(yytext, yyleng));
+				return ID; }
+[0-9]+			{
+				recordTokenPos(false, yyleng);
+				yylval.int_val = atoi(lexString(yytext, yyleng));
+				return INTEGER_LITERAL; }
  /*	under Windows, use below	*/
- /*\"({valid_string_line}|\\[\t ]*\r\n[\t ]*\\)*\"	{ recordTokenPos(false, yyleng);*/
+ /*\"({valid_string_line}|\\[\t ]*\r\n[\t ]*\\)*\"	{ 
+				recordTokenPos(false, yyleng);
+				yylval.myString_val = translateEscape(lexString(yytext, yyleng));
+				return STRING_LITERAL; }*/
  /*	under Linux, use below	*/
-\"({valid_string_line}|\\[\t ]*\n[\t ]*\\)*\"	{ recordTokenPos(false, yyleng);        return STRING_LITERAL; }
+\"({valid_string_line}|\\[\t ]*\n[\t ]*\\)*\"	{
+				recordTokenPos(false, yyleng);
+				yylval.myString_val = translateEscape(lexString(yytext, yyleng));
+				return STRING_LITERAL; }
 
+ /*	process c-style comments	*/
 "/*"                   	{ BEGIN(C_COMMENT); }
 <C_COMMENT>"*/"		{ BEGIN(INITIAL); }
 <C_COMMENT>\n           { recordTokenPos(true, yyleng); } 
 <C_COMMENT>.            { recordTokenPos(false, yyleng); }
 
 [ \t\f]			{ recordTokenPos(false, yyleng); }
- /*	under linux, use the line below to detect newline	*/
- /* \n	       		{ recordTokenPos(true, yyleng); }	*/
+ /*	under Linux, use the line below to detect newline	*/
+ \n	       		{ recordTokenPos(true, yyleng); }
  /*	under window, use the line below to detect newline	*/
-\r\n	       		{ recordTokenPos(true, yyleng); }
-.			{ recordTokenPos(false, yyleng); errorReport(); g_errorDetected = true; }
+ /*\r\n	       		{ recordTokenPos(true, yyleng); }*/
+.			{ recordTokenPos(false, yyleng); errorReport("Lexical analysis error!"); g_errorDetected = true; }

@@ -104,10 +104,11 @@ int outputReport(int tokenNum, int optionalValue, char* optionalText)
   return number;
 }
 
-int errorReport ()
+int errorReport (char* errorString)
 {
   return fprintf (stdout, 
-		  "Lexcial analysis has encountered an error!\n"
+		  "%s\n%s",
+		  errorString,
 		  "\tAt source----line:\t%4i\tcolumn:\t%4i\n\tAt text:\t%s\n",
 		  g_posInfo.line,
 		  g_posInfo.column,
