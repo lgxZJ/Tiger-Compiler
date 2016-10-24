@@ -21,7 +21,7 @@ y.tab.h: y.tab.c
 	echo "y.tab.h was created at the same time as y.tab.c"
 
 lex.yy.c: myTiger.lex
-	lex myTiger.lex
+	lex myTiger.lex	
 
 $(OUT_DIR)/%.o : %.c
 	$(COMPILE_FLAGS) -o $@ $<

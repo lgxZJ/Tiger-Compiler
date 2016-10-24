@@ -527,7 +527,7 @@ program	: exp			{ g_AbstractSyntaxTree = $1; }
 		
 %%
 
-void yyerror()			{	errorReport();	}
+void yyerror()			{	errorReport("Syntax analysis error!");	}
 
 
 myExp parseOneFile(char* parseFile)

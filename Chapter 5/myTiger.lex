@@ -2,11 +2,13 @@
 
 #include "myAbstractSyntax.h"
 #include "y.tab.h"
-#include "myReport.h"
 #include "lexString.h"
+#include "myReport.h"
 #include "stringEscape.h"
 
 #include <stdio.h>	//	for fileno()
+
+bool g_errorDetected = false;
 
 %}
 
@@ -93,4 +95,4 @@ string          { recordTokenPos(false, yyleng);        return STRING; }
  \n	       		{ recordTokenPos(true, yyleng); }
  /*	under window, use the line below to detect newline	*/
  /*\r\n	       		{ recordTokenPos(true, yyleng); }*/
-.			{ recordTokenPos(false, yyleng); errorReport(); }
+.			{ recordTokenPos(false, yyleng); errorReport("Lexical analysis error!"); g_errorDetected = true; }

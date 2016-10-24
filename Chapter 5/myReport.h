@@ -2,16 +2,11 @@
 #define MYREPORT_H
 
 /**
- *	@defgroup	Report	Lex Report
- *	@{
- */
-
-/**
  *	@file	myReport.h
  *	@author	lgxZJ@outlook.com
  *	@date	5/16/2016
  *
- *	@brief	Module about reportings.
+ *	@brief	Report module file.
  *
  *			This file contains functions about error reporting used
  *			in lexical analysing.
@@ -22,9 +17,7 @@
  *				were found, please contact me!
  */
 
-
 #include "stdbool.h"
-
 
 /**	@cond	*/
 
@@ -34,12 +27,11 @@
  */
 typedef struct
 {
-  int	line;
-  int	column;
+	int	line;	/**<	line num	*/
+	int	column;	/**<	column num	*/
 }PosInfo;
 
 /**	@endcond	*/
-
 
 /**
  *	@brief	Reset the tracked position.
@@ -48,14 +40,14 @@ typedef struct
  *	@note	Since there is rare conditions to reset positions, this
  *			function should be carefully used.
  */
-void	resetPos();
+void	resetPos			();
 
 /**
  *	@brief	Manually record the token position in lexical analysing.
  *
- *	@param[in]	newLine		A boolean variable indicates whether there is
- *							a new line.
- *	@param[in]	textLength	The processed token length.
+ *	@param	newLine		A boolean variable indicates whether there is
+ *						a new line.
+ *	@param	textLength	The processed token length.
  *	@return	void		This function has no return value.
  *	
  *	@remark	When \a newLine is \b true, the \a textLength argument is
@@ -73,14 +65,13 @@ PosInfo getCurrentPosInfo	();
 /**
  *	@brief	Output one token information to the standard output.
  *
- *	@param[in]	tokenNum		The token whose information is outputed.
- *	@param[in]	optionalValue	If the token represents a integer literal,
+ *	@param	tokenNum		The token whose information is outputed.
+ *	@param	optionalValue	If the token represents a integer literal,
  *							this variable gives the corresponding integer
  *							value.
- *	@param[in]	optionalText	A variable fetched through \b yytext()
- *								which is a commonly used function provided
- *								by \b lex. For more details, please do
- *								search.
+ *	@param	optionalText	A variable fetched through \b yytext() which is
+ *							a commonly used function provided by \b lex.
+ *							For more details, please do search.
  *
  *	@return	If the function succeeds, the return value is the outputed
  *			character count.
@@ -97,6 +88,7 @@ int 	outputReport		(int tokenNum, int optionalValue, char* optionalText);
  *	@brief	An alternative to \b yyerror() used to output error information
  *			when an error is encountered on lexical analysis.
  *
+ *	@param	An error string to be displayed.
  *	@return	On success, the total number of characters written is returned.
  *			On failsure, a negative number is returned.
  *
@@ -105,8 +97,6 @@ int 	outputReport		(int tokenNum, int optionalValue, char* optionalText);
  *			output.
  *	@sa		<a href="http://dinosaur.compilertools.net/lex/"> Lex</a>
  */
-int 	errorReport		();
-
-/**	@}	*/
+int 	errorReport			(char* errorString);
 
 #endif
