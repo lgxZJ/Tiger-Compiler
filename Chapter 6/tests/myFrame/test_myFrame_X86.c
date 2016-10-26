@@ -84,6 +84,17 @@ void test_FramenewFrame_FormalCountEqualsFlags(myBoolList flags, int countExpect
 
 ///////////////////////////////
 
+void test_FrameIsFrameEqual_ByDefault_WorkRight(void)
+{
+    myFrame frameOne = Frame_newFrame((myLabel)NULL, (myBoolList)NULL);
+    myFrame frameTwo = Frame_newFrame((myLabel)NULL, (myBoolList)NULL);
+
+    CU_ASSERT(Frame_isFrameEqual(frameOne, frameOne));
+    CU_ASSERT(!Frame_isFrameEqual(frameOne, frameTwo));
+}
+
+///////////////////////////////
+
 //  forwards
 void test_FrameallocateLocal_LocalCountIncremented_EqualsTo(
     bool flag, int numExpected);
@@ -154,6 +165,8 @@ int main()
 
         { "", test_FramenewFrame_AllEscapes_FormalCountEquals },
         { "", test_FramenewFrame_NotAllEscapes_FormalCountEquals },
+
+        { "", test_FrameIsFrameEqual_ByDefault_WorkRight },
 
         { "", test_FrameallocateLocal_AllocateInFrame_LocalCountIncremented },
         { "", test_FrameallocateLocal_AllocateInReg_LocalCountNotChange },

@@ -142,6 +142,13 @@ void fillFrameWithFormals(myFrame frame, myBoolList formalFlags)
 
 /////////////////////////////////////
 
+bool Frame_isFrameEqual(myFrame lhs, myFrame rhs)
+{
+    return lhs == rhs;
+}
+
+/////////////////////////////////////
+
 myAccess Frame_allocateLocal(myFrame frame, bool escapeFlag)
 {
     if (escapeFlag)

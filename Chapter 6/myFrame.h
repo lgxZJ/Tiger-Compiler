@@ -79,6 +79,15 @@ int Frame_getAccessListCount(myAccessList list);
 myFrame Frame_newFrame(myLabel frameLabel, myBoolList formalFlags);
 
 //  DO:
+//      compare if two frame equals.
+//  PARAMS:
+//      lhs:    left operand.
+//      rhs:    right operand.
+//  RETURN:
+//      a bool variable.
+bool Frame_isFrameEqual(myFrame lhs, myFrame rhs);
+
+//  DO:
 //      allocate a new local variable.
 //  PARAMS:
 //      frame:      the frame in which to allocate a new variable.
