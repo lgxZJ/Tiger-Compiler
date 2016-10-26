@@ -8,6 +8,8 @@ typedef struct myTemp_	*myTemp;
 //  abstract names for static memory addresses
 typedef mySymbol	    myLabel;
 
+
+
 /// \brief      compare two labels if they are equal.
 /// \param[in]  lhs     left operand.
 /// \param[in]  rhs     right operand.
@@ -36,6 +38,9 @@ myLabel Temp_newLabel(void);
 ///             this function simply returns that one. 
 myLabel Temp_newNamedLabel(myString name);
 
+/// \brief      get the label string.
+/// \params[in] label   the label whose string is to be obtained.
+/// \return     the string of the given label.
 myString Temp_getLabelString(myLabel label);
 
 ////////////////////////

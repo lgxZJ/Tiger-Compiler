@@ -31,8 +31,8 @@
             <td class="headerValue">coverage.info</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntry">18</td>
-            <td class="headerCovTableEntry">18</td>
+            <td class="headerCovTableEntry">30</td>
+            <td class="headerCovTableEntry">30</td>
             <td class="headerCovTableEntryHi">100.0 %</td>
           </tr>
           <tr>
@@ -40,8 +40,8 @@
             <td class="headerValue">2016-10-26</td>
             <td></td>
             <td class="headerItem">Functions:</td>
-            <td class="headerCovTableEntry">7</td>
-            <td class="headerCovTableEntry">7</td>
+            <td class="headerCovTableEntry">9</td>
+            <td class="headerCovTableEntry">9</td>
             <td class="headerCovTableEntryHi">100.0 %</td>
           </tr>
           <tr><td><img src="../glass.png" width=3 height=3 alt=""></td></tr>
@@ -118,7 +118,27 @@
 <span class="lineNum">      56 </span><span class="lineCov">          4 : myString Temp_getLabelString(myLabel label)</span>
 <a name="57"><span class="lineNum">      57 </span>            : {</a>
 <span class="lineNum">      58 </span><span class="lineCov">          4 :     return MySymbol_GetName(label);</span>
-<span class="lineNum">      59 </span>            : }
+<a name="59"><span class="lineNum">      59 </span>            : }</a>
+<span class="lineNum">      60 </span>            : 
+<a name="61"><span class="lineNum">      61 </span><span class="lineCov">          1 : myTempList Temp_makeTempList(myTemp head, myTempList tail)</span></a>
+<span class="lineNum">      62 </span>            : {
+<span class="lineNum">      63 </span><span class="lineCov">          1 :     myTempList labels = makeMemoryBlock(sizeof(*labels), MEMORY_TYPE_NONE);</span>
+<span class="lineNum">      64 </span><span class="lineCov">          1 :     assert (labels);</span>
+<a name="65"><span class="lineNum">      65 </span>            : </a>
+<span class="lineNum">      66 </span><span class="lineCov">          1 :     labels-&gt;head = head;</span>
+<span class="lineNum">      67 </span><span class="lineCov">          1 :     labels-&gt;tail = tail;</span>
+<span class="lineNum">      68 </span><span class="lineCov">          1 :     return labels;</span>
+<a name="69"><span class="lineNum">      69 </span>            : }</a>
+<span class="lineNum">      70 </span>            : 
+<span class="lineNum">      71 </span><span class="lineCov">          1 : myLabelList Temp_makeLabelList(myLabel head, myLabelList tail)</span>
+<span class="lineNum">      72 </span>            : {
+<a name="73"><span class="lineNum">      73 </span><span class="lineCov">          1 :     myLabelList labels = makeMemoryBlock(sizeof(*labels), MEMORY_TYPE_NONE);</span></a>
+<span class="lineNum">      74 </span><span class="lineCov">          1 :     assert (labels);</span>
+<span class="lineNum">      75 </span>            : 
+<span class="lineNum">      76 </span><span class="lineCov">          1 :     labels-&gt;head = head;</span>
+<a name="77"><span class="lineNum">      77 </span><span class="lineCov">          1 :     labels-&gt;tail = tail;</span></a>
+<span class="lineNum">      78 </span><span class="lineCov">          1 :     return labels;</span>
+<span class="lineNum">      79 </span>            : }
 </pre>
       </td>
     </tr>

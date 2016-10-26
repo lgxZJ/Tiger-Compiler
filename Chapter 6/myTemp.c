@@ -57,3 +57,23 @@ myString Temp_getLabelString(myLabel label)
 {
     return MySymbol_GetName(label);
 }
+
+myTempList Temp_makeTempList(myTemp head, myTempList tail)
+{
+    myTempList labels = makeMemoryBlock(sizeof(*labels), MEMORY_TYPE_NONE);
+    assert (labels);
+
+    labels->head = head;
+    labels->tail = tail;
+    return labels;
+}
+
+myLabelList Temp_makeLabelList(myLabel head, myLabelList tail)
+{
+    myLabelList labels = makeMemoryBlock(sizeof(*labels), MEMORY_TYPE_NONE);
+    assert (labels);
+
+    labels->head = head;
+    labels->tail = tail;
+    return labels;
+}

@@ -107,6 +107,32 @@ void test_TempGetLabelString_DifferentLabel_ReturnDifferent(void)
     CU_ASSERT_NOT_EQUAL(firstGot, secondGot);
 }
 
+///////////////////////
+
+void test_TempMakeTempList_ByDefault_MakeWhatPassed(void)
+{
+    myTemp headPassed = (myTemp)12;
+    myTempList tailPassed = (myTempList)434;
+
+    myTempList labelsGot = Temp_makeTempList(headPassed, tailPassed);
+
+    CU_ASSERT_EQUAL(headPassed, labelsGot->head);
+    CU_ASSERT_EQUAL(tailPassed, labelsGot->tail); 
+}
+
+///////////////////////
+
+void test_TempMakeLabelList_ByDefault_MakeWhatPassed(void)
+{
+    myLabel headPassed = (myLabel)12;
+    myLabelList tailPassed = (myLabelList)434;
+
+    myLabelList labelsGot = Temp_makeLabelList(headPassed, tailPassed);
+
+    CU_ASSERT_EQUAL(headPassed, labelsGot->head);
+    CU_ASSERT_EQUAL(tailPassed, labelsGot->tail); 
+}
+
 ///////////////////////         main        /////////////////////
 
 int main()
@@ -127,7 +153,11 @@ int main()
         { "", test_TempNewNamedLabel_DifferentName_ReturnDifferent },
 
         { "", test_TempGetLabelString_SameLabel_ReturnSame },
-        { "", test_TempGetLabelString_DifferentLabel_ReturnDifferent }
+        { "", test_TempGetLabelString_DifferentLabel_ReturnDifferent },
+
+        { "", test_TempMakeTempList_ByDefault_MakeWhatPassed },
+
+        { "", test_TempMakeLabelList_ByDefault_MakeWhatPassed }
     };
     if (!addTests(&suite, tests, sizeof(tests) / sizeof(tests[0])))
         return EXIT_FAILURE;
