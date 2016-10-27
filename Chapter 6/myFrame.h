@@ -92,6 +92,9 @@ int Frame_getAccessListCount(myAccessList list);
 //      formals:        flags indicates whether each parameter is escaped.
 //  RETURN:
 //      a new frame.
+//  REMARK:
+//      frame related variables should be hold in stack, so there must be
+//      some machine-depedent instructions to make it work.
 myFrame Frame_newFrame(myLabel frameLabel, myBoolList formalFlags);
 
 //  DO:

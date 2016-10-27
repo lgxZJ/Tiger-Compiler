@@ -2,6 +2,8 @@
 
 #include <assert.h> //  for assert()
 #include <stdlib.h> //  for NULL macro
+#include <string.h> //  for strcpy()
+#include <stdio.h>  //  for sprintf()
 
 ///////////////////////////////////////////////////////////////////
 //                          macros
@@ -14,7 +16,7 @@
                         }                       \
                         return count;
 
-#define BASE_SIZE       4
+#define BASE_SIZE       4       //  base size of each local var
 
 ///////////////////////////////////////////////////////////////////
 //                          structures
@@ -24,14 +26,15 @@ struct myAccess_
     enum AccessKind { InFrame, InReg } kind;
     union
     {
-        int     offset;
-        myTemp  reg;
+        int     offset; //  offset comapred to frame pointer
+        myTemp  reg;    //  register representation
     }u;
 };
 
 struct myFrame_
 {
     myAccessList    formals;
+    myString        viewShift;
     int             localCount;
     int             formalCount;
     myLabel         label;
@@ -39,11 +42,6 @@ struct myFrame_
 
 /////////////////////////////////////////////////////////////////////
 //                          functions
-
-static void viewShift(void)
-{
-    //   todo:  
-}
 
 static myAccess makeInFrameAccess(int offset)
 {
@@ -111,22 +109,23 @@ int Frame_getAccessListCount(myAccessList list)
 
 /////////////////////////////////////////////
 
-void fillFrameWithFormals(myFrame frame, myBoolList formalFlags);
+void fillFormalsFromFlags(myFrame frame, myBoolList formalFlags);
+void fillViewShiftFromFlags(myFrame frame);
 
 myFrame Frame_newFrame(myLabel frameLabel, myBoolList formalFlags)
 {
     myFrame frame = makeMemoryBlock(sizeof(*frame), MEMORY_TYPE_NONE);
     assert (frame);
 
-    viewShift();
-
     frame->label = frameLabel;
-    fillFrameWithFormals(frame, formalFlags);
     frame->localCount = 0;  //  not include formals
+    fillFormalsFromFlags(frame, formalFlags);
+    fillViewShiftFromFlags(frame);
+    
     return frame;
 }
 
-void fillFrameWithFormals(myFrame frame, myBoolList formalFlags)
+void fillFormalsFromFlags(myFrame frame, myBoolList formalFlags)
 {
     frame->formalCount = 0;
     if (formalFlags == NULL)
@@ -150,6 +149,11 @@ void fillFrameWithFormals(myFrame frame, myBoolList formalFlags)
         accessList = accessList->tail;
         formalFlags = formalFlags->tail;
     }
+}
+
+void fillViewShiftFromFlags(myFrame frame)
+{
+    frame->viewShift = "movl %esp, %ebp\n\t";
 }
 
 /////////////////////////////////////
