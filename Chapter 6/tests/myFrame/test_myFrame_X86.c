@@ -52,6 +52,26 @@ void test_FramenewFrame_FormalCountEqualsFlags(
 
 ////////
 
+void test_FranenewFrame_FlagEscape_AccessInFrame(void)
+{
+    myBoolList oneTrueFlag = Frame_makeBoolList(NULL, true);
+
+    myFrame frame = Frame_newFrame((myLabel)12, oneTrueFlag);
+
+    myAccessList accesses = Frame_getFormals(frame);
+    CU_ASSERT(Frame_isAccessInFrame(accesses->head));
+}
+
+void test_FranenewFrame_FlagNotEscape_AccessInReg(void)
+{
+    myBoolList oneFalseFlag = Frame_makeBoolList(NULL, false);
+
+    myFrame frame = Frame_newFrame((myLabel)12, oneFalseFlag);
+
+    myAccessList accesses = Frame_getFormals(frame);
+    CU_ASSERT(Frame_isAccessInReg(accesses->head));
+}
+
 void test_FramenewFrame_AllEscapes_FormalCountEquals(void)
 {
     myBoolList flagsWithTwoTrue =
@@ -94,6 +114,24 @@ void test_FrameIsFrameEqual_ByDefault_WorkRight(void)
 }
 
 ///////////////////////////////
+
+void test_FrameallocateLocal_OneEscapeFlag_ReturnInFrame(void)
+{
+    myFrame frame = Frame_newFrame((myLabel)NULL, NULL);
+
+    myAccess access = Frame_allocateLocal(frame, true);
+
+    CU_ASSERT(Frame_isAccessInFrame(access));
+}
+
+void test_FrameallocateLocal_OneNotEscapeFlag_ReturnInReg(void)
+{
+    myFrame frame = Frame_newFrame((myLabel)NULL, NULL);
+
+    myAccess access = Frame_allocateLocal(frame, false);
+
+    CU_ASSERT(Frame_isAccessInReg(access));
+}
 
 //  forwards
 void test_FrameallocateLocal_LocalCountIncremented_EqualsTo(
@@ -163,11 +201,15 @@ int main()
         { "", test_FramemakeBoolList_ByDefault_MakeWhatPassed },
         { "", test_FramemakeAccessList_ByDefault_MakeWhatPasses },
 
+        { "", test_FranenewFrame_FlagEscape_AccessInFrame },
+        { "", test_FranenewFrame_FlagNotEscape_AccessInReg },
         { "", test_FramenewFrame_AllEscapes_FormalCountEquals },
         { "", test_FramenewFrame_NotAllEscapes_FormalCountEquals },
 
         { "", test_FrameIsFrameEqual_ByDefault_WorkRight },
 
+        { "", test_FrameallocateLocal_OneEscapeFlag_ReturnInFrame },
+        { "", test_FrameallocateLocal_OneNotEscapeFlag_ReturnInReg },
         { "", test_FrameallocateLocal_AllocateInFrame_LocalCountIncremented },
         { "", test_FrameallocateLocal_AllocateInReg_LocalCountNotChange },
         { "", test_FrameallocateLocal_AllocateInFrame_FormalCountNotChange },

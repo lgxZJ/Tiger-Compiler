@@ -67,6 +67,18 @@ static myAccess makeInRegAccess(myTemp reg)
 
 /////////////////////////////////////////
 
+bool Frame_isAccessInFrame(myAccess access)
+{
+    return access->kind == InFrame;
+}
+
+bool Frame_isAccessInReg(myAccess access)
+{
+    return access->kind == InReg;
+}
+
+/////////////////////////////////////////
+
 myBoolList Frame_makeBoolList(myBoolList formers, bool newOne)
 {
     myBoolList bools = makeMemoryBlock(sizeof(*bools), MEMORY_TYPE_NONE);

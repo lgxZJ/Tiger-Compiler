@@ -29,6 +29,22 @@ typedef struct myBoolList_
 ///////////////////     functions       //////////////////
 
 //  DO:
+//      check if the given `access` is in `Frame`.
+//  PARAMS:
+//      access:     the given access.
+//  RETURN:
+//      a bool variable.
+bool Frame_isAccessInFrame(myAccess access);
+
+//  DO:
+//      check if the given `access` is in `Reg`.
+//  PARAMS:
+//      access:     the given access.
+//  RETURN:
+//      a bool variable.
+bool Frame_isAccessInReg(myAccess access);
+
+//  DO:
 //      add a new bool flag in the head of the formers.
 //  PARAMS:
 //      formers:    the former bools.
