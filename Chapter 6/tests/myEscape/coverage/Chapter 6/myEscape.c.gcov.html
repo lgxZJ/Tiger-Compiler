@@ -31,18 +31,18 @@
             <td class="headerValue">coverage.info</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntry">43</td>
-            <td class="headerCovTableEntry">64</td>
-            <td class="headerCovTableEntryLo">67.2 %</td>
+            <td class="headerCovTableEntry">84</td>
+            <td class="headerCovTableEntry">179</td>
+            <td class="headerCovTableEntryLo">46.9 %</td>
           </tr>
           <tr>
             <td class="headerItem">Date:</td>
-            <td class="headerValue">2016-10-28</td>
+            <td class="headerValue">2016-10-29</td>
             <td></td>
             <td class="headerItem">Functions:</td>
-            <td class="headerCovTableEntry">10</td>
-            <td class="headerCovTableEntry">13</td>
-            <td class="headerCovTableEntryMed">76.9 %</td>
+            <td class="headerCovTableEntry">18</td>
+            <td class="headerCovTableEntry">42</td>
+            <td class="headerCovTableEntryLo">42.9 %</td>
           </tr>
           <tr><td><img src="../glass.png" width=3 height=3 alt=""></td></tr>
         </table>
@@ -62,219 +62,503 @@
 <pre class="source">
 <a name="1"><span class="lineNum">       1 </span>            : #include &quot;myEscape.h&quot;</a>
 <span class="lineNum">       2 </span>            : #include &quot;myEnvironment.h&quot;
-<span class="lineNum">       3 </span>            : 
-<span class="lineNum">       4 </span>            : #include &lt;assert.h&gt; //  for assert()
-<a name="5"><span class="lineNum">       5 </span>            : #include &lt;stdlib.h&gt; //  for NULL</a>
-<span class="lineNum">       6 </span>            : 
-<span class="lineNum">       7 </span>            : /////////////////////////////////////////////////////////////////////
-<span class="lineNum">       8 </span>            : //      This module assumes all phases will passed, then it can find
-<a name="9"><span class="lineNum">       9 </span>            : //      the escape conditions of variables.</a>
-<span class="lineNum">      10 </span>            : /////////////////////////////////////////////////////////////////////
-<span class="lineNum">      11 </span>            : 
-<span class="lineNum">      12 </span>            : 
-<a name="13"><span class="lineNum">      13 </span>            : //</a>
-<span class="lineNum">      14 </span>            : //  Escape conditions:
-<span class="lineNum">      15 </span>            : //      1.passed by reference(record type).
-<span class="lineNum">      16 </span>            : //      2.accessed by nested functions.
-<a name="17"><span class="lineNum">      17 </span>            : //      3.too big to fit in a register(record type).</a>
-<span class="lineNum">      18 </span>            : //      4.the variable is an array.
-<span class="lineNum">      19 </span>            : //
-<span class="lineNum">      20 </span>            : 
-<a name="21"><span class="lineNum">      21 </span>            : ////////////////////////////////////////////////////////////////////////</a>
-<span class="lineNum">      22 </span>            : //                          structures
-<span class="lineNum">      23 </span>            : 
-<span class="lineNum">      24 </span>            : typedef struct EscapeEntry_
-<a name="25"><span class="lineNum">      25 </span>            : {</a>
-<span class="lineNum">      26 </span>            :     //  there maybe redefined vars, so depth needed
-<span class="lineNum">      27 </span>            :     int     depth;
-<span class="lineNum">      28 </span>            :     bool    escape;
-<a name="29"><span class="lineNum">      29 </span>            : }*  EscapeEntry;</a>
-<span class="lineNum">      30 </span>            : 
-<span class="lineNum">      31 </span>            : ////////////////////////////////////////////////////////////////////////
-<span class="lineNum">      32 </span>            : //                          global variables
+<span class="lineNum">       3 </span>            : #include &quot;mySemantic.h&quot;
+<span class="lineNum">       4 </span>            : #include &quot;typeChecker.h&quot;
+<a name="5"><span class="lineNum">       5 </span>            : </a>
+<span class="lineNum">       6 </span>            : #include &lt;assert.h&gt; //  for assert()
+<span class="lineNum">       7 </span>            : #include &lt;stdlib.h&gt; //  for NULL
+<span class="lineNum">       8 </span>            : 
+<a name="9"><span class="lineNum">       9 </span>            : /////////////////////////////////////////////////////////////////////</a>
+<span class="lineNum">      10 </span>            : //      This module assumes all phases will passed, then it can find
+<span class="lineNum">      11 </span>            : //      the escape conditions of variables.
+<span class="lineNum">      12 </span>            : /////////////////////////////////////////////////////////////////////
+<a name="13"><span class="lineNum">      13 </span>            : </a>
+<span class="lineNum">      14 </span>            : 
+<span class="lineNum">      15 </span>            : //
+<span class="lineNum">      16 </span>            : //  Escape conditions:
+<a name="17"><span class="lineNum">      17 </span>            : //      1.passed by reference(record type, array type).</a>
+<span class="lineNum">      18 </span>            : //      2.too big to fit in a register(record type).
+<span class="lineNum">      19 </span>            : //      3.the variable is an array.
+<span class="lineNum">      20 </span>            : //      4.accessed by nested functions.
+<a name="21"><span class="lineNum">      21 </span>            : //</a>
+<span class="lineNum">      22 </span>            : 
+<span class="lineNum">      23 </span>            : ////////////////////////////////////////////////////////////////////////
+<span class="lineNum">      24 </span>            : //                          structures
+<a name="25"><span class="lineNum">      25 </span>            : </a>
+<span class="lineNum">      26 </span>            : typedef struct EscapeEntry_
+<span class="lineNum">      27 </span>            : {
+<span class="lineNum">      28 </span>            :     //  there maybe redefined vars, so depth needed
+<a name="29"><span class="lineNum">      29 </span>            :     int     depth;</a>
+<span class="lineNum">      30 </span>            :     /*bool    used;*/
+<span class="lineNum">      31 </span>            :     bool    escape;
+<span class="lineNum">      32 </span>            : }*  EscapeEntry;
 <a name="33"><span class="lineNum">      33 </span>            : </a>
-<a name="34"><span class="lineNum">      34 </span>            : static myTable g_escapeTable = 0;</a>
-<span class="lineNum">      35 </span>            : 
-<span class="lineNum">      36 </span><span class="lineCov">          1 : static void Escape_addVarEntry(mySymbol varSymbol, EscapeEntry entry)</span>
-<a name="37"><span class="lineNum">      37 </span>            : {</a>
-<span class="lineNum">      38 </span><span class="lineCov">          1 :     if (g_escapeTable == NULL) </span>
-<span class="lineNum">      39 </span><span class="lineCov">          1 :         g_escapeTable = MyTable_MakeEmptyTable_();</span>
-<span class="lineNum">      40 </span>            : 
-<a name="41"><span class="lineNum">      41 </span><span class="lineCov">          1 :     assert (!MySymbol_InvalidSymbol(varSymbol));</span></a>
-<span class="lineNum">      42 </span><span class="lineCov">          1 :     assert (entry);</span>
-<span class="lineNum">      43 </span><span class="lineCov">          1 :     MySymbol_Enter(g_escapeTable, varSymbol, entry);</span>
-<a name="44"><span class="lineNum">      44 </span><span class="lineCov">          1 : }</span></a>
-<a name="45"><span class="lineNum">      45 </span>            : </a>
-<span class="lineNum">      46 </span><span class="lineCov">          1 : static EscapeEntry Escape_getVarEntry(mySymbol varSymbol)</span>
-<span class="lineNum">      47 </span>            : {
-<span class="lineNum">      48 </span><span class="lineCov">          1 :     assert (!MySymbol_InvalidSymbol(varSymbol));</span>
-<a name="49"><span class="lineNum">      49 </span><span class="lineCov">          1 :     EscapeEntry entry = MySymbol_Look(g_escapeTable, varSymbol);</span></a>
-<span class="lineNum">      50 </span>            : 
-<span class="lineNum">      51 </span><span class="lineCov">          1 :     assert (entry);</span>
-<span class="lineNum">      52 </span><span class="lineCov">          1 :     return entry;</span>
-<a name="53"><span class="lineNum">      53 </span>            : }</a>
-<span class="lineNum">      54 </span>            : 
-<span class="lineNum">      55 </span>            : ////////////////////////////////////////////////////////////////////////
-<a name="56"><span class="lineNum">      56 </span>            : //                          functions</a>
-<a name="57"><span class="lineNum">      57 </span>            : </a>
-<span class="lineNum">      58 </span><span class="lineCov">          1 : static EscapeEntry makeEscapeEntry(int depth, bool escapeFlag)</span>
-<span class="lineNum">      59 </span>            : {
-<span class="lineNum">      60 </span><span class="lineCov">          1 :     EscapeEntry entry = makeMemoryBlock(sizeof(*entry), MEMORY_TYPE_NONE);</span>
-<a name="61"><span class="lineNum">      61 </span><span class="lineCov">          1 :     assert (entry);</span></a>
-<span class="lineNum">      62 </span>            : 
-<span class="lineNum">      63 </span><span class="lineCov">          1 :     entry-&gt;depth = depth;</span>
-<span class="lineNum">      64 </span><span class="lineCov">          1 :     entry-&gt;escape = escapeFlag;</span>
-<a name="65"><span class="lineNum">      65 </span><span class="lineCov">          1 :     return entry;</span></a>
-<a name="66"><span class="lineNum">      66 </span>            : }</a>
-<span class="lineNum">      67 </span>            : 
-<span class="lineNum">      68 </span><span class="lineNoCov">          0 : static bool isVarNestedUsed(int depth, mySymbol varSymbol)</span>
-<a name="69"><span class="lineNum">      69 </span>            : {</a>
-<span class="lineNum">      70 </span><span class="lineNoCov">          0 :     EscapeEntry entry = Escape_getVarEntry(varSymbol);</span>
-<span class="lineNum">      71 </span><span class="lineNoCov">          0 :     assert (depth &gt;= entry-&gt;depth);</span>
-<span class="lineNum">      72 </span>            : 
-<a name="73"><span class="lineNum">      73 </span><span class="lineNoCov">          0 :     if (entry-&gt;depth == depth)</span></a>
-<span class="lineNum">      74 </span><span class="lineNoCov">          0 :         return false;</span>
-<span class="lineNum">      75 </span>            :     else
-<span class="lineNum">      76 </span><span class="lineNoCov">          0 :         return true;</span>
-<a name="77"><span class="lineNum">      77 </span>            : }</a>
-<span class="lineNum">      78 </span>            : 
-<span class="lineNum">      79 </span><span class="lineNoCov">          0 : static void setVarEscape(mySymbol varSymbol)</span>
-<span class="lineNum">      80 </span>            : {
-<a name="81"><span class="lineNum">      81 </span><span class="lineNoCov">          0 :     Escape_getVarEntry(varSymbol)-&gt;escape = true;</span></a>
-<a name="82"><span class="lineNum">      82 </span><span class="lineNoCov">          0 : }</span></a>
-<span class="lineNum">      83 </span>            : 
-<span class="lineNum">      84 </span><span class="lineCov">          1 : static bool getVarEscape(mySymbol varSymbol)</span>
-<a name="85"><span class="lineNum">      85 </span>            : {</a>
-<span class="lineNum">      86 </span><span class="lineCov">          1 :     return Escape_getVarEntry(varSymbol)-&gt;escape;</span>
-<span class="lineNum">      87 </span>            : }
-<span class="lineNum">      88 </span>            : 
-<a name="89"><span class="lineNum">      89 </span>            : ////////////////////////////////////////////////////////////////////////</a>
-<span class="lineNum">      90 </span>            : 
-<a name="91"><span class="lineNum">      91 </span>            : ///////////////////////////////////////////////////////////////////////</a>
+<span class="lineNum">      34 </span>            : ////////////////////////////////////////////////////////////////////////
+<span class="lineNum">      35 </span>            : //                          global variables
+<span class="lineNum">      36 </span>            : 
+<a name="37"><span class="lineNum">      37 </span>            : static myTable g_escapeTable = 0;</a>
+<span class="lineNum">      38 </span>            : 
+<span class="lineNum">      39 </span>            : ////////////////////////////////////////////////////////////////////////
+<a name="40"><span class="lineNum">      40 </span>            : //                          private functions</a>
+<a name="41"><span class="lineNum">      41 </span>            : </a>
+<span class="lineNum">      42 </span><span class="lineCov">          8 : static void Escape_addVarEntry(mySymbol varSymbol, EscapeEntry entry)</span>
+<span class="lineNum">      43 </span>            : {
+<span class="lineNum">      44 </span><span class="lineCov">          8 :     if (g_escapeTable == NULL) </span>
+<a name="45"><span class="lineNum">      45 </span><span class="lineNoCov">          0 :         g_escapeTable = MyTable_MakeEmptyTable_();</span></a>
+<span class="lineNum">      46 </span>            : 
+<span class="lineNum">      47 </span><span class="lineCov">          8 :     assert (!MySymbol_InvalidSymbol(varSymbol));</span>
+<span class="lineNum">      48 </span><span class="lineCov">          8 :     assert (entry);</span>
+<a name="49"><span class="lineNum">      49 </span><span class="lineCov">          8 :     MySymbol_Enter(g_escapeTable, varSymbol, entry);</span></a>
+<a name="50"><span class="lineNum">      50 </span><span class="lineCov">          8 : }</span></a>
+<span class="lineNum">      51 </span>            : 
+<span class="lineNum">      52 </span><span class="lineCov">         14 : static EscapeEntry Escape_getVarEntry(mySymbol varSymbol)</span>
+<a name="53"><span class="lineNum">      53 </span>            : {</a>
+<span class="lineNum">      54 </span><span class="lineCov">         14 :     assert (!MySymbol_InvalidSymbol(varSymbol));</span>
+<span class="lineNum">      55 </span><span class="lineCov">         14 :     EscapeEntry entry = MySymbol_Look(g_escapeTable, varSymbol);</span>
+<span class="lineNum">      56 </span>            : 
+<a name="57"><span class="lineNum">      57 </span><span class="lineCov">         14 :     assert (entry);</span></a>
+<span class="lineNum">      58 </span><span class="lineCov">         14 :     return entry;</span>
+<a name="59"><span class="lineNum">      59 </span>            : }</a>
+<span class="lineNum">      60 </span>            : 
+<a name="61"><span class="lineNum">      61 </span><span class="lineCov">          8 : static EscapeEntry makeDefaultEscapeEntry(int depth)</span></a>
+<span class="lineNum">      62 </span>            : {
+<span class="lineNum">      63 </span><span class="lineCov">          8 :     EscapeEntry entry = makeMemoryBlock(sizeof(*entry), MEMORY_TYPE_NONE);</span>
+<span class="lineNum">      64 </span><span class="lineCov">          8 :     assert (entry);</span>
+<a name="65"><span class="lineNum">      65 </span>            : </a>
+<span class="lineNum">      66 </span><span class="lineCov">          8 :     entry-&gt;depth = depth;</span>
+<span class="lineNum">      67 </span>            :     /*entry-&gt;used = false;*/
+<span class="lineNum">      68 </span><span class="lineCov">          8 :     entry-&gt;escape = false;</span>
+<a name="69"><span class="lineNum">      69 </span><span class="lineCov">          8 :     return entry;</span></a>
+<a name="70"><span class="lineNum">      70 </span>            : }</a>
+<span class="lineNum">      71 </span>            : 
+<span class="lineNum">      72 </span><span class="lineNoCov">          0 : static bool isVarNestedUsed(int depth, mySymbol varSymbol)</span>
+<a name="73"><span class="lineNum">      73 </span>            : {</a>
+<span class="lineNum">      74 </span><span class="lineNoCov">          0 :     EscapeEntry entry = Escape_getVarEntry(varSymbol);</span>
+<span class="lineNum">      75 </span><span class="lineNoCov">          0 :     assert (depth &gt;= entry-&gt;depth);</span>
+<span class="lineNum">      76 </span>            : 
+<a name="77"><span class="lineNum">      77 </span><span class="lineNoCov">          0 :     if (entry-&gt;depth == depth)</span></a>
+<span class="lineNum">      78 </span><span class="lineNoCov">          0 :         return false;</span>
+<span class="lineNum">      79 </span>            :     else
+<span class="lineNum">      80 </span><span class="lineNoCov">          0 :         return true;</span>
+<a name="81"><span class="lineNum">      81 </span>            : }</a>
+<span class="lineNum">      82 </span>            : 
+<span class="lineNum">      83 </span><span class="lineCov">          6 : static void setVarEscape(mySymbol varSymbol)</span>
+<span class="lineNum">      84 </span>            : {
+<a name="85"><span class="lineNum">      85 </span><span class="lineCov">          6 :     Escape_getVarEntry(varSymbol)-&gt;escape = true;</span></a>
+<a name="86"><span class="lineNum">      86 </span><span class="lineCov">          6 : }</span></a>
+<span class="lineNum">      87 </span>            : 
+<span class="lineNum">      88 </span><span class="lineCov">          8 : static bool getVarEscape(mySymbol varSymbol)</span>
+<a name="89"><span class="lineNum">      89 </span>            : {</a>
+<span class="lineNum">      90 </span><span class="lineCov">          8 :     return Escape_getVarEntry(varSymbol)-&gt;escape;</span>
+<span class="lineNum">      91 </span>            : }
 <span class="lineNum">      92 </span>            : 
-<a name="93"><span class="lineNum">      93 </span><span class="lineCov">          1 : static mySymbol getVarSymbol(myVarDec varDec)</span></a>
-<span class="lineNum">      94 </span>            : {
-<span class="lineNum">      95 </span><span class="lineCov">          1 :     switch (varDec-&gt;kind)</span>
-<span class="lineNum">      96 </span>            :     {
-<a name="97"><span class="lineNum">      97 </span><span class="lineNoCov">          0 :         case LongFormVar:   return varDec-&gt;u.longFormVar-&gt;name;</span></a>
-<span class="lineNum">      98 </span><span class="lineCov">          1 :         case ShortFormVar:  return varDec-&gt;u.shortFormVar-&gt;name;</span>
-<span class="lineNum">      99 </span><span class="lineNoCov">          0 :         default:            assert (false);</span>
-<span class="lineNum">     100 </span>            :     }
-<a name="101"><span class="lineNum">     101 </span>            : }</a>
-<span class="lineNum">     102 </span>            : 
-<span class="lineNum">     103 </span><span class="lineCov">          1 : void Escape_findEscape_Decs(int depth, myDecList decs)</span>
-<span class="lineNum">     104 </span>            : {
-<a name="105"><span class="lineNum">     105 </span><span class="lineCov">          3 :     while (decs)</span></a>
-<span class="lineNum">     106 </span>            :     {
-<span class="lineNum">     107 </span><span class="lineCov">          1 :         switch (decs-&gt;dec-&gt;kind)</span>
-<span class="lineNum">     108 </span>            :         {
-<a name="109"><span class="lineNum">     109 </span>            :             case VarDec:</a>
-<span class="lineNum">     110 </span><span class="lineCov">          2 :                 Escape_addVarEntry(</span>
-<span class="lineNum">     111 </span><span class="lineCov">          1 :                     getVarSymbol(decs-&gt;dec-&gt;u.varDec),</span>
-<span class="lineNum">     112 </span>            :                     makeEscapeEntry(depth, false));
-<a name="113"><span class="lineNum">     113 </span><span class="lineCov">          1 :                 break;</span></a>
-<span class="lineNum">     114 </span>            :             default:    ;   //  do nothing
-<span class="lineNum">     115 </span>            :         }
+<a name="93"><span class="lineNum">      93 </span>            : ///////////////////////</a>
+<a name="94"><span class="lineNum">      94 </span>            : </a>
+<span class="lineNum">      95 </span>            : //  todo:
+<span class="lineNum">      96 </span><span class="lineCov">          4 : static myType getActualType(myType type)</span>
+<a name="97"><span class="lineNum">      97 </span>            : {</a>
+<span class="lineNum">      98 </span><span class="lineCov">          8 :     while(isTypeNamed(type))</span>
+<span class="lineNum">      99 </span>            :     {
+<span class="lineNum">     100 </span><span class="lineNoCov">          0 :         type = type-&gt;u.typeNamed-&gt;type;</span>
+<a name="101"><span class="lineNum">     101 </span>            :     }</a>
+<span class="lineNum">     102 </span><span class="lineCov">          4 :     return type;</span>
+<a name="103"><span class="lineNum">     103 </span>            : }</a>
+<span class="lineNum">     104 </span>            : 
+<a name="105"><span class="lineNum">     105 </span><span class="lineCov">          4 : static myType getActualVarTypeFromName(mySymbol varName)</span></a>
+<span class="lineNum">     106 </span>            : {
+<span class="lineNum">     107 </span><span class="lineCov">          4 :     return getActualType(MyEnvironment_getVarType(</span>
+<span class="lineNum">     108 </span>            :             MyEnvironment_getVarOrFuncFromName(
+<a name="109"><span class="lineNum">     109 </span>            :                 MySemantic_getVarAndFuncEnvironment(),</a>
+<span class="lineNum">     110 </span>            :             varName)));
+<span class="lineNum">     111 </span>            : } 
+<span class="lineNum">     112 </span>            : 
+<a name="113"><span class="lineNum">     113 </span>            : ////////////////////////////////////////////////////////////////////////</a>
+<span class="lineNum">     114 </span>            : //                          forwards
+<span class="lineNum">     115 </span>            : void Escape_findEscape_Exp(int depth, myExp exp);
 <span class="lineNum">     116 </span>            : 
-<a name="117"><span class="lineNum">     117 </span><span class="lineCov">          1 :         decs = decs-&gt;next;</span></a>
-<span class="lineNum">     118 </span>            :     }
-<a name="119"><span class="lineNum">     119 </span><span class="lineCov">          1 : }</span></a>
-<span class="lineNum">     120 </span>            : 
-<a name="121"><span class="lineNum">     121 </span><span class="lineCov">          1 : void Escape_findEscape_LetExp(int depth, myLetExp letExp)</span></a>
-<span class="lineNum">     122 </span>            : {
-<span class="lineNum">     123 </span><span class="lineCov">          1 :    Escape_findEscape_Decs(depth, letExp-&gt;decList);</span>
-<span class="lineNum">     124 </span>            :    //   todo:   body
-<a name="125"><span class="lineNum">     125 </span><span class="lineCov">          1 : }</span></a>
-<span class="lineNum">     126 </span>            : 
-<span class="lineNum">     127 </span>            : ///////////////////////////////////////////////////////////////////////
-<span class="lineNum">     128 </span>            : 
-<a name="129"><span class="lineNum">     129 </span>            : //  DO:</a>
-<span class="lineNum">     130 </span>            : //      check if variables used are in outer scopes, which escapes.
-<span class="lineNum">     131 </span><span class="lineNoCov">          0 : void Escape_findEscape_LValueExp(int depth, myLValueExp lValueExp)</span>
-<span class="lineNum">     132 </span>            : {
-<a name="133"><span class="lineNum">     133 </span><span class="lineNoCov">          0 :     switch (lValueExp-&gt;kind)</span></a>
-<span class="lineNum">     134 </span>            :     {
-<span class="lineNum">     135 </span>            :         case SimpleVar:
-<span class="lineNum">     136 </span><span class="lineNoCov">          0 :             if (isVarNestedUsed(depth, lValueExp-&gt;id))</span>
-<a name="137"><span class="lineNum">     137 </span><span class="lineNoCov">          0 :                 setVarEscape(lValueExp-&gt;id);</span></a>
-<span class="lineNum">     138 </span><span class="lineNoCov">          0 :             break;</span>
-<span class="lineNum">     139 </span>            :         case RecordField:
-<span class="lineNum">     140 </span>            :             //  record is always referenced by pointer
-<a name="141"><span class="lineNum">     141 </span>            :             //  down through</a>
-<span class="lineNum">     142 </span>            :         case ArraySubscript:
-<span class="lineNum">     143 </span>            :             //  array is always referenced by pointer
-<span class="lineNum">     144 </span><span class="lineNoCov">          0 :             setVarEscape(lValueExp-&gt;id);</span>
-<a name="145"><span class="lineNum">     145 </span><span class="lineNoCov">          0 :             break;</span></a>
-<span class="lineNum">     146 </span><span class="lineNoCov">          0 :         default:    assert (false);</span>
-<span class="lineNum">     147 </span>            :     }
-<span class="lineNum">     148 </span><span class="lineNoCov">          0 : }</span>
-<a name="149"><span class="lineNum">     149 </span>            : </a>
-<a name="150"><span class="lineNum">     150 </span>            : ///////////////////////////////////////////////////////////////////////</a>
-<span class="lineNum">     151 </span>            : 
-<span class="lineNum">     152 </span><span class="lineCov">          1 : void Escape_findEscape_Exp(int depth, myExp exp)</span>
-<a name="153"><span class="lineNum">     153 </span>            : {</a>
-<span class="lineNum">     154 </span><span class="lineCov">          1 :     switch (exp-&gt;kind)</span>
-<span class="lineNum">     155 </span>            :     {
-<span class="lineNum">     156 </span>            :         /*case LValueExp:
-<a name="157"><span class="lineNum">     157 </span>            :             return Escape_findEscape_LValueExp(depth, exp-&gt;u.lValueExp);</a>
-<span class="lineNum">     158 </span>            :         case FunctionCallExp:
-<span class="lineNum">     159 </span>            :             //  parameters and return values is copied by value.  
-<span class="lineNum">     160 </span>            :             return Escape_findEscape_FunctionCallExp(depth, exp-&gt;u.functionCallExp);
-<a name="161"><span class="lineNum">     161 </span>            :         case NilExp:</a>
-<span class="lineNum">     162 </span>            :             return Escape_findEscape_NilExp(depth, exp-&gt;u.nilExp);
-<span class="lineNum">     163 </span>            :         case IntegerLiteralExp:
-<span class="lineNum">     164 </span>            :             return Escape_findEscape_IntegerLiteralExp(depth, exp-&gt;u.integerLiteralExp);
-<a name="165"><span class="lineNum">     165 </span>            :         case StringLiteralExp:</a>
-<span class="lineNum">     166 </span>            :             return Escape_findEscape_StringLiteralExp(depth, exp-&gt;u.stringLiteralExp);
-<span class="lineNum">     167 </span>            :         case ArrayCreationExp:
-<span class="lineNum">     168 </span>            :             return Escape_findEscape_ArrayCreation(depth, exp-&gt;u.arrayCreationExp);
-<a name="169"><span class="lineNum">     169 </span>            :         case RecordCreationExp:</a>
-<span class="lineNum">     170 </span>            :             return Escape_findEscape_RecordCreationExp(depth, exp-&gt;u.recordCreationExp);
-<span class="lineNum">     171 </span>            :         case ArithmeticExp:
-<span class="lineNum">     172 </span>            :             return Escape_findEscape_ArithmeticExp(depth, exp-&gt;u.arithmeticExp);
-<a name="173"><span class="lineNum">     173 </span>            :         case ParenthesesExp:</a>
-<span class="lineNum">     174 </span>            :             return Escape_findEscape_ParenthesesExp(depth, exp-&gt;u.parenthesesExp);
-<span class="lineNum">     175 </span>            :         case NoValueExp:
-<span class="lineNum">     176 </span>            :             return Escape_findEscape_NoValueExp(depth, exp-&gt;u.noValueExp);
-<a name="177"><span class="lineNum">     177 </span>            :         case SequencingExp:</a>
-<span class="lineNum">     178 </span>            :             return Escape_findEscape_SequencingExp(depth, exp-&gt;u.sequencingExp);
-<span class="lineNum">     179 </span>            :         case ForExp:
-<span class="lineNum">     180 </span>            :             return Escape_findEscape_ForExp(depth, exp-&gt;u.forExp);
-<a name="181"><span class="lineNum">     181 </span>            :         case IfThenElseExp:</a>
-<span class="lineNum">     182 </span>            :             return Escape_findEscape_IfThenElseExp(depth, exp-&gt;u.ifThenElseExp);
-<span class="lineNum">     183 </span>            :         case IfThenExp:
-<span class="lineNum">     184 </span>            :             return Escape_findEscape_IfThenExp(depth, exp-&gt;u.ifThenExp);
-<a name="185"><span class="lineNum">     185 </span>            :         case ComparisonExp:</a>
-<span class="lineNum">     186 </span>            :             return Escape_findEscape_ComparisonExp(depth, exp-&gt;u.comparisonExp);
-<span class="lineNum">     187 </span>            :         case BooleanOperateExp:
-<span class="lineNum">     188 </span>            :             return Escape_findEscape_BooleanOperateExp(depth, exp-&gt;u.booleanOperateExp);
-<a name="189"><span class="lineNum">     189 </span>            :         case AssignmentExp:</a>
-<span class="lineNum">     190 </span>            :             return Escape_findEscape_AssignmentExp(depth, exp-&gt;u.assignmentExp);*/
-<span class="lineNum">     191 </span>            :         case LetExp:
-<span class="lineNum">     192 </span><span class="lineCov">          2 :             return Escape_findEscape_LetExp(depth, exp-&gt;u.letExp);</span>
-<a name="193"><span class="lineNum">     193 </span>            :         /*case WhileExp:</a>
-<span class="lineNum">     194 </span>            :             return Escape_findEscape_WhileExp(depth, exp-&gt;u.whileExp);
-<span class="lineNum">     195 </span>            :         case NegationExp:
-<span class="lineNum">     196 </span>            :             return Escape_findEscape_NegationExp(depth, exp-&gt;u.negationExp);
-<a name="197"><span class="lineNum">     197 </span>            :         case BreakExp:</a>
-<span class="lineNum">     198 </span>            :             return Escape_findEscape_BreakExp(depth, exp-&gt;u.breakExp);*/
-<span class="lineNum">     199 </span>            : 
-<span class="lineNum">     200 </span><span class="lineNoCov">          0 :         default:    assert (false);</span>
-<a name="201"><span class="lineNum">     201 </span>            :     }</a>
-<span class="lineNum">     202 </span>            : } 
+<a name="117"><span class="lineNum">     117 </span>            : ///////////////////////////////////////////////////////////////////////</a>
+<span class="lineNum">     118 </span>            : //                          functions
+<span class="lineNum">     119 </span>            : 
+<a name="120"><span class="lineNum">     120 </span>            : //  DO:</a>
+<a name="121"><span class="lineNum">     121 </span>            : //      check if variables used are in outer scopes, which escapes.</a>
+<span class="lineNum">     122 </span><span class="lineNoCov">          0 : void Escape_findEscape_LValueExp(int depth, myLValueExp lValueExp)</span>
+<span class="lineNum">     123 </span>            : {
+<span class="lineNum">     124 </span><span class="lineNoCov">          0 :     switch (lValueExp-&gt;kind)</span>
+<a name="125"><span class="lineNum">     125 </span>            :     {</a>
+<span class="lineNum">     126 </span>            :         case SimpleVar:
+<span class="lineNum">     127 </span><span class="lineNoCov">          0 :             if (isVarNestedUsed(depth, lValueExp-&gt;id))</span>
+<span class="lineNum">     128 </span><span class="lineNoCov">          0 :                 setVarEscape(lValueExp-&gt;id);</span>
+<a name="129"><span class="lineNum">     129 </span><span class="lineNoCov">          0 :             break;</span></a>
+<span class="lineNum">     130 </span>            :         case RecordField:
+<span class="lineNum">     131 </span>            :             //  record is always referenced by pointer
+<span class="lineNum">     132 </span>            :             //  down through
+<a name="133"><span class="lineNum">     133 </span>            :         case ArraySubscript:</a>
+<span class="lineNum">     134 </span>            :             //  array is always referenced by pointer
+<span class="lineNum">     135 </span><span class="lineNoCov">          0 :             setVarEscape(lValueExp-&gt;id);</span>
+<span class="lineNum">     136 </span><span class="lineNoCov">          0 :             break;</span>
+<a name="137"><span class="lineNum">     137 </span><span class="lineNoCov">          0 :         default:    assert (false);</span></a>
+<span class="lineNum">     138 </span>            :     }
+<span class="lineNum">     139 </span><span class="lineNoCov">          0 : }</span>
+<span class="lineNum">     140 </span>            : 
+<a name="141"><span class="lineNum">     141 </span>            : ///////////////////////////////////////////////////////////////////////</a>
+<span class="lineNum">     142 </span>            : 
+<span class="lineNum">     143 </span><span class="lineNoCov">          0 : void Escape_findEscape_FunctionCallExp(</span>
+<span class="lineNum">     144 </span>            :     int depth, myFunctionCallExp functionCallExp)
+<a name="145"><span class="lineNum">     145 </span>            : {</a>
+<span class="lineNum">     146 </span>            :     //  todo:
+<span class="lineNum">     147 </span><span class="lineNoCov">          0 : }</span>
+<span class="lineNum">     148 </span>            : 
+<a name="149"><span class="lineNum">     149 </span>            : ////////////////////////////////////////////////////////////////////////</a>
+<span class="lineNum">     150 </span>            : 
+<span class="lineNum">     151 </span><span class="lineNoCov">          0 : void Escape_findEscape_NilExp(int depth, myNilExp nilExp)</span>
+<span class="lineNum">     152 </span>            : {
+<a name="153"><span class="lineNum">     153 </span>            :     //  todo:</a>
+<span class="lineNum">     154 </span><span class="lineNoCov">          0 : }</span>
+<span class="lineNum">     155 </span>            : 
+<a name="156"><span class="lineNum">     156 </span>            : ////////////////////////////////////////////////////////////////////////</a>
+<a name="157"><span class="lineNum">     157 </span>            : </a>
+<span class="lineNum">     158 </span><span class="lineCov">          3 : void Escape_findEscape_IntegerLiteralExp(</span>
+<span class="lineNum">     159 </span>            :     int depth, myIntegerLiteralExp integerLiteralExp)
+<span class="lineNum">     160 </span>            : {
+<a name="161"><span class="lineNum">     161 </span>            :     //  todo:</a>
+<span class="lineNum">     162 </span><span class="lineCov">          3 : }</span>
+<span class="lineNum">     163 </span>            : 
+<a name="164"><span class="lineNum">     164 </span>            : ///////////////////////////////////////////////////////////////////////</a>
+<a name="165"><span class="lineNum">     165 </span>            : </a>
+<span class="lineNum">     166 </span><span class="lineNoCov">          0 : void Escape_findEscape_StringLiteralExp(</span>
+<span class="lineNum">     167 </span>            :     int depth, myStringLiteralExp stringLiteralExp)
+<span class="lineNum">     168 </span>            : {
+<a name="169"><span class="lineNum">     169 </span>            :     //  todo:</a>
+<span class="lineNum">     170 </span><span class="lineNoCov">          0 : }</span>
+<span class="lineNum">     171 </span>            : 
+<a name="172"><span class="lineNum">     172 </span>            : ///////////////////////////////////////////////////////////////////////</a>
+<a name="173"><span class="lineNum">     173 </span>            : </a>
+<span class="lineNum">     174 </span><span class="lineNoCov">          0 : void Escape_findEscape_ArrayCreationExp(</span>
+<span class="lineNum">     175 </span>            :     int depth, myArrayCreationExp arrayCreationExp)
+<span class="lineNum">     176 </span>            : {
+<a name="177"><span class="lineNum">     177 </span>            :     //  todo:</a>
+<span class="lineNum">     178 </span><span class="lineNoCov">          0 : }</span>
+<span class="lineNum">     179 </span>            : 
+<a name="180"><span class="lineNum">     180 </span>            : ///////////////////////////////////////////////////////////////////////</a>
+<a name="181"><span class="lineNum">     181 </span>            : </a>
+<span class="lineNum">     182 </span><span class="lineCov">          2 : void Escape_findEscape_RecordCreationExp(</span>
+<span class="lineNum">     183 </span>            :     int depth, myRecordCreationExp recordCreationExp)
+<span class="lineNum">     184 </span>            : {
+<a name="185"><span class="lineNum">     185 </span>            :     //  todo:</a>
+<span class="lineNum">     186 </span><span class="lineCov">          2 : }</span>
+<span class="lineNum">     187 </span>            : 
+<a name="188"><span class="lineNum">     188 </span>            : ///////////////////////////////////////////////////////////////////////</a>
+<a name="189"><span class="lineNum">     189 </span>            : </a>
+<span class="lineNum">     190 </span><span class="lineNoCov">          0 : void Escape_findEscape_ArithmeticExp(</span>
+<span class="lineNum">     191 </span>            :     int depth, myArithmeticExp arithmeticExp)
+<span class="lineNum">     192 </span>            : {
+<a name="193"><span class="lineNum">     193 </span>            :     //  todo:</a>
+<span class="lineNum">     194 </span><span class="lineNoCov">          0 : }</span>
+<span class="lineNum">     195 </span>            : 
+<a name="196"><span class="lineNum">     196 </span>            : ///////////////////////////////////////////////////////////////////////</a>
+<a name="197"><span class="lineNum">     197 </span>            : </a>
+<span class="lineNum">     198 </span><span class="lineNoCov">          0 : void Escape_findEscape_ParenthesesExp(</span>
+<span class="lineNum">     199 </span>            :     int depth, myParenthesesExp parenthesesExp)
+<span class="lineNum">     200 </span>            : {
+<a name="201"><span class="lineNum">     201 </span>            :     //  todo:</a>
+<span class="lineNum">     202 </span><span class="lineNoCov">          0 : }</span>
 <span class="lineNum">     203 </span>            : 
-<a name="204"><span class="lineNum">     204 </span>            : ///////////////////////////////////////////////////////////////////////////</a>
+<a name="204"><span class="lineNum">     204 </span>            : ///////////////////////////////////////////////////////////////////////</a>
 <a name="205"><span class="lineNum">     205 </span>            : </a>
-<span class="lineNum">     206 </span><span class="lineCov">          1 : void Escape_findEscape(myExp exp)</span>
+<span class="lineNum">     206 </span><span class="lineCov">          1 : void Escape_findEscape_NoValueExp(int depth, myNoValueExp noValueExp)</span>
 <span class="lineNum">     207 </span>            : {
-<span class="lineNum">     208 </span><span class="lineCov">          1 :     Escape_findEscape_Exp(1, exp);</span>
+<span class="lineNum">     208 </span>            :     //  todo:
 <a name="209"><span class="lineNum">     209 </span><span class="lineCov">          1 : }</span></a>
 <span class="lineNum">     210 </span>            : 
-<span class="lineNum">     211 </span><span class="lineCov">          1 : bool Escape_isVarEscaped(mySymbol varSymbol)</span>
-<span class="lineNum">     212 </span>            : {
-<a name="213"><span class="lineNum">     213 </span><span class="lineCov">          1 :     assert (!MySymbol_InvalidSymbol(varSymbol));</span></a>
-<span class="lineNum">     214 </span><span class="lineCov">          1 :     return getVarEscape(varSymbol);</span>
-<span class="lineNum">     215 </span>            : }
+<a name="211"><span class="lineNum">     211 </span>            : ///////////////////////////////////////////////////////////////////////</a>
+<span class="lineNum">     212 </span>            : 
+<a name="213"><span class="lineNum">     213 </span><span class="lineNoCov">          0 : void Escape_findEscape_SequencingExp(int depth, mySequencingExp sequencingExp)</span></a>
+<span class="lineNum">     214 </span>            : {
+<span class="lineNum">     215 </span>            :     //  todo:
+<span class="lineNum">     216 </span><span class="lineNoCov">          0 : }</span>
+<a name="217"><span class="lineNum">     217 </span>            : </a>
+<a name="218"><span class="lineNum">     218 </span>            : ///////////////////////////////////////////////////////////////////////</a>
+<span class="lineNum">     219 </span>            : 
+<span class="lineNum">     220 </span><span class="lineNoCov">          0 : void Escape_findEscape_ForExp(int depth, myForExp forExp)</span>
+<a name="221"><span class="lineNum">     221 </span>            : {</a>
+<span class="lineNum">     222 </span>            :     //  todo:
+<span class="lineNum">     223 </span><span class="lineNoCov">          0 : }</span>
+<span class="lineNum">     224 </span>            : 
+<a name="225"><span class="lineNum">     225 </span>            : ///////////////////////////////////////////////////////////////////////</a>
+<span class="lineNum">     226 </span>            : 
+<span class="lineNum">     227 </span><span class="lineNoCov">          0 : void Escape_findEscape_IfThenElseExp(int depth, myIfThenElseExp ifThenElseExp)</span>
+<span class="lineNum">     228 </span>            : {
+<a name="229"><span class="lineNum">     229 </span>            :     //  todo:</a>
+<span class="lineNum">     230 </span><span class="lineNoCov">          0 : }</span>
+<span class="lineNum">     231 </span>            : 
+<a name="232"><span class="lineNum">     232 </span>            : ///////////////////////////////////////////////////////////////////////</a>
+<a name="233"><span class="lineNum">     233 </span>            : </a>
+<span class="lineNum">     234 </span><span class="lineNoCov">          0 : void Escape_findEscape_IfThenExp(int depth, myIfThenExp ifThenExp)</span>
+<span class="lineNum">     235 </span>            : {
+<span class="lineNum">     236 </span>            :     //  todo:
+<a name="237"><span class="lineNum">     237 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     238 </span>            : 
+<a name="239"><span class="lineNum">     239 </span>            : ///////////////////////////////////////////////////////////////////////</a>
+<span class="lineNum">     240 </span>            : 
+<a name="241"><span class="lineNum">     241 </span><span class="lineNoCov">          0 : void Escape_findEscape_ComparisonExp(int depth, myComparisonExp comparisonExp)</span></a>
+<span class="lineNum">     242 </span>            : {
+<span class="lineNum">     243 </span>            :     //  todo:
+<span class="lineNum">     244 </span><span class="lineNoCov">          0 : }</span>
+<a name="245"><span class="lineNum">     245 </span>            : </a>
+<a name="246"><span class="lineNum">     246 </span>            : ///////////////////////////////////////////////////////////////////////</a>
+<span class="lineNum">     247 </span>            : 
+<span class="lineNum">     248 </span><span class="lineNoCov">          0 : void Escape_findEscape_BooleanOperateExp(</span>
+<a name="249"><span class="lineNum">     249 </span>            :     int depth, myBooleanOperateExp booleanOperateExp)</a>
+<span class="lineNum">     250 </span>            : {
+<span class="lineNum">     251 </span>            :     //  todo:
+<span class="lineNum">     252 </span><span class="lineNoCov">          0 : }</span>
+<a name="253"><span class="lineNum">     253 </span>            : </a>
+<a name="254"><span class="lineNum">     254 </span>            : ///////////////////////////////////////////////////////////////////////</a>
+<span class="lineNum">     255 </span>            : 
+<span class="lineNum">     256 </span><span class="lineNoCov">          0 : void Escape_findEscape_AssignmentExp(int depth, myAssignmentExp assignmentExp)</span>
+<a name="257"><span class="lineNum">     257 </span>            : {</a>
+<span class="lineNum">     258 </span>            :     //  todo:
+<span class="lineNum">     259 </span><span class="lineNoCov">          0 : }</span>
+<span class="lineNum">     260 </span>            : 
+<a name="261"><span class="lineNum">     261 </span>            : ///////////////////////////////////////////////////////////////////////</a>
+<a name="262"><span class="lineNum">     262 </span>            : ///////////////////////////////////////////////////////////////////////</a>
+<span class="lineNum">     263 </span>            : 
+<span class="lineNum">     264 </span><span class="lineCov">          4 : static void getVarNameAndBody(</span>
+<a name="265"><span class="lineNum">     265 </span>            :     mySymbol* varNamePtr, myExp* varExpPtr, myVarDec varDec)</a>
+<span class="lineNum">     266 </span>            : {
+<span class="lineNum">     267 </span><span class="lineCov">          4 :     switch (varDec-&gt;kind)</span>
+<span class="lineNum">     268 </span>            :     {
+<a name="269"><span class="lineNum">     269 </span>            :         case ShortFormVar:</a>
+<span class="lineNum">     270 </span><span class="lineCov">          3 :             *varNamePtr = varDec-&gt;u.shortFormVar-&gt;name;</span>
+<span class="lineNum">     271 </span><span class="lineCov">          3 :             *varExpPtr = varDec-&gt;u.shortFormVar-&gt;exp;</span>
+<span class="lineNum">     272 </span><span class="lineCov">          3 :             break;</span>
+<a name="273"><span class="lineNum">     273 </span>            :         case LongFormVar:</a>
+<span class="lineNum">     274 </span><span class="lineCov">          1 :             *varNamePtr = varDec-&gt;u.longFormVar-&gt;name;</span>
+<span class="lineNum">     275 </span><span class="lineCov">          1 :             *varExpPtr = varDec-&gt;u.longFormVar-&gt;exp;</span>
+<span class="lineNum">     276 </span><span class="lineCov">          1 :             break;</span>
+<a name="277"><span class="lineNum">     277 </span><span class="lineNoCov">          0 :         default:        assert (false);</span></a>
+<span class="lineNum">     278 </span>            :     }
+<span class="lineNum">     279 </span><span class="lineCov">          4 : }</span>
+<span class="lineNum">     280 </span>            : 
+<a name="281"><span class="lineNum">     281 </span>            : //  STATUS:</a>
+<span class="lineNum">     282 </span>            : //      Tested.
+<span class="lineNum">     283 </span><span class="lineCov">          4 : void Escape_findEscape_VarDec(int depth, myVarDec varDec)</span>
+<span class="lineNum">     284 </span>            : {
+<a name="285"><span class="lineNum">     285 </span><span class="lineCov">          4 :     if (varDec != NULL)</span></a>
+<span class="lineNum">     286 </span>            :     {
+<span class="lineNum">     287 </span>            :         mySymbol varName;
+<span class="lineNum">     288 </span>            :         myExp varExp;
+<a name="289"><span class="lineNum">     289 </span><span class="lineCov">          4 :         getVarNameAndBody(&amp;varName, &amp;varExp, varDec);</span></a>
+<span class="lineNum">     290 </span>            : 
+<span class="lineNum">     291 </span><span class="lineCov">          4 :         Escape_addVarEntry(varName, makeDefaultEscapeEntry(depth));</span>
+<span class="lineNum">     292 </span><span class="lineCov">          4 :         myType varActualType = getActualVarTypeFromName(varName);</span>
+<a name="293"><span class="lineNum">     293 </span><span class="lineCov">          4 :         if (isTypeRecord(varActualType) || isTypeArray(varActualType))</span></a>
+<span class="lineNum">     294 </span><span class="lineCov">          2 :             setVarEscape(varName);</span>
+<span class="lineNum">     295 </span>            : 
+<span class="lineNum">     296 </span><span class="lineCov">          4 :         Escape_findEscape_Exp(depth, varExp);</span>
+<a name="297"><span class="lineNum">     297 </span>            :     }</a>
+<span class="lineNum">     298 </span><span class="lineCov">          4 : }</span>
+<span class="lineNum">     299 </span>            : 
+<span class="lineNum">     300 </span>            : /////////////////////////
+<a name="301"><span class="lineNum">     301 </span>            : </a>
+<a name="302"><span class="lineNum">     302 </span>            : //  STATUS:</a>
+<span class="lineNum">     303 </span>            : //      Tested.
+<span class="lineNum">     304 </span><span class="lineNoCov">          0 : void Escape_findEscape_TypeDec(int depth, myTypeDec typeDec)</span>
+<a name="305"><span class="lineNum">     305 </span>            : {</a>
+<span class="lineNum">     306 </span>            :     //  no expressions used here, do nothing
+<span class="lineNum">     307 </span><span class="lineNoCov">          0 : }</span>
+<span class="lineNum">     308 </span>            : 
+<a name="309"><span class="lineNum">     309 </span>            : /////////////////////////</a>
+<span class="lineNum">     310 </span>            : 
+<span class="lineNum">     311 </span><span class="lineCov">          2 : void treatFormalsAsEscapeVars(int depth, myTyFieldList fields)</span>
+<span class="lineNum">     312 </span>            : { 
+<a name="313"><span class="lineNum">     313 </span><span class="lineCov">          8 :     while (fields)</span></a>
+<span class="lineNum">     314 </span>            :     {
+<span class="lineNum">     315 </span><span class="lineCov">          4 :         mySymbol varName = fields-&gt;field-&gt;varName;</span>
+<span class="lineNum">     316 </span><span class="lineCov">          4 :         Escape_addVarEntry(varName, makeDefaultEscapeEntry(depth));</span>
+<a name="317"><span class="lineNum">     317 </span><span class="lineCov">          4 :         setVarEscape(varName);</span></a>
+<span class="lineNum">     318 </span>            : 
+<span class="lineNum">     319 </span><span class="lineCov">          4 :         fields = fields-&gt;next;</span>
+<span class="lineNum">     320 </span>            :     }
+<a name="321"><span class="lineNum">     321 </span><span class="lineCov">          2 : }</span></a>
+<span class="lineNum">     322 </span>            : 
+<a name="323"><span class="lineNum">     323 </span>            : //  NOTE:   This function should be used with BeginScope()--EndScope()</a>
+<span class="lineNum">     324 </span>            : //  or with a new table!!!
+<a name="325"><span class="lineNum">     325 </span><span class="lineCov">          2 : void Escape_findEscape_FuncDec(int depth, myFuncDec funcDec)</span></a>
+<span class="lineNum">     326 </span>            : {
+<span class="lineNum">     327 </span>            :     myTyFieldList formalFields;
+<span class="lineNum">     328 </span>            :     myExp body;
+<a name="329"><span class="lineNum">     329 </span>            : </a>
+<span class="lineNum">     330 </span><span class="lineCov">          2 :     switch (funcDec-&gt;kind)</span>
+<span class="lineNum">     331 </span>            :     {
+<span class="lineNum">     332 </span>            :         case FunctionDec:
+<a name="333"><span class="lineNum">     333 </span>            :         {</a>
+<span class="lineNum">     334 </span>            :             //  assume all formals escapes
+<span class="lineNum">     335 </span><span class="lineCov">          1 :             formalFields = funcDec-&gt;u.functionDec-&gt;tyFieldList;</span>
+<span class="lineNum">     336 </span><span class="lineCov">          1 :             body = funcDec-&gt;u.functionDec-&gt;exp;</span>
+<a name="337"><span class="lineNum">     337 </span><span class="lineCov">          1 :             break;</span></a>
+<span class="lineNum">     338 </span>            :         }
+<span class="lineNum">     339 </span>            :         case ProcedureDec:
+<span class="lineNum">     340 </span>            :         {
+<a name="341"><span class="lineNum">     341 </span>            :             //  assume all formals escapes</a>
+<span class="lineNum">     342 </span><span class="lineCov">          1 :             formalFields = funcDec-&gt;u.procedureDec-&gt;tyFieldList;</span>
+<span class="lineNum">     343 </span><span class="lineCov">          1 :             body = funcDec-&gt;u.procedureDec-&gt;exp;</span>
+<span class="lineNum">     344 </span><span class="lineCov">          1 :             break;</span>
+<a name="345"><span class="lineNum">     345 </span>            :         }</a>
+<span class="lineNum">     346 </span><span class="lineNoCov">          0 :         default:        assert (false);</span>
+<span class="lineNum">     347 </span>            :     }
+<span class="lineNum">     348 </span>            : 
+<a name="349"><span class="lineNum">     349 </span><span class="lineCov">          2 :     treatFormalsAsEscapeVars(depth + 1, formalFields);</span></a>
+<span class="lineNum">     350 </span><span class="lineCov">          2 :     Escape_findEscape_Exp(depth + 1, body);</span>
+<span class="lineNum">     351 </span><span class="lineCov">          2 : }</span>
+<span class="lineNum">     352 </span>            : 
+<a name="353"><span class="lineNum">     353 </span>            : /////////////////////////</a>
+<span class="lineNum">     354 </span>            : 
+<span class="lineNum">     355 </span><span class="lineNoCov">          0 : void Escape_findEscape_Dec(int depth, myDec dec)</span>
+<span class="lineNum">     356 </span>            : {
+<a name="357"><span class="lineNum">     357 </span><span class="lineNoCov">          0 :     switch (dec-&gt;kind)</span></a>
+<span class="lineNum">     358 </span>            :     {
+<span class="lineNum">     359 </span>            :         case VarDec:
+<span class="lineNum">     360 </span><span class="lineNoCov">          0 :             return Escape_findEscape_VarDec(depth, dec-&gt;u.varDec);</span>
+<a name="361"><span class="lineNum">     361 </span>            :         case TypeDec:</a>
+<span class="lineNum">     362 </span><span class="lineNoCov">          0 :             return Escape_findEscape_TypeDec(depth, dec-&gt;u.tyDec);</span>
+<span class="lineNum">     363 </span>            :         case FuncDec:
+<span class="lineNum">     364 </span><span class="lineNoCov">          0 :             return Escape_findEscape_FuncDec(depth, dec-&gt;u.funcDec);</span>
+<a name="365"><span class="lineNum">     365 </span><span class="lineNoCov">          0 :         default:        assert (false);</span></a>
+<span class="lineNum">     366 </span>            :     }
+<a name="367"><span class="lineNum">     367 </span>            : }</a>
+<span class="lineNum">     368 </span>            : 
+<a name="369"><span class="lineNum">     369 </span><span class="lineNoCov">          0 : static void Escape_findEscape_Decs(int depth, myDecList decs)</span></a>
+<span class="lineNum">     370 </span>            : {
+<span class="lineNum">     371 </span><span class="lineNoCov">          0 :     while (decs)</span>
+<span class="lineNum">     372 </span>            :     {
+<a name="373"><span class="lineNum">     373 </span><span class="lineNoCov">          0 :         Escape_findEscape_Dec(depth, decs-&gt;dec);   </span></a>
+<span class="lineNum">     374 </span><span class="lineNoCov">          0 :         decs = decs-&gt;next;</span>
+<span class="lineNum">     375 </span>            :     }
+<a name="376"><span class="lineNum">     376 </span><span class="lineNoCov">          0 : }</span></a>
+<a name="377"><span class="lineNum">     377 </span>            : </a>
+<span class="lineNum">     378 </span><span class="lineNoCov">          0 : static void Escape_findEscape_Exps(int depth, myExpList exps)</span>
+<span class="lineNum">     379 </span>            : {
+<span class="lineNum">     380 </span><span class="lineNoCov">          0 :     while (exps)</span>
+<a name="381"><span class="lineNum">     381 </span>            :     {</a>
+<span class="lineNum">     382 </span><span class="lineNoCov">          0 :         Escape_findEscape_Exp(depth, exps-&gt;exp);</span>
+<span class="lineNum">     383 </span><span class="lineNoCov">          0 :         exps = exps-&gt;next;</span>
+<span class="lineNum">     384 </span>            :     }
+<a name="385"><span class="lineNum">     385 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     386 </span>            : 
+<span class="lineNum">     387 </span><span class="lineNoCov">          0 : void Escape_findEscape_LetExp(int depth, myLetExp letExp)</span>
+<span class="lineNum">     388 </span>            : {
+<a name="389"><span class="lineNum">     389 </span><span class="lineNoCov">          0 :    Escape_findEscape_Decs(depth, letExp-&gt;decList);</span></a>
+<span class="lineNum">     390 </span><span class="lineNoCov">          0 :    Escape_findEscape_Exps(depth, letExp-&gt;expList);</span>
+<span class="lineNum">     391 </span><span class="lineNoCov">          0 : }</span>
+<span class="lineNum">     392 </span>            : 
+<a name="393"><span class="lineNum">     393 </span>            : ///////////////////////////////////////////////////////////////////////</a>
+<a name="394"><span class="lineNum">     394 </span>            : ///////////////////////////////////////////////////////////////////////</a>
+<span class="lineNum">     395 </span>            : 
+<span class="lineNum">     396 </span><span class="lineNoCov">          0 : void Escape_findEscape_WhileExp(int depth, myWhileExp whileExp)</span>
+<a name="397"><span class="lineNum">     397 </span>            : {</a>
+<span class="lineNum">     398 </span>            :     //  todo:
+<span class="lineNum">     399 </span><span class="lineNoCov">          0 : }</span>
+<span class="lineNum">     400 </span>            : 
+<a name="401"><span class="lineNum">     401 </span>            : ///////////////////////////////////////////////////////////////////////</a>
+<span class="lineNum">     402 </span>            : 
+<span class="lineNum">     403 </span><span class="lineNoCov">          0 : void Escape_findEscape_NegationExp(int depth, myNegationExp negationExp)</span>
+<span class="lineNum">     404 </span>            : {
+<a name="405"><span class="lineNum">     405 </span>            :     //  todo:</a>
+<span class="lineNum">     406 </span><span class="lineNoCov">          0 : }</span>
+<span class="lineNum">     407 </span>            : 
+<a name="408"><span class="lineNum">     408 </span>            : ///////////////////////////////////////////////////////////////////////</a>
+<a name="409"><span class="lineNum">     409 </span>            : </a>
+<span class="lineNum">     410 </span><span class="lineNoCov">          0 : void Escape_findEscape_BreakExp(int depth, myBreakExp breakExp)</span>
+<span class="lineNum">     411 </span>            : {
+<span class="lineNum">     412 </span>            :     //  todo:
+<a name="413"><span class="lineNum">     413 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     414 </span>            : 
+<a name="415"><span class="lineNum">     415 </span>            : ///////////////////////////////////////////////////////////////////////</a>
+<span class="lineNum">     416 </span>            : 
+<a name="417"><span class="lineNum">     417 </span><span class="lineCov">          6 : void Escape_findEscape_Exp(int depth, myExp exp)</span></a>
+<span class="lineNum">     418 </span>            : {
+<span class="lineNum">     419 </span><span class="lineCov">          6 :     switch (exp-&gt;kind)</span>
+<span class="lineNum">     420 </span>            :     {
+<a name="421"><span class="lineNum">     421 </span>            :         case LValueExp:</a>
+<span class="lineNum">     422 </span><span class="lineNoCov">          0 :             return Escape_findEscape_LValueExp(depth, exp-&gt;u.lValueExp);</span>
+<span class="lineNum">     423 </span>            :         case FunctionCallExp:
+<span class="lineNum">     424 </span>            :             //  parameters and return values is copied by value.  
+<a name="425"><span class="lineNum">     425 </span><span class="lineNoCov">          0 :             return Escape_findEscape_FunctionCallExp(depth, exp-&gt;u.functionCallExp);</span></a>
+<span class="lineNum">     426 </span>            :         case NilExp:
+<span class="lineNum">     427 </span><span class="lineNoCov">          0 :             return Escape_findEscape_NilExp(depth, exp-&gt;u.nilExp);</span>
+<span class="lineNum">     428 </span>            :         case IntegerLiteralExp:
+<a name="429"><span class="lineNum">     429 </span><span class="lineCov">          3 :             return Escape_findEscape_IntegerLiteralExp(depth, exp-&gt;u.integerLiteralExp);</span></a>
+<span class="lineNum">     430 </span>            :         case StringLiteralExp:
+<span class="lineNum">     431 </span><span class="lineNoCov">          0 :             return Escape_findEscape_StringLiteralExp(depth, exp-&gt;u.stringLiteralExp);</span>
+<span class="lineNum">     432 </span>            :         case ArrayCreationExp:
+<a name="433"><span class="lineNum">     433 </span><span class="lineNoCov">          0 :             return Escape_findEscape_ArrayCreationExp(depth, exp-&gt;u.arrayCreationExp);</span></a>
+<span class="lineNum">     434 </span>            :         case RecordCreationExp:
+<span class="lineNum">     435 </span><span class="lineCov">          2 :             return Escape_findEscape_RecordCreationExp(depth, exp-&gt;u.recordCreationExp);</span>
+<span class="lineNum">     436 </span>            :         case ArithmeticExp:
+<a name="437"><span class="lineNum">     437 </span><span class="lineNoCov">          0 :             return Escape_findEscape_ArithmeticExp(depth, exp-&gt;u.arithmeticExp);</span></a>
+<span class="lineNum">     438 </span>            :         case ParenthesesExp:
+<span class="lineNum">     439 </span><span class="lineNoCov">          0 :             return Escape_findEscape_ParenthesesExp(depth, exp-&gt;u.parenthesesExp);</span>
+<span class="lineNum">     440 </span>            :         case NoValueExp:
+<a name="441"><span class="lineNum">     441 </span><span class="lineCov">          1 :             return Escape_findEscape_NoValueExp(depth, exp-&gt;u.noValueExp);</span></a>
+<span class="lineNum">     442 </span>            :         case SequencingExp:
+<span class="lineNum">     443 </span><span class="lineNoCov">          0 :             return Escape_findEscape_SequencingExp(depth, exp-&gt;u.sequencingExp);</span>
+<span class="lineNum">     444 </span>            :         case ForExp:
+<a name="445"><span class="lineNum">     445 </span><span class="lineNoCov">          0 :             return Escape_findEscape_ForExp(depth, exp-&gt;u.forExp);</span></a>
+<span class="lineNum">     446 </span>            :         case IfThenElseExp:
+<span class="lineNum">     447 </span><span class="lineNoCov">          0 :             return Escape_findEscape_IfThenElseExp(depth, exp-&gt;u.ifThenElseExp);</span>
+<span class="lineNum">     448 </span>            :         case IfThenExp:
+<a name="449"><span class="lineNum">     449 </span><span class="lineNoCov">          0 :             return Escape_findEscape_IfThenExp(depth, exp-&gt;u.ifThenExp);</span></a>
+<span class="lineNum">     450 </span>            :         case ComparisonExp:
+<span class="lineNum">     451 </span><span class="lineNoCov">          0 :             return Escape_findEscape_ComparisonExp(depth, exp-&gt;u.comparisonExp);</span>
+<span class="lineNum">     452 </span>            :         case BooleanOperateExp:
+<a name="453"><span class="lineNum">     453 </span><span class="lineNoCov">          0 :             return Escape_findEscape_BooleanOperateExp(depth, exp-&gt;u.booleanOperateExp);</span></a>
+<span class="lineNum">     454 </span>            :         case AssignmentExp:
+<span class="lineNum">     455 </span><span class="lineNoCov">          0 :             return Escape_findEscape_AssignmentExp(depth, exp-&gt;u.assignmentExp);</span>
+<span class="lineNum">     456 </span>            :         case LetExp:
+<a name="457"><span class="lineNum">     457 </span><span class="lineNoCov">          0 :             return Escape_findEscape_LetExp(depth, exp-&gt;u.letExp);</span></a>
+<span class="lineNum">     458 </span>            :         case WhileExp:
+<span class="lineNum">     459 </span><span class="lineNoCov">          0 :             return Escape_findEscape_WhileExp(depth, exp-&gt;u.whileExp);</span>
+<span class="lineNum">     460 </span>            :         case NegationExp:
+<a name="461"><span class="lineNum">     461 </span><span class="lineNoCov">          0 :             return Escape_findEscape_NegationExp(depth, exp-&gt;u.negationExp);</span></a>
+<span class="lineNum">     462 </span>            :         case BreakExp:
+<span class="lineNum">     463 </span><span class="lineNoCov">          0 :             return Escape_findEscape_BreakExp(depth, exp-&gt;u.breakExp);</span>
+<span class="lineNum">     464 </span>            : 
+<a name="465"><span class="lineNum">     465 </span><span class="lineNoCov">          0 :         default:    assert (false);</span></a>
+<span class="lineNum">     466 </span>            :     }
+<span class="lineNum">     467 </span>            : } 
+<span class="lineNum">     468 </span>            : 
+<a name="469"><span class="lineNum">     469 </span>            : ///////////////////////////////////////////////////////////////////////////</a>
+<span class="lineNum">     470 </span>            : 
+<span class="lineNum">     471 </span><span class="lineNoCov">          0 : void Escape_findEscape(myExp exp)</span>
+<span class="lineNum">     472 </span>            : {
+<a name="473"><span class="lineNum">     473 </span><span class="lineNoCov">          0 :     Escape_findEscape_Exp(1, exp);</span></a>
+<a name="474"><span class="lineNum">     474 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     475 </span>            : 
+<span class="lineNum">     476 </span><span class="lineCov">          8 : bool Escape_isVarEscaped(mySymbol varName)</span>
+<a name="477"><span class="lineNum">     477 </span>            : {</a>
+<span class="lineNum">     478 </span><span class="lineCov">          8 :     assert (!MySymbol_InvalidSymbol(varName));</span>
+<span class="lineNum">     479 </span><span class="lineCov">          8 :     return getVarEscape(varName);</span>
+<a name="480"><span class="lineNum">     480 </span>            : }</a>
+<a name="481"><span class="lineNum">     481 </span>            : </a>
+<span class="lineNum">     482 </span><span class="lineCov">          1 : myTable Escape_getEscapeEnvironment(void)</span>
+<span class="lineNum">     483 </span>            : {
+<span class="lineNum">     484 </span><span class="lineCov">          1 :     assert (g_escapeTable);</span>
+<a name="485"><span class="lineNum">     485 </span><span class="lineCov">          1 :     return g_escapeTable;</span></a>
+<a name="486"><span class="lineNum">     486 </span>            : }</a>
+<span class="lineNum">     487 </span>            : 
+<span class="lineNum">     488 </span><span class="lineCov">          1 : void Escape_setEscapeEnvironment(myTable escapeEnv)</span>
+<a name="489"><span class="lineNum">     489 </span>            : {</a>
+<span class="lineNum">     490 </span><span class="lineCov">          1 :     assert (escapeEnv);</span>
+<span class="lineNum">     491 </span><span class="lineCov">          1 :     g_escapeTable = escapeEnv;</span>
+<span class="lineNum">     492 </span><span class="lineCov">          1 : }</span>
+<a name="493"><span class="lineNum">     493 </span>            : </a>
+<span class="lineNum">     494 </span>            : /*
+<span class="lineNum">     495 </span>            : bool Escape_isVarUsed(mySymbol varName)
+<span class="lineNum">     496 </span>            : {
+<a name="497"><span class="lineNum">     497 </span>            :     assert (!MySymbol_InvalidSymbol(varName));</a>
+<span class="lineNum">     498 </span>            :     return Escape_getVarEntry(varName)-&gt;used;
+<span class="lineNum">     499 </span>            : }*/
 </pre>
       </td>
     </tr>

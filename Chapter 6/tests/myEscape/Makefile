@@ -5,7 +5,7 @@ OBJECTS := $(OUT_DIR)/test_myEscape.o       $(OUT_DIR)/myEscape.o\
             $(OUT_DIR)/testFixture.o        $(OUT_DIR)/abstractSyntaxMaker.o\
             $(OUT_DIR)/typeMaker.o          $(OUT_DIR)/myEnvironment.o\
             $(OUT_DIR)/myTemp.o             $(OUT_DIR)/myTranslate.o\
-            $(OUT_DIR)/myFrame_X86.o
+            $(OUT_DIR)/myFrame_X86.o        $(OUT_DIR)/typeChecker.o
 
 COMPILE_FLAGS := gcc -g -c -std=c99
 LINK := gcc -g

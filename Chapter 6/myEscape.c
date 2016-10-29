@@ -1,5 +1,7 @@
 #include "myEscape.h"
 #include "myEnvironment.h"
+#include "mySemantic.h"
+#include "typeChecker.h"
 
 #include <assert.h> //  for assert()
 #include <stdlib.h> //  for NULL
@@ -13,9 +15,12 @@
 //
 //  Escape conditions:
 //      1.passed by reference(record type, array type).
-//      2.accessed by nested functions.
-//      3.too big to fit in a register(record type).
-//      4.the variable is an array.
+//      2.too big to fit in a register(record type).
+//      3.the variable is an array.
+//      4.accessed by nested functions.
+//  Namely:
+//      variables of Record and Array type are escaped, and nested-used
+//      variables are escaped also.
 //
 
 ////////////////////////////////////////////////////////////////////////
@@ -25,7 +30,7 @@ typedef struct EscapeEntry_
 {
     //  there maybe redefined vars, so depth needed
     int     depth;
-    bool    used;
+    /*bool    used;*/
     bool    escape;
 }*  EscapeEntry;
 
@@ -62,8 +67,8 @@ static EscapeEntry makeDefaultEscapeEntry(int depth)
     assert (entry);
 
     entry->depth = depth;
-    entry->used = false;
-    entry->escape = true;
+    /*entry->used = false;*/
+    entry->escape = false;
     return entry;
 }
 
@@ -88,6 +93,26 @@ static bool getVarEscape(mySymbol varSymbol)
     return Escape_getVarEntry(varSymbol)->escape;
 }
 
+///////////////////////
+
+//  todo:
+static myType getActualType(myType type)
+{
+    while(isTypeNamed(type))
+    {
+        type = type->u.typeNamed->type;
+    }
+    return type;
+}
+
+static myType getActualVarTypeFromName(mySymbol varName)
+{
+    return getActualType(MyEnvironment_getVarType(
+            MyEnvironment_getVarOrFuncFromName(
+                MySemantic_getVarAndFuncEnvironment(),
+            varName)));
+} 
+
 ////////////////////////////////////////////////////////////////////////
 //                          forwards
 void Escape_findEscape_Exp(int depth, myExp exp);
@@ -96,7 +121,7 @@ void Escape_findEscape_Exp(int depth, myExp exp);
 //                          functions
 
 //  DO:
-//      check if variables used are in outer scopes, which escapes.
+//      check if variables used are in inner scopes, which escapes.
 void Escape_findEscape_LValueExp(int depth, myLValueExp lValueExp)
 {
     switch (lValueExp->kind)
@@ -239,55 +264,99 @@ void Escape_findEscape_AssignmentExp(int depth, myAssignmentExp assignmentExp)
 ///////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////
 
+static void getVarNameAndBody(
+    mySymbol* varNamePtr, myExp* varExpPtr, myVarDec varDec)
+{
+    switch (varDec->kind)
+    {
+        case ShortFormVar:
+            *varNamePtr = varDec->u.shortFormVar->name;
+            *varExpPtr = varDec->u.shortFormVar->exp;
+            break;
+        case LongFormVar:
+            *varNamePtr = varDec->u.longFormVar->name;
+            *varExpPtr = varDec->u.longFormVar->exp;
+            break;
+        default:        assert (false);
+    }
+}
+
+//  STATUS:
+//      Tested.
 void Escape_findEscape_VarDec(int depth, myVarDec varDec)
 {
-    #error "test here"
     if (varDec != NULL)
     {
-        EscapeEntry entry = makeDefaultEscapeEntry(depth);
-        switch (varDec->kind)
-        {
-            case ShortFormVar:
-                Escape_addVarEntry(varDec->u.shortFormVar->name, entry);
-                Escape_findEscape_Exp(depth, varDec->u.shortFormVar->exp);
-                break;
-            case LongFormVar:
-                Escape_addVarEntry(varDec->u.longFormVar->name, entry);
-                Escape_findEscape_Exp(depth, varDec->u.longFormVar->exp);
-                break;
-            default:        assert (false);
-        }
+        mySymbol varName;
+        myExp varExp;
+        getVarNameAndBody(&varName, &varExp, varDec);
+
+        Escape_addVarEntry(varName, makeDefaultEscapeEntry(depth));
+        myType varActualType = getActualVarTypeFromName(varName);
+        if (isTypeRecord(varActualType) || isTypeArray(varActualType))
+            setVarEscape(varName);
+
+        Escape_findEscape_Exp(depth, varExp);
     }
 }
 
 /////////////////////////
 
+//  STATUS:
+//      Tested.
 void Escape_findEscape_TypeDec(int depth, myTypeDec typeDec)
 {
-    //  todo:
+    //  no expressions used here, do nothing
 }
 
 /////////////////////////
 
+void treatFormalsAsEscapeVars(int depth, myTyFieldList fields)
+{ 
+    while (fields)
+    {
+        mySymbol varName = fields->field->varName;
+        Escape_addVarEntry(varName, makeDefaultEscapeEntry(depth));
+        setVarEscape(varName);
+
+        fields = fields->next;
+    }
+}
+
+//  NOTE:   This function should be used with BeginScope()--EndScope()
+//  or with a new table!!!
 void Escape_findEscape_FuncDec(int depth, myFuncDec funcDec)
 {
-    //  todo:
+    myTyFieldList formalFields;
+    myExp body;
+
+    switch (funcDec->kind)
+    {
+        case FunctionDec:
+        {
+            //  assume all formals escapes
+            formalFields = funcDec->u.functionDec->tyFieldList;
+            body = funcDec->u.functionDec->exp;
+            break;
+        }
+        case ProcedureDec:
+        {
+            //  assume all formals escapes
+            formalFields = funcDec->u.procedureDec->tyFieldList;
+            body = funcDec->u.procedureDec->exp;
+            break;
+        }
+        default:        assert (false);
+    }
+
+    treatFormalsAsEscapeVars(depth + 1, formalFields);
+    Escape_findEscape_Exp(depth + 1, body);
 }
 
 /////////////////////////
 
 void Escape_findEscape_Dec(int depth, myDec dec)
 {
-    //  todo:
-    /*
-            case VarDec:
-                Escape_addVarEntry(
-                    getVarSymbol(decs->dec->u.varDec),
-                    makeEscapeEntry(depth, false));
-                break;
-            case TypeDec:
-            case FuncDec:
-            default:    ;   //  do nothing*/
     switch (dec->kind)
     {
         case VarDec:
@@ -352,7 +421,7 @@ void Escape_findEscape_Exp(int depth, myExp exp)
 {
     switch (exp->kind)
     {
-        /*case LValueExp:
+        case LValueExp:
             return Escape_findEscape_LValueExp(depth, exp->u.lValueExp);
         case FunctionCallExp:
             //  parameters and return values is copied by value.  
@@ -364,7 +433,7 @@ void Escape_findEscape_Exp(int depth, myExp exp)
         case StringLiteralExp:
             return Escape_findEscape_StringLiteralExp(depth, exp->u.stringLiteralExp);
         case ArrayCreationExp:
-            return Escape_findEscape_ArrayCreation(depth, exp->u.arrayCreationExp);
+            return Escape_findEscape_ArrayCreationExp(depth, exp->u.arrayCreationExp);
         case RecordCreationExp:
             return Escape_findEscape_RecordCreationExp(depth, exp->u.recordCreationExp);
         case ArithmeticExp:
@@ -386,15 +455,15 @@ void Escape_findEscape_Exp(int depth, myExp exp)
         case BooleanOperateExp:
             return Escape_findEscape_BooleanOperateExp(depth, exp->u.booleanOperateExp);
         case AssignmentExp:
-            return Escape_findEscape_AssignmentExp(depth, exp->u.assignmentExp);*/
+            return Escape_findEscape_AssignmentExp(depth, exp->u.assignmentExp);
         case LetExp:
             return Escape_findEscape_LetExp(depth, exp->u.letExp);
-        /*case WhileExp:
+        case WhileExp:
             return Escape_findEscape_WhileExp(depth, exp->u.whileExp);
         case NegationExp:
             return Escape_findEscape_NegationExp(depth, exp->u.negationExp);
         case BreakExp:
-            return Escape_findEscape_BreakExp(depth, exp->u.breakExp);*/
+            return Escape_findEscape_BreakExp(depth, exp->u.breakExp);
 
         default:    assert (false);
     }
@@ -407,8 +476,27 @@ void Escape_findEscape(myExp exp)
     Escape_findEscape_Exp(1, exp);
 }
 
-bool Escape_isVarEscaped(mySymbol varSymbol)
+bool Escape_isVarEscaped(mySymbol varName)
 {
-    assert (!MySymbol_InvalidSymbol(varSymbol));
-    return getVarEscape(varSymbol);
+    assert (!MySymbol_InvalidSymbol(varName));
+    return getVarEscape(varName);
 }
+
+myTable Escape_getEscapeEnvironment(void)
+{
+    assert (g_escapeTable);
+    return g_escapeTable;
+}
+
+void Escape_setEscapeEnvironment(myTable escapeEnv)
+{
+    assert (escapeEnv);
+    g_escapeTable = escapeEnv;
+}
+
+/*
+bool Escape_isVarUsed(mySymbol varName)
+{
+    assert (!MySymbol_InvalidSymbol(varName));
+    return Escape_getVarEntry(varName)->used;
+}*/
