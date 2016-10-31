@@ -42,7 +42,7 @@ static myTable g_escapeTable = 0;
 ////////////////////////////////////////////////////////////////////////
 //                          private functions
 
-static void Escape_addVarEntry(mySymbol varSymbol, EscapeEntry entry)
+void Escape_addVarEntry(mySymbol varSymbol, EscapeEntry entry)
 {
     if (g_escapeTable == NULL) 
         g_escapeTable = MyTable_MakeEmptyTable_();
@@ -61,7 +61,7 @@ static EscapeEntry Escape_getVarEntry(mySymbol varSymbol)
     return entry;
 }
 
-static EscapeEntry makeDefaultEscapeEntry(int depth)
+EscapeEntry makeDefaultEscapeEntry(int depth)
 {
     EscapeEntry entry = makeMemoryBlock(sizeof(*entry), MEMORY_TYPE_NONE);
     assert (entry);
@@ -145,10 +145,27 @@ void Escape_findEscape_LValueExp(int depth, myLValueExp lValueExp)
 
 ///////////////////////////////////////////////////////////////////////
 
+//  REMARK:
+//      function parameters are all passed by value, so just find escapes
+//      in side the formal expressions.
 void Escape_findEscape_FunctionCallExp(
     int depth, myFunctionCallExp functionCallExp)
 {
-    //  todo:
+    switch (functionCallExp->kind)
+    {
+        case ParamFunctionCallExp:
+        {
+            myExpList exps =
+                functionCallExp->u.paramFunctionCallExp->expList;
+            while (exps)
+                Escape_findEscape_Exp(depth, exps->exp),
+                exps = exps->next;
+            break;
+        }
+        case NoParamFunctionCallExp:
+            break;  //  do nothing
+        default:        assert (false);
+    }
 }
 
 ////////////////////////////////////////////////////////////////////////

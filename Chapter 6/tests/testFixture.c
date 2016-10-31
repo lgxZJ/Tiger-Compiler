@@ -32,6 +32,17 @@ myPos makeOnePos()
     return pos;
 }
 
+myExp makeOneLetExp_IntVar(mySymbol varSymbol)
+{
+    return makeMyExp_Let(makeOnePos(), 
+        makeMyLetExp(
+            makeMyDecList(
+                makeMyDec_Var(makeOnePos(), makeMyVarDec_ShortForm(
+                    makeMyShortFormVar(varSymbol, makeOneExp_Integer()))),
+                NULL),
+            makeMyExpList(NULL, NULL)));
+}
+
 myExp makeOneExp_Integer(void)
 {
     return makeMyExp_IntegerLiteral(
@@ -82,7 +93,9 @@ myLValueExp makeOneLegalLValueExp_SimpleVar_Int(void)
     MySymbol_Enter(
         MySemantic_getVarAndFuncEnvironment(),
         variableName,
-        myEnvironment_makeVarEntry(makeType_Int()));
+        myEnvironment_makeVarEntry(
+            (Trans_myAccess)NULL,
+            makeType_Int()));
 
     return makeMyLValue(makeOnePos(), variableName, NULL);
 }
@@ -93,7 +106,8 @@ myLValueExp makeOneLegalLValueExp_Record(myType recordType)
     MySymbol_Enter(
         MySemantic_getVarAndFuncEnvironment(),
         variableName,
-        myEnvironment_makeVarEntry(recordType));
+        myEnvironment_makeVarEntry(
+            (Trans_myAccess)NULL,recordType));
 
     return makeMyLValue(makeOnePos(), variableName, NULL);
 }
