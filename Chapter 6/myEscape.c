@@ -127,7 +127,9 @@ void Escape_findEscape_LValueExp(int depth, myLValueExp lValueExp)
     switch (lValueExp->kind)
     {
         case SimpleVar:
-            if (isVarNestedUsed(depth, lValueExp->id))
+            if (isVarNestedUsed(depth, lValueExp->id) ||
+                isTypeRecord(getActualVarTypeFromName(lValueExp->id)) ||
+                isTypeArray(getActualVarTypeFromName(lValueExp->id)))
                 setVarEscape(lValueExp->id);
             break;
         case RecordField:
