@@ -53,6 +53,15 @@ static void resetTestEnv(void)
     Escape_setEscapeEnvironment(MySymbol_MakeNewTable());
 }
 
+
+///////////////////////        private forwards            ////////////////////////
+
+typedef struct EscapeEntry_* EscapeEntry;
+
+void        Escape_addVarEntry      (mySymbol varSymbol, EscapeEntry entry);
+EscapeEntry makeDefaultEscapeEntry  (int depth);
+
+
 //////////////////////         test helpers             //////////////////////
 
 static void recordCommon_(mySymbol varName, int depthDeclared)
@@ -149,6 +158,90 @@ static myFuncDec makeFuncDec_Function(mySymbol varOne, mySymbol varTwo)
             makeMyTyFieldList(makeMyTyField(varTwo, makeSymbol_String()), NULL)),
         makeSymbol_Int(),
         makeOneExp_Integer()));
+}
+
+static myExp makeExpBodyWithVar(mySymbol varName, int funcDepth)
+{
+    Escape_addVarEntry(varName, makeDefaultEscapeEntry(funcDepth));
+    FakeSemantic_addNewVarOrFunc(varName, makeType_Int());
+    return makeMyExp_LValue(makeOnePos(),
+        makeMyLValue(makeOnePos(), varName, NULL));
+}
+
+static myFuncDec makeFuncDecWithIntBody(mySymbol varOne, mySymbol varTwo, myExp body)
+{
+    return makeMyFuncDec_Function(makeMyFunctionDec(
+        MySymbol_MakeSymbol("procedureOne"),
+        makeMyTyFieldList(makeMyTyField(varOne, makeSymbol_Int()),
+            makeMyTyFieldList(makeMyTyField(varTwo, makeSymbol_String()), NULL)),
+        makeSymbol_Int(),
+        body));
+}
+
+////////////
+
+static myFunctionCallExp makeFuncCallExp(mySymbol varName, int depthDeclared)
+{
+    Escape_addVarEntry(varName, makeDefaultEscapeEntry(depthDeclared));
+    return makeMyFunctionCallExp_Param(
+        makeMyParamFunctionCallExp(
+            MySymbol_MakeSymbol("func"),
+            makeMyExpList(
+                makeMyExp_LValue(
+                    makeOnePos(), makeMyLValue(makeOnePos(), varName, NULL)),
+            NULL)));
+}
+
+////////////
+
+static myRecordCreationExp makeRecordCreationWithOneField(
+    mySymbol fieldName, int depth)
+{
+    mySymbol recordTypeName = MySymbol_MakeSymbol("recordTypeName");
+    mySymbol fieldNameInRecord = MySymbol_MakeSymbol("fieldName");
+    myType recordType = makeType_Record(makeType_TypeFieldList(
+        makeType_TypeField(fieldNameInRecord, makeType_Int()), NULL));
+    return makeMyRecordCreationExp_Field(
+        makeMyFieldRecordCreationExp(recordTypeName,
+            makeMyRecordFieldList(makeMyRecordField(
+                fieldNameInRecord, makeExpBodyWithVar(fieldName, depth)), NULL)));    
+}
+
+///////////
+
+static myIfThenElseExp makeIfthenElseExpWithOneVar(mySymbol varName, int depth)
+{
+    return makeMyIfThenElseExp(
+        makeExpBodyWithVar(varName, depth),
+        makeExpBodyWithVar(varName, depth),
+        makeExpBodyWithVar(varName, depth));
+}
+
+////////////
+
+static myIfThenExp makeIfthenExpWithOneVar(mySymbol varName, int varDepth)
+{
+    return makeMyIfThenExp(
+        makeExpBodyWithVar(varName, varDepth),
+        makeExpBodyWithVar(varName, varDepth));
+}
+
+////////////
+
+static myComparisonExp makeComparisonExpWithOneVar(mySymbol varName, int varDepth)
+{
+    return makeMyComparisonExp_Equal(
+        makeExpBodyWithVar(varName, varDepth),
+        makeExpBodyWithVar(varName, varDepth));
+}
+
+////////////
+
+static myBooleanOperateExp makeBooleanOperateWithOneVar(mySymbol varName, int varDepth)
+{
+    return makeMyBooleanOperateExp_And(
+        makeExpBodyWithVar(varName, varDepth),
+        makeExpBodyWithVar(varName, varDepth));
 }
 
 ///////////////////////        tests       ////////////////////////
@@ -306,6 +399,47 @@ void test_LValueExpArraySubscript_UnderDepth_WhetherEscape(
     CU_ASSERT_EQUAL(result, ifEscape);
 }
 
+////////////////////////////////////////////////////////////////////
+
+//  forwards
+void test_FunctionCallExp_UnderDepth_WhetherRealParamEscape(
+    int depthDeclared, int depthUsed, bool ifEscape);
+
+//////////
+
+void test_EscapeFindEscapeFunctionCallExp_ParamsNotNestedUsed(void)
+{
+    int depthDeclared = 1;
+    int depthUsed = depthDeclared;
+    test_FunctionCallExp_UnderDepth_WhetherRealParamEscape(
+        depthDeclared, depthUsed, false);
+}
+
+void test_EscapeFindEscapeFunctionCallExp_ParamsNestedUsed(void)
+{
+    int depthDeclared = 1;
+    int depthUsed = depthDeclared + 1;
+    test_FunctionCallExp_UnderDepth_WhetherRealParamEscape(
+        depthDeclared, depthUsed, true);
+}
+
+//  a parameterized test
+void test_FunctionCallExp_UnderDepth_WhetherRealParamEscape(
+    int depthDeclared, int depthUsed, bool ifEscape)
+{
+    resetTestEnv();
+    
+    mySymbol varName = MySymbol_MakeSymbol("varName");
+    FakeSemantic_addNewVarOrFunc(varName, makeType_Int());
+    myFunctionCallExp functionCall =
+        makeFuncCallExp(varName, depthDeclared);
+    
+    Escape_findEscape_FunctionCallExp(depthUsed, functionCall);
+
+    bool result = Escape_isVarEscaped(varName);
+    CU_ASSERT_EQUAL(result, ifEscape);
+}
+
 ///////////////////////////////////////////////////////////////////
 
 void test_EscapeFindEscapeVarDec_ShortFormVarInt_NotEscape(void)
@@ -390,7 +524,237 @@ void test_EscapeFindEscapeFuncDec_FunctionDec_FormalsAreEscaped(void)
     bool resultOne = Escape_isVarEscaped(varOne);
     bool resultTwo = Escape_isVarEscaped(varTwo);
     CU_ASSERT_EQUAL(resultOne, true);
-    CU_ASSERT_EQUAL(resultTwo, true);
+    CU_ASSERT_EQUAL(resultTwo, true);// todo:
+}
+
+void test_EscapeFindEscapeFuncDec_FuncDec_TreatBodyAsSingleExp(void)
+{
+    resetTestEnv();
+    int functionDepth = 2;
+    mySymbol varNameInFunc = MySymbol_MakeSymbol("varName");
+    myFuncDec funcDec = makeFuncDecWithIntBody(
+        MySymbol_MakeSymbol("varOne"),
+        MySymbol_MakeSymbol("varTwo"),
+        makeExpBodyWithVar(varNameInFunc, functionDepth));
+
+    int outerDepth = 1;
+    Escape_findEscape_FuncDec(1, funcDec);
+
+    bool result = Escape_isVarEscaped(varNameInFunc);
+    CU_ASSERT_EQUAL(result, false);
+}
+
+/////////////////////////////////////////////////////////////////
+
+void test_EscapeFindEscapeArrayCreation_ByDefault_TreatExpsAsSingleExp(void)
+{
+    resetTestEnv();
+    int depth = 1;
+    mySymbol arrayTypeName = MySymbol_MakeSymbol("arrayTypeName");
+    mySymbol varNameInLengthExp = MySymbol_MakeSymbol("varNameLength");
+    mySymbol varNameInInitialExp = MySymbol_MakeSymbol("varNameInitial");
+    myArrayCreationExp exp = makeMyArrayCreationExp(
+        arrayTypeName,
+        makeExpBodyWithVar(varNameInLengthExp, depth),
+        makeExpBodyWithVar(varNameInInitialExp, depth - 1));
+
+    Escape_findEscape_ArrayCreationExp(depth, exp);
+
+    bool resultInitial = Escape_isVarEscaped(varNameInInitialExp);
+    bool resultLength = Escape_isVarEscaped(varNameInLengthExp);
+    CU_ASSERT_EQUAL(resultInitial, true);
+    CU_ASSERT_EQUAL(resultLength, false);
+}
+
+/////////////////////////////////////////////////////////////////
+
+void test_EscapeFindEscapeRecordCreation_ByDefault_TreatExpsAsSingleExp(void)
+{
+    resetTestEnv();
+    int depth = 1;
+    mySymbol fieldNameOne = MySymbol_MakeSymbol("varNameOne");
+    mySymbol fieldNameTwo = MySymbol_MakeSymbol("varNameTwo");
+    myRecordCreationExp fieldVarNotNestedExp = makeRecordCreationWithOneField(
+        fieldNameOne, depth);
+    myRecordCreationExp fieldVarNestedExp = makeRecordCreationWithOneField(
+        fieldNameTwo, depth);
+    
+    Escape_findEscape_RecordCreationExp(depth, fieldVarNotNestedExp);
+    Escape_findEscape_RecordCreationExp(depth + 1, fieldVarNestedExp);
+
+    bool resultNotNested = Escape_isVarEscaped(fieldNameOne);
+    bool resultNested = Escape_isVarEscaped(fieldNameTwo);
+    CU_ASSERT_EQUAL(resultNotNested, false);
+    CU_ASSERT_EQUAL(resultNested, true);
+}
+
+/////////////////////////////////////////////////////////////////
+
+void test_EscapeFindEscapeArithmeticExp_ByDefault_TreatPartsAsSingleExps(void)
+{
+    resetTestEnv();
+    int depth = 0;
+    mySymbol varName = MySymbol_MakeSymbol("varName");
+    Escape_addVarEntry(varName, makeDefaultEscapeEntry(depth));
+    myArithmeticExp exp = makeMyArithmeticExp_Divide(
+        makeExpBodyWithVar(varName, depth), makeExpBodyWithVar(varName, depth));
+
+     Escape_findEscape_ArithmeticExp(depth, exp);
+
+     bool result = Escape_isVarEscaped(varName);
+     CU_ASSERT_EQUAL(result, false);
+}
+
+///////////////////////////////////////////////////////////////////////////
+
+void test_EscapeFindEscapeSequencingExp_ByDefault_TreatPartsAsSingleExps(void)
+{
+    resetTestEnv();
+    int depth = 0;
+    mySymbol varNameOne = MySymbol_MakeSymbol("varNameOne");
+    mySymbol varNameTwo = MySymbol_MakeSymbol("varNameTwo");
+    Escape_addVarEntry(varNameOne, makeDefaultEscapeEntry(depth));
+    Escape_addVarEntry(varNameTwo, makeDefaultEscapeEntry(depth));
+    mySequencingExp expOne = makeMySequencingExp(
+        makeExpBodyWithVar(varNameOne, depth),
+        makeExpBodyWithVar(varNameOne, depth),
+        makeMyExpList(makeExpBodyWithVar(varNameOne, depth), NULL));
+    mySequencingExp expTwo = makeMySequencingExp(
+        makeExpBodyWithVar(varNameTwo, depth),
+        makeExpBodyWithVar(varNameTwo, depth),
+        makeMyExpList(makeExpBodyWithVar(varNameTwo,depth), NULL));
+
+     Escape_findEscape_SequencingExp(depth, expOne);
+     Escape_findEscape_SequencingExp(depth + 1, expTwo);
+
+     bool resultOne = Escape_isVarEscaped(varNameOne);
+     bool resultTwo = Escape_isVarEscaped(varNameTwo);
+     CU_ASSERT_EQUAL(resultOne, false);
+     CU_ASSERT_EQUAL(resultTwo, true);
+}
+
+/////////////////////////////////////////////////////////////////
+
+void test_EscapeFindEscapeForExp_ByDefault_NestedVars_Escape(void)
+{
+    resetTestEnv();
+    int depth = 0;
+    mySymbol varName = MySymbol_MakeSymbol("varName");
+    mySymbol loopVarName = MySymbol_MakeSymbol("loop-var");
+    myForExp forExp = makeMyForExp(
+        loopVarName, makeOneExp_Integer(), makeOneExp_Integer(),
+        makeExpBodyWithVar(varName, depth));
+
+    Escape_findEscape_ForExp(depth, forExp);
+
+    bool result = Escape_isVarEscaped(varName);
+    CU_ASSERT_EQUAL(result, true);
+}
+
+void test_EscapeFindEscapeForExp_ByDefault_LoopVar_NotEscape(void)
+{
+    resetTestEnv();
+    int depth = 0;
+    mySymbol varName = MySymbol_MakeSymbol("varName");
+    mySymbol loopVarName = MySymbol_MakeSymbol("loop-var");
+    myForExp forExp = makeMyForExp(
+        loopVarName, makeOneExp_Integer(), makeOneExp_Integer(),
+        makeExpBodyWithVar(varName, depth));
+
+    Escape_findEscape_ForExp(depth, forExp);
+
+    bool result = Escape_isVarEscaped(loopVarName);
+    CU_ASSERT_EQUAL(result, false);
+}
+
+////////////////////////////////////////////////////////////////////
+
+
+
+void test_EscapeFindEscapeIfThenElseExp_ByDefault_TreatClausesAsSingleExps(void)
+{
+    resetTestEnv();
+    int depth = 0;
+    mySymbol varNameOne = MySymbol_MakeSymbol("var1");
+    mySymbol varNameTwo = MySymbol_MakeSymbol("var2");
+    myIfThenElseExp expVarNotNested = 
+        makeIfthenElseExpWithOneVar(varNameOne, depth);
+    myIfThenElseExp expVarNested =
+        makeIfthenElseExpWithOneVar(varNameTwo, depth);
+
+    Escape_findEscape_IfThenElseExp(depth, expVarNotNested);
+    Escape_findEscape_IfThenElseExp(depth + 1, expVarNested);
+
+    bool resultVarNotNested = Escape_isVarEscaped(varNameOne);
+    bool resultVarNested = Escape_isVarEscaped(varNameTwo);
+    CU_ASSERT_EQUAL(resultVarNotNested, false);
+    CU_ASSERT_EQUAL(resultVarNested, true);
+}
+
+///////////////////////////////////////////////////////////////////
+
+void test_EscapeFindEscapeIfThenExp_ByDefault_TreatClausesAsSingleExps(void)
+{
+    resetTestEnv();
+    int varDepth = 0;
+    mySymbol varNameOne = MySymbol_MakeSymbol("var1");
+    mySymbol varNameTwo = MySymbol_MakeSymbol("var2");
+    myIfThenExp expVarNotNested = 
+        makeIfthenExpWithOneVar(varNameOne, varDepth);
+    myIfThenExp expVarNested =
+        makeIfthenExpWithOneVar(varNameTwo, varDepth);
+
+    Escape_findEscape_IfThenExp(varDepth, expVarNotNested);
+    Escape_findEscape_IfThenExp(varDepth + 1, expVarNested);
+
+    bool resultVarNotNested = Escape_isVarEscaped(varNameOne);
+    bool resultVarNested = Escape_isVarEscaped(varNameTwo);
+    CU_ASSERT_EQUAL(resultVarNotNested, false);
+    CU_ASSERT_EQUAL(resultVarNested, true);
+}
+
+////////////////////////////////////////////////////////////////////
+
+void test_EscapeFindEscapeComparisonExp_ByDefault_TreatOperandsAsSingleExps(void)
+{
+    resetTestEnv();
+    int varDepth = 0;
+    mySymbol varNameOne = MySymbol_MakeSymbol("var1");
+    mySymbol varNameTwo = MySymbol_MakeSymbol("var2");
+    myComparisonExp expNotNested = 
+        makeComparisonExpWithOneVar(varNameOne, varDepth);
+    myComparisonExp expNested =
+        makeComparisonExpWithOneVar(varNameTwo, varDepth);
+
+    Escape_findEscape_ComparisonExp(varDepth, expNotNested);
+    Escape_findEscape_ComparisonExp(varDepth + 1, expNested);
+
+    bool resultNotNested = Escape_isVarEscaped(varNameOne);
+    bool resultNested = Escape_isVarEscaped(varNameTwo);
+    CU_ASSERT_EQUAL(resultNotNested, false);
+    CU_ASSERT_EQUAL(resultNested, true);
+}
+
+///////////////////////////////////////////////////////////////////
+
+void test_EscapeFindEscapeBooleanOperateExp_ByDefault_TreatOperandsAsSingleExps(void)
+{
+    resetTestEnv();
+    int varDepth = 0;
+    mySymbol varNameOne = MySymbol_MakeSymbol("var1");
+    mySymbol varNameTwo = MySymbol_MakeSymbol("var2");
+    myBooleanOperateExp expNotNested =
+        makeBooleanOperateWithOneVar(varNameOne, varDepth);
+    myBooleanOperateExp expNested =
+        makeBooleanOperateWithOneVar(varNameTwo, varDepth);
+
+    Escape_findEscape_BooleanOperateExp(varDepth, expNotNested);
+    Escape_findEscape_BooleanOperateExp(varDepth + 1, expNested);
+
+    bool resultNotNested = Escape_isVarEscaped(varNameOne);
+    bool resultNested = Escape_isVarEscaped(varNameTwo);
+    CU_ASSERT_EQUAL(resultNotNested, false);
+    CU_ASSERT_EQUAL(resultNested, true);
 }
 
 ///////////////////////         main        /////////////////////
@@ -409,12 +773,28 @@ int main()
         { "", test_EscapeFindEscapeLValueExp_SimpleVarArraySubscript_Escape },
         { "", test_EscapeFindEscapeRecordField_ByDefault_AlwaysEscape },
         { "", test_EscapeFindEscapeArraySubscript_ByDefault_AlwaysEscape },
+        
+        { "", test_EscapeFindEscapeFunctionCallExp_ParamsNotNestedUsed },
+        { "", test_EscapeFindEscapeFunctionCallExp_ParamsNestedUsed },
+        { "", test_EscapeFindEscapeFuncDec_FuncDec_TreatBodyAsSingleExp },
+
+        { "", test_EscapeFindEscapeArrayCreation_ByDefault_TreatExpsAsSingleExp },
+        { "", test_EscapeFindEscapeRecordCreation_ByDefault_TreatExpsAsSingleExp },
+        { "", test_EscapeFindEscapeArithmeticExp_ByDefault_TreatPartsAsSingleExps },
+        { "", test_EscapeFindEscapeSequencingExp_ByDefault_TreatPartsAsSingleExps },
+        { "", test_EscapeFindEscapeComparisonExp_ByDefault_TreatOperandsAsSingleExps },
+        { "", test_EscapeFindEscapeBooleanOperateExp_ByDefault_TreatOperandsAsSingleExps },
+
+        { "", test_EscapeFindEscapeForExp_ByDefault_NestedVars_Escape },
+        { "", test_EscapeFindEscapeForExp_ByDefault_LoopVar_NotEscape },
+
+        { "", test_EscapeFindEscapeIfThenElseExp_ByDefault_TreatClausesAsSingleExps },
+        { "", test_EscapeFindEscapeIfThenExp_ByDefault_TreatClausesAsSingleExps },
 
         { "", test_EscapeFindEscapeVarDec_ShortFormVarInt_NotEscape },
         { "", test_EscapeFindEscapeVarDec_LongFormVarInt_NotEscape },
         { "", test_EscapeFindEscapeVarDec_ShortFormVarRecord_Escape },
         { "", test_EscapeFindEscapeVarDec_ShortFormVarRecord_Escape },
-
         { "", test_EscapeFindEscapeFuncDec_ProcedureDec_FormalsAreEscaped },
         { "", test_EscapeFindEscapeFuncDec_FunctionDec_FormalsAreEscaped }
     };

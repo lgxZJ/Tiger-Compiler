@@ -44,5 +44,23 @@ void Escape_findEscape_VarDec(
     int depth, myVarDec varDec);
 void Escape_findEscape_FuncDec(
     int depth, myFuncDec funcDec);
+void Escape_findEscape_ArrayCreationExp(
+    int depth, myArrayCreationExp arrayCreationExp);
+void Escape_findEscape_RecordCreationExp(
+    int depth, myRecordCreationExp recordCreationExp);
+void Escape_findEscape_ArithmeticExp(
+    int depth, myArithmeticExp arithmeticExp);
+void Escape_findEscape_SequencingExp(
+    int depth, mySequencingExp sequencingExp);
+void Escape_findEscape_ForExp(
+    int depth, myForExp forExp);
+void Escape_findEscape_IfThenElseExp(
+    int depth, myIfThenElseExp ifThenElseExp);
+void Escape_findEscape_IfThenExp(
+    int depth, myIfThenExp ifThenExp);
+void Escape_findEscape_ComparisonExp(
+    int depth, myComparisonExp comparisonExp);
+void Escape_findEscape_BooleanOperateExp(
+    int depth, myBooleanOperateExp booleanOperateExp);
 
 #endif

@@ -172,7 +172,7 @@ void Escape_findEscape_FunctionCallExp(
 
 void Escape_findEscape_NilExp(int depth, myNilExp nilExp)
 {
-    //  todo:
+    //  do nothing
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -180,7 +180,7 @@ void Escape_findEscape_NilExp(int depth, myNilExp nilExp)
 void Escape_findEscape_IntegerLiteralExp(
     int depth, myIntegerLiteralExp integerLiteralExp)
 {
-    //  todo:
+    //  actually numeric constants, do nothing
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -188,7 +188,7 @@ void Escape_findEscape_IntegerLiteralExp(
 void Escape_findEscape_StringLiteralExp(
     int depth, myStringLiteralExp stringLiteralExp)
 {
-    //  todo:
+    //  actually string constants, do nothing
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -196,7 +196,8 @@ void Escape_findEscape_StringLiteralExp(
 void Escape_findEscape_ArrayCreationExp(
     int depth, myArrayCreationExp arrayCreationExp)
 {
-    //  todo:
+    Escape_findEscape_Exp(depth, arrayCreationExp->initial);
+    Escape_findEscape_Exp(depth, arrayCreationExp->length);
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -204,7 +205,21 @@ void Escape_findEscape_ArrayCreationExp(
 void Escape_findEscape_RecordCreationExp(
     int depth, myRecordCreationExp recordCreationExp)
 {
-    //  todo:
+    switch (recordCreationExp->kind)
+    {
+        case FieldRecordCreationExp:
+        {
+            myRecordFieldList fields =
+                recordCreationExp->u.fieldRecordCreationExp->fieldList;
+            while (fields)
+                Escape_findEscape_Exp(depth, fields->field->varValue),
+                fields = fields->next;
+            break;
+        }
+        case NoFieldRecordCreationExp:
+            break;  //  do nothing
+        default:        assert (false);
+    }
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -212,7 +227,8 @@ void Escape_findEscape_RecordCreationExp(
 void Escape_findEscape_ArithmeticExp(
     int depth, myArithmeticExp arithmeticExp)
 {
-    //  todo:
+    Escape_findEscape_Exp(depth, arithmeticExp->left);
+    Escape_findEscape_Exp(depth, arithmeticExp->right);
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -220,49 +236,65 @@ void Escape_findEscape_ArithmeticExp(
 void Escape_findEscape_ParenthesesExp(
     int depth, myParenthesesExp parenthesesExp)
 {
-    //  todo:
+    Escape_findEscape_Exp(depth, parenthesesExp->exp);
 }
 
 ///////////////////////////////////////////////////////////////////////
 
 void Escape_findEscape_NoValueExp(int depth, myNoValueExp noValueExp)
 {
-    //  todo:
+    //  do nothing
 }
 
 ///////////////////////////////////////////////////////////////////////
 
 void Escape_findEscape_SequencingExp(int depth, mySequencingExp sequencingExp)
 {
-    //  todo:
+    Escape_findEscape_Exp(depth, sequencingExp->exp1);
+    Escape_findEscape_Exp(depth, sequencingExp->exp2);
+
+    myExpList exps = sequencingExp->nextList;
+    while (exps)
+        Escape_findEscape_Exp(depth, exps->exp),
+        exps = exps->next;
 }
 
 ///////////////////////////////////////////////////////////////////////
 
+//  NOTE:   should be arounded with BeginScope() and EndScope().
 void Escape_findEscape_ForExp(int depth, myForExp forExp)
 {
-    //  todo:
+    //  set escape flags for loop-var
+    Escape_addVarEntry(forExp->varName, makeDefaultEscapeEntry(depth + 1));
+
+    Escape_findEscape_Exp(depth + 1, forExp->varRangeLow);
+    Escape_findEscape_Exp(depth + 1, forExp->varRangeHigh);
+    Escape_findEscape_Exp(depth + 1, forExp->bodyExp);
 }
 
 ///////////////////////////////////////////////////////////////////////
 
 void Escape_findEscape_IfThenElseExp(int depth, myIfThenElseExp ifThenElseExp)
 {
-    //  todo:
+    Escape_findEscape_Exp(depth, ifThenElseExp->exp1);
+    Escape_findEscape_Exp(depth, ifThenElseExp->exp2);
+    Escape_findEscape_Exp(depth, ifThenElseExp->exp3);
 }
 
 ///////////////////////////////////////////////////////////////////////
 
 void Escape_findEscape_IfThenExp(int depth, myIfThenExp ifThenExp)
 {
-    //  todo:
+    Escape_findEscape_Exp(depth, ifThenExp->exp1);
+    Escape_findEscape_Exp(depth, ifThenExp->exp2);
 }
 
 ///////////////////////////////////////////////////////////////////////
 
 void Escape_findEscape_ComparisonExp(int depth, myComparisonExp comparisonExp)
 {
-    //  todo:
+    Escape_findEscape_Exp(depth, comparisonExp->left);
+    Escape_findEscape_Exp(depth, comparisonExp->right);
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -270,14 +302,17 @@ void Escape_findEscape_ComparisonExp(int depth, myComparisonExp comparisonExp)
 void Escape_findEscape_BooleanOperateExp(
     int depth, myBooleanOperateExp booleanOperateExp)
 {
-    //  todo:
+    Escape_findEscape_Exp(depth, booleanOperateExp->left);
+    Escape_findEscape_Exp(depth, booleanOperateExp->right);
 }
 
 ///////////////////////////////////////////////////////////////////////
 
 void Escape_findEscape_AssignmentExp(int depth, myAssignmentExp assignmentExp)
 {
-    //  todo:
+    //  the let operand of this expression may be nested, so check it also.
+    Escape_findEscape_Exp(depth, assignmentExp->exp);
+    Escape_findEscape_LValueExp(depth, assignmentExp->lValueExp);
 }
 
 ///////////////////////////////////////////////////////////////////////
