@@ -36,10 +36,21 @@ bool Escape_isVarUsed(mySymbol varName);*/
 
 //////////////////////////////////////////////////////////////////////////////
 
+//  todo:
 void Escape_findEscape_LValueExp(
     int depth, myLValueExp lValueExp);
 void Escape_findEscape_FunctionCallExp(
     int depth, myFunctionCallExp functionCallExp);
+void Escape_findEscape_NilExp(
+    int depth, myNilExp nilExp);
+void Escape_findEscape_IntegerLiteralExp(
+    int depth, myIntegerLiteralExp integerLiteralExp);
+void Escape_findEscape_StringLiteralExp(
+    int depth, myStringLiteralExp stringLiteralExp);
+void Escape_findEscape_ParenthesesExp(
+    int depth, myParenthesesExp parenthesesExp);
+void Escape_findEscape_NoValueExp(
+    int depth, myNoValueExp noValueExp);
 void Escape_findEscape_VarDec(
     int depth, myVarDec varDec);
 void Escape_findEscape_FuncDec(

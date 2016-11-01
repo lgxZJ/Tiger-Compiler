@@ -7,8 +7,11 @@
 #include <stdlib.h> //  for NULL
 
 /////////////////////////////////////////////////////////////////////
-//      This module assumes all phases will passed, then it can find
-//      the escape conditions of variables.
+//  NOTE:
+//      This module assumes should take into account when abstract
+//      syntaxes are illegal, because escape-finding must be made 
+//      before semantic analysis begins, every variable have to be
+//      `found` everywhere to decide whether it escapes. 
 /////////////////////////////////////////////////////////////////////
 
 
@@ -98,6 +101,8 @@ static bool getVarEscape(mySymbol varSymbol)
 //  todo:
 static myType getActualType(myType type)
 {
+    if (type == NULL)   return NULL;
+
     while(isTypeNamed(type))
     {
         type = type->u.typeNamed->type;
@@ -107,10 +112,12 @@ static myType getActualType(myType type)
 
 static myType getActualVarTypeFromName(mySymbol varName)
 {
-    return getActualType(MyEnvironment_getVarType(
-            MyEnvironment_getVarOrFuncFromName(
-                MySemantic_getVarAndFuncEnvironment(),
-            varName)));
+    myVarAndFuncEntry entry = MyEnvironment_getVarOrFuncFromName(
+                MySemantic_getVarAndFuncEnvironment(), varName);
+    if (entry == NULL)
+        return NULL;
+    else
+        return getActualType(MyEnvironment_getVarType(entry));
 } 
 
 ////////////////////////////////////////////////////////////////////////
@@ -127,11 +134,16 @@ void Escape_findEscape_LValueExp(int depth, myLValueExp lValueExp)
     switch (lValueExp->kind)
     {
         case SimpleVar:
-            if (isVarNestedUsed(depth, lValueExp->id) ||
-                isTypeRecord(getActualVarTypeFromName(lValueExp->id)) ||
-                isTypeArray(getActualVarTypeFromName(lValueExp->id)))
+        {
+            myType actualType = getActualVarTypeFromName(lValueExp->id);
+            if (actualType == NULL)
+                return;
+            else if (isVarNestedUsed(depth, lValueExp->id) ||
+                    isTypeRecord(actualType) ||
+                    isTypeArray(actualType))
                 setVarEscape(lValueExp->id);
             break;
+        }
         case RecordField:
             //  record is always referenced by pointer
             //  down through
@@ -348,9 +360,10 @@ void Escape_findEscape_VarDec(int depth, myVarDec varDec)
 
         Escape_addVarEntry(varName, makeDefaultEscapeEntry(depth));
         myType varActualType = getActualVarTypeFromName(varName);
+        if (varActualType == NULL)  return;
+
         if (isTypeRecord(varActualType) || isTypeArray(varActualType))
             setVarEscape(varName);
-
         Escape_findEscape_Exp(depth, varExp);
     }
 }
@@ -378,8 +391,7 @@ void treatFormalsAsEscapeVars(int depth, myTyFieldList fields)
     }
 }
 
-//  NOTE:   This function should be used with BeginScope()--EndScope()
-//  or with a new table!!!
+//  NOTE:
 void Escape_findEscape_FuncDec(int depth, myFuncDec funcDec)
 {
     myTyFieldList formalFields;
@@ -503,7 +515,10 @@ void Escape_findEscape_Exp(int depth, myExp exp)
         case SequencingExp:
             return Escape_findEscape_SequencingExp(depth, exp->u.sequencingExp);
         case ForExp:
-            return Escape_findEscape_ForExp(depth, exp->u.forExp);
+            MySymbol_BeginScope(Escape_getEscapeEnvironment());
+            Escape_findEscape_ForExp(depth, exp->u.forExp);
+            MySymbol_EndScope(Escape_getEscapeEnvironment());
+            return;
         case IfThenElseExp:
             return Escape_findEscape_IfThenElseExp(depth, exp->u.ifThenElseExp);
         case IfThenExp:
@@ -515,7 +530,10 @@ void Escape_findEscape_Exp(int depth, myExp exp)
         case AssignmentExp:
             return Escape_findEscape_AssignmentExp(depth, exp->u.assignmentExp);
         case LetExp:
-            return Escape_findEscape_LetExp(depth, exp->u.letExp);
+            MySymbol_BeginScope(Escape_getEscapeEnvironment());
+            Escape_findEscape_LetExp(depth, exp->u.letExp);
+            MySymbol_EndScope(Escape_getEscapeEnvironment());
+            return;
         case WhileExp:
             return Escape_findEscape_WhileExp(depth, exp->u.whileExp);
         case NegationExp:
