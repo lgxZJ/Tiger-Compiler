@@ -62,5 +62,13 @@ void Escape_findEscape_ComparisonExp(
     int depth, myComparisonExp comparisonExp);
 void Escape_findEscape_BooleanOperateExp(
     int depth, myBooleanOperateExp booleanOperateExp);
+void Escape_findEscape_AssignmentExp(
+    int depth, myAssignmentExp assignmentExp);
+void Escape_findEscape_LetExp(
+    int depth, myLetExp letExp);
+void Escape_findEscape_WhileExp(
+    int depth, myWhileExp whileExp);
+void Escape_findEscape_NegationExp(
+    int depth, myNegationExp negationExp);
 
 #endif

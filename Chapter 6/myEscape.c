@@ -261,15 +261,16 @@ void Escape_findEscape_SequencingExp(int depth, mySequencingExp sequencingExp)
 
 ///////////////////////////////////////////////////////////////////////
 
-//  NOTE:   should be arounded with BeginScope() and EndScope().
+//  NOTE:   must be arounded with BeginScope()--EndScope(), because
+//  is decalred a new loop variable in a new scope.
 void Escape_findEscape_ForExp(int depth, myForExp forExp)
 {
     //  set escape flags for loop-var
     Escape_addVarEntry(forExp->varName, makeDefaultEscapeEntry(depth + 1));
 
-    Escape_findEscape_Exp(depth + 1, forExp->varRangeLow);
-    Escape_findEscape_Exp(depth + 1, forExp->varRangeHigh);
-    Escape_findEscape_Exp(depth + 1, forExp->bodyExp);
+    Escape_findEscape_Exp(depth, forExp->varRangeLow);
+    Escape_findEscape_Exp(depth, forExp->varRangeHigh);
+    Escape_findEscape_Exp(depth, forExp->bodyExp);
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -441,6 +442,8 @@ static void Escape_findEscape_Exps(int depth, myExpList exps)
     }
 }
 
+//  NOTE:   must be arounded with BeginScope()--EndScope(), because
+//  is decalred variables, types and functions in a new scope.
 void Escape_findEscape_LetExp(int depth, myLetExp letExp)
 {
    Escape_findEscape_Decs(depth, letExp->decList);
@@ -452,21 +455,22 @@ void Escape_findEscape_LetExp(int depth, myLetExp letExp)
 
 void Escape_findEscape_WhileExp(int depth, myWhileExp whileExp)
 {
-    //  todo:
+    Escape_findEscape_Exp(depth, whileExp->whileExp);
+    Escape_findEscape_Exp(depth, whileExp->bodyExp);
 }
 
 ///////////////////////////////////////////////////////////////////////
 
 void Escape_findEscape_NegationExp(int depth, myNegationExp negationExp)
 {
-    //  todo:
+    Escape_findEscape_Exp(depth, negationExp->exp);
 }
 
 ///////////////////////////////////////////////////////////////////////
 
 void Escape_findEscape_BreakExp(int depth, myBreakExp breakExp)
 {
-    //  todo:
+    //  do nothing
 }
 
 ///////////////////////////////////////////////////////////////////////
