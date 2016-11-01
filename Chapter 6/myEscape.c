@@ -416,8 +416,12 @@ void Escape_findEscape_FuncDec(int depth, myFuncDec funcDec)
         default:        assert (false);
     }
 
+    MySymbol_BeginScope(Escape_getEscapeEnvironment());
+
     treatFormalsAsEscapeVars(depth + 1, formalFields);
     Escape_findEscape_Exp(depth + 1, body);
+
+    MySymbol_EndScope(Escape_getEscapeEnvironment());
 }
 
 /////////////////////////
