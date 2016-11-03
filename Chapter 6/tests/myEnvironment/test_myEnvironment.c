@@ -105,6 +105,42 @@ void test_myEnvironmentBaseType_BeDefault_ContainsIntuitiveTypes(void)
     }
 }
 
+void test_MyEnvironmentUpdateFuncLevel_ByDefault_GetWhatUpdated(void)
+{
+    myTable table = MySymbol_MakeNewTable();
+    mySymbol funcName = MySymbol_MakeSymbol("asas");
+    myVarAndFuncEntry funcEntry = myEnvironment_makeFuncEntry(
+        (Trans_myLevel)NULL, (myLabel)NULL,
+        (myTypeList)NULL, (myType)NULL);
+    MyEnvironment_addNewVarOrFunc(table, funcName, funcEntry);
+
+    Trans_myLevel fakeLevel = (Trans_myLevel)12;
+    MyEnvironment_updateFuncLevel(table, funcName, fakeLevel);
+
+    Trans_myLevel levelGot = MyEnvironment_getFuncLevel(
+        MyEnvironment_getVarOrFuncFromName(table, funcName));
+    CU_ASSERT_EQUAL(levelGot, fakeLevel);
+}
+
+void test_MyEnvironmentUpdateFuncLabel_ByDefault_GetWhatUpdated(void)
+{
+    myTable table = MySymbol_MakeNewTable();
+    mySymbol funcName = MySymbol_MakeSymbol("asas");
+    myVarAndFuncEntry funcEntry = myEnvironment_makeFuncEntry(
+        (Trans_myLevel)NULL, (myLabel)NULL,
+        (myTypeList)NULL, (myType)NULL);
+    MyEnvironment_addNewVarOrFunc(table, funcName, funcEntry);
+
+    myLabel fakeLabel = (myLabel)12;
+    MyEnvironment_updateFuncLabel(table, funcName, fakeLabel);
+
+    myLabel labelGot = MyEnvironment_getFuncLabel(
+        MyEnvironment_getVarOrFuncFromName(table, funcName));
+    CU_ASSERT_EQUAL(labelGot, fakeLabel);
+}
+
+//////////////////////////////////////////////////////////////////////
+
 int main (int argc, char* argv[])
 {
     CU_pSuite suite;
@@ -118,7 +154,9 @@ int main (int argc, char* argv[])
         { "", test_addNewType_ByDefault_AddOne },
         { "", test_MyEnvironmentsetTypeFromName_ValidSet_ReturnTrueAndTheOneSetted },
         { "", test_myEnvironmentBaseVarAndFunc_BeDefault_ContainPredefinedFuncs },
-        { "", test_myEnvironmentBaseType_BeDefault_ContainsIntuitiveTypes }
+        { "", test_myEnvironmentBaseType_BeDefault_ContainsIntuitiveTypes },
+        { "", test_MyEnvironmentUpdateFuncLevel_ByDefault_GetWhatUpdated },
+        { "", test_MyEnvironmentUpdateFuncLabel_ByDefault_GetWhatUpdated }
     };
     if (!addTests(&suite, tests, sizeof(tests) / sizeof(tests[0])))
         return -1;

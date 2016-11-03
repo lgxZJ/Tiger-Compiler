@@ -54,7 +54,6 @@ myVarAndFuncEntry MyEnvironment_getVarOrFuncFromName(
 myType            MyEnvironment_getTypeFromName(
     myTable typeEnv, mySymbol typeName);
 
-// todo:    refactor mySemantic module
 myTypeList  MyEnvironment_getFuncFormalTypes(myVarAndFuncEntry funcEntry);
 myType      MyEnvironment_getFuncReturnType(myVarAndFuncEntry funcEntry);
 
@@ -65,6 +64,28 @@ myType MyEnvironment_getVarType(myVarAndFuncEntry varEntry);
 //      otherwise, it returns true.
 bool MyEnvironment_setTypeFromName(
     myTable varAndFuncEnv, mySymbol typeName, myType type);
+
+/**
+ *  @brief      update the level of function(Needed by recursive processing).
+ *
+ *  @param[in]  varAndFuncEnv   the environment from which to look for functions.
+ *  @param[in]  funcName        the name of function.
+ *  @param[in]  level           the value of level to update.
+ *  @return     this function has no return values.     
+ */
+void MyEnvironment_updateFuncLevel(
+    myTable varAndFuncEnv, mySymbol funcName, Trans_myLevel level);
+
+/**
+ *  @brief      update the label of function(Needed by recursive processing).
+ *
+ *  @param[in]  varAndFuncEnv   the environment from which to look for functions.
+ *  @param[in]  funcName        the name of function.
+ *  @param[in]  label           the value of label to update.
+ *  @return     this function has no return values.     
+ */
+void MyEnvironment_updateFuncLabel(
+    myTable varAndFuncEnv, mySymbol funcName, myLabel label);
 
 /**
  *  @return A symbol table containing predefined functions and 

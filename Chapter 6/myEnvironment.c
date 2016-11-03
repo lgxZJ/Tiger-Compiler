@@ -118,6 +118,30 @@ bool MyEnvironment_setTypeFromName(
     return MySymbol_Set(varAndFuncEnv, typeName, type);
 }
 
+void MyEnvironment_updateFuncLevel(
+    myTable varAndFuncEnv, mySymbol funcName, Trans_myLevel level)
+{
+    assert (varAndFuncEnv && level);
+    assert (!MySymbol_InvalidSymbol(funcName));
+
+    myVarAndFuncEntry entry = MySymbol_Look(varAndFuncEnv, funcName);
+    assert (entry && myEnvironment_isFuncEntry(entry));
+
+    entry->u.funcEntry.level = level;
+}
+
+void MyEnvironment_updateFuncLabel(
+    myTable varAndFuncEnv, mySymbol funcName, myLabel label)
+{
+    assert (varAndFuncEnv && label);
+    assert (!MySymbol_InvalidSymbol(funcName));
+
+    myVarAndFuncEntry entry = MySymbol_Look(varAndFuncEnv, funcName);
+    assert (entry && myEnvironment_isFuncEntry(entry));
+
+    entry->u.funcEntry.label = label;
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 
