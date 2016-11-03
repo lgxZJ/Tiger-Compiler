@@ -32,9 +32,9 @@
 typedef struct EscapeEntry_
 {
     //  there maybe redefined vars, so depth needed
-    int     depth;
+    int         depth;
     /*bool    used;*/
-    bool    escape;
+    bool*       escapePtr;
 }*  EscapeEntry;
 
 ////////////////////////////////////////////////////////////////////////
@@ -64,14 +64,15 @@ static EscapeEntry Escape_getVarEntry(mySymbol varSymbol)
     return entry;
 }
 
-EscapeEntry makeDefaultEscapeEntry(int depth)
+EscapeEntry makeEscapeEntry(int depth, bool* escapePtr)
 {
     EscapeEntry entry = makeMemoryBlock(sizeof(*entry), MEMORY_TYPE_NONE);
     assert (entry);
 
     entry->depth = depth;
     /*entry->used = false;*/
-    entry->escape = false;
+    entry->escapePtr = escapePtr;
+    *escapePtr = false;
     return entry;
 }
 
@@ -88,19 +89,19 @@ static bool isVarNestedUsed(int depth, mySymbol varSymbol)
 
 static void setVarEscape(mySymbol varSymbol)
 {
-    Escape_getVarEntry(varSymbol)->escape = true;
+    (*Escape_getVarEntry(varSymbol)->escapePtr) = true;
 }
 
 static bool getVarEscape(mySymbol varSymbol)
 {
-    return Escape_getVarEntry(varSymbol)->escape;
+    return *Escape_getVarEntry(varSymbol)->escapePtr;
 }
 
 ///////////////////////
 
-//  todo:
 static myType getActualType(myType type)
 {
+    //  encountered a semantic error!
     if (type == NULL)   return NULL;
 
     while(isTypeNamed(type))
@@ -278,7 +279,8 @@ void Escape_findEscape_SequencingExp(int depth, mySequencingExp sequencingExp)
 void Escape_findEscape_ForExp(int depth, myForExp forExp)
 {
     //  set escape flags for loop-var
-    Escape_addVarEntry(forExp->varName, makeDefaultEscapeEntry(depth + 1));
+    //  todo:  
+    //Escape_addVarEntry(forExp->varName, makeEscapeEntry(depth + 1));
 
     Escape_findEscape_Exp(depth, forExp->varRangeLow);
     Escape_findEscape_Exp(depth, forExp->varRangeHigh);
@@ -358,7 +360,11 @@ void Escape_findEscape_VarDec(int depth, myVarDec varDec)
         myExp varExp;
         getVarNameAndBody(&varName, &varExp, varDec);
 
-        Escape_addVarEntry(varName, makeDefaultEscapeEntry(depth));
+        bool* escapePtr = varDec->kind == LongFormVar ?
+            &(varDec->u.longFormVar->escape) :
+            &(varDec->u.shortFormVar->escape);
+        Escape_addVarEntry(varName, makeEscapeEntry(depth, escapePtr));
+
         myType varActualType = getActualVarTypeFromName(varName);
         if (varActualType == NULL)  return;
 
@@ -384,8 +390,9 @@ void treatFormalsAsEscapeVars(int depth, myTyFieldList fields)
     while (fields)
     {
         mySymbol varName = fields->field->varName;
-        Escape_addVarEntry(varName, makeDefaultEscapeEntry(depth));
-        setVarEscape(varName);
+        //  todo:
+        //  Escape_addVarEntry(varName, makeEscapeEntry(depth, ));
+        //setVarEscape(varName);
 
         fields = fields->next;
     }
