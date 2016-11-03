@@ -61,6 +61,12 @@ bool MySemantic_Dec_Func_Function(
         MySemantic_Dec_Func_Function_TwoPass(functionDec);
 }
 
+////////////////////////////////////////////////////////////////////////
+//                  forwards
+
+void MySemantic_enterNewLevel(Trans_myLevel newLevel);
+void MySemantic_leaveNewLevel(void);
+
 ///////////////////////////////////////////////////////////////////////
 
 void test_GetterAndSetter_GetWhatSetted(void)
@@ -1879,6 +1885,7 @@ void test_MySemanticDecFuncProcedure_ParamTypeNotDefined_ReturnFalse(void)
 
 void test_MySemanticDecFuncProcedure_BodyExpNotLegal_ReturnFalse(void)
 {
+    MySemantic_enterNewLevel(Trans_outermostLevel());
     mySymbol fieldTypeName = MySymbol_MakeSymbol("int");
     myTyFieldList funcFields = makeMyTyFieldList(makeMyTyField(
         makeOneSymbol(), fieldTypeName),
@@ -1887,10 +1894,14 @@ void test_MySemanticDecFuncProcedure_BodyExpNotLegal_ReturnFalse(void)
 
     test_IllegalProcedureDec_ReturnFalse(
         funcFields, illegalBodyExp);
+    
+    //  clean up
+    MySemantic_leaveNewLevel();
 }
 
 void test_MySemanticDecFuncProcedure_BodyExpNotNoReturn_ReturnFalse(void)
 {
+    MySemantic_enterNewLevel(Trans_outermostLevel());
     mySymbol fieldTypeName = MySymbol_MakeSymbol("int");
     myTyFieldList funcFields = makeMyTyFieldList(makeMyTyField(
         makeOneSymbol(), fieldTypeName),
@@ -1899,12 +1910,16 @@ void test_MySemanticDecFuncProcedure_BodyExpNotNoReturn_ReturnFalse(void)
 
     test_IllegalProcedureDec_ReturnFalse(
         funcFields, bodyExpNotNoReturn);
+    
+    //  clean up
+    MySemantic_leaveNewLevel();
 }
 
 void test_MySemanticDecFuncProcedure_LegalDec_ReturnTrue(void)
 {
     MySemantic_setVarAndFuncEnvironment(myEnvironment_BaseVarAndFunc());
     MySemantic_setTypeEnvironment(myEnvironment_BaseType());
+    MySemantic_enterNewLevel(Trans_outermostLevel());
 
     mySymbol fieldTypeName = MySymbol_MakeSymbol("int");
     myTyFieldList funcFields = makeMyTyFieldList(makeMyTyField(
@@ -1920,12 +1935,16 @@ void test_MySemanticDecFuncProcedure_LegalDec_ReturnTrue(void)
         MySemantic_Dec_Func_Procedure(procedureDec);
 
     CU_ASSERT_EQUAL(result, true);
+
+    //  clean up
+    MySemantic_leaveNewLevel();
 }
 
 void test_MySemanticDecFuncProcedure_LegalDec_FormalsCanBeUsedInBody(void)
 {
     MySemantic_setVarAndFuncEnvironment(myEnvironment_BaseVarAndFunc());
     MySemantic_setTypeEnvironment(myEnvironment_BaseType());
+    MySemantic_enterNewLevel(Trans_outermostLevel());
 
     mySymbol formalName = MySymbol_MakeSymbol("formal");
     myExp formalUsedBody = makeMyExp_Assignment(makeOnePos(),
@@ -1943,12 +1962,16 @@ void test_MySemanticDecFuncProcedure_LegalDec_FormalsCanBeUsedInBody(void)
         MySemantic_Dec_Func_Procedure(procedureDec);
 
     CU_ASSERT_EQUAL(result, true);
+
+    //  clean up
+    MySemantic_leaveNewLevel();
 }
 
 void test_MySemanticDecFuncProcedure_LegalDec_FuncAdded(void)
 {
     MySemantic_setVarAndFuncEnvironment(myEnvironment_BaseVarAndFunc());
     MySemantic_setTypeEnvironment(myEnvironment_BaseType());
+    MySemantic_enterNewLevel(Trans_outermostLevel());
 
     mySymbol fieldTypeName = MySymbol_MakeSymbol("int");
     myTyFieldList funcFields = makeMyTyFieldList(makeMyTyField(
@@ -1971,6 +1994,9 @@ void test_MySemanticDecFuncProcedure_LegalDec_FuncAdded(void)
     CU_ASSERT(myEnvironment_isFuncEntry(funcEntry));
     CU_ASSERT(isTypeInt(MyEnvironment_getFuncFormalTypes(funcEntry)->head));
     CU_ASSERT(isTypeNoReturn(MyEnvironment_getFuncReturnType(funcEntry)));
+
+    //  clean up
+    MySemantic_leaveNewLevel();
 }
 
 //  a parameterized test
@@ -2058,6 +2084,7 @@ void test_MySemanticDecFuncFunction_LegalFunctionDec_ReturnTrueAndFunctionAdded(
 {
     MySemantic_setVarAndFuncEnvironment(myEnvironment_BaseVarAndFunc());
     MySemantic_setTypeEnvironment(myEnvironment_BaseType());
+    MySemantic_enterNewLevel(Trans_outermostLevel());
     myFunctionDec dec = makeMyFunctionDec(
         makeOneSymbol(),
         makeMyTyFieldList(makeMyTyField(makeOneSymbol(), makeSymbol_Int()), NULL),
@@ -2074,12 +2101,16 @@ void test_MySemanticDecFuncFunction_LegalFunctionDec_ReturnTrueAndFunctionAdded(
     CU_ASSERT(myEnvironment_isFuncEntry(funcEntry));
     CU_ASSERT(isTypeInt(MyEnvironment_getFuncFormalTypes(funcEntry)->head));
     CU_ASSERT(isTypeInt(MyEnvironment_getFuncReturnType(funcEntry)));
+
+    //  clean up
+    MySemantic_leaveNewLevel();
 }
 
 void test_MySemanticDecFuncFunction_LegalFunctionDec_FormalsCanBeUsedInBody(void)
 {
     MySemantic_setVarAndFuncEnvironment(myEnvironment_BaseVarAndFunc());
     MySemantic_setTypeEnvironment(myEnvironment_BaseType());
+    MySemantic_enterNewLevel(Trans_outermostLevel());
     mySymbol formalVarName = MySymbol_MakeSymbol("formal var");
     
     myFunctionDec dec = makeMyFunctionDec(
@@ -2091,12 +2122,16 @@ void test_MySemanticDecFuncFunction_LegalFunctionDec_FormalsCanBeUsedInBody(void
     bool result = MySemantic_Dec_Func_Function(dec);
 
     CU_ASSERT_EQUAL(result, true);    
+
+    //  clean up
+    MySemantic_leaveNewLevel();
 }
 
 void test_MySemanticDecFuncFunction_NilBodyOfRecordReturnType_Succeed(void)
 {
     MySemantic_setVarAndFuncEnvironment(myEnvironment_BaseVarAndFunc());
     MySemantic_setTypeEnvironment(myEnvironment_BaseType());
+    MySemantic_enterNewLevel(Trans_outermostLevel());
     mySymbol recordTypeName = MySymbol_MakeSymbol("record type");
     makeAndAddOneType_NoFieldRecord(
         recordTypeName);
@@ -2109,6 +2144,9 @@ void test_MySemanticDecFuncFunction_NilBodyOfRecordReturnType_Succeed(void)
     bool result = MySemantic_Dec_Func_Function(dec);
 
     CU_ASSERT_EQUAL(result, true);
+
+    //  clean up
+    MySemantic_leaveNewLevel();
 }
 
 //  a parameterized test
@@ -2131,6 +2169,7 @@ void test_MySemanticDecs_DecsContainsIllegalDec_ReturnFalse(void)
 {
     MySemantic_setVarAndFuncEnvironment(myEnvironment_BaseVarAndFunc());
     MySemantic_setTypeEnvironment(myEnvironment_BaseType());
+    MySemantic_enterNewLevel(Trans_outermostLevel());
 
     myVarDec varDec = makeMyVarDec_ShortForm(
         makeMyShortFormVar(makeOneSymbol(), makeOneExp_Integer()));
@@ -2149,6 +2188,9 @@ void test_MySemanticDecs_DecsContainsIllegalDec_ReturnFalse(void)
     bool result = MySemantic_Decs(decs);
 
     CU_ASSERT_EQUAL(result, false);
+
+    //  clean up
+    MySemantic_leaveNewLevel();
 }
 
 void test_MySemanticDecs_ConsecutiveSameFuncOrTypeDecs_ReturnFalse(void)
@@ -2182,6 +2224,7 @@ void test_MySemanticDecs_NotConsecutiveSameFuncOrTypeDecs_ReturnTrue(void)
 {
     MySemantic_setVarAndFuncEnvironment(myEnvironment_BaseVarAndFunc());
     MySemantic_setTypeEnvironment(myEnvironment_BaseType());
+    MySemantic_enterNewLevel(Trans_outermostLevel());
 
     myFuncDec funcDec = makeMyFuncDec_Function(
         makeMyFunctionDec(MySymbol_MakeSymbol("funcname"), NULL, makeSymbol_String(), makeOneExp_String()));
@@ -2207,12 +2250,16 @@ void test_MySemanticDecs_NotConsecutiveSameFuncOrTypeDecs_ReturnTrue(void)
 
     CU_ASSERT_EQUAL(resultFunc, true);
     CU_ASSERT_EQUAL(resultType, true);
+
+    //  clean up
+    MySemantic_leaveNewLevel();
 }
 
 void test_MySemanticDecs_ConsecutiveSameVarDecs_ReturnTrue(void)
 {
     MySemantic_setVarAndFuncEnvironment(myEnvironment_BaseVarAndFunc());
     MySemantic_setTypeEnvironment(myEnvironment_BaseType());
+    MySemantic_enterNewLevel(Trans_outermostLevel());
 
     myVarDec varDec = makeMyVarDec_ShortForm(
         makeMyShortFormVar(MySymbol_MakeSymbol("var name"), makeOneExp_Integer()));
@@ -2225,12 +2272,16 @@ void test_MySemanticDecs_ConsecutiveSameVarDecs_ReturnTrue(void)
     bool resultSameVar = MySemantic_Decs(sameVarDecs);
 
     CU_ASSERT_EQUAL(resultSameVar, true);
+
+    //  clean up
+    MySemantic_leaveNewLevel();
 }
 
 void test_MySemanticDecs_DecsContainsLegalDec_ReturnTrueAndDecsAdded(void)
 {
     MySemantic_setVarAndFuncEnvironment(myEnvironment_BaseVarAndFunc());
     MySemantic_setTypeEnvironment(myEnvironment_BaseType());
+    MySemantic_enterNewLevel(Trans_outermostLevel());
 
     mySymbol varName = MySymbol_MakeSymbol("variable");
     mySymbol typeName = MySymbol_MakeSymbol("typeName");
@@ -2268,6 +2319,9 @@ void test_MySemanticDecs_DecsContainsLegalDec_ReturnTrueAndDecsAdded(void)
     CU_ASSERT(isTypeString(MyEnvironment_getFuncReturnType(funcEntry)));
     CU_ASSERT(myEnvironment_isVarEntry(varEntry));
     CU_ASSERT(isTypeInt(type->u.typeNamed->type));
+
+    //  clean up
+    MySemantic_leaveNewLevel();
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -2376,6 +2430,7 @@ void test_MySemanticLetExp_LegalExp_FuncsInDecsCanBeUsedInExps(void)
 {
     MySemantic_setVarAndFuncEnvironment(myEnvironment_BaseVarAndFunc());
     MySemantic_setTypeEnvironment(myEnvironment_BaseType());
+    MySemantic_enterNewLevel(Trans_outermostLevel());
 
     mySymbol funcName = MySymbol_MakeSymbol("funct");
     myFuncDec funcDec = makeMyFuncDec_Function(
@@ -2395,6 +2450,9 @@ void test_MySemanticLetExp_LegalExp_FuncsInDecsCanBeUsedInExps(void)
     myType letReturnType = makeType_String();
     CU_ASSERT(result != SEMANTIC_ERROR);
     CU_ASSERT(isTypeEqual(result->type, letReturnType));
+
+    //  clean up
+    MySemantic_leaveNewLevel();
 }
 
 /////////////////////////////////////////////////////////////////////////////

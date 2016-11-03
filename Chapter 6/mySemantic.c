@@ -244,8 +244,8 @@ myType getActualTypeFromName(mySymbol typeName)
 static myTable g_varAndFuncEnv = NULL;
 static myTable g_typeEnv = NULL;
 
-static Trans_myLevel g_currentLevel = NULL;
-static int g_curDepth = 0;
+static myTable g_levelTable = NULL;
+static void*   g_fakeKey = (void*)23;
 
 ////////////////////////////////////////////////////////////////////////////
 //                    Semantic Getters and Setters                        //
@@ -274,21 +274,32 @@ myTable MySemantic_getTypeEnvironment(void)
     return g_typeEnv;
 }
 
-void MySemantic_setCurrentLevel(Trans_myLevel newLevel)
+////////////////////////////////////////////////
+
+void MySemantic_enterNewLevel(Trans_myLevel newLevel)
 {
-    g_currentLevel = newLevel;
+    if (g_levelTable == NULL)
+        g_levelTable = MySymbol_MakeNewTable();
+
+    MyTable_Enter_(g_levelTable, g_fakeKey, newLevel);
+}
+
+void MySemantic_leaveNewLevel(void)
+{
+    if (g_levelTable)
+    {
+        MyTable_Pop_(g_levelTable);
+    }
 }
 
 Trans_myLevel MySemantic_getCurrentLevel(void)
 {
-    return g_currentLevel;
+    assert (g_levelTable);
+    Trans_myLevel level = MyTable_Look_(g_levelTable, g_fakeKey);
+    assert (level);
+
+    return level;
 }
-
-
-void resetCurrentDepth(void)    { g_curDepth = 1; }
-void incrementCurrentDepth(void){ ++g_curDepth; }
-void decrementCurrentDepth(void){ --g_curDepth; }
-int  getCurrentDepth(void)      { return g_curDepth; }
 
 ////////////////////////////////////////////////////////////////////////////
 //                           Semantic Checkers                            //
@@ -2161,8 +2172,11 @@ myTranslationAndType MySemantic_Exp_(myExp exp)
 //  function call another.
 myTranslationAndType MySemantic_Exp(myExp exp)
 {
-    resetCurrentDepth();
     Escape_findEscape(exp);
-    //#error "test FindEscape_Exp,  apply myTranslate"
-    return MySemantic_Exp_(exp);
+
+    //#error "apply myTranslate"
+    MySemantic_enterNewLevel(Trans_outermostLevel());
+    myTranslationAndType result = MySemantic_Exp_(exp);
+    MySemantic_leaveNewLevel();
+    return result;
 }
