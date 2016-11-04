@@ -98,7 +98,7 @@ static bool getVarEscape(mySymbol varSymbol)
 }
 
 ///////////////////////
-
+/*
 static myType getActualType(myType type)
 {
     //  encountered a semantic error!
@@ -120,7 +120,7 @@ static myType getActualVarTypeFromName(mySymbol varName)
     else
         return getActualType(MyEnvironment_getVarType(entry));
 } 
-
+*/
 ////////////////////////////////////////////////////////////////////////
 //                          forwards
 void Escape_findEscape_Exp(int depth, myExp exp);
@@ -136,12 +136,10 @@ void Escape_findEscape_LValueExp(int depth, myLValueExp lValueExp)
     {
         case SimpleVar:
         {
-            myType actualType = getActualVarTypeFromName(lValueExp->id);
+            /*myType actualType = getActualVarTypeFromName(lValueExp->id);
             if (actualType == NULL)
-                return;
-            else if (isVarNestedUsed(depth, lValueExp->id) ||
-                    isTypeRecord(actualType) ||
-                    isTypeArray(actualType))
+                return;*/
+            if (isVarNestedUsed(depth, lValueExp->id))
                 setVarEscape(lValueExp->id);
             break;
         }
@@ -363,11 +361,8 @@ void Escape_findEscape_VarDec(int depth, myVarDec varDec)
             &(varDec->u.shortFormVar->escape);
         Escape_addVarEntry(varName, makeEscapeEntry(depth, escapePtr));
 
-        myType varActualType = getActualVarTypeFromName(varName);
-        if (varActualType == NULL)  return;
-
-        if (isTypeRecord(varActualType) || isTypeArray(varActualType))
-            setVarEscape(varName);
+        //  escape finding should not check variable types, because it
+        //  is called before semantic analysis begins.
         Escape_findEscape_Exp(depth, varExp);
     }
 }

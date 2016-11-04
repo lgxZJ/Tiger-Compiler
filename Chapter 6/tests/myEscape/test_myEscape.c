@@ -33,14 +33,6 @@ myTable MySemantic_getVarAndFuncEnvironment(void)
     return g_varandFuncEnv;
 }
 
-static void FakeSemantic_addNewType(mySymbol varName, myType varType)
-{
-    MyEnvironment_addNewType(
-        MySemantic_getTypeEnvironment(),
-        varName,
-        varType);
-}
-
 static void FakeSemantic_addNewVarOrFunc(mySymbol varName, myType varType)
 {
      MyEnvironment_addNewVarOrFunc(
@@ -371,34 +363,6 @@ void test_EscapeFindEscapeLValueExp_SimpleVarNested_Escape(void)
         depthDeclared, depthUsed, true);
 }
 
-void test_EscapeFindEscapeLValueExp_SimpleVarRecordType_Escape(void)
-{
-    resetTestEnv();
-    int depthDeclared = 0;
-    mySymbol varName = MySymbol_MakeSymbol("varName");
-    myLValueExp lValueExp = makeSimpleVarOfRecordType(varName, depthDeclared);
-
-    int depthUsed = 1;
-    Escape_findEscape_LValueExp(depthUsed, lValueExp);
-
-    bool result = Escape_isVarEscaped(varName);
-    CU_ASSERT_EQUAL(result, true);
-}
-
-void test_EscapeFindEscapeLValueExp_SimpleVarArraySubscript_Escape(void)
-{
-    resetTestEnv();
-    mySymbol varName = MySymbol_MakeSymbol("varName");
-    int depthDeclared = 1;
-    myLValueExp lValueExp = makeSimpleVarOfArrayType(varName, depthDeclared);
-
-    int depthUsed = 1;
-    Escape_findEscape_LValueExp(depthUsed, lValueExp);
-
-    bool result = Escape_isVarEscaped(varName);
-    CU_ASSERT_EQUAL(result, true);
-}
-
 //  a parameterized test
 void test_LValueExpSimpleVar_UnderDepth_WhetherEscape(
     int depthDeclared, int depthUsed, bool ifEscape)
@@ -545,62 +509,7 @@ void test_EscapeFindEscapeVarDec_LongFormVarInt_NotEscape(void)
     CU_ASSERT_EQUAL(result, false);
 }
 
-
-void test_EscapeFindEscapeVarDec_ShortFormVarRecord_Escape(void)
-{
-    resetTestEnv();
-    mySymbol varName = MySymbol_MakeSymbol("varname");
-    myVarDec varDec = makeVarDecOfRecordType_Short(varName);
-
-    Escape_findEscape_VarDec(1, varDec);
-
-    bool result = Escape_isVarEscaped(varName);
-    CU_ASSERT_EQUAL(result, true);
-}
-
-void test_EscapeFindEscapeVarDec_LongFormVarRecord_Escape(void)
-{
-    resetTestEnv();
-    mySymbol varName = MySymbol_MakeSymbol("varname");
-    myVarDec varDec = makeVarDecOfRecordType_Long(varName);
-
-    Escape_findEscape_VarDec(1, varDec);
-
-    bool result = Escape_isVarEscaped(varName);
-    CU_ASSERT_EQUAL(result, true);
-}
-
 ///////////////////////////////
-
-void test_EscapeFindEscapeFuncDec_ProcedureDec_FormalsAreEscaped(void)
-{
-    /*resetTestEnv();
-    mySymbol varOne = MySymbol_MakeSymbol("varOne");
-    mySymbol varTwo = MySymbol_MakeSymbol("varTwo");
-    myFuncDec proceDec = makeFuncDec_Procecdure(varOne, varTwo);
-
-    Escape_findEscape_FuncDec(1, proceDec);
-
-    bool resultOne = Escape_isVarEscaped(varOne);
-    bool resultTwo = Escape_isVarEscaped(varTwo);
-    CU_ASSERT_EQUAL(resultOne, true);
-    CU_ASSERT_EQUAL(resultTwo, true);*/
-}
-
-void test_EscapeFindEscapeFuncDec_FunctionDec_FormalsAreEscaped(void)
-{
-    /*resetTestEnv();
-    mySymbol varOne = MySymbol_MakeSymbol("varOne");
-    mySymbol varTwo = MySymbol_MakeSymbol("varTwo");
-    myFuncDec proceDec = makeFuncDec_Function(varOne, varTwo);
-
-    Escape_findEscape_FuncDec(1, proceDec);
-
-    bool resultOne = Escape_isVarEscaped(varOne);
-    bool resultTwo = Escape_isVarEscaped(varTwo);
-    CU_ASSERT_EQUAL(resultOne, true);
-    CU_ASSERT_EQUAL(resultTwo, true);*/
-}
 
 void test_EscapeFindEscapeFuncDec_FuncDec_TreatBodyAsSingleExp(void)
 {
@@ -910,8 +819,6 @@ int main()
 
         { "", test_EscapeFindEscapeLValueExp_SimpleVarNotNested_NotEscape },
         { "", test_EscapeFindEscapeLValueExp_SimpleVarNested_Escape },
-        { "", test_EscapeFindEscapeLValueExp_SimpleVarRecordType_Escape },
-        { "", test_EscapeFindEscapeLValueExp_SimpleVarArraySubscript_Escape },
         { "", test_EscapeFindEscapeRecordField_ByDefault_AlwaysEscape },
         { "", test_EscapeFindEscapeArraySubscript_ByDefault_AlwaysEscape },
 
@@ -932,10 +839,6 @@ int main()
 
         { "", test_EscapeFindEscapeVarDec_ShortFormVarInt_NotEscape },
         { "", test_EscapeFindEscapeVarDec_LongFormVarInt_NotEscape },
-        { "", test_EscapeFindEscapeVarDec_ShortFormVarRecord_Escape },
-        { "", test_EscapeFindEscapeVarDec_ShortFormVarRecord_Escape },
-        { "", test_EscapeFindEscapeFuncDec_ProcedureDec_FormalsAreEscaped },
-        { "", test_EscapeFindEscapeFuncDec_FunctionDec_FormalsAreEscaped },
         { "", test_EscapeFindEscapeFuncDec_FuncDec_TreatBodyAsSingleExp }
 
     };
