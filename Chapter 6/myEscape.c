@@ -555,7 +555,8 @@ bool Escape_isVarEscaped(mySymbol varName)
 
 myTable Escape_getEscapeEnvironment(void)
 {
-    assert (g_escapeTable);
+    if (g_escapeTable == NULL)
+        g_escapeTable = MySymbol_MakeNewTable();
     return g_escapeTable;
 }
 
