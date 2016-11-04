@@ -274,8 +274,6 @@ void Escape_findEscape_SequencingExp(int depth, mySequencingExp sequencingExp)
 
 ///////////////////////////////////////////////////////////////////////
 
-//  NOTE:   must be arounded with BeginScope()--EndScope(), because
-//  is decalred a new loop variable in a new scope.
 void Escape_findEscape_ForExp(int depth, myForExp forExp)
 {
     //  set escape flags for loop-var
@@ -461,8 +459,6 @@ static void Escape_findEscape_Exps(int depth, myExpList exps)
     }
 }
 
-//  NOTE:   must be arounded with BeginScope()--EndScope(), because
-//  is decalred variables, types and functions in a new scope.
 void Escape_findEscape_LetExp(int depth, myLetExp letExp)
 {
    Escape_findEscape_Decs(depth, letExp->decList);
@@ -522,10 +518,7 @@ void Escape_findEscape_Exp(int depth, myExp exp)
         case SequencingExp:
             return Escape_findEscape_SequencingExp(depth, exp->u.sequencingExp);
         case ForExp:
-            MySymbol_BeginScope(Escape_getEscapeEnvironment());
-            Escape_findEscape_ForExp(depth, exp->u.forExp);
-            MySymbol_EndScope(Escape_getEscapeEnvironment());
-            return;
+            return Escape_findEscape_ForExp(depth, exp->u.forExp);
         case IfThenElseExp:
             return Escape_findEscape_IfThenElseExp(depth, exp->u.ifThenElseExp);
         case IfThenExp:
@@ -537,10 +530,7 @@ void Escape_findEscape_Exp(int depth, myExp exp)
         case AssignmentExp:
             return Escape_findEscape_AssignmentExp(depth, exp->u.assignmentExp);
         case LetExp:
-            MySymbol_BeginScope(Escape_getEscapeEnvironment());
-            Escape_findEscape_LetExp(depth, exp->u.letExp);
-            MySymbol_EndScope(Escape_getEscapeEnvironment());
-            return;
+            return Escape_findEscape_LetExp(depth, exp->u.letExp);
         case WhileExp:
             return Escape_findEscape_WhileExp(depth, exp->u.whileExp);
         case NegationExp:
