@@ -296,7 +296,7 @@ Trans_myLevel MySemantic_getCurrentLevel(void)
 {
     assert (g_levelTable);
     Trans_myLevel level = MyTable_Look_(g_levelTable, g_fakeKey);
-    assert (level);
+    assert (level); 
 
     return level;
 }
@@ -1399,10 +1399,12 @@ void addLoopVarToScope(mySymbol varName)
 {
     myTable varAndFuncEnv = MySemantic_getVarAndFuncEnvironment(); 
     myType loopVarType = makeType_Int();
-    //  todo:
+    
+    //  loop-var always escapes
+    Trans_myAccess varAccess = Trans_allocateLocal(
+        MySemantic_getCurrentLevel(), true);
     myVarAndFuncEntry varEntry = myEnvironment_makeVarEntry(
-        (Trans_myAccess)NULL,
-        loopVarType);
+        varAccess, loopVarType);
     
     MyEnvironment_addNewVarOrFunc(varAndFuncEnv, varName, varEntry);
 }
@@ -1767,6 +1769,9 @@ void processAssignmentErrors(
 
 ///////////////////////////////////////////////////////////////////////////////
 
+//  forwards
+void allocateAndAddNewVar_Short(myShortFormVar shortFormVar, myType valueType);
+
 //  FORM:
 //      var id := exp
 //  DO:
@@ -1783,16 +1788,11 @@ bool MySemantic_Dec_Var_ShortForm(
 
     if (isValueExpLegal)
     {
-        myType valueType =
+        myType actualValueType =
             getExpActualResultType(shortFormVar->exp);
-        if (!isTypeNil(valueType) && !isTypeNoReturn(valueType))
+        if (!isTypeNil(actualValueType) && !isTypeNoReturn(actualValueType))
         {
-            myTable varAndFuncEnv = MySemantic_getVarAndFuncEnvironment();
-            //  todo:
-            myVarAndFuncEntry varEntry = myEnvironment_makeVarEntry(
-                (Trans_myAccess)NULL,
-                valueType);
-            MyEnvironment_addNewVarOrFunc(varAndFuncEnv, shortFormVar->name, varEntry);
+            allocateAndAddNewVar_Short(shortFormVar, actualValueType);
             return true;
         }
         else
@@ -1804,11 +1804,26 @@ bool MySemantic_Dec_Var_ShortForm(
     return false;
 }
 
+void allocateAndAddNewVar_Short(myShortFormVar shortFormVar, myType actualValueType)
+{
+    myTable varAndFuncEnv = MySemantic_getVarAndFuncEnvironment();
+
+    if (isTypeArray(actualValueType) || isTypeRecord(actualValueType) ||
+        isTypeString(actualValueType))
+        shortFormVar->escape = true;
+
+    Trans_myAccess varAccess = Trans_allocateLocal(
+        MySemantic_getCurrentLevel(), shortFormVar->escape);
+    myVarAndFuncEntry varEntry = myEnvironment_makeVarEntry(
+        varAccess, actualValueType);
+    MyEnvironment_addNewVarOrFunc(varAndFuncEnv, shortFormVar->name, varEntry);   
+}
+
 /////////////////////////////////////////////////////////////////////////////////
 
 //  forwards
-bool isVarDecValueTypeMatchesGivenType(
-    myLongFormVar longFormVar);
+bool isVarDecValueTypeMatchesGivenType(myLongFormVar longFormVar);
+void allocateAndAddNewVar_Long(myLongFormVar longFormVar);
 void processLongFormVarDecErrors(
     bool isGivenTypeDefined, bool isValueExpLegal,
     bool isTypeMatches, mySymbol typeName);
@@ -1840,12 +1855,7 @@ bool MySemantic_Dec_Var_LongForm(
     //    hidden checking for the other two booleans
     if (isTypeMatches)
     {
-        myTable varAndFuncEnv = MySemantic_getVarAndFuncEnvironment();
-        myVarAndFuncEntry varEntry =
-            myEnvironment_makeVarEntry(
-                (Trans_myAccess)NULL,
-                getActualTypeFromName(longFormVar->type));
-        MyEnvironment_addNewVarOrFunc(varAndFuncEnv, longFormVar->name,varEntry);
+        allocateAndAddNewVar_Long(longFormVar);
         return true;
     }
     else
@@ -1856,8 +1866,7 @@ bool MySemantic_Dec_Var_LongForm(
     }
 }
 
-bool isVarDecValueTypeMatchesGivenType(
-    myLongFormVar longFormVar)
+bool isVarDecValueTypeMatchesGivenType(myLongFormVar longFormVar)
 {
     myType valueType = 
         getExpActualResultType(longFormVar->exp);
@@ -1866,6 +1875,22 @@ bool isVarDecValueTypeMatchesGivenType(
 
     return isTypeEqual(valueType, givenType) ||
             isNilValueOfRecordType(givenType, valueType);
+}
+
+void allocateAndAddNewVar_Long(myLongFormVar longFormVar)
+{
+    myTable varAndFuncEnv = MySemantic_getVarAndFuncEnvironment();
+    myType actualValueType = getActualTypeFromName(longFormVar->type);
+    if (isTypeArray(actualValueType) || isTypeRecord(actualValueType) ||
+        isTypeString(actualValueType))
+        longFormVar->escape = true;
+
+    Trans_myAccess varAccess = Trans_allocateLocal(
+        MySemantic_getCurrentLevel(), longFormVar->escape);
+    myVarAndFuncEntry varEntry =
+        myEnvironment_makeVarEntry(varAccess, actualValueType);
+            
+    MyEnvironment_addNewVarOrFunc(varAndFuncEnv, longFormVar->name,varEntry);
 }
 
 void processLongFormVarDecErrors(
@@ -2174,7 +2199,6 @@ myTranslationAndType MySemantic_Exp(myExp exp)
 {
     Escape_findEscape(exp);
 
-    //#error "apply myTranslate"
     MySemantic_enterNewLevel(Trans_outermostLevel());
     myTranslationAndType result = MySemantic_Exp_(exp);
     MySemantic_leaveNewLevel();
