@@ -136,9 +136,6 @@ void Escape_findEscape_LValueExp(int depth, myLValueExp lValueExp)
     {
         case SimpleVar:
         {
-            /*myType actualType = getActualVarTypeFromName(lValueExp->id);
-            if (actualType == NULL)
-                return;*/
             if (isVarNestedUsed(depth, lValueExp->id))
                 setVarEscape(lValueExp->id);
             break;
@@ -513,7 +510,10 @@ void Escape_findEscape_Exp(int depth, myExp exp)
         case SequencingExp:
             return Escape_findEscape_SequencingExp(depth, exp->u.sequencingExp);
         case ForExp:
-            return Escape_findEscape_ForExp(depth, exp->u.forExp);
+            MySymbol_BeginScope(Escape_getEscapeEnvironment());
+            Escape_findEscape_ForExp(depth, exp->u.forExp);
+            MySymbol_EndScope(Escape_getEscapeEnvironment());
+            return;
         case IfThenElseExp:
             return Escape_findEscape_IfThenElseExp(depth, exp->u.ifThenElseExp);
         case IfThenExp:
@@ -525,7 +525,10 @@ void Escape_findEscape_Exp(int depth, myExp exp)
         case AssignmentExp:
             return Escape_findEscape_AssignmentExp(depth, exp->u.assignmentExp);
         case LetExp:
-            return Escape_findEscape_LetExp(depth, exp->u.letExp);
+            MySymbol_BeginScope(Escape_getEscapeEnvironment());
+            Escape_findEscape_LetExp(depth, exp->u.letExp);
+            MySymbol_EndScope(Escape_getEscapeEnvironment());
+            return;
         case WhileExp:
             return Escape_findEscape_WhileExp(depth, exp->u.whileExp);
         case NegationExp:

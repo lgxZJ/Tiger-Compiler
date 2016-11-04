@@ -13,6 +13,7 @@ void Escape_findEscape(myExp exp);
 /// \brief      check if the given variable is escaped.
 /// \param[in] varName   the name of a variable.
 /// \return     a bool.
+/// \remark     variables inside nested scopes can not be check any more!!
 bool Escape_isVarEscaped(mySymbol varName);
 
 /// \brief      get escape environment which is actually a table.
@@ -27,13 +28,5 @@ myTable Escape_getEscapeEnvironment(void);
 /// \return     this function has no return value.
 /// \remark     it's a checked runtime error to pass a NULL environment.
 void Escape_setEscapeEnvironment(myTable escapeEnv);
-
-/*
-/// \brief      check if the given variable is used ever.
-/// \param[in]  varName     the name of the variable.
-/// \return     a bool. 
-bool Escape_isVarUsed(mySymbol varName);*/
-
-void Escape_findEscape_FuncDec(int depth, myFuncDec funcDec);
 
 #endif
