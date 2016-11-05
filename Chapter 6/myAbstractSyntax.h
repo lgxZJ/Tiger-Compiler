@@ -68,6 +68,7 @@ typedef PosInfo myPos;
  struct		myTyField_
  {
 	 mySymbol	varName;
+	 bool 		varEscape;
 	 mySymbol	typeName;
  };
  typedef	struct myTyField_*		myTyField;
@@ -434,6 +435,7 @@ typedef	struct	mySequencingExp_
 typedef	struct	myForExp_
 {
 	mySymbol	varName;
+	bool 		varEscape;
 	myExp		varRangeLow;
 	myExp		varRangeHigh;
 	myExp		bodyExp;
