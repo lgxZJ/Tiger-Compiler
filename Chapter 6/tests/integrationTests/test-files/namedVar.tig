@@ -1,0 +1,8 @@
+let
+	type namedInt = int
+	type arrayType = array of int
+	type namedArray = arrayType
+	var nameIntVar := 1
+	var namedArrayVar := namedArray[10] of 1
+in
+end

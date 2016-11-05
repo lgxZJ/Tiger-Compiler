@@ -1,0 +1,7 @@
+/*	a variable of record type 	*/
+let
+	type recordType = {}
+	var varName := recordType {}
+in
+	varName
+end

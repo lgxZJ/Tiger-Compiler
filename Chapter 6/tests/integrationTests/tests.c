@@ -122,7 +122,63 @@ void test_NestedUseVarFile_EscapeFinding_Escaped(void)
     CU_ASSERT_EQUAL(varEscapeFlag, true);
 }
 
-#error "check for loop var, and function local vars"
+////////////////////////////////////////////////////////////
+
+void test_NotNestedForLoopVarFile_EscapeFinding_NotEscaped(void)
+{
+    char* filename = "./test-files/notNestedForLoopVar.tig";
+    myExp exp = parseAndAnalyzeOneFile(filename);
+
+    bool varEscapeFlag = exp->u.forExp->varEscape;
+    CU_ASSERT_EQUAL(varEscapeFlag, false);
+}
+
+void test_NestedForLoopVarFile_EscapeFinding_Escaped(void)
+{
+    char* filename = "./test-files/nestedForLoopVar.tig";
+    myExp exp = parseAndAnalyzeOneFile(filename);
+
+    bool varEscapeFlag = exp->u.forExp->varEscape;
+    CU_ASSERT_EQUAL(varEscapeFlag, true);
+}
+
+/////////////////////////////////////////////////////////
+
+//  a parameterized test
+void test_FuncFormals_WhetherEscape(char* filename, bool escapeResult)
+{
+    myExp exp = parseAndAnalyzeOneFile(filename);
+
+    bool varEscapeFlag = exp->u.letExp->decList->dec
+        ->u.funcDec->u.functionDec->tyFieldList->field->varEscape;
+    CU_ASSERT_EQUAL(varEscapeFlag, escapeResult);
+}
+
+///////////
+
+void test_NotNestedIntFuncFormalsFile_EscapeFinding_NotEscaped(void)
+{
+    char* filename = "./test-files/notNestedIntFuncFormals.tig";
+    bool escapeResult = false;
+    test_FuncFormals_WhetherEscape(filename, escapeResult);
+}
+
+void test_NestedIntFuncFormalsFile_EscapeFinding_Escaped(void)
+{
+    char* filename = "./test-files/nestedIntFuncFormals.tig";
+    bool escapeResult = true;
+    test_FuncFormals_WhetherEscape(filename, escapeResult);
+}
+
+void test_NotIntFuncFormalsFile_EscapeFinding_Escaped(void)
+{
+    char* filename = "./test-files/notIntFuncFormals.tig";
+    myExp exp = parseAndAnalyzeOneFile(filename);
+
+    bool varEscapeFlag = exp->u.letExp->decList->next->dec
+        ->u.funcDec->u.functionDec->tyFieldList->field->varEscape;
+    CU_ASSERT_EQUAL(varEscapeFlag, true);
+}
 
 ///////////////////////         main        /////////////////////
 
@@ -140,7 +196,14 @@ int main()
 
         { "", test_HidedVarFile_EscapeFinding_OuterNotEscapedInnerEscaped },
         { "", test_BlockUsedVarFile_EscapeFinding_NotEscaped },
-        { "", test_NestedUseVarFile_EscapeFinding_Escaped }
+        { "", test_NestedUseVarFile_EscapeFinding_Escaped },
+
+        { "", test_NotNestedForLoopVarFile_EscapeFinding_NotEscaped },
+        { "", test_NestedForLoopVarFile_EscapeFinding_Escaped },
+
+        { "", test_NotNestedIntFuncFormalsFile_EscapeFinding_NotEscaped },
+        { "", test_NestedIntFuncFormalsFile_EscapeFinding_Escaped },
+        { "", test_NotIntFuncFormalsFile_EscapeFinding_Escaped }
     };
     if (!addTests(&suite, tests, sizeof(tests) / sizeof(tests[0])))
         return EXIT_FAILURE;
