@@ -272,8 +272,8 @@ void Escape_findEscape_SequencingExp(int depth, mySequencingExp sequencingExp)
 void Escape_findEscape_ForExp(int depth, myForExp forExp)
 {
     //  set escape flags for loop-var
-    //  todo:  
-    //Escape_addVarEntry(forExp->varName, makeEscapeEntry(depth + 1));
+    Escape_addVarEntry(forExp->varName,
+        makeEscapeEntry(depth, &forExp->varEscape));
 
     Escape_findEscape_Exp(depth, forExp->varRangeLow);
     Escape_findEscape_Exp(depth, forExp->varRangeHigh);
@@ -375,14 +375,13 @@ void Escape_findEscape_TypeDec(int depth, myTypeDec typeDec)
 
 /////////////////////////
 
-void treatFormalsAsEscapeVars(int depth, myTyFieldList fields)
+void treatFormalsAsNotEscapedVars(int depth, myTyFieldList fields)
 { 
     while (fields)
     {
         mySymbol varName = fields->field->varName;
-        //  todo:
-        //  Escape_addVarEntry(varName, makeEscapeEntry(depth, ));
-        //setVarEscape(varName);
+        Escape_addVarEntry(varName,
+            makeEscapeEntry(depth, &fields->field->varEscape));
 
         fields = fields->next;
     }
@@ -413,7 +412,7 @@ void Escape_findEscape_FuncDec(int depth, myFuncDec funcDec)
         default:        assert (false);
     }
 
-    treatFormalsAsEscapeVars(depth + 1, formalFields);
+    treatFormalsAsNotEscapedVars(depth + 1, formalFields);
     Escape_findEscape_Exp(depth + 1, body);
 }
 

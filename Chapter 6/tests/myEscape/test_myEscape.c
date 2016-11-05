@@ -201,12 +201,12 @@ static myFuncDec makeFuncDec_Function(mySymbol varOne, mySymbol varTwo)
         makeOneExp_Integer()));
 }
 
-static myExp makeExpBodyWithVar(mySymbol varName, int funcDepth)
+static myExp makeExpBodyWithVar(mySymbol varName, int varDepth)
 {
     static bool isFirst = false;
     isFirst = !isFirst;
 
-    Escape_addVarEntry(varName, makeEscapeEntry(funcDepth,
+    Escape_addVarEntry(varName, makeEscapeEntry(varDepth,
         isFirst ? &g_fakeEscapeOne : &g_fakeEscapeTwo));
     FakeSemantic_addNewVarOrFunc(varName, makeType_Int());
     return makeMyExp_LValue(makeOnePos(),
@@ -324,6 +324,61 @@ static myVarDec makeVarDecOfIntType_Long(mySymbol varName)
     FakeSemantic_addNewVarOrFunc(varName, makeType_Int());
     return makeMyVarDec_LongForm(makeMyLongFormVar(
         varName, makeSymbol_Int(), makeOneExp_Integer()));
+}
+
+////////////
+
+static myForExp makeFor_LoopVarNotNested(mySymbol varName)
+{
+    return makeMyForExp(varName,
+        makeOneExp_Integer(), makeOneExp_Integer(),
+        makeOneExp_NoValue());
+}
+
+static myForExp makeFor_LoopVarNested(mySymbol varName)
+{
+    return makeMyForExp(varName,
+        makeOneExp_Integer(), makeOneExp_Integer(),
+        makeMyExp_Let(makeOnePos(), 
+            makeMyLetExp(makeMyDecList(makeMyDec_Func(makeOnePos(),
+                    makeMyFuncDec_Function(
+                makeMyFunctionDec(makeOneSymbol(), NULL, makeSymbol_Int(), 
+                    makeMyExp_LValue(makeOnePos(),
+                        makeMyLValue(makeOnePos(), varName, NULL))))), NULL),
+                        NULL)));
+}
+
+///////////
+
+static myExp makeLetExpWithFuncUsingNestedVar(mySymbol varName)
+{
+    return makeMyExp_Let(makeOnePos(), 
+            makeMyLetExp(makeMyDecList(makeMyDec_Func(makeOnePos(),
+                    makeMyFuncDec_Function(
+                makeMyFunctionDec(makeOneSymbol(), NULL, makeSymbol_Int(), 
+                    makeMyExp_LValue(makeOnePos(),
+                        makeMyLValue(makeOnePos(), varName, NULL))))), NULL),
+                        NULL));
+}
+
+////////////
+
+static myFuncDec makeFuncDec_FormalsNotNestedUsed(
+    mySymbol funName, mySymbol varName)
+{
+    return makeMyFuncDec_Procedure(makeMyProcedureDec(
+        funName,
+        makeMyTyFieldList(makeMyTyField(varName, makeSymbol_Int()), NULL),
+        makeOneExp_NoValue()));
+}
+
+static myFuncDec makeFuncDec_FormalsNestedUsed(
+    mySymbol funcName, mySymbol varName)
+{
+    return makeMyFuncDec_Procedure(makeMyProcedureDec(
+        funcName,
+        makeMyTyFieldList(makeMyTyField(varName, makeSymbol_Int()), NULL),
+        makeLetExpWithFuncUsingNestedVar(varName)));
 }
 
 ///////////////////////        tests       ////////////////////////
@@ -807,6 +862,50 @@ void test_EscapeFindEscapeNegationExp_ByDefault_TreatExpsAsSingleExps(void)
     CU_ASSERT_EQUAL(result, false);
 }
 
+//////////////////////////////////////////////////////////////////
+
+void test_EscapeFindEscapeForExp_ByDefault_TreatLoopVarAsLocalVar(void)
+{
+    resetTestEnv();
+    mySymbol varNameOne = MySymbol_MakeSymbol("varName1");
+    mySymbol varNameTwo = MySymbol_MakeSymbol("varName2");
+    myForExp notNestedForExp = makeFor_LoopVarNotNested(varNameOne);
+    myForExp nestedForExp = makeFor_LoopVarNested(varNameTwo);
+    
+    int forDepth = 2; 
+    Escape_findEscape_ForExp(forDepth, notNestedForExp);
+    Escape_findEscape_ForExp(forDepth, nestedForExp);
+
+    bool resultNotNested = Escape_isVarEscaped(varNameOne);
+    bool resultNested = Escape_isVarEscaped(varNameTwo);
+    CU_ASSERT_EQUAL(resultNotNested, false);
+    CU_ASSERT_EQUAL(resultNested, true);
+}
+
+//////////////////////////////////////////////////////////////////////////
+
+void test_EscapeFindEscapeFuncDec_TreatFormalsAsLocalVars(void)
+{
+    resetTestEnv();
+    mySymbol funcOne = MySymbol_MakeSymbol("func1");
+    mySymbol funcTwo = MySymbol_MakeSymbol("func2");
+    mySymbol varNameOne = MySymbol_MakeSymbol("varName1");
+    mySymbol varNameTwo = MySymbol_MakeSymbol("varName2");
+    myFuncDec notNestedFuncDec =
+        makeFuncDec_FormalsNotNestedUsed(funcOne, varNameOne);
+    myFuncDec nestedFuncDec = 
+        makeFuncDec_FormalsNestedUsed(funcTwo, varNameTwo);
+
+    int funcDepth = 1;
+    Escape_findEscape_FuncDec(funcDepth, notNestedFuncDec);
+    Escape_findEscape_FuncDec(funcDepth, nestedFuncDec);
+
+    bool resultNotNested = Escape_isVarEscaped(varNameOne);
+    bool resultNested = Escape_isVarEscaped(varNameTwo);
+    CU_ASSERT_EQUAL(resultNotNested, false);
+    CU_ASSERT_EQUAL(resultNested, true);
+}
+
 ///////////////////////         main        /////////////////////
 
 int main()
@@ -839,7 +938,11 @@ int main()
 
         { "", test_EscapeFindEscapeVarDec_ShortFormVarInt_NotEscape },
         { "", test_EscapeFindEscapeVarDec_LongFormVarInt_NotEscape },
-        { "", test_EscapeFindEscapeFuncDec_FuncDec_TreatBodyAsSingleExp }
+        { "", test_EscapeFindEscapeFuncDec_FuncDec_TreatBodyAsSingleExp },
+
+        { "", test_EscapeFindEscapeForExp_ByDefault_TreatLoopVarAsLocalVar },
+
+        { "", test_EscapeFindEscapeFuncDec_TreatFormalsAsLocalVars }
 
     };
     if (!addTests(&suite, tests, sizeof(tests) / sizeof(tests[0])))
