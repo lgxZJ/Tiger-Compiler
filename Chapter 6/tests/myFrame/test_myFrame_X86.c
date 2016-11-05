@@ -190,6 +190,31 @@ void test_FrameallocateLocal_FormalCountIncremented_EqualsTo(
     CU_ASSERT_EQUAL(formalCountAfter - formalCountBefore, numExpected);
 }
 
+//////////////////////////////
+
+extern int Frame_getAccessOffset(myAccess access);
+
+void test_FrameallocateLocal_TwoConsecutiveCallsInSameFrame_OffsetIncrementFour(void)
+{
+    myFrame frame = Frame_newFrame((myLabel)NULL, NULL);
+
+    int accessOneOffset = Frame_getAccessOffset(Frame_allocateLocal(frame, true));
+    int accessTwoOffset = Frame_getAccessOffset(Frame_allocateLocal(frame, true));
+
+    CU_ASSERT_EQUAL(accessTwoOffset - accessOneOffset, 4);
+}
+
+void test_FrameallocateLocal_TwoCallsInDifferentNewFrame_OffsetSame(void)
+{
+    myFrame frameOne = Frame_newFrame((myLabel)NULL, NULL);
+    myFrame frameTwo = Frame_newFrame((myLabel)NULL, NULL);
+
+    int accessOneOffset = Frame_getAccessOffset(Frame_allocateLocal(frameOne, true));
+    int accessTwoOffset = Frame_getAccessOffset(Frame_allocateLocal(frameTwo, true));
+
+    CU_ASSERT_EQUAL(accessTwoOffset, accessOneOffset);
+}
+
 ///////////////////////         main        /////////////////////
 
 int main()
@@ -213,7 +238,9 @@ int main()
         { "", test_FrameallocateLocal_AllocateInFrame_LocalCountIncremented },
         { "", test_FrameallocateLocal_AllocateInReg_LocalCountNotChange },
         { "", test_FrameallocateLocal_AllocateInFrame_FormalCountNotChange },
-        { "", test_FrameallocateLocal_AllocateInReg_FormalCountNotChange }
+        { "", test_FrameallocateLocal_AllocateInReg_FormalCountNotChange },
+        { "", test_FrameallocateLocal_TwoConsecutiveCallsInSameFrame_OffsetIncrementFour },
+        { "", test_FrameallocateLocal_TwoCallsInDifferentNewFrame_OffsetSame }
     };
     if (!addTests(&suite, tests, sizeof(tests) / sizeof(tests[0])))
         return EXIT_FAILURE;

@@ -2,8 +2,6 @@
 
 #include <assert.h> //  for assert()
 #include <stdlib.h> //  for NULL macro
-#include <string.h> //  for strcpy()
-#include <stdio.h>  //  for sprintf()
 
 ///////////////////////////////////////////////////////////////////
 //                          macros
@@ -45,6 +43,9 @@ struct myFrame_
 
 static myAccess makeInFrameAccess(int offset)
 {
+    //  4 is the value of BASE_SIZE
+    //__asm__ __volatile__ ("subl $4, %esp\n\t");
+
     myAccess access = makeMemoryBlock(sizeof(*access), MEMORY_TYPE_NONE);
     assert (access);
 
@@ -133,6 +134,7 @@ void fillFormalsFromFlags(myFrame frame, myBoolList formalFlags)
     else
         frame->formals = Frame_makeAccessList(NULL, NULL);
 
+    //  use iterations to replace recursive function calls
     myAccessList accessList = frame->formals;
     while (formalFlags)
     {
@@ -184,4 +186,12 @@ int Frame_getLocalCount(myFrame frame)
 myAccessList Frame_getFormals(myFrame frame)
 {
     return frame->formals;
+}
+
+////////////////////////////////////////////////////////////////////
+//                      private functions
+int Frame_getAccessOffset(myAccess access)
+{
+    assert (Frame_isAccessInFrame(access));
+    return access->u.offset;
 }
