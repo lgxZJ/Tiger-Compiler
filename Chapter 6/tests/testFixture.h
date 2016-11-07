@@ -33,6 +33,8 @@ myExp makeOneExp_Record(mySymbol recordTypeName);
 myExp makeOneIllegalExp_Integer(void);
 myExp makeOneExp_NoParamprocedureCall(mySymbol funcName);
 
+myExp makeOneLetExp_IntVar(mySymbol varSymbol);
+
 myLValueExp makeOneLegalLValueExp_SimpleVar_Int();
 myLValueExp makeOneLegalLValueExp_Record(myType recordType);
 myNoFieldRecordCreationExp makeOneNoFieldCreationExp(void);

@@ -95,7 +95,7 @@ Trans_myAccess Trans_allocateLocal(Trans_myLevel level, bool escapeFlag);
 //  PARAMS:
 //      level:  a level.
 //  RETURN:
-//      the formals insided this level(not include static link). If there is
+//      it returns the formals insided this level(not include static link). If there is
 //      no formals(include outermost level), it returns NULL.
 //  REMARK:
 //      once a level is created, its formal can not be changed any more!

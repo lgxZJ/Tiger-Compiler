@@ -678,28 +678,37 @@ void test_MySemanticDecsRecursive_LegalVars_ReturnTrue(void)
 {
     MySemantic_setVarAndFuncEnvironment(myEnvironment_BaseVarAndFunc());
     MySemantic_setTypeEnvironment(myEnvironment_BaseType());
+    MySemantic_enterNewLevel(Trans_outermostLevel());
     myDecList varDecs = makeLegalVars();
 
     bool result = MySemantic_Decs_Recursive(varDecs);
 
     CU_ASSERT_EQUAL(result, true); 
+
+    //  clean up
+    MySemantic_leaveNewLevel();
 }
 
 void test_MySemanticDecsRecursive_IllegalVars_ReturnFalse(void)
 {
     MySemantic_setVarAndFuncEnvironment(myEnvironment_BaseVarAndFunc());
     MySemantic_setTypeEnvironment(myEnvironment_BaseType());
+    MySemantic_enterNewLevel(Trans_outermostLevel());
     myDecList varDecs = makeIllegalVars();
 
     bool result = MySemantic_Decs_Recursive(varDecs);
 
     CU_ASSERT_EQUAL(result, false); 
+
+    //  clean up
+    MySemantic_leaveNewLevel();
 }
 
 void test_MySemanticDecsRecursive_LegalRecursiveTypes_ReturnTrue(void)
 {
     MySemantic_setVarAndFuncEnvironment(myEnvironment_BaseVarAndFunc());
     MySemantic_setTypeEnvironment(myEnvironment_BaseType());
+    MySemantic_enterNewLevel(Trans_outermostLevel());
 
     mySymbol typeNameA = MySymbol_MakeSymbol("A");
     mySymbol typeNameB = MySymbol_MakeSymbol("B");
@@ -710,12 +719,16 @@ void test_MySemanticDecsRecursive_LegalRecursiveTypes_ReturnTrue(void)
     bool result = MySemantic_Decs_Recursive(typeDecs);
 
     CU_ASSERT_EQUAL(result, true);
+
+    //  clean up
+    MySemantic_leaveNewLevel();
 }
 
 void test_MySemanticDecsRecursive_IllegalRecursiveTypes_ReturnFalse(void)
 {
     MySemantic_setVarAndFuncEnvironment(myEnvironment_BaseVarAndFunc());
     MySemantic_setTypeEnvironment(myEnvironment_BaseType());
+    MySemantic_enterNewLevel(Trans_outermostLevel());
 
     mySymbol typeNameA = MySymbol_MakeSymbol("A");
     mySymbol typeNameB = MySymbol_MakeSymbol("B");
@@ -731,6 +744,9 @@ void test_MySemanticDecsRecursive_IllegalRecursiveTypes_ReturnFalse(void)
 
     CU_ASSERT_EQUAL(resultOne, false);
     CU_ASSERT_EQUAL(resultTwo, false);
+
+    //  clean up
+    MySemantic_leaveNewLevel();
 }
 
 void test_MySemanticDecsRecursive_LegalRecursiveFuncs_ReturnTrue(void)

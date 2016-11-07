@@ -3,6 +3,7 @@
 
 #include "internalForwards.h"
 
+#include "../../myParser.h"
 #include "../../mySemantic.h"
 #include "../../myEnvironment.h"
 #include "../../typeMaker.h"
@@ -12,6 +13,7 @@
 
 #include <stdlib.h>
 #include <stdio.h>
+#include <assert.h>
 
 //  todo: change name *NULL to *SemanticError
 ///////////////////////////////////////////////////////////////////////
@@ -1054,6 +1056,7 @@ void test_MySemanticForExp_AssignValueToLoopVarInBody_ReturnSemanticError(void)
 {
     MySemantic_setVarAndFuncEnvironment(myEnvironment_BaseVarAndFunc());
     MySemantic_setTypeEnvironment(myEnvironment_BaseType());
+    MySemantic_enterNewLevel(Trans_outermostLevel());
 
     mySymbol forVarName = MySymbol_MakeSymbol("var");
     myExp assignmentBody = makeMyExp_Assignment(makeOnePos(),
@@ -1069,12 +1072,16 @@ void test_MySemanticForExp_AssignValueToLoopVarInBody_ReturnSemanticError(void)
     myTranslationAndType result = MySemantic_ForExp(forExp);
     
     CU_ASSERT_EQUAL(result, SEMANTIC_ERROR);
+
+    //  clean up
+    MySemantic_leaveNewLevel();
 }
 
 void test_MySemanticForExp_LegalForExp_ReturnTypeNoReturn(void)
 {
     MySemantic_setVarAndFuncEnvironment(myEnvironment_BaseVarAndFunc());
     MySemantic_setTypeEnvironment(myEnvironment_BaseType());
+    MySemantic_enterNewLevel(Trans_outermostLevel());
 
     mySymbol forVarName = MySymbol_MakeSymbol("var"); 
     myForExp forExp = makeMyForExp(
@@ -1087,12 +1094,16 @@ void test_MySemanticForExp_LegalForExp_ReturnTypeNoReturn(void)
         MySemantic_ForExp(forExp);
     
     CU_ASSERT(isTypeNoReturn(result->type));
+
+    //  clean up
+    MySemantic_leaveNewLevel();
 }
 
 void test_MySemanticForExp_LegalForExp_ConditionVarCanBeUsedInBody(void)
 {
     MySemantic_setVarAndFuncEnvironment(myEnvironment_BaseVarAndFunc());
     MySemantic_setTypeEnvironment(myEnvironment_BaseType());
+    MySemantic_enterNewLevel(Trans_outermostLevel());
 
     mySymbol forVarName = MySymbol_MakeSymbol("var"); 
 
@@ -1111,6 +1122,9 @@ void test_MySemanticForExp_LegalForExp_ConditionVarCanBeUsedInBody(void)
         MySemantic_ForExp(forExp);
     
     CU_ASSERT_NOT_EQUAL(result, SEMANTIC_ERROR);
+
+    //  clean up
+    MySemantic_leaveNewLevel();
 }
 
 //  a parameterized test
@@ -1118,6 +1132,7 @@ void test_IllegalForExp_ReturnSemanticError(myExp low, myExp high, myExp body)
 {
     MySemantic_setVarAndFuncEnvironment(myEnvironment_BaseVarAndFunc());
     MySemantic_setTypeEnvironment(myEnvironment_BaseType());
+    MySemantic_enterNewLevel(Trans_outermostLevel());
 
     mySymbol forVarName = MySymbol_MakeSymbol("var"); 
     myForExp forExp = makeMyForExp(forVarName, low, high, body);
@@ -1126,6 +1141,9 @@ void test_IllegalForExp_ReturnSemanticError(myExp low, myExp high, myExp body)
         MySemantic_ForExp(forExp);
     
     CU_ASSERT_EQUAL(result, SEMANTIC_ERROR);
+
+    //  clean up
+    MySemantic_leaveNewLevel();
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -1736,6 +1754,7 @@ void test_MySemanticDecVarShortForm_LegalIntShortVar_ValueTypedAdded(void)
 {
     MySemantic_setTypeEnvironment(myEnvironment_BaseType());
     MySemantic_setVarAndFuncEnvironment(myEnvironment_BaseVarAndFunc());
+    MySemantic_enterNewLevel(Trans_outermostLevel());
 
     mySymbol typeName = makeOneSymbol(); 
     myShortFormVar legalShortVar = makeMyShortFormVar(
@@ -1750,6 +1769,9 @@ void test_MySemanticDecVarShortForm_LegalIntShortVar_ValueTypedAdded(void)
             typeName));
     CU_ASSERT_EQUAL(result, true);
     CU_ASSERT(isTypeInt(addedType));
+
+    //  clean up
+    MySemantic_leaveNewLevel();
 }
 
 //  a parameterized test
@@ -1757,10 +1779,14 @@ void test_IllegalShortFormVar_ReturnFalse(myShortFormVar var)
 {
     MySemantic_setVarAndFuncEnvironment(myEnvironment_BaseVarAndFunc());
     MySemantic_setTypeEnvironment(myEnvironment_BaseType());
+    MySemantic_enterNewLevel(Trans_outermostLevel());
 
     bool result = MySemantic_Dec_Var_ShortForm(var);
 
     CU_ASSERT_EQUAL(result, false);
+
+    //  clean up
+    MySemantic_leaveNewLevel();
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -1808,6 +1834,7 @@ void test_MySemanticDecVarLongForm_NilValueOfRecordType_VarAdded(void)
 {
     MySemantic_setVarAndFuncEnvironment(myEnvironment_BaseVarAndFunc());
     MySemantic_setTypeEnvironment(myEnvironment_BaseType());
+    MySemantic_enterNewLevel(Trans_outermostLevel());
 
     mySymbol recordTypeName = MySymbol_MakeSymbol("recordType");
     myType recordType = makeAndAddOneType_NoFieldRecord(
@@ -1826,12 +1853,16 @@ void test_MySemanticDecVarLongForm_NilValueOfRecordType_VarAdded(void)
     CU_ASSERT_EQUAL(result, true);
     CU_ASSERT(myEnvironment_isVarEntry(varEntry));
     CU_ASSERT(isTypeEqual(MyEnvironment_getVarType(varEntry), recordType));
+
+    //  clean up
+    MySemantic_leaveNewLevel();
 }
 
 void test_MySemanticDecVarLongForm_LegalParam_VarAdded(void)
 {
     MySemantic_setVarAndFuncEnvironment(myEnvironment_BaseVarAndFunc());
     MySemantic_setTypeEnvironment(myEnvironment_BaseType());
+    MySemantic_enterNewLevel(Trans_outermostLevel());
 
     mySymbol varName = makeOneSymbol(); 
     myLongFormVar longFormVar = makeMyLongFormVar(
@@ -1846,12 +1877,16 @@ void test_MySemanticDecVarLongForm_LegalParam_VarAdded(void)
     CU_ASSERT_EQUAL(result, true);
     CU_ASSERT(myEnvironment_isVarEntry(varEntry));
     CU_ASSERT(isTypeInt(MyEnvironment_getVarType(varEntry)));
+
+    //  clean up
+    MySemantic_leaveNewLevel();
 }
 
 void test_MySemanticDecVarLongForm_NilValueOfRecordType_Succeed(void)
 {
     MySemantic_setVarAndFuncEnvironment(myEnvironment_BaseVarAndFunc());
     MySemantic_setTypeEnvironment(myEnvironment_BaseType());
+    MySemantic_enterNewLevel(Trans_outermostLevel());
     mySymbol recordTypeName = MySymbol_MakeSymbol("typeee");
     makeAndAddOneType_NoFieldRecord(
         recordTypeName);
@@ -1862,6 +1897,9 @@ void test_MySemanticDecVarLongForm_NilValueOfRecordType_Succeed(void)
         MySemantic_Dec_Var_LongForm(longFormVar);
 
     CU_ASSERT_EQUAL(result, true);
+
+    //  clean up
+    MySemantic_leaveNewLevel();
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -2382,6 +2420,7 @@ void test_MySemanticLetExp_LegalExp_VarInDecsCanBeUsedInExps(void)
 {
     MySemantic_setVarAndFuncEnvironment(myEnvironment_BaseVarAndFunc());
     MySemantic_setTypeEnvironment(myEnvironment_BaseType());
+    MySemantic_enterNewLevel(Trans_outermostLevel());
 
     mySymbol varName = makeOneSymbol();
     myDecList decs = makeMyDecList(
@@ -2400,12 +2439,16 @@ void test_MySemanticLetExp_LegalExp_VarInDecsCanBeUsedInExps(void)
 
     CU_ASSERT(result != SEMANTIC_ERROR);
     CU_ASSERT(isTypeInt(result->type));
+
+    //  clean up
+    MySemantic_leaveNewLevel();
 }
 
 void test_MySemanticLetExp_LegalExp_TypesInDecsCanBeUsedInExps(void)
 {
     MySemantic_setVarAndFuncEnvironment(myEnvironment_BaseVarAndFunc());
     MySemantic_setTypeEnvironment(myEnvironment_BaseType());
+    MySemantic_enterNewLevel(Trans_outermostLevel());
 
     mySymbol typeName = MySymbol_MakeSymbol("typeName");
     myTypeDec typeDec = makeMyTyDec(
@@ -2424,6 +2467,9 @@ void test_MySemanticLetExp_LegalExp_TypesInDecsCanBeUsedInExps(void)
 
     CU_ASSERT(result != SEMANTIC_ERROR);
     CU_ASSERT(isTypeArray(result->type));
+
+    //  clean up
+    MySemantic_leaveNewLevel();
 } 
 
 void test_MySemanticLetExp_LegalExp_FuncsInDecsCanBeUsedInExps(void)
@@ -2643,7 +2689,7 @@ int main (int argc, char* argv[])
         { "", test_MySemanticLetExp_LegalExp_FuncsInDecsCanBeUsedInExps },
 
         { "", test_MySemanticExp_IllegalBreak_Failed },
-        { "", test_MySemanticExp_LegalBreak_Succeed }
+        { "", test_MySemanticExp_LegalBreak_Succeed },
     };
     
     if (!addTests(&suite, tests, sizeof(tests) / sizeof(tests[0])))

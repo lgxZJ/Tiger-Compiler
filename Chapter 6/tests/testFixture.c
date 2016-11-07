@@ -4,6 +4,7 @@
 #include "../typeMaker.h"
 #include "../abstractSyntaxMaker.h"
 #include "../mySemantic.h"
+#include "../myEscape.h"
 
 #include <stdlib.h> //  for macro NULL
 

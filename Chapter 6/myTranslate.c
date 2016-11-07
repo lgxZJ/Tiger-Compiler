@@ -18,6 +18,7 @@ struct Trans_myAccess_
 
 struct Trans_myLevel_
 {
+    Trans_myLevel       previousLevel;
     myFrame             frame;
     Trans_myAccessList  formals;
 };
@@ -138,11 +139,10 @@ Trans_myLevel Trans_newLevel(
     myBoolList formalsAddStaticLink = Frame_makeBoolList(formals, true);
     myFrame frame = Frame_newFrame(name, formalsAddStaticLink);
 
-    //  todo: assign value to the static link formal
-
     Trans_myLevel level = makeMemoryBlock(sizeof(*level), MEMORY_TYPE_NONE);
     assert (level);
     level->frame = frame;
+    level->previousLevel = parent;
     level->formals = Trans_convertAccessFromFrameToLevel(
         Frame_getFormals(frame), level);
     return level;
@@ -172,4 +172,3 @@ Trans_myAccessList Trans_getFormals(Trans_myLevel level)
         //  skip the static link formal
         return level->formals->tail;
 }
-

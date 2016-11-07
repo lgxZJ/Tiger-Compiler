@@ -51,6 +51,9 @@ typedef struct myTempList_
     struct myTempList_*	tail;
 }* myTempList;
 
+///
+/// \brief  a temp list maker.
+///
 myTempList Temp_makeTempList(myTemp head, myTempList tail);
 
 
@@ -60,6 +63,9 @@ typedef struct myLabelList_
     struct myLabelList_*	tail;
 }* myLabelList;
 
+///
+/// \brief  a label list maker.
+///
 myLabelList Temp_makeLabelList(myLabel head, myLabelList tail);
 
 //////////////////////////////////////////////////////////////////

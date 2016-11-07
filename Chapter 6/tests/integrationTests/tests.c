@@ -203,7 +203,7 @@ int main()
 
         { "", test_NotNestedIntFuncFormalsFile_EscapeFinding_NotEscaped },
         { "", test_NestedIntFuncFormalsFile_EscapeFinding_Escaped },
-        { "", test_NotIntFuncFormalsFile_EscapeFinding_Escaped }
+        { "", test_NotIntFuncFormalsFile_EscapeFinding_Escaped },
     };
     if (!addTests(&suite, tests, sizeof(tests) / sizeof(tests[0])))
         return EXIT_FAILURE;
