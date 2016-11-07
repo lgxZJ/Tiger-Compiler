@@ -1,3 +1,27 @@
-*.*~
-#*.*#
-*.gch
+#	executables
+**/*.out
+
+#	back-up files
+**/*.*~
+
+#	restored files
+**/*.*#
+
+#	precompiled files
+**/*.gch
+
+#	object files
+**/*.o
+
+#	coverage folders
+**/coverage/*
+
+#	html files of coverage report
+**/*.html
+
+#	pictures of coverage report
+**/*.png
+
+#	gcov generated files
+**/*.gcda
+**/*.gcno
