@@ -61,7 +61,7 @@ void test_addNewType_ByDefault_AddOne(void)
     CU_ASSERT_EQUAL(expectedType, actualType);
 }
 
-void test_MyEnvironmentsetTypeFromName_ValidSet_ReturnTrueAndTheOneSetted(void)
+void test_MyEnvironmentupdateTypeValue_ValidSet_ReturnTrueAndTheOneSetted(void)
 {
     myTable typeEnv = myEnvironment_BaseType();
 
@@ -71,7 +71,7 @@ void test_MyEnvironmentsetTypeFromName_ValidSet_ReturnTrueAndTheOneSetted(void)
 
     myType typeSetted = (myType)12;
     bool result =
-        MyEnvironment_setTypeFromName(typeEnv, typeName, typeSetted);
+        MyEnvironment_updateTypeValue(typeEnv, typeName, typeSetted);
 
     myType typeGot = MyEnvironment_getTypeFromName(typeEnv, typeName);
     CU_ASSERT_EQUAL(result, true);
@@ -152,7 +152,7 @@ int main (int argc, char* argv[])
         { "", test_makeFuncEntry_ByDefault_MakeOneValidFuncEntry },
         { "", test_addNewVarOrFunc_ByDefault_AddOne },
         { "", test_addNewType_ByDefault_AddOne },
-        { "", test_MyEnvironmentsetTypeFromName_ValidSet_ReturnTrueAndTheOneSetted },
+        { "", test_MyEnvironmentupdateTypeValue_ValidSet_ReturnTrueAndTheOneSetted },
         { "", test_myEnvironmentBaseVarAndFunc_BeDefault_ContainPredefinedFuncs },
         { "", test_myEnvironmentBaseType_BeDefault_ContainsIntuitiveTypes },
         { "", test_MyEnvironmentUpdateFuncLevel_ByDefault_GetWhatUpdated },

@@ -60,6 +60,7 @@ bool myEnvironment_isFuncEntry(myVarAndFuncEntry entry)
     return entry->kind == FuncEntry; 
 }
 
+///////////////////////////////////////////////////////////
 
 void MyEnvironment_addNewVarOrFunc(
     myTable varAndFuncEnv, mySymbol entryName, myVarAndFuncEntry newEntry)
@@ -87,6 +88,8 @@ myType MyEnvironment_getVarType(myVarAndFuncEntry varEntry)
     return varEntry->u.varEntry.type;
 }
 
+/////////////////////////////////////////////////////////
+
 //  NOTE:   type must has been already added
 myType MyEnvironment_getTypeFromName(
     myTable typeEnv, mySymbol typeName)
@@ -110,12 +113,28 @@ myType MyEnvironment_getFuncReturnType(myVarAndFuncEntry funcEntry)
     return funcEntry->u.funcEntry.returnType;
 }
 
-bool MyEnvironment_setTypeFromName(
-    myTable varAndFuncEnv, mySymbol typeName, myType type)
+Trans_myLevel MyEnvironment_getFuncLevel(myVarAndFuncEntry funcEntry)
 {
-    assert (varAndFuncEnv && type);
+    assert (funcEntry);
+    assert (myEnvironment_isFuncEntry(funcEntry));
+    return funcEntry->u.funcEntry.level;
+}
+
+myLabel MyEnvironment_getFuncLabel(myVarAndFuncEntry funcEntry)
+{
+    assert (funcEntry);
+    assert (myEnvironment_isFuncEntry(funcEntry));
+    return funcEntry->u.funcEntry.label;
+}
+
+////////////////////////////////////////////////////////////
+
+bool MyEnvironment_updateTypeValue(
+    myTable typeEnv, mySymbol typeName, myType newType)
+{
+    assert (typeEnv && newType);
     assert (!MySymbol_InvalidSymbol(typeName));
-    return MySymbol_Set(varAndFuncEnv, typeName, type);
+    return MySymbol_Set(typeEnv, typeName, newType);
 }
 
 void MyEnvironment_updateFuncLevel(
