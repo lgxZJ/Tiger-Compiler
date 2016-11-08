@@ -1,5 +1,5 @@
 TN:
-SF:/home/lgxZJ/Projects/Tiger-Compiler/Compiler/Syntax-Analysis/myTable.c
+SF:/home/lgxZJ/Projects/Tiger-Compiler/Compiler/Commom/myTable.c
 FN:27,hashFunc_MyTable
 FN:37,makeMyBinder
 FN:52,MyTable_MakeEmptyTable_

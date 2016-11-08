@@ -22,7 +22,7 @@
 //	By using this pointer it makes up a symbol list
 //
 
-#include "myTable.h"
+#include "../Commom/myTable.h"
 
 
 typedef char*	            myString;

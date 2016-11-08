@@ -38,6 +38,7 @@ run:
 retest:
 > make clean
 > make
+> make run
 
 show-coverage:
 > lcov --directory . --zerocounters
