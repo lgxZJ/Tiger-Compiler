@@ -2,7 +2,7 @@
 **/*.out
 
 #	back-up files
-**/*.*~
+**/*~
 
 #	restored files
 **/*.*#
@@ -25,3 +25,6 @@
 #	gcov generated files
 **/*.gcda
 **/*.gcno
+
+#	input files for autotools
+**/*.in
