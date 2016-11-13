@@ -5,6 +5,9 @@
 
 #include <stdlib.h>
 
+//////////////////////      forwards        ///////////////////////
+int Frame_getAccessOffset(myAccess access);
+
 ///////////////////////     test helpers    ///////////////////////
 
 int getFormalCountFromFrame(myFrame frame)
@@ -90,6 +93,19 @@ void test_FramenewFrame_NotAllEscapes_FormalCountEquals(void)
     
     test_FramenewFrame_FormalCountEqualsFlags(flagsWithTwoTrue, boolsCount);
 }
+void test_FramenewFrame_AllEscapes_NegativeOffsetWithFourInterval(void)
+{
+    myBoolList formalFlags = Frame_makeBoolList(Frame_makeBoolList(NULL, true), true);
+
+    myFrame frame = Frame_newFrame((myLabel)12, formalFlags);
+
+    myAccessList formals = Frame_getFormals(frame);
+    int firstArgOffset = Frame_getAccessOffset(formals->head);
+    int secondArgOffset = Frame_getAccessOffset(formals->tail->head);
+    CU_ASSERT_EQUAL(firstArgOffset, 0);
+    CU_ASSERT_EQUAL(secondArgOffset, -4);
+}
+
 
 //  a parameterized test
 void test_FramenewFrame_FormalCountEqualsFlags(myBoolList flags, int countExpected)
@@ -312,6 +328,7 @@ int main()
         { "", test_FranenewFrame_FlagNotEscape_AccessInReg },
         { "", test_FramenewFrame_AllEscapes_FormalCountEquals },
         { "", test_FramenewFrame_NotAllEscapes_FormalCountEquals },
+        { "", test_FramenewFrame_AllEscapes_NegativeOffsetWithFourInterval },
 
         { "", test_FrameIsFrameEqual_ByDefault_WorkRight },
 

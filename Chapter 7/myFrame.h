@@ -180,8 +180,8 @@ int Frame_getLocalCount(myFrame frame);
 //      frame:  inside which the formals is in.
 //  RETURN:
 //      a myAccessList variable containing formals' information.
-//  STATUS:
-//      
+//  REMARK:
+//      in this list, arguments appears in reverse order.
 myAccessList Frame_getFormals(myFrame frame);
 
 //  DO:
@@ -204,7 +204,7 @@ myTemp Frame_RV(void);
 //      turn a variable into the IR representation;
 //  PARAMS:
 //      access      an access variable.
-//      framePtr    the frame pointer inside which the given variable is declared.
+//      framePtr    the stack frame address from which the given variable is declared.
 //  RETURN:
 //      if the given variable is in frame, return the address of it;
 //      otherwise, return the temporary representation of it.

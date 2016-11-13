@@ -178,7 +178,7 @@ void fillFormalsFromFlags(myFrame frame, myBoolList formalFlags)
         myAccess access;
 
         if (formalFlags->head)
-            accessList->head = makeInFrameAccess(frame->formalCount++ * BASE_SIZE);
+            accessList->head = makeInFrameAccess(-frame->formalCount++ * BASE_SIZE);
         else
             accessList->head = makeInRegAccess(Temp_newTemp());
 
