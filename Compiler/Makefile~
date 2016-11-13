@@ -1,4 +1,0 @@
-.RECIPEPREFIX := >
-
-all:
-> genhtml -f 

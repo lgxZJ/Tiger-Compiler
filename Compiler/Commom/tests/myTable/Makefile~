@@ -1,7 +1,0 @@
-OBJECTS := all.out testHelper.o makeMemory.o myTable.o
-
-COMPILE_FLAGS := gcc -g -c -std=c99
-ADDITIONAL_INCLUDE := /home/lgxZJ/Libraries/CUnit/include
-ADDITIONAL_LIB := /home/lgxZJ/Libraries/CUnit/lib
-
-%.o : %.c
