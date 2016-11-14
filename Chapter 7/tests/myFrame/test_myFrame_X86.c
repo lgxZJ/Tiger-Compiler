@@ -5,20 +5,12 @@
 
 #include <stdlib.h>
 
-//////////////////////      forwards        ///////////////////////
-int Frame_getAccessOffset(myAccess access);
-
 ///////////////////////     test helpers    ///////////////////////
 
 int getFormalCountFromFrame(myFrame frame)
 {
     CU_ASSERT((bool)frame);
     return Frame_getAccessListCount(Frame_getFormals(frame));
-}
-
-int getLocalCountFromFrame(myFrame frame)
-{
-    return Frame_getLocalCount(frame);
 }
 
 ///////////////////////        tests       ////////////////////////
@@ -52,6 +44,8 @@ void test_FramemakeAccessList_ByDefault_MakeWhatPasses(void)
 //  forwards
 void test_FramenewFrame_FormalCountEqualsFlags(
     myBoolList flags, int countExpected);
+void test_FramenewFrame_FormalLocalCountEqualsFlags(
+    myBoolList flags, int countExpected);
 
 ////////
 
@@ -75,16 +69,17 @@ void test_FranenewFrame_FlagNotEscape_AccessInReg(void)
     CU_ASSERT(Frame_isAccessInReg(accesses->head));
 }
 
-void test_FramenewFrame_AllEscapes_FormalCountEquals(void)
+void test_FramenewFrame_AllEscapes_FormalAndLocalCountEquals(void)
 {
     myBoolList flagsWithTwoTrue =
         Frame_makeBoolList(Frame_makeBoolList(NULL, true), true);
     int boolsCount = Frame_getBoolListCount(flagsWithTwoTrue);
     
     test_FramenewFrame_FormalCountEqualsFlags(flagsWithTwoTrue, boolsCount);
+    test_FramenewFrame_FormalLocalCountEqualsFlags(flagsWithTwoTrue, boolsCount);
 }
 
-void test_FramenewFrame_NotAllEscapes_FormalCountEquals(void)
+void test_FramenewFrame_NotAllEscapes_FormalAndLocalCountEquals(void)
 {
     myBoolList flagsWithTwoTrue =
         Frame_makeBoolList(Frame_makeBoolList(Frame_makeBoolList(NULL, false),
@@ -92,7 +87,9 @@ void test_FramenewFrame_NotAllEscapes_FormalCountEquals(void)
     int boolsCount = Frame_getBoolListCount(flagsWithTwoTrue);
     
     test_FramenewFrame_FormalCountEqualsFlags(flagsWithTwoTrue, boolsCount);
+    test_FramenewFrame_FormalLocalCountEqualsFlags(flagsWithTwoTrue, boolsCount - 2);
 }
+
 void test_FramenewFrame_AllEscapes_NegativeOffsetWithFourInterval(void)
 {
     myBoolList formalFlags = Frame_makeBoolList(Frame_makeBoolList(NULL, true), true);
@@ -106,7 +103,6 @@ void test_FramenewFrame_AllEscapes_NegativeOffsetWithFourInterval(void)
     CU_ASSERT_EQUAL(secondArgOffset, -4);
 }
 
-
 //  a parameterized test
 void test_FramenewFrame_FormalCountEqualsFlags(myBoolList flags, int countExpected)
 {
@@ -115,6 +111,16 @@ void test_FramenewFrame_FormalCountEqualsFlags(myBoolList flags, int countExpect
     myFrame frame = Frame_newFrame(fakeLabel, flags);
 
     int formalsCount = getFormalCountFromFrame(frame);
+    CU_ASSERT_EQUAL(formalsCount, countExpected);
+}
+
+void test_FramenewFrame_FormalLocalCountEqualsFlags(myBoolList flags, int countExpected)
+{
+    myLabel fakeLabel = 0;
+
+    myFrame frame = Frame_newFrame(fakeLabel, flags);
+
+    int formalsCount = Frame_getformalLocalCount(frame);
     CU_ASSERT_EQUAL(formalsCount, countExpected);
 }
 
@@ -186,11 +192,11 @@ void test_FrameallocateLocal_LocalCountIncremented_EqualsTo(
     bool flag, int numExpected)
 {
     myFrame frame = Frame_newFrame((myLabel)NULL, NULL);
-    int localVarCountBefore = getLocalCountFromFrame(frame);
+    int localVarCountBefore = Frame_getLocalCount(frame);
 
     Frame_allocateLocal(frame, flag);
 
-    int localVarCountAfter = getLocalCountFromFrame(frame);
+    int localVarCountAfter = Frame_getLocalCount(frame);
     CU_ASSERT_EQUAL(localVarCountAfter - localVarCountBefore, numExpected);
 }
 
@@ -326,8 +332,8 @@ int main()
 
         { "", test_FranenewFrame_FlagEscape_AccessInFrame },
         { "", test_FranenewFrame_FlagNotEscape_AccessInReg },
-        { "", test_FramenewFrame_AllEscapes_FormalCountEquals },
-        { "", test_FramenewFrame_NotAllEscapes_FormalCountEquals },
+        { "", test_FramenewFrame_AllEscapes_FormalAndLocalCountEquals },
+        { "", test_FramenewFrame_NotAllEscapes_FormalAndLocalCountEquals },
         { "", test_FramenewFrame_AllEscapes_NegativeOffsetWithFourInterval },
 
         { "", test_FrameIsFrameEqual_ByDefault_WorkRight },

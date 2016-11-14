@@ -165,7 +165,7 @@ bool Frame_isFrameEqual(myFrame lhs, myFrame rhs);
 myAccess Frame_allocateLocal(myFrame frame, bool escapeFlag);
 
 //  DO:
-//      get local variable count allocated so far.
+//      get local variable(include formal local vars) count allocated so far.
 //  PARAMS:
 //      frame:  inside which to look local variables
 //  RETURN:
@@ -173,6 +173,32 @@ myAccess Frame_allocateLocal(myFrame frame, bool escapeFlag);
 //  REMARK:
 //      the return value can never be negative.
 int Frame_getLocalCount(myFrame frame);
+
+//  DO:
+//      get variable count of formal local allocated so far.
+//  PARAMS:
+//      frame:  inside which to look local variables
+//  RETURN:
+//      the count of formal local variables
+//  REMARK:
+//      the return value can never be negative.
+int Frame_getformalLocalCount(myFrame frame);
+
+//  DO:
+//      get variable offset.
+//  PARAMS:
+//      access  an access variable.
+//  RETURN:
+//      the offset in within the declared level.
+int Frame_getAccessOffset(myAccess access);
+
+//  DO:
+//      get the `reg` field of myAccess.
+//  PARAMS:
+//      access  an myAccess variable.
+//  RETURN:
+//      the `reg` field.
+myTemp Frame_getAccessReg(myAccess access);
 
 //  DO:
 //      get all formals from one frame.
@@ -212,7 +238,6 @@ myTemp Frame_RV(void);
 //      if `access` is a register access, then the argument `framePtr` is ignored.
 IR_myExp Frame_accessToIRExp(myAccess access, IR_myExp framePtr);
 
-//  todo:
 //  DO:
 //      convert Tiger calling convention into C call convention. 
 //  PARAMS:

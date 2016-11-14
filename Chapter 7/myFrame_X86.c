@@ -38,8 +38,8 @@ struct myFrame_
 {
     myAccessList    formals;
     myString        viewShift;
-    int             localCount;
-    int             formalCount;
+    int             localCount;     //  include `formalLocalCount`
+    int             formalLocalCount;    //  in frame local count
     myLabel         label;
 };
 
@@ -156,16 +156,16 @@ myFrame Frame_newFrame(myLabel frameLabel, myBoolList formalFlags)
     assert (frame);
 
     frame->label = frameLabel;
-    frame->localCount = 0;  //  not include formals
     fillFormalsFromFlags(frame, formalFlags);
     fillViewShiftFromFlags(frame);
-    
+    frame->localCount = frame->formalLocalCount;  //  include formals
+
     return frame;
 }
 
 void fillFormalsFromFlags(myFrame frame, myBoolList formalFlags)
 {
-    frame->formalCount = 0;
+    frame->formalLocalCount = 0;
     if (formalFlags == NULL)
         frame->formals = NULL;
     else
@@ -178,7 +178,7 @@ void fillFormalsFromFlags(myFrame frame, myBoolList formalFlags)
         myAccess access;
 
         if (formalFlags->head)
-            accessList->head = makeInFrameAccess(-frame->formalCount++ * BASE_SIZE);
+            accessList->head = makeInFrameAccess(-frame->formalLocalCount++ * BASE_SIZE);
         else
             accessList->head = makeInRegAccess(Temp_newTemp());
 
@@ -218,6 +218,12 @@ int Frame_getLocalCount(myFrame frame)
     return frame->localCount;
 }
 
+int Frame_getformalLocalCount(myFrame frame)
+{
+    assert (frame->localCount >= 0);
+    return frame->formalLocalCount;
+}
+
 ///////////////////////////////////
 
 myAccessList Frame_getFormals(myFrame frame)
@@ -226,13 +232,18 @@ myAccessList Frame_getFormals(myFrame frame)
 }
 
 ////////////////////////////////////////////////////////////////////
-//                      private functions
+
 int Frame_getAccessOffset(myAccess access)
 {
     assert (Frame_isAccessInFrame(access));
     return access->u.offset;
 }
 
+myTemp Frame_getAccessReg(myAccess access)
+{
+    assert (Frame_isAccessInReg(access));
+    return access->u.reg;
+}
 
 /////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////
@@ -263,6 +274,14 @@ IR_myExp Frame_accessToIRExp(myAccess access, IR_myExp framePtr)
         return IR_makeTemp(access->u.reg);
     else
         return IR_makeBinOperation(IR_Plus, IR_makeConst(access->u.offset), framePtr);
+}
+
+////////////////
+
+IR_myExp Frame_externalCall(myString str, IR_myExpList args)
+{
+    //  todo:   maybe adjust static link
+    return IR_makeCall(IR_makeName(Temp_newNamedLabel(str)), args);
 }
 
 ////////////////
