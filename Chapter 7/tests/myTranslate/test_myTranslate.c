@@ -1,8 +1,12 @@
 #include "../testHelper.h"
 
 #include "../../myTranslate.h"
+#include "../../myEnvironment.h"
+#include "../../myParser.h"
+#include "../../mySemantic.h"
 
 #include <stdlib.h>
+#include <assert.h>
 
 //////////////////////     private forwards  //////////////////////
 myFrame Trans_getFrame(Trans_myLevel level);
@@ -13,6 +17,20 @@ int getFormalCountFromLevel(Trans_myLevel level)
 {
     CU_ASSERT((bool)level);
     return Trans_getAccessListCount(Trans_getFormals(level));
+}
+
+static IR_myExp parseFile(char* filename)
+{
+    MySemantic_setVarAndFuncEnvironment(myEnvironment_BaseVarAndFunc());
+    MySemantic_setTypeEnvironment(myEnvironment_BaseType());
+
+    myExp exp = parseOneFile(filename);
+    assert (exp != NULL);
+    assert (exp != ABSTRACT_SYNTAX_ERROR);
+
+    myTranslationAndType result = MySemantic_Exp(exp);
+    assert (result != SEMANTIC_ERROR);
+    return result->translation;
 }
 
 ///////////////////////        tests       ////////////////////////
@@ -139,8 +157,56 @@ void test_TransGetFormals_PassOtherLevels_FormalCountEqualsToBoolFlags(void)
     CU_ASSERT_EQUAL(formalCountTwo, 2);
 }
 
+/////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////
 
-///////////////////////         main        /////////////////////
+//  forwards
+IR_myExp Trans_getExpField(Trans_myExp exp);
+
+//////////////
+
+void test_TransLValueExpSimpleVar_IntVar_ReturnVarAddr(void)
+{
+    /*IR_myExp result = Trans_getExpField(
+        parseFile("../test-files/simpleVar_int.tig"));
+
+    CU_ASSERT_EQUAL(result->u.binOperation.left->u.temp, Frame_FP())
+    CU_ASSERT_EQUAL(result->u.binOperation.right->u.constValue, 4);*/
+}
+
+//////////////
+
+void test_TransLetExp_EmptyDecsAndBody_ReturnStatementNullValueZero(void)
+{
+    IR_myExp result = parseFile("./test-files/let_emptyBoth.tig");
+
+    CU_ASSERT_EQUAL(result->kind, IR_ESeq);
+    CU_ASSERT_EQUAL(result->u.eseq.statement->u.seq.left, NULL);
+    CU_ASSERT_EQUAL(result->u.eseq.statement->u.seq.right, NULL);
+    CU_ASSERT_EQUAL(result->u.eseq.exp->u.constValue, 0);
+}
+
+void test_TransLetExp_EmptyDecs_ReturnDecsNull(void)
+{
+    IR_myExp result = parseFile("./test-files/let_emptyDecs.tig");
+
+    CU_ASSERT_EQUAL(result->kind, IR_ESeq);
+    CU_ASSERT_EQUAL(result->u.eseq.statement->u.seq.left, NULL);
+    CU_ASSERT_EQUAL(result->u.eseq.statement->u.seq.right->u.seq.left, NULL);
+    CU_ASSERT_EQUAL(result->u.eseq.statement->u.seq.right->u.seq.right, NULL);
+    CU_ASSERT_EQUAL(result->u.eseq.exp->u.constValue, 0);
+}
+
+void test_TransLetExp_EmptyExps_ReturnExpsNull(void)
+{
+    IR_myExp result = parseFile("./test-files/let_emptyExps.tig");
+
+    CU_ASSERT_EQUAL(result->kind, IR_ESeq);
+    CU_ASSERT_EQUAL(result->u.eseq.statement->u.seq.right, NULL);
+    CU_ASSERT_EQUAL(result->u.eseq.exp->u.constValue, 0);
+}
+
+///////////////////////////         main        ///////////////////////////////
 
 int main()
 {
@@ -163,7 +229,15 @@ int main()
         { "", test_TransAllocateLocal_ByDefault_AccessWithinGivenLevel },
 
         { "", test_TransGetFormals_PassOtherLevels_FormalCountEqualsToBoolFlags },
-        { "", test_TransGetFormals_PassOutermostLevel_FormalCountIsZero }
+        { "", test_TransGetFormals_PassOutermostLevel_FormalCountIsZero },
+
+        ///////////////////////////////////
+
+        { "", test_TransLValueExpSimpleVar_IntVar_ReturnVarAddr },
+
+        { "", test_TransLetExp_EmptyDecsAndBody_ReturnStatementNullValueZero },
+        { "", test_TransLetExp_EmptyDecs_ReturnDecsNull },
+        { "", test_TransLetExp_EmptyExps_ReturnExpsNull }
     };
     if (!addTests(&suite, tests, sizeof(tests) / sizeof(tests[0])))
         return EXIT_FAILURE;

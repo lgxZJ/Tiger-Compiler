@@ -122,20 +122,23 @@ Frame_myFragList Trans_gePprocFrags(void);
 void Trans_putStringFrag(myLabel label, myString str);
 Frame_myFragList Trans_getStrFrags(void);
 
-//////////////////////////////////////////////////////////////////////////
+
+////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////
 //                              translaters
 
-//  DO:
-//      translate a simple var into IR representations.
-//  PARAMS:
-//      access      an access variable.
-//      left        the level inside which this variable is used.
-//  RETURN;
-//      an IR repreesntation.
-//  REMARK:
-//      variables which are nested used are also processed.
-Trans_myExp Trans_simpleVar(Trans_myAccess access, Trans_myLevel level);
+IR_myExp Trans_LValueExp_SimpleVar(myLValueExp lValueExp);
+IR_myExp Trans_LValueExp_RecordField(myLValueExp lValueExp);
 
-Trans_myExp Trans_LValueExp_SimpleVar(myLValueExp lValueExp);
+///
+/// \brief      translate a let-exp into intermediate code
+/// \params[in] letExp  a let expression.
+/// \returns    an IR represetation of this let expression.
+///
+/// \remark     The value of the last expression is the entire value of the
+///             let-exp. if empty body, empty decs or no-value, then the
+///             value of this expression is 0; 
+IR_myExp Trans_LetExp(myLetExp letExp);
+IR_myExp Trans_Exp_(myExp exp);
 
 #endif
