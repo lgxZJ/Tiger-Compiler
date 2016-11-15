@@ -419,6 +419,8 @@ IR_myExp Trans_VarDec(myVarDec varDec)
     else                            return doSimpleTranslation(varAccess, varBody);
 }
 
+////////////////////////////////////////////////////////////////
+
 IR_myExp Trans_Dec(myDec dec)
 {
     switch (dec->kind)
@@ -430,76 +432,37 @@ IR_myExp Trans_Dec(myDec dec)
     }
 }
 
-#define PROCESS_LIST(processFunc, field)    IR_myStatement result;              \
-                                            if (list == NULL)   result = NULL;  \
-                                            else                result = IR_makeSeq(NULL, NULL);\
-                                                                                \
-                                            IR_myStatement temp = result;       \
-                                            IR_myExp oneResult = NULL;          \
-                                            while (list)                        \
-                                            {                                   \
-                                                oneResult = processFunc(list->field);           \
-                                                assert (oneResult->kind == IR_ESeq);            \
-                                                                                                \
-                                                //  variable declarations have no value         \
-                                                temp->u.seq.left = oneResult->u.eseq.statement; \
-                                                list->next ?                                    \
-                                                    (temp->u.seq.right = IR_makeSeq(NULL, NULL)):\
-                                                    (temp->u.seq.right = NULL); \
-                                                                                \
-                                                list = list->next;              \
-                                                temp = temp->u.seq.right;       \
-                                            }
-                                            
+#define PROCESS_LIST(processFunc, field)    IR_myStatement result;\
+    if (list == NULL)   result = NULL;                  \
+    else                result = IR_makeSeq(NULL, NULL);\
+                                                        \
+    IR_myStatement temp = result;                       \
+    IR_myExp oneResult = NULL;                          \
+    while (list)                                        \
+    {                                                   \
+        oneResult = processFunc(list->field);           \
+        assert (oneResult->kind == IR_ESeq);            \
+                                                        \
+        temp->u.seq.left = oneResult->u.eseq.statement; \
+        list->next ?                                    \
+        (temp->u.seq.right = IR_makeSeq(NULL, NULL)):   \
+        (temp->u.seq.right = NULL);                     \
+                                                        \
+        list = list->next;                              \
+        temp = temp->u.seq.right;                       \
+    }    
 
 IR_myExp Trans_Decs(myDecList list)
 {
-    IR_myStatement result;
-    if (list == NULL)   result = NULL;
-    else                result = IR_makeSeq(NULL, NULL);
-
-    IR_myStatement temp = result; 
-    while (list)
-    {
-        IR_myExp oneResult = Trans_Dec(list->dec);
-        assert (oneResult->kind == IR_ESeq);
-
-        //  variable declarations have no value
-        temp->u.seq.left = oneResult->u.eseq.statement;
-        list->next ?
-            (temp->u.seq.right = IR_makeSeq(NULL, NULL)):
-            (temp->u.seq.right = NULL);
-
-        list = list->next;
-        temp = temp->u.seq.right;
-    }
-    //PROCESS_LIST(Trans_Dec, dec);
-
+    //  variable declarations have no value
+    PROCESS_LIST(Trans_Dec, dec);
     return IR_makeESeq(result, IR_makeConst(0));
 }
 
 IR_myExp Trans_Exps(myExpList list)
 {
-    IR_myStatement result;
-    if (list == NULL)   result = NULL;
-    else                result = IR_makeSeq(NULL, NULL);
-
-    IR_myStatement temp = result;
-    IR_myExp oneResult = NULL;
-    while (list)
-    {
-        oneResult = Trans_Exp_(list->exp);
-        assert (oneResult->kind == IR_ESeq);
-
-        //  variable declarations have no value
-        temp->u.seq.left = oneResult->u.eseq.statement;
-        list->next ?
-            (temp->u.seq.right = IR_makeSeq(NULL, NULL)):
-            (temp->u.seq.right = NULL);
-
-        list = list->next;
-        temp = temp->u.seq.right;
-    }
+    //  variable declarations have no value
+    PROCESS_LIST(Trans_Exp_, exp);
 
     if (oneResult == NULL)  //  empty body
         return IR_makeESeq(result, IR_makeConst(0));
