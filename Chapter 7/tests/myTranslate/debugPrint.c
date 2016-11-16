@@ -1,4 +1,5 @@
 #include "debugPrint.h"
+#include "../../myTranslate.h"
 
 #include <assert.h>
 
@@ -169,5 +170,24 @@ void printExpression(FILE* file, IR_myExp exp, int spaceNum)
             fprintf(file, ")\n");
             break;
         default:    assert (false);
+    }
+}
+
+void printFragments(FILE* file, Frame_myFragList fragments)
+{
+    while (fragments)
+    {
+        if (fragments->head->kind == Frame_StringFrag)
+        {
+            //  todo:
+        }
+        else
+        {
+            fprintf(file, "%s:\n", MySymbol_GetName(fragments->head->u.procFrag.funcName));
+            printStatement(file, fragments->head->u.procFrag.body, 0);
+            fprintf(file, "\n\n");
+        }
+
+        fragments = fragments->tail;
     }
 }
