@@ -14,12 +14,12 @@
                         }                       \
                         return count;
 
-#define BASE_SIZE       wordSize       //  base size of each local var
+#define BASE_SIZE       Frame_wordSize       //  base size of each local var
 
 
 ///////////////////////////////////////////////////////////////////
 //                          globals
-const int wordSize = 4;
+const int Frame_wordSize = 4;
 
 ///////////////////////////////////////////////////////////////////
 //                          structures
@@ -124,7 +124,8 @@ Frame_myFrag Frame_makeStringFrag(myLabel label, myString str)
     return one;
 }
 
-Frame_myFrag Frame_makeProcFrag(IR_myStatement bodyStatement, myFrame frame)
+Frame_myFrag Frame_makeProcFrag(
+    IR_myStatement bodyStatement, myFrame frame, mySymbol funcName)
 {
     Frame_myFrag one = makeMemoryBlock(sizeof(*one), MEMORY_TYPE_NONE);
     assert (one);
@@ -132,6 +133,7 @@ Frame_myFrag Frame_makeProcFrag(IR_myStatement bodyStatement, myFrame frame)
     one->kind = Frame_ProcFrag;
     one->u.procFrag.body = bodyStatement;
     one->u.procFrag.frame = frame;
+    one->u.procFrag.funcName = funcName;
     return one;
 }
 

@@ -117,18 +117,26 @@ Trans_myAccessList Trans_getFormals(Trans_myLevel level);
 
 void Trans_procEntryExit(
     Trans_myLevel level, Trans_myExp body, Trans_myAccessList formals);
-Frame_myFragList Trans_gePprocFrags(void);
-
-void Trans_putStringFrag(myLabel label, myString str);
-Frame_myFragList Trans_getStrFrags(void);
-
 
 ////////////////////////////////////////////////////////////////////////////////
+//
+
+//  todo:
+void Trans_addOneProcFrag(Frame_myFrag frag);
+Frame_myFragList Trans_getProcFrags(void);
+void Trans_resetProcFrags(void);
+
+void Trans_addOneStringFrag(Frame_myFrag frag);
+Frame_myFragList Trans_getStringFrags(void);
+void Trans_resetStringFrags(void);
+
 /////////////////////////////////////////////////////////////////////////////////
 //                              translaters
 
 IR_myExp Trans_LValueExp_SimpleVar(myLValueExp lValueExp);
 IR_myExp Trans_LValueExp_RecordField(myLValueExp lValueExp);
+
+IR_myExp Trans_IntegerLiteralExp(myIntegerLiteralExp integerLiteralExp);
 
 ///
 /// \brief      translate a let-exp into intermediate code

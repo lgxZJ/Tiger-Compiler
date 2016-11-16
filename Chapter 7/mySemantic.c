@@ -915,7 +915,8 @@ myTranslationAndType MySemantic_IntegerLiteralExp(
     myIntegerLiteralExp integerLiteralExp)
 {
     //  no checking needed here
-    return make_MyTranslationAndType(NULL, makeType_Int());
+    return make_MyTranslationAndType(
+        Trans_IntegerLiteralExp(integerLiteralExp), makeType_Int());
 }
 
 ///////////////////////////////////////////////////////////////////////////////////

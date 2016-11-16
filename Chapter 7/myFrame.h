@@ -37,7 +37,7 @@ typedef struct Frame_myFrag_
     union
     {
         struct { myLabel label; myString str; } strFrag;
-        struct { IR_myStatement body; myFrame frame; } procFrag;
+        struct { IR_myStatement body; myFrame frame; mySymbol funcName; } procFrag;
     }u;
 }*  Frame_myFrag;
 
@@ -123,7 +123,7 @@ Frame_myFrag Frame_makeStringFrag(myLabel label, myString str);
 //      frame           the frame inside which this pocedure is defined.
 //  RETURN:
 //      a valid procedure Fragement.
-Frame_myFrag Frame_makeProcFrag(IR_myStatement bodyStatement, myFrame frame);
+Frame_myFrag Frame_makeProcFrag(IR_myStatement bodyStatement, myFrame frame, mySymbol funcName);
 
 //  DO:
 //      make a fragement list;

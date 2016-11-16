@@ -1,4 +1,5 @@
 #include "../testHelper.h"
+#include "debugPrint.h"
 
 #include "../../myTranslate.h"
 #include "../../myEnvironment.h"
@@ -160,50 +161,104 @@ void test_TransGetFormals_PassOtherLevels_FormalCountEqualsToBoolFlags(void)
 /////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////
 
-//  forwards
-IR_myExp Trans_getExpField(Trans_myExp exp);
-
-//////////////
-
-void test_TransLValueExpSimpleVar_IntVar_ReturnVarAddr(void)
+void testOneFileAndShow(char* filename, int flag)
 {
-    /*IR_myExp result = Trans_getExpField(
-        parseFile("../test-files/simpleVar_int.tig"));
+    char* testFilePath = "./test-files/";
+    char* outputFilePath = "./testOutputs/"; 
+    char buffer[100];
 
-    CU_ASSERT_EQUAL(result->u.binOperation.left->u.temp, Frame_FP())
-    CU_ASSERT_EQUAL(result->u.binOperation.right->u.constValue, 4);*/
+    memcpy(buffer, testFilePath, strlen(testFilePath) + 1);
+    strcat(buffer, filename);
+    IR_myExp result = parseFile(buffer);
+
+    memcpy(buffer, outputFilePath, strlen(outputFilePath) + 1);
+    strcat(buffer, filename);
+    FILE* file = fopen(buffer, "w");
+    assert (file != NULL);
+
+    if (flag == 0)
+        printExpression(file, result, 0);
+    else if(flag == 1)
+        printFragments(file, Trans_getProcFrags());
+    else if (flag == -1)
+        printFragments(file, Trans_getStringFrags());
+
+    fclose(file);
+}
+
+void testOneFileAndOutputCode(char* filename)
+{
+    testOneFileAndShow(filename, 0);
+}
+
+void testOneFileAndOutputStrings(char* filename)
+{
+    testOneFileAndShow(filename, -1);
+}
+
+void testOneFileAndOutputProcs(char* filename)
+{
+    testOneFileAndShow(filename, 1);
 }
 
 //////////////
 
-void test_TransLetExp_EmptyDecsAndBody_ReturnStatementNullValueZero(void)
+void test_TransIntegerLiteralExp_ByDefault_SeeOutput(void)
 {
-    IR_myExp result = parseFile("./test-files/let_emptyBoth.tig");
-
-    CU_ASSERT_EQUAL(result->kind, IR_ESeq);
-    CU_ASSERT_EQUAL(result->u.eseq.statement->u.seq.left, NULL);
-    CU_ASSERT_EQUAL(result->u.eseq.statement->u.seq.right, NULL);
-    CU_ASSERT_EQUAL(result->u.eseq.exp->u.constValue, 0);
+    testOneFileAndOutputCode("integerLiteral.tig");
 }
 
-void test_TransLetExp_EmptyDecs_ReturnDecsNull(void)
-{
-    IR_myExp result = parseFile("./test-files/let_emptyDecs.tig");
+//////////////
 
-    CU_ASSERT_EQUAL(result->kind, IR_ESeq);
-    CU_ASSERT_EQUAL(result->u.eseq.statement->u.seq.left, NULL);
-    CU_ASSERT_EQUAL(result->u.eseq.statement->u.seq.right->u.seq.left, NULL);
-    CU_ASSERT_EQUAL(result->u.eseq.statement->u.seq.right->u.seq.right, NULL);
-    CU_ASSERT_EQUAL(result->u.eseq.exp->u.constValue, 0);
+void test_TransVarDecSimpleVarInReg_IntConst_SeeOutput(void)
+{
+    testOneFileAndOutputCode("varDec_simpleVarInReg_constInt.tig");
 }
 
-void test_TransLetExp_EmptyExps_ReturnExpsNull(void)
+void test_TransVarDecSimpleVarInFrame_IntConst_SeeOutput(void)
 {
-    IR_myExp result = parseFile("./test-files/let_emptyExps.tig");
+    testOneFileAndOutputCode("varDec_simpleVarInFrame_constInt.tig");
+}
 
-    CU_ASSERT_EQUAL(result->kind, IR_ESeq);
-    CU_ASSERT_EQUAL(result->u.eseq.statement->u.seq.right, NULL);
-    CU_ASSERT_EQUAL(result->u.eseq.exp->u.constValue, 0);
+void test_TransVarDecSimpleVarInReg_IntVarInReg_SeeOutput(void)
+{
+    testOneFileAndOutputCode("varDec_simpleVar_intVarInReg.tig");
+}
+
+void test_TransVarDecSimpleVarInReg_IntVarInFrame_SeeOutput(void)
+{
+    testOneFileAndOutputCode("varDec_simpleVar_intVarInFrame.tig");
+}
+
+//////////////
+
+void test_TransFuncDec_EmptyFunctionFormals_SeeOutput(void)
+{#error "here"
+    Trans_resetProcFrags();
+    testOneFileAndOutputProcs("funcDec_function_emptyFormals.tig");
+}
+
+void test_TransFuncDec_EmptyProcedureFormals_SeeOutput(void)
+{
+    Trans_resetProcFrags();
+    testOneFileAndOutputProcs("funcDec_procedure_emptyFormals.tig");
+}
+
+//////////////
+
+void test_TransLetExp_EmptyDecsAndBody_SeeOutput(void)
+{
+    testOneFileAndOutputCode("let_emptyBoth.tig");
+}
+
+void test_TransLetExp_EmptyDecs_SeeOutput(void)
+{
+    testOneFileAndOutputCode("let_emptyDecs.tig");
+}
+
+void test_TransLetExp_EmptyExps_SeeOutput(void)
+{
+    testOneFileAndOutputCode("let_emptyExps.tig");
 }
 
 ///////////////////////////         main        ///////////////////////////////
@@ -232,12 +287,19 @@ int main()
         { "", test_TransGetFormals_PassOutermostLevel_FormalCountIsZero },
 
         ///////////////////////////////////
+        { "", test_TransIntegerLiteralExp_ByDefault_SeeOutput },
 
-        { "", test_TransLValueExpSimpleVar_IntVar_ReturnVarAddr },
+        { "", test_TransVarDecSimpleVarInReg_IntConst_SeeOutput },
+        { "", test_TransVarDecSimpleVarInFrame_IntConst_SeeOutput },
+        { "", test_TransVarDecSimpleVarInReg_IntVarInReg_SeeOutput },
+        { "", test_TransVarDecSimpleVarInReg_IntVarInFrame_SeeOutput },
 
-        { "", test_TransLetExp_EmptyDecsAndBody_ReturnStatementNullValueZero },
-        { "", test_TransLetExp_EmptyDecs_ReturnDecsNull },
-        { "", test_TransLetExp_EmptyExps_ReturnExpsNull }
+        { "", test_TransFuncDec_EmptyFunctionFormals_SeeOutput },
+        { "", test_TransFuncDec_EmptyProcedureFormals_SeeOutput },
+
+        { "", test_TransLetExp_EmptyDecsAndBody_SeeOutput },
+        { "", test_TransLetExp_EmptyDecs_SeeOutput },
+        { "", test_TransLetExp_EmptyExps_SeeOutput }
     };
     if (!addTests(&suite, tests, sizeof(tests) / sizeof(tests[0])))
         return EXIT_FAILURE;

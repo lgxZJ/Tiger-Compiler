@@ -38,7 +38,7 @@ typedef struct Trans_myPatchList_
     struct Trans_myPatchList_*  tails;
 }* Trans_myPatchList;
 
-
+/*
 typedef struct Trans_myCondiExp_
 {
     //  places needed to filled when the condition is true.
@@ -64,7 +64,7 @@ typedef struct Trans_myExpList_
     Trans_myExp                 head;
     struct Trans_myExpList_*    tail;
 }*  Trans_myExpList;
-
+*/
 ///////////////////////////////////////////////////////////////////
 //                           private functions
 
@@ -113,6 +113,7 @@ static Trans_myPatchList Tran_makePatchList(myLabel* head, Trans_myPatchList tai
     return one;
 }
 
+/*
 static Trans_myExp Trans_makeExp(IR_myExp exp)
 {
     MAKE_ONE_TRANS_EXP();
@@ -143,7 +144,7 @@ static Trans_myExp Trans_makeCondiExp(
     one->u.condiExp.statement = statement;
     return one;
 }
-
+*/
 /////////////////////////////////////////
 
 static void fillPatches(Trans_myPatchList patches, myLabel label)
@@ -154,7 +155,7 @@ static void fillPatches(Trans_myPatchList patches, myLabel label)
         patches = patches->tails;
     }
 }
-
+/*
 //  todo:
 static Trans_myPatchList joinPatches(
     Trans_myPatchList first, Trans_myPatchList second)
@@ -207,7 +208,7 @@ IR_myExp Trans_getExpField(Trans_myExp exp)
 {
     return exp->u.exp;
 }
-
+*/
 /////////////////////////////////////////////////////////////////////
 //                      public functions
 
@@ -338,158 +339,54 @@ myFrame Trans_getFrame(Trans_myLevel level)
 }
 
 ////////////////////////////////////////////////////////////////////////
+//
+
+#define ADD_ONE_FRAG(globalVar)  if (g_procFrags == NULL)   \
+        g_procFrags = Frame_makeFragList(NULL, NULL);       \
+                                                            \
+        if (g_procFrags->head == NULL)                      \
+            g_procFrags->head = frag;                       \
+        else                                                \
+            g_procFrags->tail = Frame_makeFragList(frag, NULL);
+
+static Frame_myFragList g_procFrags = NULL;
+void Trans_addOneProcFrag(Frame_myFrag frag)
+{
+    assert (frag->kind == Frame_ProcFrag);
+    ADD_ONE_FRAG(g_procFrags);
+}
+
+Frame_myFragList Trans_getProcFrags(void)
+{
+    return g_procFrags;
+}
+
+void Trans_resetProcFrags(void)
+{
+    g_procFrags = NULL;
+}
+
+///////////
+
+static Frame_myFragList g_stringFrags = NULL;
+void Trans_addOneStringFrag(Frame_myFrag frag)
+{
+    assert (frag->kind == Frame_StringFrag);
+    ADD_ONE_FRAG(g_stringFrags);
+}
+
+Frame_myFragList Trans_getStringFrags(void)
+{
+    return g_stringFrags;
+}
+
+void Trans_resetStringFrags(void)
+{
+    g_stringFrags = NULL;
+}
+
 ////////////////////////////////////////////////////////////////////////
 //                              translaters
-
-Trans_myAccess getVarAccessFromName(mySymbol varName)
-{
-    myVarAndFuncEntry varEntry = MyEnvironment_getVarOrFuncFromName(
-        MySemantic_getVarAndFuncEnvironment(),
-        varName);
-    assert (varEntry);
-    return MyEnvironment_getVarAccess(varEntry);
-}
-
-///////////////////////////
-
-
-////////////////////////////////////////////////////////////////////////////////
-
-//  forwards
-IR_myExp calculateVarAddr(Trans_myAccess access);
-
-//////////
-
-bool isExpRecordCreation()
-{
-    //  todo:
-    return false;
-}
-
-bool isExpArrayCreation()
-{
-    //  todo:
-    return false;
-}
-
-IR_myExp doArrayTranslation()
-{
-    //  todo:
-}
-
-IR_myExp doRecordTranslation()
-{
-    //  todo:
-}
-
-IR_myExp doSimpleTranslation(Trans_myAccess varAccess, myExp varBody)
-{
-    IR_myExp varRepresent;
-    if (Frame_isAccessInReg(varAccess->access))
-        varRepresent = IR_makeTemp(Frame_getAccessReg(varAccess->access)); 
-    else
-        varRepresent = calculateVarAddr(varAccess);
-    
-    IR_myStatement statement = IR_makeMove(varRepresent, Trans_Exp_(varBody));
-    //  variable declarations has no result value.
-    return IR_makeESeq(statement, IR_makeConst(0));
-}
-
-IR_myExp Trans_VarDec(myVarDec varDec)
-{
-    mySymbol varName;
-    myExp varBody;
-
-    switch (varDec->kind)
-    {
-        case LongFormVar:
-            varName = varDec->u.longFormVar->name;
-            varBody = varDec->u.longFormVar->exp;
-            break;
-        case ShortFormVar:
-            varName = varDec->u.shortFormVar->name;
-            varBody = varDec->u.shortFormVar->exp;
-            break;
-        default:    assert (false);
-    }
-
-    Trans_myAccess varAccess = getVarAccessFromName(varName);
-    if (isExpRecordCreation())      return doRecordTranslation();
-    else if(isExpArrayCreation())   return doArrayTranslation();
-    else                            return doSimpleTranslation(varAccess, varBody);
-}
-
-////////////////////////////////////////////////////////////////
-
-IR_myExp Trans_Dec(myDec dec)
-{
-    switch (dec->kind)
-    {
-        case VarDec:    return Trans_VarDec(dec->u.varDec);
-        case TypeDec:   //  todo:
-        case FuncDec:
-        default:    assert (false); //  never get here
-    }
-}
-
-#define PROCESS_LIST(processFunc, field)    IR_myStatement result;\
-    if (list == NULL)   result = NULL;                  \
-    else                result = IR_makeSeq(NULL, NULL);\
-                                                        \
-    IR_myStatement temp = result;                       \
-    IR_myExp oneResult = NULL;                          \
-    while (list)                                        \
-    {                                                   \
-        oneResult = processFunc(list->field);           \
-        assert (oneResult->kind == IR_ESeq);            \
-                                                        \
-        temp->u.seq.left = oneResult->u.eseq.statement; \
-        list->next ?                                    \
-        (temp->u.seq.right = IR_makeSeq(NULL, NULL)):   \
-        (temp->u.seq.right = NULL);                     \
-                                                        \
-        list = list->next;                              \
-        temp = temp->u.seq.right;                       \
-    }    
-
-IR_myExp Trans_Decs(myDecList list)
-{
-    //  variable declarations have no value
-    PROCESS_LIST(Trans_Dec, dec);
-    return IR_makeESeq(result, IR_makeConst(0));
-}
-
-IR_myExp Trans_Exps(myExpList list)
-{
-    //  variable declarations have no value
-    PROCESS_LIST(Trans_Exp_, exp);
-
-    if (oneResult == NULL)  //  empty body
-        return IR_makeESeq(result, IR_makeConst(0));
-    else
-        return IR_makeESeq(result, oneResult->u.eseq.exp);
-}
-
-IR_myExp Trans_LetExp(myLetExp letExp)
-{
-     IR_myExp decsResult = Trans_Decs(letExp->decList);
-     IR_myExp expsResult = Trans_Exps(letExp->expList);
-
-     assert (decsResult->kind == IR_ESeq);
-     assert (expsResult->kind == IR_ESeq);
-     return IR_makeESeq(
-         IR_makeSeq(decsResult->u.eseq.statement, expsResult->u.eseq.statement),
-         expsResult->u.eseq.exp);
-}
-
-//////////////////////////////////////////////////////////////
-
-Trans_myExp Trans_LValueExp(myLValueExp lVAlueExp)
-{
-    //  todo:
-}
-
-//////////////////////
 
 IR_myExp calculateVarAddr(Trans_myAccess access)
 {
@@ -509,20 +406,173 @@ IR_myExp calculateVarAddr(Trans_myAccess access)
         sum, IR_makeConst(Frame_getAccessOffset(access->access)));
 }
 
+//////////////
+
+Trans_myAccess getVarAccessFromName(mySymbol varName)
+{
+    myVarAndFuncEntry varEntry = MyEnvironment_getVarOrFuncFromName(
+        MySemantic_getVarAndFuncEnvironment(),
+        varName);
+    assert (varEntry);
+    return MyEnvironment_getVarAccess(varEntry);
+}
+
+
+IR_myExp doAssignment(Trans_myAccess varAccess, IR_myExp varBodyResult)
+{
+    IR_myExp varRepresent;
+    if (Frame_isAccessInReg(varAccess->access))
+        varRepresent = IR_makeTemp(Frame_getAccessReg(varAccess->access)); 
+    else
+        varRepresent = calculateVarAddr(varAccess);
+    
+    IR_myStatement statement = IR_makeMove(varRepresent, varBodyResult);
+    //  assignment result is the value of right-operand
+    if (Frame_isAccessInReg(varAccess->access))
+        return IR_makeESeq(statement, varRepresent);
+    else
+        return IR_makeESeq(statement, IR_makeMem(varRepresent));
+}
+///////////////////////////
+
+
+////////////////////////////////////////////////////////////////////////////////
+
+
+IR_myStatement Trans_VarDec(myVarDec varDec)
+{
+    mySymbol varName;
+    myExp varBody;
+
+    switch (varDec->kind)
+    {
+        case LongFormVar:
+            varName = varDec->u.longFormVar->name;
+            varBody = varDec->u.longFormVar->exp;
+            break;
+        case ShortFormVar:
+            varName = varDec->u.shortFormVar->name;
+            varBody = varDec->u.shortFormVar->exp;
+            break;
+        default:    assert (false);
+    }
+ 
+    return doAssignment(getVarAccessFromName(varName), Trans_Exp_(varBody))
+        ->u.eseq.statement;
+}
+
+////////////////////////////////////////////////////////////////
+
+IR_myStatement Trans_FuncDec(myFuncDec funcDec)
+{
+    mySymbol funcName;
+    myExp funcBody;
+
+    switch (funcDec->kind)
+    {
+        case ProcedureDec:
+            funcName = funcDec->u.procedureDec->name;
+            funcBody = funcDec->u.procedureDec->exp;
+            break;
+        case FunctionDec:
+            funcName = funcDec->u.functionDec->name;
+            funcBody = funcDec->u.functionDec->exp;
+            break;
+        default:        assert (false);
+    }
+
+    //  no value expressions must have already been wrapped!!
+    IR_myStatement funcState = IR_makeExp(Trans_Exp_(funcBody));
+
+    Frame_myFrag procFrag = Frame_makeProcFrag(funcState,
+        MySemantic_getCurrentLevel()->frame,
+        funcName);
+    Trans_addOneProcFrag(procFrag);
+    return NULL;    //  function does not need return code
+}
+
+////////////////////////////////////////////////////////////////
+
+IR_myStatement Trans_Dec(myDec dec)
+{
+    switch (dec->kind)
+    {
+        case VarDec:    return Trans_VarDec(dec->u.varDec);
+        case TypeDec:   break;  //  do nothing
+        case FuncDec:   return Trans_FuncDec(dec->u.funcDec);
+        default:        assert (false); //  never get here
+    }
+}   
+
+//  declarations have no value, so they are just statements
+IR_myStatement Trans_Decs(myDecList list)
+{
+    IR_myStatement result;
+    if (list == NULL)   result = NULL;                  
+    else                result = IR_makeSeq(NULL, NULL);
+                                                        
+    IR_myStatement temp = result;                       
+    IR_myStatement oneResult = NULL;                          
+    while (list)                                        
+    {                                                   
+        oneResult = Trans_Dec(list->dec);           
+                                                        
+        temp->u.seq.left = oneResult;       
+        list->next ?                                    
+        (temp->u.seq.right = IR_makeSeq(NULL, NULL)):   
+        (temp->u.seq.right = NULL);                     
+                                                        
+        list = list->next;                             
+        temp = temp->u.seq.right;                       
+    }    
+    return result;
+}
+
+IR_myExp Trans_Exps(myExpList list)
+{
+    //  variable declarations have no value
+    IR_myExp result;
+    if (list == NULL)   return  NULL;              
+    else                result = IR_makeESeq(NULL, NULL);
+
+    IR_myExp toFill = result;
+    IR_myExp temp = result;                                        
+    while (list->next)                  
+    {                                                   
+        IR_myExp oneResult = Trans_Exp_(list->exp);           
+                                                        
+        temp->u.eseq.statement = IR_makeExp(oneResult);       
+        list->next->next ?                                    
+        (temp->u.eseq.exp = IR_makeESeq(NULL, NULL)):   
+        (toFill = temp);   
+                                                        
+        list = list->next;                             
+        temp = temp->u.eseq.exp;                       
+    } 
+
+    //  last one is the value of let-exp
+    toFill->u.eseq.exp = Trans_Exp_(list->exp);
+    return result;
+}
+
+IR_myExp Trans_LetExp(myLetExp letExp)
+{
+     IR_myStatement decsResult = Trans_Decs(letExp->decList);
+     IR_myExp expsResult = Trans_Exps(letExp->expList);
+
+     return IR_makeESeq(decsResult, expsResult);
+}
+
+//////////////////////////////////////////////////////////////
+
 IR_myExp Trans_LValueExp_SimpleVar(myLValueExp lValueExp)
 {
     Trans_myAccess varAccess = getVarAccessFromName(lValueExp->id);
 
     if (Frame_isAccessInFrame(varAccess->access))
-    {
         return calculateVarAddr(varAccess);
-        /*return Trans_makeExp(varAddr);*/
-    }
     else
-    {
         return IR_makeTemp(Frame_getAccessReg(varAccess->access)); 
-        /*return Trans_makeExp(varReg);*/
-    }
 }
 
 /////////////////////
@@ -530,14 +580,183 @@ IR_myExp Trans_LValueExp_SimpleVar(myLValueExp lValueExp)
 IR_myExp Trans_LValueExp_RecordField(myLValueExp lValueExp)
 {
     //  todo:
+    return NULL;
 }
 
+/////////////////////
+
+IR_myExp Trans_LValueExp_ArraySubscript(myLValueExp lValueExp)
+{
+    //  todo:
+    return NULL;
+}
+
+/////////////////////
+
+IR_myExp Trans_LValueExp(myLValueExp lValueExp)
+{
+    //  todo:
+    switch (lValueExp->kind)
+    {
+        case SimpleVar:
+            return Trans_LValueExp_SimpleVar(lValueExp);
+        case RecordField:
+            return Trans_LValueExp_RecordField(lValueExp);
+        case ArraySubscript:
+            return Trans_LValueExp_ArraySubscript(lValueExp);
+        default:    assert (false);
+    }
+}
+
+////////////////////////////////////////////////////////////
+
+IR_myExp Trans_FunctionCallExp(myFunctionCallExp functionCallExp)
+{
+    //  todo:
+    return NULL;
+}
+
+////////////////////////////////////////////////////////////
+
+IR_myExp Trans_NilExp(myNilExp nilExp)
+{
+    //  todo:
+    return NULL;
+}
 
 ////////////////////////////////////////////////////////////
 
 IR_myExp Trans_IntegerLiteralExp(myIntegerLiteralExp integerLiteralExp)
 {
-    return IR_makeESeq(NULL, IR_makeConst(integerLiteralExp->value));
+    return IR_makeConst(integerLiteralExp->value);
+}
+
+///////////////////////////////////////////////////////////
+
+IR_myExp Trans_StringLiteralExp(myStringLiteralExp stringLiteralExp)
+{
+    //  todo:
+    return NULL;
+}
+
+///////////////////////////////////////////////////////////
+
+IR_myExp Trans_ArrayCreationExp(myArrayCreationExp arrayCreationExp)
+{
+    //  todo:
+    return NULL;
+}
+
+///////////////////////////////////////////////////////////
+
+IR_myExp Trans_RecordCreationExp(myRecordCreationExp recordCreationExp)
+{
+    //  todo:
+    return NULL;
+}
+
+///////////////////////////////////////////////////////////
+
+IR_myExp Trans_ArithmeticExp(myArithmeticExp arithmeticExp)
+{
+    //  todo:
+    return NULL;
+}
+
+///////////////////////////////////////////////////////////
+
+IR_myExp Trans_ParenthesesExp(myParenthesesExp parenthesesExp)
+{
+    //  todo:
+    return NULL;
+}
+
+///////////////////////////////////////////////////////////
+
+IR_myExp Trans_NoValueExp(myNoValueExp noValueExp)
+{
+    //  todo:
+    return NULL;
+}
+
+///////////////////////////////////////////////////////////
+
+IR_myExp Trans_SequencingExp(mySequencingExp sequencingExp)
+{
+    //  todo:
+    return NULL;
+}
+
+///////////////////////////////////////////////////////////
+
+IR_myExp Trans_ForExp(myForExp forExp)
+{
+    //  todo:
+    return NULL;
+}
+
+///////////////////////////////////////////////////////////
+
+IR_myExp Trans_IfThenElseExp(myIfThenElseExp ifthenElseExp)
+{
+    //  todo:
+    return NULL;
+}
+
+///////////////////////////////////////////////////////////
+
+IR_myExp Trans_IfThenExp(myIfThenExp ifThenExp)
+{
+    //  todo:
+    return NULL;
+}
+
+///////////////////////////////////////////////////////////
+
+IR_myExp Trans_ComparisonExp(myComparisonExp comparisonExp)
+{
+    //  todo:
+    return NULL;
+}
+
+///////////////////////////////////////////////////////////
+
+IR_myExp Trans_BooleanOperateExp(myBooleanOperateExp booleanOperateExp)
+{
+    //  todo:
+    return NULL;
+}
+
+///////////////////////////////////////////////////////////
+
+IR_myExp Trans_AssignmentExp(myAssignmentExp assignmentExp)
+{
+    //  todo:
+    return NULL;
+}
+
+///////////////////////////////////////////////////////////
+
+IR_myExp Trans_WhileExp(myWhileExp whileExp)
+{
+    //  todo:
+    return NULL;
+}
+
+///////////////////////////////////////////////////////////
+
+IR_myExp Trans_NegationExp(myNegationExp negationExp)
+{
+    //  todo:
+    return NULL;
+}
+
+///////////////////////////////////////////////////////////
+
+IR_myExp Trans_BreakExp(myBreakExp breakExp)
+{
+    //  todo:
+    return NULL;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -546,13 +765,49 @@ IR_myExp Trans_Exp_(myExp exp)
 {
     switch (exp->kind)
     {
-        case LetExp:
-            return Trans_LetExp(exp->u.letExp);
-       // case LValueExp:
-            //return Trans_LValueExp(exp->u.lValueExp);
-        //  todo:
+        case LValueExp:
+            return Trans_LValueExp(exp->u.lValueExp);
+        case FunctionCallExp:
+            return Trans_FunctionCallExp(exp->u.functionCallExp);
+        case NilExp:
+            return Trans_NilExp(exp->u.nilExp);
         case IntegerLiteralExp:
             return Trans_IntegerLiteralExp(exp->u.integerLiteralExp);
+        case StringLiteralExp:
+            return Trans_StringLiteralExp(exp->u.stringLiteralExp);
+        case ArrayCreationExp:
+            return Trans_ArrayCreationExp(exp->u.arrayCreationExp);
+        case RecordCreationExp:
+            return Trans_RecordCreationExp(exp->u.recordCreationExp);
+        case ArithmeticExp:
+            return Trans_ArithmeticExp(exp->u.arithmeticExp);
+        case ParenthesesExp:
+            return Trans_ParenthesesExp(exp->u.parenthesesExp);
+        case NoValueExp:
+            return Trans_NoValueExp(exp->u.noValueExp);
+        case SequencingExp:
+            return Trans_SequencingExp(exp->u.sequencingExp);
+        case ForExp:
+            return Trans_ForExp(exp->u.forExp);
+        case IfThenElseExp:
+            return Trans_IfThenElseExp(exp->u.ifThenElseExp);
+        case IfThenExp:
+            return Trans_IfThenExp(exp->u.ifThenExp);
+        case ComparisonExp:
+            return Trans_ComparisonExp(exp->u.comparisonExp);
+        case BooleanOperateExp:
+            return Trans_BooleanOperateExp(exp->u.booleanOperateExp);
+        case AssignmentExp:
+            return Trans_AssignmentExp(exp->u.assignmentExp);
+        case LetExp:
+            return Trans_LetExp(exp->u.letExp);
+        case WhileExp:
+            return Trans_WhileExp(exp->u.whileExp);
+        case NegationExp:
+            return Trans_NegationExp(exp->u.negationExp);
+        case BreakExp:
+            return Trans_BreakExp(exp->u.breakExp);
+        
         default:    assert (false);
     }
 }
