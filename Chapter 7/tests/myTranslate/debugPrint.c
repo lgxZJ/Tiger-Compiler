@@ -184,7 +184,7 @@ void printFragments(FILE* file, Frame_myFragList fragments)
         else
         {
             fprintf(file, "%s:\n", MySymbol_GetName(fragments->head->u.procFrag.funcName));
-            printStatement(file, fragments->head->u.procFrag.body, 0);
+            printStatement(file, fragments->head->u.procFrag.body, 2);
             fprintf(file, "\n\n");
         }
 

@@ -133,6 +133,8 @@ void Trans_resetStringFrags(void);
 /////////////////////////////////////////////////////////////////////////////////
 //                              translaters
 
+IR_myStatement Trans_VarDec(myVarDec varDec);
+
 IR_myExp Trans_LValueExp_SimpleVar(myLValueExp lValueExp);
 IR_myExp Trans_LValueExp_RecordField(myLValueExp lValueExp);
 

@@ -26,7 +26,7 @@ struct Trans_myLevel_
 {
     Trans_myLevel       previousLevel;
     myFrame             frame;
-    Trans_myAccessList  formals;
+    Trans_myAccessList  formals;    //  include return value and static link
 };
 
 ///////////////////////////////////////////
@@ -463,31 +463,86 @@ IR_myStatement Trans_VarDec(myVarDec varDec)
 
 ////////////////////////////////////////////////////////////////
 
+void getFuncParts(
+    myFuncDec funcDec, mySymbol* funcNamePtr,
+    myExp* funcBodyPtr, myTyFieldList* funcFormalsPtr)
+{
+    switch (funcDec->kind)
+    {
+        case ProcedureDec:
+            *funcNamePtr = funcDec->u.procedureDec->name;
+            *funcBodyPtr = funcDec->u.procedureDec->exp;
+            *funcFormalsPtr = funcDec->u.procedureDec->tyFieldList;
+            break;
+        case FunctionDec:
+            *funcNamePtr = funcDec->u.functionDec->name;
+            *funcBodyPtr = funcDec->u.functionDec->exp;
+            *funcFormalsPtr = funcDec->u.functionDec->tyFieldList;
+            break;
+        default:        assert (false);
+    }
+}
+
+static void addFormalsToScope(mySymbol funcName, myTyFieldList funcFormals)
+{
+    //  add formals to environments
+    MySymbol_BeginScope(MySemantic_getVarAndFuncEnvironment());
+    MySymbol_BeginScope(MySemantic_getTypeEnvironment());
+
+    myVarAndFuncEntry funcEntry = MyEnvironment_getVarOrFuncFromName(
+            MySemantic_getVarAndFuncEnvironment(), funcName);
+
+    //  skip return value and static link
+    Trans_myAccessList accessList = MyEnvironment_getFuncLevel(funcEntry)
+                                        ->formals->tail->tail;
+    myTypeList accessTypes = MyEnvironment_getFuncFormalTypes(funcEntry);
+    while (accessTypes && accessList && funcFormals)
+    {
+        MyEnvironment_addNewVarOrFunc(
+            MySemantic_getVarAndFuncEnvironment(),
+            funcFormals->field->varName,
+            myEnvironment_makeVarEntry(accessList->head, accessTypes->head));
+
+        accessTypes = accessTypes->tails;
+        accessList = accessList->tail;
+        funcFormals = funcFormals->next;
+    }
+
+    assert (accessTypes == NULL &&
+            accessList == NULL &&
+            funcFormals == NULL);
+}
+
+void removeFormalsFromScope()
+{
+    //  remove formals from environments
+    MySymbol_EndScope(MySemantic_getTypeEnvironment());
+    MySymbol_EndScope(MySemantic_getVarAndFuncEnvironment());
+}
+
+void processFuncDec(mySymbol funcName, myTyFieldList funcFormals, myExp funcBody)
+{
+    addFormalsToScope(funcName, funcFormals);
+
+    //  no value expressions must have already been wrapped!!
+    IR_myStatement funcState = IR_makeExp(Trans_Exp_(funcBody));
+    Frame_myFrag procFrag = Frame_makeProcFrag(
+        funcState,
+        MySemantic_getCurrentLevel()->frame,
+        funcName);
+    Trans_addOneProcFrag(procFrag);
+
+    removeFormalsFromScope();
+}
+
 IR_myStatement Trans_FuncDec(myFuncDec funcDec)
 {
     mySymbol funcName;
     myExp funcBody;
+    myTyFieldList funcFormals;
 
-    switch (funcDec->kind)
-    {
-        case ProcedureDec:
-            funcName = funcDec->u.procedureDec->name;
-            funcBody = funcDec->u.procedureDec->exp;
-            break;
-        case FunctionDec:
-            funcName = funcDec->u.functionDec->name;
-            funcBody = funcDec->u.functionDec->exp;
-            break;
-        default:        assert (false);
-    }
-
-    //  no value expressions must have already been wrapped!!
-    IR_myStatement funcState = IR_makeExp(Trans_Exp_(funcBody));
-
-    Frame_myFrag procFrag = Frame_makeProcFrag(funcState,
-        MySemantic_getCurrentLevel()->frame,
-        funcName);
-    Trans_addOneProcFrag(procFrag);
+    getFuncParts(funcDec, &funcName, &funcBody, &funcFormals);
+    processFuncDec(funcName, funcFormals, funcBody);
     return NULL;    //  function does not need return code
 }
 

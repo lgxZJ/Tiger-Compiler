@@ -201,10 +201,19 @@ void testOneFileAndOutputProcs(char* filename)
     testOneFileAndShow(filename, 1);
 }
 
-//////////////
+void resetTestEnv()
+{
+    Trans_resetProcFrags();
+    Trans_resetStringFrags();
+    MySemantic_setTypeEnvironment(myEnvironment_BaseType());
+    MySemantic_setVarAndFuncEnvironment(myEnvironment_BaseVarAndFunc());
+}
+
+//////////////////////////////////////////////////////////////////////
 
 void test_TransIntegerLiteralExp_ByDefault_SeeOutput(void)
 {
+    resetTestEnv();
     testOneFileAndOutputCode("integerLiteral.tig");
 }
 
@@ -212,52 +221,65 @@ void test_TransIntegerLiteralExp_ByDefault_SeeOutput(void)
 
 void test_TransVarDecSimpleVarInReg_IntConst_SeeOutput(void)
 {
+    resetTestEnv();
     testOneFileAndOutputCode("varDec_simpleVarInReg_constInt.tig");
 }
 
 void test_TransVarDecSimpleVarInFrame_IntConst_SeeOutput(void)
 {
+    resetTestEnv();
     testOneFileAndOutputCode("varDec_simpleVarInFrame_constInt.tig");
 }
 
 void test_TransVarDecSimpleVarInReg_IntVarInReg_SeeOutput(void)
 {
+    resetTestEnv();
     testOneFileAndOutputCode("varDec_simpleVar_intVarInReg.tig");
 }
 
 void test_TransVarDecSimpleVarInReg_IntVarInFrame_SeeOutput(void)
 {
+    resetTestEnv();
     testOneFileAndOutputCode("varDec_simpleVar_intVarInFrame.tig");
 }
 
 //////////////
 
 void test_TransFuncDec_EmptyFunctionFormals_SeeOutput(void)
-{#error "here"
-    Trans_resetProcFrags();
+{
+    resetTestEnv();
     testOneFileAndOutputProcs("funcDec_function_emptyFormals.tig");
 }
 
 void test_TransFuncDec_EmptyProcedureFormals_SeeOutput(void)
 {
-    Trans_resetProcFrags();
+    resetTestEnv();
     testOneFileAndOutputProcs("funcDec_procedure_emptyFormals.tig");
+}
+
+void test_TransFuncDec_SomeFunctionFormals_SeeOutput(void)
+{
+    resetTestEnv();
+    testOneFileAndOutputProcs("funcDec_function_someFormals.tig");
 }
 
 //////////////
 
 void test_TransLetExp_EmptyDecsAndBody_SeeOutput(void)
 {
+    resetTestEnv();
     testOneFileAndOutputCode("let_emptyBoth.tig");
 }
 
 void test_TransLetExp_EmptyDecs_SeeOutput(void)
 {
+    resetTestEnv();
     testOneFileAndOutputCode("let_emptyDecs.tig");
 }
 
 void test_TransLetExp_EmptyExps_SeeOutput(void)
 {
+    resetTestEnv();
     testOneFileAndOutputCode("let_emptyExps.tig");
 }
 
@@ -292,14 +314,16 @@ int main()
         { "", test_TransVarDecSimpleVarInReg_IntConst_SeeOutput },
         { "", test_TransVarDecSimpleVarInFrame_IntConst_SeeOutput },
         { "", test_TransVarDecSimpleVarInReg_IntVarInReg_SeeOutput },
-        { "", test_TransVarDecSimpleVarInReg_IntVarInFrame_SeeOutput },
+        #error "here"
+        /*{ "", test_TransVarDecSimpleVarInReg_IntVarInFrame_SeeOutput },
 
         { "", test_TransFuncDec_EmptyFunctionFormals_SeeOutput },
         { "", test_TransFuncDec_EmptyProcedureFormals_SeeOutput },
+        { "", test_TransFuncDec_SomeFunctionFormals_SeeOutput },
 
         { "", test_TransLetExp_EmptyDecsAndBody_SeeOutput },
         { "", test_TransLetExp_EmptyDecs_SeeOutput },
-        { "", test_TransLetExp_EmptyExps_SeeOutput }
+        { "", test_TransLetExp_EmptyExps_SeeOutput }*/
     };
     if (!addTests(&suite, tests, sizeof(tests) / sizeof(tests[0])))
         return EXIT_FAILURE;

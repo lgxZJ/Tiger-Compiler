@@ -1783,8 +1783,7 @@ void allocateAndAddNewVar_Short(myShortFormVar shortFormVar, myType valueType);
 //      a boolean variable indicates whether this function succeeds.
 //  STATUS:
 //      Tested.
-bool MySemantic_Dec_Var_ShortForm(
-    myShortFormVar shortFormVar)
+bool MySemantic_Dec_Var_ShortForm(myShortFormVar shortFormVar)
 {
     bool isValueExpLegal = isExpLegal(shortFormVar->exp);
 
@@ -1841,8 +1840,7 @@ void processLongFormVarDecErrors(
 //      a boolean variable indicates whether this function succeeds.
 //  STATUS:
 //      Tested.
-bool MySemantic_Dec_Var_LongForm(
-    myLongFormVar longFormVar)
+bool MySemantic_Dec_Var_LongForm(myLongFormVar longFormVar)
 {
     bool isVariableTypeDefined = isTypeDefined(longFormVar->type);
     bool isValueExpLegal = isExpLegal(longFormVar->exp);
@@ -1919,21 +1917,31 @@ void processLongFormVarDecErrors(
 //      var id : type-id := exp
 //  DO:
 //      delegate
-bool MySemantic_Dec_Var(myVarDec varDec)
+bool MySemantic_Dec_Var(myVarDec varDec, IR_myStatement* resultPtr)
 {
-    if (varDec == NULL)     return true;
+    if (varDec == NULL)
+    {
+        *resultPtr = NULL;
+        return true;
+    }
 
+    bool result;
     switch (varDec->kind)
     {
         case ShortFormVar:
-            return MySemantic_Dec_Var_ShortForm(
+            result = MySemantic_Dec_Var_ShortForm(
                 varDec->u.shortFormVar);
+            break;
         case LongFormVar:
-            return MySemantic_Dec_Var_LongForm(
+            result = MySemantic_Dec_Var_LongForm(
                 varDec->u.longFormVar);
+            break;
         default:
             assert (false);
     }
+
+    if (result)     *resultPtr = Trans_VarDec(varDec);
+    return result;
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -1947,10 +1955,9 @@ bool MySemantic_Dec_Var(myVarDec varDec)
 //      otherwise, it returns false.
 //  STATUS:
 //      Tested.
-bool MySemantic_Decs(
-    myDecList decs)
+bool MySemantic_Decs(myDecList decs, IR_myStatement* resultPtr)
 {
-    return MySemantic_Decs_Recursive(decs);
+    return MySemantic_Decs_Recursive(decs, resultPtr);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -1982,16 +1989,20 @@ myTranslationAndType MySemantic_LetExp(
     MySymbol_BeginScope(MySemantic_getVarAndFuncEnvironment());
     MySymbol_BeginScope(MySemantic_getTypeEnvironment());
 
+    IR_myStatement decsResult = NULL;
     bool areDeclarationsLegal =
-        MySemantic_Decs_Recursive(letExp->decList);
+        MySemantic_Decs_Recursive(letExp->decList, &decsResult);
+
+    IR_myExp expsResult = NULL;
     bool isBodyLegal =
         areExpressionsLegal(letExp->expList);
 
-    
     myTranslationAndType result;
     if (areDeclarationsLegal && isBodyLegal)
     {
-        result = make_MyTranslationAndType(Trans_LetExp(letExp),
+        //  todo: change value part of this IR
+        result = make_MyTranslationAndType(
+            IR_makeESeq(decsResult, expsResult),
             getLastExpResultType(letExp->expList));
     }
     else
