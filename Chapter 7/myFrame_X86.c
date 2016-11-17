@@ -39,7 +39,7 @@ struct myFrame_
     myAccessList    formals;
     myString        viewShift;
     int             localCount;     //  include `formalLocalCount`
-    int             formalLocalCount;    //  in frame local count
+    int             formalLocalCount;    //  in frame formal local count
     myLabel         label;
 };
 
@@ -160,7 +160,7 @@ myFrame Frame_newFrame(myLabel frameLabel, myBoolList formalFlags)
     frame->label = frameLabel;
     fillFormalsFromFlags(frame, formalFlags);
     fillViewShiftFromFlags(frame);
-    frame->localCount = frame->formalLocalCount;  //  include formals
+    frame->localCount = 0;  //  no include formal locals
 
     return frame;
 }
