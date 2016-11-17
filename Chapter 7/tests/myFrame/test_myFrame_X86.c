@@ -223,7 +223,7 @@ void test_FrameallocateLocal_TwoConsecutiveCallsInSameFrame_OffsetIncrementFour(
     int accessOneOffset = Frame_getAccessOffset(Frame_allocateLocal(frame, true));
     int accessTwoOffset = Frame_getAccessOffset(Frame_allocateLocal(frame, true));
 
-    CU_ASSERT_EQUAL(accessTwoOffset - accessOneOffset, 4);
+    CU_ASSERT_EQUAL(accessTwoOffset - accessOneOffset, -4);
 }
 
 void test_FrameallocateLocal_TwoCallsInDifferentNewFrame_OffsetSame(void)
@@ -256,7 +256,8 @@ void test_FrameMakeProcFrag_ByDefault_MakeProcFragWithWhatPassed(void)
     IR_myStatement fakeBodyState = (IR_myStatement)12;
     myFrame fakeFrame = (myFrame)3;
 
-    Frame_myFrag fragement = Frame_makeProcFrag(fakeBodyState, fakeFrame);
+    Frame_myFrag fragement = Frame_makeProcFrag(
+        fakeBodyState, fakeFrame, MySymbol_MakeSymbol("funcName"));
 
     CU_ASSERT_EQUAL(fragement->kind, Frame_ProcFrag);
     CU_ASSERT_EQUAL(fragement->u.procFrag.body, fakeBodyState);
@@ -312,7 +313,7 @@ void test_FrameAccessToIRExp_AccessInFrame_ReturnTempExp(void)
 
     IR_myExp exp = Frame_accessToIRExp(firstAccess,fpTemp);
 
-    int inFrameOffset = 0;
+    int inFrameOffset = -4;
     CU_ASSERT_EQUAL(exp->kind, IR_BinOperation);
     CU_ASSERT_EQUAL(exp->u.binOperation.left->u.constValue, inFrameOffset);
     CU_ASSERT_EQUAL(exp->u.binOperation.right, fpTemp);

@@ -209,7 +209,7 @@ bool Frame_isFrameEqual(myFrame lhs, myFrame rhs)
 myAccess Frame_allocateLocal(myFrame frame, bool escapeFlag)
 {
     if (escapeFlag)
-        return makeInFrameAccess(frame->localCount++ * BASE_SIZE);
+        return makeInFrameAccess(-(++(frame->localCount)) * BASE_SIZE);
     else    
         return makeInRegAccess(Temp_newTemp());
 }
