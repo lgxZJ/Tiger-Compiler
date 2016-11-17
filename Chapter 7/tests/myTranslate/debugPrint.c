@@ -164,11 +164,13 @@ void printExpression(FILE* file, IR_myExp exp, int spaceNum)
             fprintf(file, "Name(%s)\n", MySymbol_GetName(exp->u.name));
             break;
         case IR_Temp:
-            fprintf(file, "Temp(");
-            //  todo:
-            indentSpace(file, spaceNum);
-            fprintf(file, ")\n");
+        {
+            if (exp->u.temp == Frame_FP())
+                fprintf(file, "Temp(%s)\n", "frame pointer");
+            else
+                fprintf(file, "Temp(%d)\n", Temp_getTempNum(exp->u.temp));
             break;
+        }
         default:    assert (false);
     }
 }
