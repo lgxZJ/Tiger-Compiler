@@ -59,6 +59,8 @@ Trans_myLevel Trans_getAccessLevel(Trans_myAccess access);
 //      a bool variable.
 bool Trans_isLevelEqual(Trans_myLevel lhs, Trans_myLevel rhs);
 
+bool Trans_isLevelSame(Trans_myLevel lhs, Trans_myLevel rhs);
+
 //  DO:
 //      make a level within which one program is nested.
 //  PARAMS:

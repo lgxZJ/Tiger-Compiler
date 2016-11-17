@@ -156,6 +156,18 @@ myFrame Frame_newFrame(myLabel frameLabel, myBoolList formalFlags);
 bool Frame_isFrameEqual(myFrame lhs, myFrame rhs);
 
 //  DO:
+//      compare if two frame are the same.
+//  PARAMS:
+//      lhs:    left operand.
+//      rhs:    right operand.
+//  RETURN:
+//      a bool variable.
+//  REMARK:
+//      Same means the two frame are equal and their internal states
+//      are also equal.
+bool Frame_isFrameSame(myFrame lhs, myFrame rhs);
+
+//  DO:
 //      allocate a new local variable.
 //  PARAMS:
 //      frame:      the frame in which to allocate a new variable.

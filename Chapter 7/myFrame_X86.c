@@ -204,6 +204,16 @@ bool Frame_isFrameEqual(myFrame lhs, myFrame rhs)
     return lhs == rhs;
 }
 
+bool Frame_isFrameSame(myFrame lhs, myFrame rhs)
+{
+    return Frame_isFrameEqual(lhs, rhs) &&
+            lhs->formalLocalCount == rhs->formalLocalCount &&
+            lhs->formals == rhs->formals &&
+            lhs->label == rhs->label &&
+            lhs->localCount == rhs->localCount &&
+            lhs->viewShift == rhs->viewShift;
+}
+
 /////////////////////////////////////
 
 myAccess Frame_allocateLocal(myFrame frame, bool escapeFlag)

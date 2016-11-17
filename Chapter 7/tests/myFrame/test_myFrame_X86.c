@@ -135,6 +135,28 @@ void test_FrameIsFrameEqual_ByDefault_WorkRight(void)
     CU_ASSERT(!Frame_isFrameEqual(frameOne, frameTwo));
 }
 
+void test_FrameIsFrameSame_DifferentFrame_ReturnFalse(void)
+{
+    myFrame frameOne = Frame_newFrame((myLabel)NULL, (myBoolList)NULL);
+    myFrame frameTwo = Frame_newFrame((myLabel)NULL, (myBoolList)NULL);
+    myFrame frameThree = Frame_newFrame((myLabel)NULL, (myBoolList)NULL);
+
+    CU_ASSERT_FALSE(Frame_isFrameSame(frameOne, frameTwo));
+
+    Frame_allocateLocal(frameTwo, true);
+    Frame_allocateLocal(frameThree, false);
+
+    CU_ASSERT_FALSE(Frame_isFrameSame(frameOne, frameTwo));
+    CU_ASSERT_FALSE(Frame_isFrameSame(frameOne, frameThree));
+}
+
+void test_FrameIsFrameSame_SameFrame_ReturnTrue(void)
+{
+    myFrame frameOne = Frame_newFrame((myLabel)NULL, (myBoolList)NULL);
+
+    CU_ASSERT_TRUE(Frame_isFrameSame(frameOne, frameOne));
+}
+
 ///////////////////////////////
 
 void test_FrameallocateLocal_OneEscapeFlag_ReturnInFrame(void)
@@ -338,6 +360,8 @@ int main()
         { "", test_FramenewFrame_AllEscapes_NegativeOffsetWithFourInterval },
 
         { "", test_FrameIsFrameEqual_ByDefault_WorkRight },
+        { "", test_FrameIsFrameSame_DifferentFrame_ReturnFalse },
+        { "", test_FrameIsFrameSame_SameFrame_ReturnTrue },
 
         { "", test_FrameallocateLocal_OneEscapeFlag_ReturnInFrame },
         { "", test_FrameallocateLocal_OneNotEscapeFlag_ReturnInReg },

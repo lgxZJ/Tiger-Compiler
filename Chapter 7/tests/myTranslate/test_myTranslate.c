@@ -87,7 +87,7 @@ void test_TransOutermostLevel_EveryCall_ReturnSame(void)
     Trans_myLevel firstLevel = Trans_outermostLevel();
     Trans_myLevel secondLevel = Trans_outermostLevel();
 
-    CU_ASSERT(Trans_isLevelEqual(firstLevel, secondLevel));
+    CU_ASSERT(Trans_isLevelSame(firstLevel, secondLevel));
 }
 
 ///////////////////////
@@ -314,10 +314,10 @@ int main()
         { "", test_TransVarDecSimpleVarInReg_IntConst_SeeOutput },
         { "", test_TransVarDecSimpleVarInFrame_IntConst_SeeOutput },
         { "", test_TransVarDecSimpleVarInReg_IntVarInReg_SeeOutput },
-        #error "here"
-        /*{ "", test_TransVarDecSimpleVarInReg_IntVarInFrame_SeeOutput },
+        
+        { "", test_TransVarDecSimpleVarInReg_IntVarInFrame_SeeOutput },
 
-        { "", test_TransFuncDec_EmptyFunctionFormals_SeeOutput },
+        /*{ "", test_TransFuncDec_EmptyFunctionFormals_SeeOutput },
         { "", test_TransFuncDec_EmptyProcedureFormals_SeeOutput },
         { "", test_TransFuncDec_SomeFunctionFormals_SeeOutput },
 

@@ -251,6 +251,14 @@ bool Trans_isLevelEqual(Trans_myLevel lhs, Trans_myLevel rhs)
     return lhs == rhs;
 }
 
+bool Trans_isLevelSame(Trans_myLevel lhs, Trans_myLevel rhs)
+{
+    return Trans_isLevelEqual(lhs, rhs) &&
+            Frame_isFrameSame(lhs->frame, rhs->frame) &&
+            lhs->formals == rhs->formals &&
+            lhs->previousLevel == rhs->previousLevel;
+}
+
 ////////////////////////////////
 
 static Trans_myLevel g_outermostLevel = NULL;
@@ -262,14 +270,12 @@ Trans_myLevel Trans_outermostLevel(void)
         g_outermostLevel =
             makeMemoryBlock(sizeof(g_outermostLevel), MEMORY_TYPE_NONE);
         assert (g_outermostLevel);
+    }
 
-        myLabel outermostLabel = Temp_newNamedLabel("outmost");
-        myBoolList noFormalFlags = NULL;
-        g_outermostLevel->frame = Frame_newFrame(outermostLabel, noFormalFlags);
-        g_outermostLevel->formals = /*Trans_convertAccessFromFrameToLevel(
-            Frame_getFormals(g_outermostLevel->frame), NONE_LEVEL);*/
-            NULL;
-    } 
+    myLabel outermostLabel = Temp_newNamedLabel("outmost");
+    myBoolList noFormalFlags = NULL;
+    g_outermostLevel->frame = Frame_newFrame(outermostLabel, noFormalFlags);
+    g_outermostLevel->formals = NULL;
     return g_outermostLevel;
 }
 
@@ -393,7 +399,10 @@ IR_myExp calculateVarAddr(Trans_myAccess access)
     Trans_myLevel levelUsed = MySemantic_getCurrentLevel();
     Trans_myLevel levelDeclared = access->level;
 
-    IR_myExp sum = IR_makeTemp(Frame_FP());
+    IR_myExp tempExp = IR_makeTemp(Temp_newTemp());
+    IR_myExp sum = IR_makeESeq(
+        IR_makeMove(tempExp, IR_makeTemp(Frame_FP())),
+        NULL);
     while (levelUsed != levelDeclared)
     {
         levelUsed = levelUsed->previousLevel;
@@ -402,8 +411,11 @@ IR_myExp calculateVarAddr(Trans_myAccess access)
             IR_makeConst(Frame_getLocalCount(levelUsed->frame) * Frame_wordSize));
     }
 
-    return IR_makeBinOperation(IR_Minus,
-        sum, IR_makeConst(Frame_getAccessOffset(access->access)));
+    return IR_makeESeq(
+        IR_makeExp(
+            IR_makeBinOperation(IR_Minus,
+                sum, IR_makeConst(Frame_getAccessOffset(access->access)))),
+        tempExp);
 }
 
 //////////////
@@ -417,21 +429,90 @@ Trans_myAccess getVarAccessFromName(mySymbol varName)
     return MyEnvironment_getVarAccess(varEntry);
 }
 
+/////////////
+
+void getIRExpParts(IR_myExp one, IR_myStatement* stateParts, IR_myExp* valueParts)
+{
+    switch (one->kind)
+    {
+        case IR_BinOperation:
+            //  todo:
+            break;
+        case IR_Call:
+            //  todo:
+            break;
+        case IR_Const:
+            *stateParts = NULL, *valueParts = one;  break;
+        case IR_ESeq:
+        {
+            IR_myStatement firstState = one->u.eseq.statement;
+            IR_myStatement secondState;
+            IR_myExp secondValue;
+            getIRExpParts(one->u.eseq.exp, &secondState, &secondValue);
+
+            *stateParts = IR_makeSeq(firstState, secondState);
+            *valueParts = one->u.eseq.exp;  //  ignore former values
+            break;
+        }
+        case IR_Mem:
+            getIRExpParts(one->u.mem, stateParts, valueParts);
+            break;
+        case IR_Name:
+            *stateParts = NULL, *valueParts = one;  break;
+        case IR_Temp:
+            *stateParts = NULL, *valueParts = one;  break;
+        default:       assert (false);
+    }
+}
+
+/////////////////////////////////////////////////////////////////////
+
+IR_myExp doInRegAssigment(myAccess access, IR_myExp varBodyResult)
+{
+    IR_myExp varRepresent = IR_makeTemp(Frame_getAccessReg(access));
+
+    IR_myStatement bodyState;
+    IR_myExp bodyValue;
+    getIRExpParts(varBodyResult, &bodyState, &bodyValue);
+
+    IR_myStatement resultStatement = IR_makeSeq(
+        bodyState, 
+        IR_makeMove(varRepresent, bodyValue));
+    return IR_makeESeq(resultStatement, varRepresent);
+}
+
+IR_myExp doInFrameAssigment(Trans_myAccess varAccess, IR_myExp varBodyResult)
+{
+    IR_myExp varRepresent = calculateVarAddr(varAccess);
+    /*IR_myStatement calcuStatement = varRepresent->u.eseq.statement;
+    IR_myExp effectValue = varRepresent->u.eseq.exp;*/
+        
+    IR_myStatement calcState;
+    IR_myExp calcValue;
+    getIRExpParts(varRepresent, &calcState, &calcValue);
+
+    IR_myStatement bodyState;
+    IR_myExp bodyValue;
+    getIRExpParts(varBodyResult, &bodyState, &bodyValue);
+
+    //  form a new intermediate code, save value to memory location
+    IR_myStatement resultStatement = IR_makeSeq(
+        IR_makeSeq(calcState, bodyState),
+        IR_makeMove(IR_makeMem(calcValue), bodyValue));
+    //  result is the memory content
+    return IR_makeESeq(resultStatement, IR_makeMem(calcValue));
+}
 
 IR_myExp doAssignment(Trans_myAccess varAccess, IR_myExp varBodyResult)
 {
-    IR_myExp varRepresent;
     if (Frame_isAccessInReg(varAccess->access))
-        varRepresent = IR_makeTemp(Frame_getAccessReg(varAccess->access)); 
+    {
+        return doInRegAssigment(varAccess->access, varBodyResult);
+    } 
     else
-        varRepresent = calculateVarAddr(varAccess);
-    
-    IR_myStatement statement = IR_makeMove(varRepresent, varBodyResult);
-    //  assignment result is the value of right-operand
-    if (Frame_isAccessInReg(varAccess->access))
-        return IR_makeESeq(statement, varRepresent);
-    else
-        return IR_makeESeq(statement, IR_makeMem(varRepresent));
+    {
+        return doInFrameAssigment(varAccess, varBodyResult);
+    }
 }
 ///////////////////////////
 
@@ -821,7 +902,7 @@ IR_myExp Trans_Exp_(myExp exp)
     switch (exp->kind)
     {
         case LValueExp:
-            return Trans_LValueExp(exp->u.lValueExp);
+            return IR_makeMem(Trans_LValueExp(exp->u.lValueExp));
         case FunctionCallExp:
             return Trans_FunctionCallExp(exp->u.functionCallExp);
         case NilExp:
