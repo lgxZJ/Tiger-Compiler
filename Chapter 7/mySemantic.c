@@ -34,6 +34,48 @@ myTranslationAndType MySemantic_LValueExp(myLValueExp lValueExp);
 //
 //  Exp Checkers
 
+bool isExpOneTypeOrIllegal(myExp exp, enum TypeKind kind, IR_myExp* expResultPtr)
+{
+    assert (exp);
+    myTranslationAndType result = MySemantic_Exp_(exp);
+    
+    if (result == SEMANTIC_ERROR)
+        return false;
+    else 
+        *expResultPtr = result->translation;
+
+    myType expActualType = getActualType(result->type);
+    switch (kind)
+    {
+        case TypeInt:       return isTypeInt(expActualType);
+        case TypeNoReturn:  return isTypeNoReturn(expActualType);
+        case TypeArray:     return isTypeArray(expActualType);
+        default:            assert(false);
+    }
+}
+
+bool isExpNoReturnWithResult(myExp exp, IR_myExp* expResultPtr)
+{
+    return isExpOneTypeOrIllegal(exp, TypeNoReturn, expResultPtr);
+}
+
+bool isExpLegalWithResult(myExp exp, IR_myExp* expResult)
+{
+    assert (exp);
+
+    myTranslationAndType result = MySemantic_Exp_(exp);
+        
+    if (result == SEMANTIC_ERROR)
+        return false;
+    else
+    {
+        *expResult = result->translation;
+        return true;
+    }
+}
+
+//////////////////////////////////////
+
 //  DO:
 //      analyze if this expression fits its semantic
 bool isExpLegal(myExp exp)
@@ -46,32 +88,16 @@ bool isExpLegal(myExp exp)
     else                            return true;
 }
 
-bool isExpOneTypeOrIllegal(myExp exp, enum TypeKind kind)
-{
-    assert (exp);
-
-    myTranslationAndType result = 
-        MySemantic_Exp_(exp);
-    if (result == SEMANTIC_ERROR)     return false;
-
-    myType expActualType = getActualType(result->type);
-    switch (kind)
-    {
-        case TypeInt:       return isTypeInt(expActualType);
-        case TypeNoReturn:  return isTypeNoReturn(expActualType);
-        case TypeArray:     return isTypeArray(expActualType);
-        default:            assert(false);
-    }
-}
-
 static bool isExpInt(myExp exp)
 {
-    return isExpOneTypeOrIllegal(exp, TypeInt);
+    IR_myExp dummy;
+    return isExpOneTypeOrIllegal(exp, TypeInt, &dummy);
 }
 
 bool isExpNoReturn(myExp exp)
 {
-    return isExpOneTypeOrIllegal(exp, TypeNoReturn);
+    IR_myExp dummy;
+    return isExpNoReturnWithResult(exp, &dummy);
 }
 
 //  NOTE:   array type named arrayTypeName must be valid. 
