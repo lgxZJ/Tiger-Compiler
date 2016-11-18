@@ -13,4 +13,13 @@
 ///
 bool MySemantic_Decs_Recursive(myDecList decs, IR_myStatement* resultPtr);
 
+///
+/// \brief      add formals to the current scope.
+/// \param[in]  funcName    the function name.
+/// \param[in]  funcFormals the formals of the function.
+///
+/// \remark     this function appears here only to be used in myTranslate module.
+/// \todo       remove this function to a commom file.     
+void addFormalsToScope(mySymbol funcName, myTyFieldList funcFormals);
+
 #endif

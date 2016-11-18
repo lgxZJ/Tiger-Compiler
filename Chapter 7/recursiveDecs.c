@@ -23,6 +23,9 @@ extern bool isExpNoReturn  (myExp exp);
 extern bool isTypeDefined  (mySymbol typeName);
 extern bool isExpLegal     (myExp exp);
 
+extern bool isExpLegalWithResult(myExp exp, IR_myExp* expResult);
+extern bool isExpNoReturnWithResult(myExp exp, IR_myExp* expResultPtr);
+
 extern void MySemantic_enterNewLevel(Trans_myLevel newLevel);
 extern void MySemantic_leaveNewLevel(void);
 extern Trans_myLevel MySemantic_getCurLevel(void);
@@ -335,12 +338,14 @@ bool isFuncParamTypesDefined(myTyFieldList funcFields)
 
 void setFormalsEscapeFlags(myTyFieldList formals)
 {
+    //  formals are in frame by default.
     while (formals)
     {
-        myType actualType = getActualTypeFromName(formals->field->typeName);
+        /*myType actualType = getActualTypeFromName(formals->field->typeName);
         if (isTypeString(actualType) || isTypeArray(actualType) ||
             isTypeRecord(actualType))
-            formals->field->varEscape = true;
+            formals->field->varEscape = true;*/
+        formals->field->varEscape = true;
         formals = formals->next;
     }
 }
@@ -485,7 +490,7 @@ bool MySemantic_Dec_Func_OnePass(
 /////////////////////////////////////////////////
 
 //  forwards
-void addFormalsToScope(myTyFieldList formals);
+void addFormalsToScope(mySymbol funcName, myTyFieldList funcFormals);
 myBoolList generateFormalBools(myTyFieldList formals);
 Trans_myLevel updateFunc_Procedure(myProcedureDec procedureDec);
 
@@ -505,9 +510,11 @@ bool MySemantic_Dec_Func_Procedure_TwoPass(
     Trans_myLevel newLevel = updateFunc_Procedure(procedureDec);
     MySemantic_enterNewLevel(newLevel);
 
-    addFormalsToScope(procedureDec->tyFieldList);
+    addFormalsToScope(procedureDec->name, procedureDec->tyFieldList);
+
     bool isBodyNoReturn = false;
-    isBodyNoReturn = isExpNoReturn(procedureDec->exp);
+    IR_myExp bodyResult = NULL;
+    isBodyNoReturn = isExpNoReturnWithResult(procedureDec->exp, &bodyResult);
     
 
     MySemantic_leaveNewLevel();
@@ -515,6 +522,7 @@ bool MySemantic_Dec_Func_Procedure_TwoPass(
 
     if (isBodyNoReturn)
     {
+        Trans_proccedureBody(bodyResult, procedureDec->name);
         return true;
     }
     else
@@ -534,9 +542,9 @@ myBoolList generateFormalBools(myTyFieldList formals)
         formals->field->varEscape);
 }
 
-void addFormalsToScope(
-    myTyFieldList formals)
-{
+void addFormalsToScope(mySymbol funcName, myTyFieldList funcFormals)
+{// todo:
+/*
     while (formals)
     {
         myTyField field = formals->field;
@@ -549,7 +557,33 @@ void addFormalsToScope(
             myEnvironment_makeVarEntry((Trans_myAccess)NULL, formalVarType));
 
         formals = formals->next;
+    }*/
+    //  add formals to environments
+    MySymbol_BeginScope(MySemantic_getVarAndFuncEnvironment());
+    MySymbol_BeginScope(MySemantic_getTypeEnvironment());
+
+    myVarAndFuncEntry funcEntry = MyEnvironment_getVarOrFuncFromName(
+            MySemantic_getVarAndFuncEnvironment(), funcName);
+
+    //  skip return value and static link
+    Trans_myAccessList accessList = Trans_getFormals(
+        MyEnvironment_getFuncLevel(funcEntry));
+    myTypeList accessTypes = MyEnvironment_getFuncFormalTypes(funcEntry);
+    while (accessTypes && accessList && funcFormals)
+    {
+        MyEnvironment_addNewVarOrFunc(
+            MySemantic_getVarAndFuncEnvironment(),
+            funcFormals->field->varName,
+            myEnvironment_makeVarEntry(accessList->head, accessTypes->head));
+
+        accessTypes = accessTypes->tails;
+        accessList = accessList->tail;
+        funcFormals = funcFormals->next;
     }
+
+    assert (accessTypes == NULL &&
+            accessList == NULL &&
+            funcFormals == NULL);
 }
 
 Trans_myLevel updateFunc_Procedure(myProcedureDec procedureDec)
@@ -592,9 +626,10 @@ bool MySemantic_Dec_Func_Function_TwoPass(
     Trans_myLevel newLevel = updateFunc_Function(functionDec);
     MySemantic_enterNewLevel(newLevel);
     MySymbol_BeginScope(MySemantic_getVarAndFuncEnvironment());
-    addFormalsToScope(functionDec->tyFieldList);
+    addFormalsToScope(functionDec->name, functionDec->tyFieldList);
 
-    bool isBodyLegal = isExpLegal(functionDec->exp);
+    IR_myExp bodyResult = NULL;
+    bool isBodyLegal = isExpLegalWithResult(functionDec->exp, &bodyResult);
 
     bool isReturnTypeMatches = false;
     if (isBodyLegal)
@@ -605,7 +640,10 @@ bool MySemantic_Dec_Func_Function_TwoPass(
     MySemantic_leaveNewLevel();
 
     if (isReturnTypeMatches)
+    {
+        Trans_functionBody(bodyResult, functionDec->name);
         return true;
+    }
     else
     {
         MyError_pushErrorCodeWithMsg(
@@ -666,8 +704,9 @@ bool MySemantic_Dec_Func_TwoPass(
 /////////////////////////////////////////////////
 
 //  a delegate function.
-bool MySemantic_Dec_FuncOrType_OnePass(myDec dec, IR_myStatement* resultPtr)
+bool MySemantic_Dec_FuncOrType_OnePass(myDec dec, IR_myStatement* dummy)
 {
+    //  the second parameter is explicitly omitted.
     switch (dec->kind)
     {
         case TypeDec:
@@ -680,8 +719,9 @@ bool MySemantic_Dec_FuncOrType_OnePass(myDec dec, IR_myStatement* resultPtr)
 }
 
 //  a delegate function.
-bool MySemantic_Dec_FuncOrType_TwoPass(myDec dec, IR_myStatement* resultPtr)
+bool MySemantic_Dec_FuncOrType_TwoPass(myDec dec, IR_myStatement* dummy)
 {
+    //  the second parameter is explicitly omitted.
     switch (dec->kind)
     {
         case TypeDec:
@@ -708,14 +748,16 @@ bool PassTemplate(
 
 ///////////////
 
-bool MySemantic_Decs_FuncsOrTypes_OnePass(myDecList decs, IR_myStatement* resultPtr)
+bool MySemantic_Decs_FuncsOrTypes_OnePass(myDecList decs)
 {
-    return PassTemplate(decs, MySemantic_Dec_FuncOrType_OnePass, resultPtr);
+    IR_myStatement dummy;
+    return PassTemplate(decs, MySemantic_Dec_FuncOrType_OnePass, &dummy);
 }
 
-bool MySemantic_Decs_FuncsOrTypes_TwoPass(myDecList decs, IR_myStatement* resultPtr)
+bool MySemantic_Decs_FuncsOrTypes_TwoPass(myDecList decs)
 {
-    return PassTemplate(decs, MySemantic_Dec_FuncOrType_TwoPass, resultPtr);
+    IR_myStatement dummy;
+    return PassTemplate(decs, MySemantic_Dec_FuncOrType_TwoPass, &dummy);
 }
 
 bool MySemantic_Decs_Vars_Pass(myDecList decs, IR_myStatement* resultPtr)
@@ -765,7 +807,6 @@ bool MySemantic_Decs_Recursive(
 
         if (thisConsecutivePart->dec->kind == VarDec)
         {
-            //  todo: change result ptr in var and func dec fuctions
             if (!MySemantic_Decs_Vars_Pass(thisConsecutivePart, resultPtr))
                 return false;
         }
@@ -775,8 +816,8 @@ bool MySemantic_Decs_Recursive(
                 detectIllegalRecursive_NamedTypes(thisConsecutivePart))
                 return false;
 
-            if (!MySemantic_Decs_FuncsOrTypes_OnePass(thisConsecutivePart, resultPtr) ||
-                !MySemantic_Decs_FuncsOrTypes_TwoPass(thisConsecutivePart, resultPtr))
+            if (!MySemantic_Decs_FuncsOrTypes_OnePass(thisConsecutivePart) ||
+                !MySemantic_Decs_FuncsOrTypes_TwoPass(thisConsecutivePart))
                 return false;
         }
 
