@@ -543,21 +543,7 @@ myBoolList generateFormalBools(myTyFieldList formals)
 }
 
 void addFormalsToScope(mySymbol funcName, myTyFieldList funcFormals)
-{// todo:
-/*
-    while (formals)
-    {
-        myTyField field = formals->field;
-        myType formalVarType =
-            getActualTypeFromName(field->typeName);
-
-        myTable varAndFuncEnv = MySemantic_getVarAndFuncEnvironment();
-        MyEnvironment_addNewVarOrFunc(
-            varAndFuncEnv, field->varName,
-            myEnvironment_makeVarEntry((Trans_myAccess)NULL, formalVarType));
-
-        formals = formals->next;
-    }*/
+{
     //  add formals to environments
     MySymbol_BeginScope(MySemantic_getVarAndFuncEnvironment());
     MySymbol_BeginScope(MySemantic_getTypeEnvironment());
@@ -766,7 +752,8 @@ bool MySemantic_Decs_Vars_Pass(myDecList decs, IR_myStatement* resultPtr)
 }
 
 bool PassTemplate(
-    myDecList decs, bool (*passFunc)(myDec, IR_myStatement*), IR_myStatement* resultPtr)
+    myDecList decs, bool (*passFunc)(myDec, IR_myStatement*),
+    IR_myStatement* resultPtr)
 {
     while (decs)
     {

@@ -1,6 +1,7 @@
 #include "myTranslate.h"
 #include "myEnvironment.h"
 #include "mySemantic.h"
+#include "recursiveDecs.h"  //  for addFormalsToScope().
 
 #include <assert.h> //  for assert()
 #include <stdlib.h> //  for NULL macro
@@ -394,29 +395,62 @@ void Trans_resetStringFrags(void)
 ////////////////////////////////////////////////////////////////////////
 //                              translaters
 
+#define INIT_INTERATOR(x)                               \
+        IR_myStatement* iterator = &(x->u.seq.right);   \
+        IR_myStatement* nextIter;
+
+#define ALLOCATE_AND_SET_ITERATOR()     do {    \
+        *iterator = IR_makeSeq(NULL, NULL);     \
+        nextIter = &((*iterator)->u.seq.right); \
+        iterator = &((*iterator)->u.seq.left);  \
+    }while (false)
+
+#define MOVE_TO_NEXT_ITERATOR()         do {    \
+        iterator = nextIter;                    \
+    }while (false)
+
+#define SET_VALUE(value)        *iterator = (value)
+
+
 IR_myExp calculateVarAddr(Trans_myAccess access)
 {
     Trans_myLevel levelUsed = MySemantic_getCurrentLevel();
     Trans_myLevel levelDeclared = access->level;
 
     IR_myExp tempExp = IR_makeTemp(Temp_newTemp());
-    IR_myExp sum = IR_makeESeq(
+    IR_myStatement sum = IR_makeSeq(
         IR_makeMove(tempExp, IR_makeTemp(Frame_FP())),
         NULL);
+
+    /*IR_myStatement* iterator = &(sum->u.seq.right);
+    IR_myStatement* nextIter;*/
+    INIT_INTERATOR(sum);
     while (levelUsed != levelDeclared)
     {
         levelUsed = levelUsed->previousLevel;
+
+        ALLOCATE_AND_SET_ITERATOR();
         //  stack grows towards low-part
-        sum = IR_makeBinOperation(IR_Plus, sum, 
-            IR_makeConst(Frame_getLocalCount(levelUsed->frame) * Frame_wordSize));
+        IR_myStatement state = IR_makeExp(IR_makeBinOperation(IR_Plus,
+            tempExp, 
+            IR_makeConst(Frame_getLocalCount(levelUsed->frame) * Frame_wordSize)));
+        SET_VALUE(state);
+
+        MOVE_TO_NEXT_ITERATOR();
     }
 
-    return IR_makeESeq(
-        IR_makeExp(
-            IR_makeBinOperation(IR_Minus,
-                sum, IR_makeConst(Frame_getAccessOffset(access->access)))),
-        tempExp);
+    ALLOCATE_AND_SET_ITERATOR();
+    IR_myStatement state = IR_makeExp(IR_makeBinOperation(IR_Plus,
+                tempExp, IR_makeConst(Frame_getAccessOffset(access->access))));
+    SET_VALUE(state);
+
+    return IR_makeESeq(sum, tempExp);
 }
+
+#undef ALLOCATE_AND_SET_ITERATOR
+#undef MOVE_TO_NEXT_ITERATOR
+#undef INIT_INTERATOR
+#undef SET_VALUE
 
 //////////////
 
@@ -429,41 +463,6 @@ Trans_myAccess getVarAccessFromName(mySymbol varName)
     return MyEnvironment_getVarAccess(varEntry);
 }
 
-/////////////
-
-void getIRExpParts(IR_myExp one, IR_myStatement* stateParts, IR_myExp* valueParts)
-{
-    switch (one->kind)
-    {
-        case IR_BinOperation:
-            //  todo:
-            break;
-        case IR_Call:
-            //  todo:
-            break;
-        case IR_Const:
-            *stateParts = NULL, *valueParts = one;  break;
-        case IR_ESeq:
-        {
-            IR_myStatement firstState = one->u.eseq.statement;
-            IR_myStatement secondState;
-            IR_myExp secondValue;
-            getIRExpParts(one->u.eseq.exp, &secondState, &secondValue);
-
-            *stateParts = IR_makeSeq(firstState, secondState);
-            *valueParts = one->u.eseq.exp;  //  ignore former values
-            break;
-        }
-        case IR_Mem:
-            getIRExpParts(one->u.mem, stateParts, valueParts);
-            break;
-        case IR_Name:
-            *stateParts = NULL, *valueParts = one;  break;
-        case IR_Temp:
-            *stateParts = NULL, *valueParts = one;  break;
-        default:       assert (false);
-    }
-}
 
 /////////////////////////////////////////////////////////////////////
 
@@ -473,7 +472,7 @@ IR_myExp doInRegAssigment(myAccess access, IR_myExp varBodyResult)
 
     IR_myStatement bodyState;
     IR_myExp bodyValue;
-    getIRExpParts(varBodyResult, &bodyState, &bodyValue);
+    IR_divideExp(varBodyResult, &bodyState, &bodyValue);
 
     IR_myStatement resultStatement = IR_makeSeq(
         bodyState, 
@@ -489,11 +488,11 @@ IR_myExp doInFrameAssigment(Trans_myAccess varAccess, IR_myExp varBodyResult)
         
     IR_myStatement calcState;
     IR_myExp calcValue;
-    getIRExpParts(varRepresent, &calcState, &calcValue);
+    IR_divideExp(varRepresent, &calcState, &calcValue);
 
     IR_myStatement bodyState;
     IR_myExp bodyValue;
-    getIRExpParts(varBodyResult, &bodyState, &bodyValue);
+    IR_divideExp(varBodyResult, &bodyState, &bodyValue);
 
     //  form a new intermediate code, save value to memory location
     IR_myStatement resultStatement = IR_makeSeq(
@@ -543,7 +542,7 @@ IR_myStatement Trans_VarDec(myVarDec varDec)
 }
 
 ////////////////////////////////////////////////////////////////
-
+/*
 void getFuncParts(
     myFuncDec funcDec, mySymbol* funcNamePtr,
     myExp* funcBodyPtr, myTyFieldList* funcFormalsPtr)
@@ -562,36 +561,6 @@ void getFuncParts(
             break;
         default:        assert (false);
     }
-}
-
-static void addFormalsToScope(mySymbol funcName, myTyFieldList funcFormals)
-{
-    //  add formals to environments
-    MySymbol_BeginScope(MySemantic_getVarAndFuncEnvironment());
-    MySymbol_BeginScope(MySemantic_getTypeEnvironment());
-
-    myVarAndFuncEntry funcEntry = MyEnvironment_getVarOrFuncFromName(
-            MySemantic_getVarAndFuncEnvironment(), funcName);
-
-    //  skip return value and static link
-    Trans_myAccessList accessList = MyEnvironment_getFuncLevel(funcEntry)
-                                        ->formals->tail->tail;
-    myTypeList accessTypes = MyEnvironment_getFuncFormalTypes(funcEntry);
-    while (accessTypes && accessList && funcFormals)
-    {
-        MyEnvironment_addNewVarOrFunc(
-            MySemantic_getVarAndFuncEnvironment(),
-            funcFormals->field->varName,
-            myEnvironment_makeVarEntry(accessList->head, accessTypes->head));
-
-        accessTypes = accessTypes->tails;
-        accessList = accessList->tail;
-        funcFormals = funcFormals->next;
-    }
-
-    assert (accessTypes == NULL &&
-            accessList == NULL &&
-            funcFormals == NULL);
 }
 
 void removeFormalsFromScope()
@@ -626,9 +595,9 @@ IR_myStatement Trans_FuncDec(myFuncDec funcDec)
     processFuncDec(funcName, funcFormals, funcBody);
     return NULL;    //  function does not need return code
 }
-
+*/
 ////////////////////////////////////////////////////////////////
-
+/*
 IR_myStatement Trans_Dec(myDec dec)
 {
     switch (dec->kind)
@@ -689,14 +658,15 @@ IR_myExp Trans_Exps(myExpList list)
     //  last one is the value of let-exp
     toFill->u.eseq.exp = Trans_Exp_(list->exp);
     return result;
-}
+}*/
 
 IR_myExp Trans_LetExp(myLetExp letExp)
-{
+{/*
      IR_myStatement decsResult = Trans_Decs(letExp->decList);
      IR_myExp expsResult = Trans_Exps(letExp->expList);
 
-     return IR_makeESeq(decsResult, expsResult);
+     return IR_makeESeq(decsResult, expsResult);*/
+     return NULL;
 }
 
 //////////////////////////////////////////////////////////////
@@ -899,9 +869,12 @@ IR_myExp Trans_BreakExp(myBreakExp breakExp)
 
 IR_myExp Trans_Exp_(myExp exp)
 {
+    if (exp == NULL)        return NULL;
+
     switch (exp->kind)
     {
         case LValueExp:
+            //  todo: some needn't wrap with Mem
             return IR_makeMem(Trans_LValueExp(exp->u.lValueExp));
         case FunctionCallExp:
             return Trans_FunctionCallExp(exp->u.functionCallExp);
@@ -936,7 +909,8 @@ IR_myExp Trans_Exp_(myExp exp)
         case AssignmentExp:
             return Trans_AssignmentExp(exp->u.assignmentExp);
         case LetExp:
-            return Trans_LetExp(exp->u.letExp);
+            /*return Trans_LetExp(exp->u.letExp);*/
+            assert (false);
         case WhileExp:
             return Trans_WhileExp(exp->u.whileExp);
         case NegationExp:
@@ -946,4 +920,48 @@ IR_myExp Trans_Exp_(myExp exp)
         
         default:    assert (false);
     }
+}
+
+////////////////////////////////////////////////////////////////////////////
+
+static void processFuncBody(
+    IR_myExp bodyResult, mySymbol routineName, bool hasReturnValue)
+{
+    IR_myStatement bodyState;
+	IR_myExp bodyValue;
+	IR_divideExp(bodyResult, &bodyState, &bodyValue);
+
+	IR_myStatement resultState = IR_makeSeq(bodyState, NULL);
+    if (hasReturnValue)
+        resultState->u.seq.right = IR_makeMove(
+            IR_makeTemp(Frame_RV()), bodyValue);
+
+	myFrame frame =  Trans_getFrame(MyEnvironment_getFuncLevel(
+	    MyEnvironment_getVarOrFuncFromName(
+	        MySemantic_getVarAndFuncEnvironment(), routineName)));
+	Frame_myFrag frag = Frame_makeProcFrag(resultState, frame, routineName);
+	Trans_addOneProcFrag(frag);
+}
+
+void Trans_proccedureBody(IR_myExp bodyResult, mySymbol procName)
+{
+    /*IR_myStatement bodyState;
+	IR_myExp bodyValue;
+	IR_divideExp(bodyResult, &bodyState, &bodyValue);
+
+	//  procedure has no value
+	IR_myStatement resultState = IR_makeSeq(bodyState, NULL);
+	myFrame frame =  Trans_getFrame(MyEnvironment_getFuncLevel(
+	    MyEnvironment_getVarOrFuncFromName(
+	        MySemantic_getVarAndFuncEnvironment(), procName)));
+	Frame_myFrag frag = Frame_makeProcFrag(resultState, frame, procName);
+	Trans_addOneProcFrag(frag);*/
+    bool hasReturnValue = false;
+    processFuncBody(bodyResult, procName, hasReturnValue);
+}
+
+void Trans_functionBody(IR_myExp bodyResult, mySymbol funcName)
+{
+    bool hasReturnValue = true;
+    processFuncBody(bodyResult, funcName, hasReturnValue);
 }
