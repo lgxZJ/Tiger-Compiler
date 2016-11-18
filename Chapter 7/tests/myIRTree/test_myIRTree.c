@@ -98,7 +98,7 @@ void test_IRMakeExp_ByDefault_GetExpWithMemberOfPassed(void)
 
 void test_IRMakeBinOperation_ByDefault_GetBinOperationWithMemberOfPassed(void)
 {
-    IR_myExp left = (IR_myExp)12;
+    IR_myExp left = IR_makeTemp((myTemp)12);
     IR_myExp right = (IR_myExp)34;
 
     IR_myExp oneMade = IR_makeBinOperation(1, left, right);
@@ -174,7 +174,7 @@ void test_IRMakeConst_ByDefault_GetConstWithMemberOfPassed(void)
 
 void test_IRMakeCall_ByDefault_GetCallWithMemberOfPassed(void)
 {
-    IR_myExp fakeFunc = (IR_myExp)12;
+    IR_myExp fakeFunc = IR_makeName((myLabel)12);
     IR_myExpList fakeArgs = NULL;
 
     IR_myExp oneMade = IR_makeCall(fakeFunc, fakeArgs);
@@ -210,6 +210,102 @@ void test_IRMakeExpList_ByDefault_GetListWithMemberOfPassed(void)
     CU_ASSERT_EQUAL(oneMade->tails, fakeTails);
 }
 
+////////////////////////
+
+//  a parameterized test
+void testOneIRExp_ReturnNullStateSameExp(IR_myExp exp)
+{
+    IR_myStatement state;
+    IR_myExp value;
+    IR_divideExp(exp, &state, &value);
+
+    CU_ASSERT_EQUAL(state, NULL);
+    CU_ASSERT_EQUAL(value, exp);
+}
+
+////////
+
+void test_IRDivideExp_TempExp_ReturnNullStateAndSameExp(void)
+{
+    IR_myExp exp = IR_makeTemp(Temp_newTemp());
+
+    testOneIRExp_ReturnNullStateSameExp(exp);
+}
+
+void test_IRDivideExp_NameExp_ReturnNullStateAndSameExp(void)
+{
+    IR_myExp exp = IR_makeName((myLabel)12);
+
+    testOneIRExp_ReturnNullStateSameExp(exp);
+}
+
+void test_IRDivideExp_ConstExp_ReturnNullStateAndSameExp(void)
+{
+    IR_myExp exp = IR_makeConst(1);
+
+    testOneIRExp_ReturnNullStateSameExp(exp);
+}
+
+void test_IRDivideExp_MemExp_ReturnInnerExpAsItsExp(void)
+{
+    IR_myExp exp = IR_makeMem(IR_makeESeq(NULL, IR_makeConst(0)));
+
+    IR_myStatement state;
+    IR_myExp value;
+    IR_divideExp(exp, &state, &value);
+
+    CU_ASSERT_EQUAL(value->kind, IR_Mem);
+    CU_ASSERT_EQUAL(value->u.mem->kind, IR_Const)
+    CU_ASSERT_EQUAL(value->u.mem->u.constValue, 0);
+}
+
+void test_IRDivideExp_ESeqExp_ReturnInnerExpAsItsExp(void)
+{
+    IR_myExp exp = IR_makeESeq(
+        IR_makeLabel((myLabel)12), IR_makeMem(IR_makeConst(0)));
+
+    IR_myStatement state;
+    IR_myExp value;
+    IR_divideExp(exp, &state, &value);
+
+    CU_ASSERT_EQUAL(value->kind, IR_Mem);
+    CU_ASSERT_EQUAL(value->u.mem->kind, IR_Const)
+    CU_ASSERT_EQUAL(value->u.mem->u.constValue, 0);
+}
+
+void test_IRDivideExp_BinOperationExp_DivideRightAndRecombineWithLeft(void)
+{
+    IR_myExp exp = IR_makeBinOperation(
+        IR_Plus,
+        IR_makeTemp((myTemp)12),
+        IR_makeBinOperation(IR_Plus, IR_makeTemp((myTemp)12), IR_makeConst(0)));
+
+    IR_myStatement state;
+    IR_myExp value;
+    IR_divideExp(exp, &state, &value);
+
+    CU_ASSERT_EQUAL(state->kind, IR_Seq);
+    CU_ASSERT_EQUAL(state->u.seq.left->kind, IR_BinOperation);
+    CU_ASSERT_EQUAL(state->u.seq.right->kind, IR_Exp);
+    CU_ASSERT_EQUAL(state->u.seq.right->u.exp->kind, IR_BinOperation);
+    CU_ASSERT_EQUAL(value->kind, IR_Temp);
+}
+
+void test_IRDivideExp_CallExp_ExtractArgs(void)
+{
+    IR_myExp exp = IR_makeCall(
+        IR_makeName((myLabel)12),
+        IR_makeExpList(IR_makeESeq(IR_makeMove(NULL, NULL), IR_makeConst(1)),
+            IR_makeExpList(IR_makeESeq(IR_makeLabel((myLabel)NULL), IR_makeConst(2)), NULL)));
+    
+    IR_myStatement state;
+    IR_myExp value;
+    IR_divideExp(exp, &state, &value);
+
+    CU_ASSERT_EQUAL(state->kind, IR_Seq);
+    CU_ASSERT_EQUAL(value->kind, IR_Temp);
+}
+
 ///////////////////////         main        /////////////////////
 
 int main()
@@ -234,7 +330,15 @@ int main()
         { "", test_IRMakeCall_ByDefault_GetCallWithMemberOfPassed },
 
         { "", test_IRMakeStatementList_ByDefault_GetListWithMemberOfPassed },
-        { "", test_IRMakeExpList_ByDefault_GetListWithMemberOfPassed }
+        { "", test_IRMakeExpList_ByDefault_GetListWithMemberOfPassed },
+
+        { "", test_IRDivideExp_TempExp_ReturnNullStateAndSameExp },
+        { "", test_IRDivideExp_NameExp_ReturnNullStateAndSameExp },
+        { "", test_IRDivideExp_ConstExp_ReturnNullStateAndSameExp },
+        { "", test_IRDivideExp_MemExp_ReturnInnerExpAsItsExp },
+        { "", test_IRDivideExp_ESeqExp_ReturnInnerExpAsItsExp },
+        { "", test_IRDivideExp_BinOperationExp_DivideRightAndRecombineWithLeft },
+        { "", test_IRDivideExp_CallExp_ExtractArgs }
     };
     if (!addTests(&suite, tests, sizeof(tests) / sizeof(tests[0])))
         return EXIT_FAILURE;

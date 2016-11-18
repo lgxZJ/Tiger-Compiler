@@ -42,7 +42,7 @@ typedef struct IR_myStatement_
         IR_Seq, IR_Label, IR_Jump, IR_CJump, IR_Move, IR_Exp
     }       kind;
 
-    union 
+    union
     {
         struct { struct IR_myStatement_* left, *right; } seq;
         myLabel label;
@@ -93,6 +93,10 @@ typedef struct IR_myExpList_
 /////////////////////////////////////////////////////////////////////////////////
 //                              make functions
 
+//
+//  NOTE:   every IR_myExp must begin with a temporary or is a const.
+//  `exp` field of ESeq can be ignored.
+
 IR_myStatement IR_makeSeq(IR_myStatement left, IR_myStatement right);
 IR_myStatement IR_makeLabel(myLabel label);
 IR_myStatement IR_makeJump(IR_myExp exp, myLabelList labels);
@@ -102,8 +106,9 @@ IR_myStatement IR_makeCJump(
     IR_RelOperator op, IR_myExp leftExp, IR_myExp rightExp,
     myLabel trueLabel, myLabel falseLabel);
 
+//  every binary operation must begin with a temp expression.
 IR_myExp IR_makeBinOperation(IR_BinOperator op, IR_myExp left, IR_myExp right);
-IR_myExp IR_makeMem(IR_myExp mem);
+IR_myExp IR_makeMem(IR_myExp addr);
 IR_myExp IR_makeTemp(myTemp temp);
 IR_myExp IR_makeESeq(IR_myStatement statement, IR_myExp exp);
 IR_myExp IR_makeName(myLabel label);
@@ -112,5 +117,18 @@ IR_myExp IR_makeCall(IR_myExp func, IR_myExpList args);
 
 IR_myStatementList IR_makeStatementList(IR_myStatement head, IR_myStatementList tail);
 IR_myExpList IR_makeExpList(IR_myExp head, IR_myExpList tails);
+
+//  DO:
+//          divide an IR_myExp into two parts:  'statement' and 'value'.
+//      'statement' contains all statements needed to finish the expression,
+//      'value' contains the value representation which is simply expressed.
+//  PARAMS:
+//      stateParts  a IR_myStatement pointer point to a variable which will hold
+//                  the 'statement'.
+//      valueParts  a IR_myExp pointer point to a variable which will hold the 'value'.
+//  RETURN:
+//      This function has no return value.
+// 
+void IR_divideExp(IR_myExp one, IR_myStatement* stateParts, IR_myExp* valueParts);
 
 #endif

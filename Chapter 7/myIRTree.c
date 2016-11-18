@@ -1,7 +1,9 @@
 #include "myIRTree.h"
 #include "makeMemory.h"
+#include "myFrame.h"
 
 #include <assert.h>
+#include <stdlib.h>
 
 #define MAKE_ONE_STATEMENT()    IR_myStatement one =                                \
                                     makeMemoryBlock(sizeof(*one), MEMORY_TYPE_NONE);\
@@ -80,6 +82,8 @@ IR_myStatement IR_makeCJump(
 
 IR_myExp IR_makeBinOperation(IR_BinOperator op, IR_myExp left, IR_myExp right)
 {
+    assert (left->kind == IR_Temp);
+
     MAKE_ONE_EXP();
 
     one->kind = IR_BinOperation;
@@ -137,6 +141,8 @@ IR_myExp IR_makeConst(int constValue)
 
 IR_myExp IR_makeCall(IR_myExp func, IR_myExpList args)
 {
+    assert (func->kind == IR_Name);
+
     MAKE_ONE_EXP();
 
     one->kind = IR_Call;
@@ -166,4 +172,84 @@ IR_myExpList IR_makeExpList(IR_myExp head, IR_myExpList tails)
     one->head = head;
     one->tails = tails;
     return one;
+}
+
+
+////////////////////////////////////////////////////////////////////
+
+void IR_divideExp(IR_myExp one, IR_myStatement* stateParts, IR_myExp* valueParts)
+{
+    switch (one->kind)
+    {
+        case IR_BinOperation:
+        {
+            assert (one->u.binOperation.left->kind == IR_Temp);
+
+            IR_myStatement rightState;
+            IR_myExp rightValue;
+            IR_divideExp(one->u.binOperation.right, &rightState, &rightValue);
+
+            IR_myStatement realBinOperation = IR_makeExp(IR_makeBinOperation(
+                one->u.binOperation.op, one->u.binOperation.left, rightValue)); 
+            *stateParts = IR_makeSeq(rightState, realBinOperation);
+            *valueParts = one->u.binOperation.left; //  return value is always a temp
+            break;
+        }
+        case IR_Call:
+            //  function args will be evaluated from right to left.
+        {
+            IR_myExpList args = one->u.call.args; 
+            IR_myStatement resultState = NULL;
+            IR_myExpList resultValueList = NULL;
+
+            IR_myStatement resultStateIter = resultState;
+            IR_myExpList resultValueListIter = resultValueList;
+            while (args)
+            {
+                IR_myStatement argState;
+                IR_myExp argValue;
+                IR_divideExp(args->head, &argState, &argValue);
+
+                //  first args, last execute
+                resultStateIter = IR_makeSeq(NULL, argState);
+                resultStateIter = resultState->u.seq.left;
+
+                resultValueListIter = IR_makeExpList(argValue, NULL);
+                resultValueListIter = resultValueList->tails;
+
+                args = args->tails;
+            }
+
+            //  recombine result
+            *stateParts = IR_makeSeq(
+                resultState,
+                IR_makeExp(IR_makeCall(one->u.call.func, resultValueList)));
+            *valueParts = IR_makeTemp(Frame_RV());
+            break;
+        }
+        case IR_ESeq:
+        {
+            IR_myStatement firstState = one->u.eseq.statement;
+            IR_myStatement secondState;
+            IR_myExp secondValue;
+            IR_divideExp(one->u.eseq.exp, &secondState, &secondValue);
+
+            *stateParts = IR_makeSeq(firstState, secondState);
+            *valueParts = secondValue;  //  ignore former values
+            break;
+        }
+        case IR_Mem:
+        {
+            IR_myExp value;   
+            IR_divideExp(one->u.mem, stateParts, &value);
+
+            *valueParts = IR_makeMem(value);
+            break;
+        }
+        case IR_Const:  //  fall through
+        case IR_Name:   //  fall through
+        case IR_Temp:   //  fall through
+            *stateParts = NULL, *valueParts = one;  break;
+        default:       assert (false);
+    }
 }
