@@ -167,6 +167,8 @@ void printExpression(FILE* file, IR_myExp exp, int spaceNum)
         {
             if (exp->u.temp == Frame_FP())
                 fprintf(file, "Temp(%s)\n", "frame pointer");
+            else if (exp->u.temp == Frame_RV())
+                fprintf(file, "Temp(%s)\n", "return register");
             else
                 fprintf(file, "Temp(%d)\n", Temp_getTempNum(exp->u.temp));
             break;
