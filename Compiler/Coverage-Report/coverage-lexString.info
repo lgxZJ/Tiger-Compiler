@@ -1,5 +1,5 @@
 TN:
-SF:/home/lgxZJ/Projects/Tiger-Compiler/Compiler/Syntax-Analysis/lexString.c
+SF:/home/lgxZJ/Projects/Tiger-Compiler/Compiler/Lexical-Analysis/lexString.c
 FN:11,findStringInChain
 FN:29,lexString
 FN:61,freeStrings

@@ -542,7 +542,7 @@ char *yytext;
 
 #include "../Syntax-Analysis/myAbstractSyntax.h"
 #include "../Syntax-Analysis/y.tab.h"
-#include "../Syntax-Analysis/lexString.h"
+#include "lexString.h"
 #include "myReport.h"
 #include "stringEscape.h"
 
