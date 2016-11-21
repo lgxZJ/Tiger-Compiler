@@ -1,0 +1,12 @@
+foo:
+
+  Seq(
+    null  , 
+    Move(
+      Temp(return register)
+    , 
+      Const(0)
+    )
+  )
+
+

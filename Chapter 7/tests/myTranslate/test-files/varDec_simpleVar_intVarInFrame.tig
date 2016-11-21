@@ -1,0 +1,6 @@
+let
+	var varOne := 0
+	var varTest := varOne
+	function foo() : int = varOne
+in
+end

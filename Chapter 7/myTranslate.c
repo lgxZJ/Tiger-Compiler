@@ -422,8 +422,6 @@ IR_myExp calculateVarAddr(Trans_myAccess access)
         IR_makeMove(tempExp, IR_makeTemp(Frame_FP())),
         NULL);
 
-    /*IR_myStatement* iterator = &(sum->u.seq.right);
-    IR_myStatement* nextIter;*/
     INIT_INTERATOR(sum);
     while (levelUsed != levelDeclared)
     {
@@ -441,7 +439,8 @@ IR_myExp calculateVarAddr(Trans_myAccess access)
 
     ALLOCATE_AND_SET_ITERATOR();
     IR_myStatement state = IR_makeExp(IR_makeBinOperation(IR_Plus,
-                tempExp, IR_makeConst(Frame_getAccessOffset(access->access))));
+                tempExp,
+                IR_makeConst(Frame_getAccessOffset(access->access))));
     SET_VALUE(state);
 
     return IR_makeESeq(sum, tempExp);
@@ -518,24 +517,28 @@ IR_myExp doAssignment(Trans_myAccess varAccess, IR_myExp varBodyResult)
 
 ////////////////////////////////////////////////////////////////////////////////
 
+static void getVarNameAndBody(
+    myVarDec varDec, mySymbol* varNamePtr, myExp* varBodyPtr)
+{
+    switch (varDec->kind)
+    {
+        case LongFormVar:
+            *varNamePtr = varDec->u.longFormVar->name;
+            *varBodyPtr = varDec->u.longFormVar->exp;
+            break;
+        case ShortFormVar:
+            *varNamePtr = varDec->u.shortFormVar->name;
+            *varBodyPtr = varDec->u.shortFormVar->exp;
+            break;
+        default:    assert (false);
+    }
+}
 
 IR_myStatement Trans_VarDec(myVarDec varDec)
 {
     mySymbol varName;
     myExp varBody;
-
-    switch (varDec->kind)
-    {
-        case LongFormVar:
-            varName = varDec->u.longFormVar->name;
-            varBody = varDec->u.longFormVar->exp;
-            break;
-        case ShortFormVar:
-            varName = varDec->u.shortFormVar->name;
-            varBody = varDec->u.shortFormVar->exp;
-            break;
-        default:    assert (false);
-    }
+    getVarNameAndBody(varDec, &varName, &varBody);
  
     return doAssignment(getVarAccessFromName(varName), Trans_Exp_(varBody))
         ->u.eseq.statement;
@@ -676,12 +679,30 @@ IR_myExp Trans_LValueExp_SimpleVar(myLValueExp lValueExp)
     Trans_myAccess varAccess = getVarAccessFromName(lValueExp->id);
 
     if (Frame_isAccessInFrame(varAccess->access))
-        return calculateVarAddr(varAccess);
+    {
+        IR_myExp ret = calculateVarAddr(varAccess);
+        assert (ret && ret->kind == IR_ESeq); 
+        return  IR_makeESeq(
+            ret->u.eseq.statement, IR_makeMem(ret->u.eseq.exp));
+    }
     else
         return IR_makeTemp(Frame_getAccessReg(varAccess->access)); 
 }
 
 /////////////////////
+
+IR_myExp Trans_LValueExp_GetRecordPtr(myLValueExp lValueExp)
+{
+    IR_myExp ret = Trans_LValueExp_SimpleVar(lValueExp);
+
+    //  record variables are always in frame
+    //  BinOperation must start with a temporary as its left operand
+    IR_myExp tempExp = IR_makeTemp(Temp_newTemp());
+    IR_myStatement stateResult = IR_makeSeq(
+        ret->u.eseq.statement,
+        IR_makeMove(tempExp, ret->u.eseq.exp)); 
+    return IR_makeESeq(stateResult, tempExp); 
+}
 
 IR_myExp Trans_LValueExp_RecordField(myLValueExp lValueExp)
 {
@@ -699,6 +720,22 @@ IR_myExp Trans_LValueExp_ArraySubscript(myLValueExp lValueExp)
 
 /////////////////////
 
+//
+//	assignment：
+//	    l-value:
+//	                    int         Record      Array
+//	        in reg      no-mem      no-mem      no-mem
+//	        in frame    mem         mem         mem
+//
+//	    r-value：
+//
+//	        the same as described below
+//
+//	r-value:
+//	                    int         Record      Array
+//	        in reg      no-mem      no-mem      no-mem
+//	        in frame    mem         mem         mem
+//
 IR_myExp Trans_LValueExp(myLValueExp lValueExp)
 {
     //  todo:
@@ -874,8 +911,7 @@ IR_myExp Trans_Exp_(myExp exp)
     switch (exp->kind)
     {
         case LValueExp:
-            //  todo: some needn't wrap with Mem
-            return IR_makeMem(Trans_LValueExp(exp->u.lValueExp));
+            return Trans_LValueExp(exp->u.lValueExp);
         case FunctionCallExp:
             return Trans_FunctionCallExp(exp->u.functionCallExp);
         case NilExp:
@@ -945,17 +981,6 @@ static void processFuncBody(
 
 void Trans_proccedureBody(IR_myExp bodyResult, mySymbol procName)
 {
-    /*IR_myStatement bodyState;
-	IR_myExp bodyValue;
-	IR_divideExp(bodyResult, &bodyState, &bodyValue);
-
-	//  procedure has no value
-	IR_myStatement resultState = IR_makeSeq(bodyState, NULL);
-	myFrame frame =  Trans_getFrame(MyEnvironment_getFuncLevel(
-	    MyEnvironment_getVarOrFuncFromName(
-	        MySemantic_getVarAndFuncEnvironment(), procName)));
-	Frame_myFrag frag = Frame_makeProcFrag(resultState, frame, procName);
-	Trans_addOneProcFrag(frag);*/
     bool hasReturnValue = false;
     processFuncBody(bodyResult, procName, hasReturnValue);
 }

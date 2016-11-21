@@ -1,0 +1,4 @@
+let
+	function foo() = ()
+in
+end

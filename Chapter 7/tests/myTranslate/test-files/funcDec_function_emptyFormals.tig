@@ -1,0 +1,4 @@
+let
+	function foo() : int = 0
+in
+end

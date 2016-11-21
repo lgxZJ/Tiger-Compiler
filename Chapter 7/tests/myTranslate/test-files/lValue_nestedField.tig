@@ -1,0 +1,7 @@
+let
+	type innerRecordType = { name :int }
+	type outerRecordType = { field : innerRecordType }
+	var varName : outerRecordType := nil
+in
+	varName.field.name
+end

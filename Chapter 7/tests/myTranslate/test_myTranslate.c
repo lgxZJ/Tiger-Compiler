@@ -161,8 +161,18 @@ void test_TransGetFormals_PassOtherLevels_FormalCountEqualsToBoolFlags(void)
 /////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////
 
+void resetTestEnv()
+{
+    Trans_resetProcFrags();
+    Trans_resetStringFrags();
+    MySemantic_setTypeEnvironment(myEnvironment_BaseType());
+    MySemantic_setVarAndFuncEnvironment(myEnvironment_BaseVarAndFunc());
+}
+
 void testOneFileAndShow(char* filename, int flag)
 {
+    resetTestEnv();
+
     char* testFilePath = "./test-files/";
     char* outputFilePath = "./testOutputs/"; 
     char buffer[100];
@@ -201,19 +211,10 @@ void testOneFileAndOutputProcs(char* filename)
     testOneFileAndShow(filename, 1);
 }
 
-void resetTestEnv()
-{
-    Trans_resetProcFrags();
-    Trans_resetStringFrags();
-    MySemantic_setTypeEnvironment(myEnvironment_BaseType());
-    MySemantic_setVarAndFuncEnvironment(myEnvironment_BaseVarAndFunc());
-}
-
 //////////////////////////////////////////////////////////////////////
 
 void test_TransIntegerLiteralExp_ByDefault_SeeOutput(void)
 {
-    resetTestEnv();
     testOneFileAndOutputCode("integerLiteral.tig");
 }
 
@@ -221,25 +222,21 @@ void test_TransIntegerLiteralExp_ByDefault_SeeOutput(void)
 
 void test_TransVarDecSimpleVarInReg_IntConst_SeeOutput(void)
 {
-    resetTestEnv();
     testOneFileAndOutputCode("varDec_simpleVarInReg_constInt.tig");
 }
 
 void test_TransVarDecSimpleVarInFrame_IntConst_SeeOutput(void)
 {
-    resetTestEnv();
     testOneFileAndOutputCode("varDec_simpleVarInFrame_constInt.tig");
 }
 
 void test_TransVarDecSimpleVarInReg_IntVarInReg_SeeOutput(void)
 {
-    resetTestEnv();
     testOneFileAndOutputCode("varDec_simpleVar_intVarInReg.tig");
 }
 
 void test_TransVarDecSimpleVarInReg_IntVarInFrame_SeeOutput(void)
 {
-    resetTestEnv();
     testOneFileAndOutputCode("varDec_simpleVar_intVarInFrame.tig");
 }
 
@@ -247,19 +244,16 @@ void test_TransVarDecSimpleVarInReg_IntVarInFrame_SeeOutput(void)
 
 void test_TransFuncDec_EmptyFunctionFormals_SeeOutput(void)
 {
-    resetTestEnv();
     testOneFileAndOutputProcs("funcDec_function_emptyFormals.tig");
 }
 
 void test_TransFuncDec_EmptyProcedureFormals_SeeOutput(void)
 {
-    resetTestEnv();
     testOneFileAndOutputProcs("funcDec_procedure_emptyFormals.tig");
 }
 
 void test_TransFuncDec_SomeFunctionFormals_SeeOutput(void)
 {
-    resetTestEnv();
     testOneFileAndOutputProcs("funcDec_function_someFormals.tig");
 }
 
@@ -267,21 +261,61 @@ void test_TransFuncDec_SomeFunctionFormals_SeeOutput(void)
 
 void test_TransLetExp_EmptyDecsAndBody_SeeOutput(void)
 {
-    resetTestEnv();
     testOneFileAndOutputCode("let_emptyBoth.tig");
 }
 
 void test_TransLetExp_EmptyDecs_SeeOutput(void)
 {
-    resetTestEnv();
     testOneFileAndOutputCode("let_emptyDecs.tig");
 }
 
 void test_TransLetExp_EmptyExps_SeeOutput(void)
 {
-    resetTestEnv();
     testOneFileAndOutputCode("let_emptyExps.tig");
 }
+
+void test_TransLetExp_NotEmptyDecsAndExps_SeeOutput(void)
+{
+    testOneFileAndOutputCode("let_notEmptyDecsAndExps.tig");
+}
+
+///////////////////////////
+
+void test_TransLValueSimpleVar_InFrame_SeeOutput(void)
+{
+    testOneFileAndOutputCode("lValue_simpleVarInFrame.tig");
+}
+
+void test_TransLValueSimpleVar_InReg_SeeOuput(void)
+{
+    testOneFileAndOutputCode("lValue_simpleVarInReg.tig");
+}
+
+///////////////
+
+void test_TransLValueRecordField_NoField_SeeOutput(void)
+{
+    testOneFileAndOutputCode("lValue_noFieldRecord.tig");
+}
+
+void test_TransLValueRecordField_OneField_SeeOutput(void)
+{
+    testOneFileAndOutputCode("lValue_oneFieldRecord.tig");
+}
+
+void test_TransLValueRecordField_TwoField_SeeOutput(void)
+{
+    testOneFileAndOutputCode("lValue_twoFieldRecord.tig");
+}
+
+void test_TransLValueRecordField_NestedField_SeeOutput(void)
+{
+    testOneFileAndOutputCode("lValue_nestedField.tig");
+}
+
+////////////////
+
+
 
 ///////////////////////////         main        ///////////////////////////////
 
@@ -314,16 +348,23 @@ int main()
         { "", test_TransVarDecSimpleVarInReg_IntConst_SeeOutput },
         { "", test_TransVarDecSimpleVarInFrame_IntConst_SeeOutput },
         { "", test_TransVarDecSimpleVarInReg_IntVarInReg_SeeOutput },
-        
         { "", test_TransVarDecSimpleVarInReg_IntVarInFrame_SeeOutput },
 
-        /*{ "", test_TransFuncDec_EmptyFunctionFormals_SeeOutput },
         { "", test_TransFuncDec_EmptyProcedureFormals_SeeOutput },
+        { "", test_TransFuncDec_EmptyFunctionFormals_SeeOutput },
         { "", test_TransFuncDec_SomeFunctionFormals_SeeOutput },
 
         { "", test_TransLetExp_EmptyDecsAndBody_SeeOutput },
         { "", test_TransLetExp_EmptyDecs_SeeOutput },
-        { "", test_TransLetExp_EmptyExps_SeeOutput }*/
+        { "", test_TransLetExp_EmptyExps_SeeOutput },
+        { "", test_TransLetExp_NotEmptyDecsAndExps_SeeOutput },
+
+        { "", test_TransLValueSimpleVar_InFrame_SeeOutput },
+        { "", test_TransLValueSimpleVar_InReg_SeeOuput },
+        { "", test_TransLValueRecordField_NoField_SeeOutput },
+        { "", test_TransLValueRecordField_OneField_SeeOutput },
+        { "", test_TransLValueRecordField_TwoField_SeeOutput },
+        { "", test_TransLValueRecordField_NestedField_SeeOutput },
     };
     if (!addTests(&suite, tests, sizeof(tests) / sizeof(tests[0])))
         return EXIT_FAILURE;

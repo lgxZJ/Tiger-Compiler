@@ -1,0 +1,6 @@
+let
+	type recordType = {}
+	var varName : recordType := recordType {}
+in
+	varName
+end
