@@ -154,6 +154,18 @@ myType getLValueExpActualResultType(myLValueExp  lValueExp)
     return getActualType(result->type);
 }
 
+void getAddressContent(IR_myExp* addressExpPtr)
+{
+    assert (addressExpPtr && (*addressExpPtr)->kind == IR_ESeq);
+    assert ((*addressExpPtr)->u.eseq.exp->kind == IR_Temp);
+
+    IR_myExp tempReg = IR_makeTemp(Temp_newTemp());
+    (*addressExpPtr)->u.eseq.statement = IR_makeSeq(
+        (*addressExpPtr)->u.eseq.statement,
+        IR_makeMove(tempReg, IR_makeMem((*addressExpPtr)->u.eseq.exp))); 
+    (*addressExpPtr)->u.eseq.exp = tempReg;
+}
+
 ////////////////////////////////////////////////////////////////////////
 //
 //  myTranslationAndType Maker
@@ -588,7 +600,7 @@ myType typeContainsLValueAux(
     }
 }
 
-static void tryToFindField(
+static void tryToFindFieldAndTranslate(
     myTypeFieldList fields, myLValueAux aux,
     myType* typeReturnPtr, IR_myExp resultRegisterExp,
     IR_myExp* addressResult)
@@ -621,12 +633,14 @@ static myType processsNextFieldOrReturn(
 	{
 		//  must be of array or record type, fetch real address
 		//  from this address value.
+        /*
 		IR_myExp newResultRegisterExp = IR_makeTemp(Temp_newTemp()); 
 		IR_myStatement oneState = IR_makeMove(
             newResultRegisterExp, IR_makeMem(resultRegisterExp));
 		(*addressResult)->u.eseq.statement = IR_makeSeq(
             (*addressResult)->u.eseq.statement, oneState);
-		(*addressResult)->u.eseq.exp = newResultRegisterExp;
+		(*addressResult)->u.eseq.exp = newResultRegisterExp;*/
+        getAddressContent(addressResult);
 
 		return typeContainsLValueAux(
             typeReturn, aux->next, addressResult);
@@ -649,7 +663,8 @@ static myType recordContainsLValueAux(
     IR_myExp resultRegisterExp = (*addressResult)->u.eseq.exp;
     assert (resultRegisterExp->kind == IR_Temp);
 
-    tryToFindField(fields, aux, &typeReturn, resultRegisterExp, addressResult);
+    tryToFindFieldAndTranslate(
+        fields, aux, &typeReturn, resultRegisterExp, addressResult);
 
     if (typeReturn == NULL)   //  field not found
     {
@@ -662,6 +677,32 @@ static myType recordContainsLValueAux(
         return processsNextFieldOrReturn(
             aux, resultRegisterExp, addressResult, typeReturn);
     }
+}
+
+
+static void calcArraySubscriptAddr(
+    IR_myExp* addressResult, IR_myExp subscriptResult)
+{
+    IR_myExp resultRegisterExp = (*addressResult)->u.eseq.exp;
+    assert (resultRegisterExp->kind == IR_Temp);
+
+    IR_myStatement subscriptState;
+    IR_myExp subscriptValue;
+    IR_divideExp(subscriptResult, &subscriptState, &subscriptValue);
+
+    //  combine offset statement
+    IR_myStatement subscriptOffsetState = IR_makeExp(
+        IR_makeBinOperation(IR_Multiply,
+            subscriptValue, IR_makeConst(-Frame_wordSize)));
+    (*addressResult)->u.eseq.statement = IR_makeSeq(
+        (*addressResult)->u.eseq.statement,
+        IR_makeSeq(subscriptState, subscriptOffsetState));
+    
+    IR_myStatement addrState = IR_makeExp(IR_makeBinOperation(IR_Plus,
+        resultRegisterExp, subscriptValue));
+    (*addressResult)->u.eseq.statement = IR_makeSeq(
+        (*addressResult)->u.eseq.statement, addrState);
+    //  do not change result register representations.
 }
 
 //  check whether the type of array subscript is Integer.
@@ -681,13 +722,28 @@ static myType arrayContainsLValueAux(
         return NULL;
     }
 
-    *addressResult = IR_makeBinOperation(IR_Plus,
-        *addressResult, 
-        IR_makeBinOperation(IR_Multiply,
-            subscriptResult, IR_makeConst(Frame_wordSize)));
+/*
+    IR_myExp resultRegisterExp = (*addressResult)->u.eseq.exp;
+    assert (resultRegisterExp->kind == IR_Temp);
+
+    IR_myStatement subscriptState;
+    IR_myExp subscriptValue;
+    IR_divideExp(subscriptResult, &subscriptState, &subscriptValue);
+
+    //  do not change result register representations. 
+    (*addressResult)->u.eseq.statement = IR_makeSeq(
+        (*addressResult)->u.eseq.statement, subscriptState);
+    IR_myStatement addrState = IR_makeExp(IR_makeBinOperation(IR_Plus,
+        resultRegisterExp, subscriptValue));
+    (*addressResult)->u.eseq.statement = IR_makeSeq(
+        (*addressResult)->u.eseq.statement, addrState);
+*/
+    calcArraySubscriptAddr(addressResult, subscriptResult);
 
     if (aux->next)
     {
+        //  next must be record or array type, whose address is got by
+        //  fetching its content
         *addressResult = IR_makeMem(*addressResult);
         return typeContainsLValueAux(
                 type->u.typeArray->type, aux->next, addressResult);
@@ -701,7 +757,7 @@ static myType arrayContainsLValueAux(
 //  forward declarations
 bool isVariableArrayType(mySymbol variableName);
 myTranslationAndType analyzeRecursiveArraySubscripts(
-    myLValueExp lValueExp);
+    myLValueExp lValueExp, IR_myExp currentSubscriptResult);
 void processArraySubscriptErrors(
     bool isArrayVariableDeclared, bool isVariableArrayType,
     bool isSubscriptExpInt, myLValueExp lValueExp);
@@ -740,12 +796,13 @@ myTranslationAndType MySemantic_LValueExp_ArraySubscript(
     if (isArrayVariableDeclared) 
         isVariableAnArray = isVariableArrayType(arrayVariableName);
 
+    IR_myExp subscriptResult = NULL;
     myExp subscriptExp = lValueExp->u.arraySubscriptAux->exp;
-    bool isSubscriptInt = isExpInt(subscriptExp);
+    bool isSubscriptInt = isExpIntWithResult(subscriptExp, &subscriptResult);
 
     myTranslationAndType result;
     if (isArrayVariableDeclared && isVariableAnArray && isSubscriptInt)
-        return analyzeRecursiveArraySubscripts(lValueExp);
+        return analyzeRecursiveArraySubscripts(lValueExp, subscriptResult);
     else    
     {
         processArraySubscriptErrors(isArrayVariableDeclared,
@@ -787,13 +844,41 @@ void processArraySubscriptErrors(
             MySymbol_GetName(arrayVariableName));
 }
 
+
+IR_myExp calculateFirstSubscriptAddress(
+    IR_myExp currentSubscriptResult, myLValueExp lValueExp)
+{
+	IR_myStatement subscriptState;
+	IR_myExp subscriptValue;
+	IR_divideExp(currentSubscriptResult, &subscriptState, &subscriptValue);
+
+	//  calculate offset
+	subscriptState = IR_makeSeq(
+        subscriptState,
+        IR_makeExp(IR_makeBinOperation(IR_Multiply,
+            subscriptValue, IR_makeConst(-Frame_wordSize))));
+
+	IR_myExp arrayPtrExp = Trans_LValueExp_GetArrayPtr(lValueExp);
+	assert (arrayPtrExp->kind == IR_ESeq);
+	assert (arrayPtrExp->u.eseq.exp->kind == IR_Temp);
+
+	IR_myStatement combinedState = IR_makeSeq(
+        arrayPtrExp->u.eseq.statement, subscriptState);
+	IR_myStatement addrCalc = IR_makeExp(IR_makeBinOperation(IR_Plus,
+        arrayPtrExp->u.eseq.exp, subscriptValue)); 
+	combinedState = IR_makeSeq(combinedState, addrCalc);
+    //  do not change reuslt register representations.
+
+	return IR_makeESeq(combinedState, arrayPtrExp->u.eseq.exp);
+}
+
 //  DO:
 //      check if the subscript expression inside `lValueExp` is of Integer type.
 //  RETURN:
 //      SEMANTIC_ERROR for checking error;
 //      A myTranslationAndType variable for success.
 myTranslationAndType analyzeRecursiveArraySubscripts(
-    myLValueExp lValueExp)
+    myLValueExp lValueExp, IR_myExp currentSubscriptResult)
 {
     assert (lValueExp);
 
@@ -804,17 +889,25 @@ myTranslationAndType analyzeRecursiveArraySubscripts(
     myVarAndFuncEntry arrayEntry = getVarOrFuncFromName(lValueExp->id);
     assert (arrayEntry != NULL);
 
+
+    //  return this array type
+    result->type = MyEnvironment_getVarType(arrayEntry)
+        ->u.typeArray->type;
+    result->translation =
+        calculateFirstSubscriptAddress(currentSubscriptResult, lValueExp);
+
     if (lValueExp->u.arraySubscriptAux->next)
     {
         myType elementType = MyEnvironment_getVarType(arrayEntry)
             ->u.typeArray->type;
 
-        //  recursive checking
-        //  todo:
-        IR_myExp dummy;
+        //  next must be of record or array type, get its address from current
+        //  address's value. 
+        getAddressContent(&result->translation);
+        //  recursive checking, add or rewrite result if necessary
         myType typeReturn = typeContainsLValueAux(
             elementType,
-            lValueExp->u.arraySubscriptAux->next, &dummy);
+            lValueExp->u.arraySubscriptAux->next, &result->translation);
 
         if (typeReturn == NULL)
         {
@@ -823,17 +916,10 @@ myTranslationAndType analyzeRecursiveArraySubscripts(
         }
         else                        result->type = typeReturn;
     }
-    else
-    {
-        //  return this array type
-        result->type = MyEnvironment_getVarType(arrayEntry)
-            ->u.typeArray->type;
-    }
+    
+    getAddressContent(&result->translation);
     return result;
 }
-
-
-
 
 ////////////////////////////////////////////////////////////////////////////////
 

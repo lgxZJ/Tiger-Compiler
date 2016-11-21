@@ -704,18 +704,13 @@ IR_myExp Trans_LValueExp_GetRecordPtr(myLValueExp lValueExp)
     return IR_makeESeq(stateResult, tempExp); 
 }
 
-IR_myExp Trans_LValueExp_RecordField(myLValueExp lValueExp)
-{
-    //  todo:
-    return NULL;
-}
 
 /////////////////////
 
-IR_myExp Trans_LValueExp_ArraySubscript(myLValueExp lValueExp)
+IR_myExp Trans_LValueExp_GetArrayPtr(myLValueExp lValueExp)
 {
-    //  todo:
-    return NULL;
+    //  treat array as record when getting its address
+    return Trans_LValueExp_GetRecordPtr(lValueExp);
 }
 
 /////////////////////
@@ -744,9 +739,7 @@ IR_myExp Trans_LValueExp(myLValueExp lValueExp)
         case SimpleVar:
             return Trans_LValueExp_SimpleVar(lValueExp);
         case RecordField:
-            return Trans_LValueExp_RecordField(lValueExp);
         case ArraySubscript:
-            return Trans_LValueExp_ArraySubscript(lValueExp);
         default:    assert (false);
     }
 }
@@ -771,7 +764,12 @@ IR_myExp Trans_NilExp(myNilExp nilExp)
 
 IR_myExp Trans_IntegerLiteralExp(myIntegerLiteralExp integerLiteralExp)
 {
-    return IR_makeConst(integerLiteralExp->value);
+    //  in order to make BinOperation left operand an register,
+    //  we complicate the process here.
+    IR_myExp resultReg = IR_makeTemp(Temp_newTemp());
+    return IR_makeESeq(
+        IR_makeMove(resultReg, IR_makeConst(integerLiteralExp->value)),
+        resultReg);
 }
 
 ///////////////////////////////////////////////////////////

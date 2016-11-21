@@ -115,7 +115,8 @@ Trans_myAccess Trans_allocateLocal(Trans_myLevel level, bool escapeFlag);
 Trans_myAccessList Trans_getFormals(Trans_myLevel level);
 
 
-
+//  todo:
+myFrame Trans_getFrame(Trans_myLevel level);
 
 void Trans_procEntryExit(
     Trans_myLevel level, Trans_myExp body, Trans_myAccessList formals);
@@ -135,6 +136,8 @@ void Trans_resetStringFrags(void);
 /////////////////////////////////////////////////////////////////////////////////
 //                              translaters
 
+IR_myExp Trans_LValueExp_GetRecordPtr(myLValueExp lValueExp);
+IR_myExp Trans_LValueExp_GetArrayPtr(myLValueExp lValueExp);
 IR_myStatement Trans_VarDec(myVarDec varDec);
 
 IR_myExp Trans_LValueExp_SimpleVar(myLValueExp lValueExp);
@@ -152,5 +155,10 @@ IR_myExp Trans_IntegerLiteralExp(myIntegerLiteralExp integerLiteralExp);
 ///             value of this expression is 0; 
 IR_myExp Trans_LetExp(myLetExp letExp);
 IR_myExp Trans_Exp_(myExp exp);
+
+//////////////////////////////////////
+
+void Trans_proccedureBody(IR_myExp bodyResult, mySymbol procName);
+void Trans_functionBody(IR_myExp bodyResult, mySymbol funcName);
 
 #endif
