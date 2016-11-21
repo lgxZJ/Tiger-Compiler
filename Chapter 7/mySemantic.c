@@ -24,6 +24,8 @@
 
 
 //  forwards
+Trans_myAccess getVarAccessFromName(mySymbol varName);
+
 myTranslationAndType MySemantic_Exp_(myExp exp);
 myType getExpActualResultType(myExp exp);
 static myType getActualType(myType type);
@@ -59,6 +61,11 @@ bool isExpNoReturnWithResult(myExp exp, IR_myExp* expResultPtr)
     return isExpOneTypeOrIllegal(exp, TypeNoReturn, expResultPtr);
 }
 
+bool isExpIntWithResult(myExp exp, IR_myExp* expResult)
+{
+    return isExpOneTypeOrIllegal(exp, TypeInt, expResult);
+}
+
 bool isExpLegalWithResult(myExp exp, IR_myExp* expResult)
 {
     assert (exp);
@@ -80,18 +87,23 @@ bool isExpLegalWithResult(myExp exp, IR_myExp* expResult)
 //      analyze if this expression fits its semantic
 bool isExpLegal(myExp exp)
 {
-    assert (exp);
+    /*assert (exp);
 
     myTranslationAndType result = MySemantic_Exp_(exp);
         
     if (result == SEMANTIC_ERROR)   return false;
-    else                            return true;
+    else                            return true;*/
+    IR_myExp dummy;
+    return isExpLegalWithResult(exp, &dummy);
 }
 
 static bool isExpInt(myExp exp)
 {
+    /*
     IR_myExp dummy;
-    return isExpOneTypeOrIllegal(exp, TypeInt, &dummy);
+    return isExpOneTypeOrIllegal(exp, TypeInt, &dummy);*/
+    IR_myExp dummy;
+    return isExpIntWithResult(exp, &dummy);
 }
 
 bool isExpNoReturn(myExp exp)
@@ -422,16 +434,16 @@ myTranslationAndType MySemantic_LValueExp_SimpleVar(
 //  forward declarations
 bool isVariableRecordType(mySymbol variableName);
 myType typeContainsLValueAux(
-    myType type, myLValueAux aux);
+    myType type, myLValueAux aux, IR_myExp* addressResult);
 static myType arrayContainsLValueAux(
-    myType type, myLValueAux aux);
+    myType type, myLValueAux aux, IR_myExp* addressResult);
 static myType analyzeRecordFields(
-    myLValueExp lValueExp);
+    myLValueExp lValueExp, IR_myExp* addressResult);
 static myType recordContainsLValueAux(
-    myType type, myLValueAux aux);
+    myType type, myLValueAux aux, IR_myExp* addressResult);
 void processRecordFieldErrors(
     bool isVarDeclared, bool isVarAnRecord, mySymbol recordVarName);
-
+myTranslationAndType doFieldAnalyzeAndTranlation(myLValueExp lValueExp);
 
 /**
  *  @brief  Do semantic analysis on RecordField, one kind of LValueExp.
@@ -467,12 +479,7 @@ myTranslationAndType MySemantic_LValueExp_RecordField(
         isVarAnRecord = isVariableRecordType(recordVarName);
     if (isVarDeclared && isVarAnRecord)
     {
-        myType returnType =
-            analyzeRecordFields(lValueExp);
-        //  analysis error!
-        if (returnType == SEMANTIC_ERROR)
-            return SEMANTIC_ERROR;
-        return make_MyTranslationAndType(NULL, returnType);
+        return doFieldAnalyzeAndTranlation(lValueExp);
     }
     else
     {
@@ -502,24 +509,53 @@ void processRecordFieldErrors(
             MySymbol_GetName(recordVarName));
 }
 
+myTranslationAndType doFieldAnalyzeAndTranlation(myLValueExp lValueExp)
+{
+    IR_myExp addressResult = NULL;
+    myType returnType = analyzeRecordFields(lValueExp, &addressResult);
+
+    if (returnType == SEMANTIC_ERROR)
+        return SEMANTIC_ERROR;
+        
+    IR_myStatement stateResult;
+    IR_myExp valueResult;
+    IR_divideExp(addressResult, &stateResult, &valueResult);
+
+    return make_MyTranslationAndType(
+        IR_makeESeq(stateResult, IR_makeMem(valueResult)),
+        returnType);
+}
+
+
+
+
+static myLValueAux wrapExpToAux(myLValueExp lValueExp)
+{
+    myRecordFieldAux fieldAux = lValueExp->u.recordFieldAux;
+    return makeMyLValueAux(
+        fieldAux->id, NULL, fieldAux->next);
+}
+
 //  DO:
 //      check if field names in `lValueExp` can be found in record type.
 //  RETURN:
 //      return NULL if analyze fails.
 //      return type of the last field if succeed.
+//  REMARK:
+//      One record field can bw followed by array subscript, so wrap aux and
+//      delegate it to an dispatcher.
 static myType analyzeRecordFields(
-    myLValueExp lValueExp)
+    myLValueExp lValueExp, IR_myExp* addressResult)
 {
     assert (lValueExp);
 
-    myRecordFieldAux fieldAux = lValueExp->u.recordFieldAux;
     myType typeOfRecord = makeType_Record(
         getVariableType(lValueExp->id)
             ->u.typeRecord->fieldList); 
-    myLValueAux aux = makeMyLValueAux(
-        fieldAux->id, NULL, fieldAux->next);
+    myLValueAux aux = wrapExpToAux(lValueExp);
 
-    return typeContainsLValueAux(typeOfRecord, aux);
+    *addressResult = Trans_LValueExp_GetRecordPtr(lValueExp);
+    return typeContainsLValueAux(typeOfRecord, aux, addressResult);
 }
 
 /**
@@ -539,23 +575,70 @@ static myType analyzeRecordFields(
  *  @note       Tested.
  */
 myType typeContainsLValueAux(
-    myType type, myLValueAux aux)
-{ 
+    myType type, myLValueAux aux, IR_myExp* addressResult)
+{
     switch (type->kind)
     {
         case TypeArray:
-            return arrayContainsLValueAux(type, aux);
+            return arrayContainsLValueAux(type, aux, addressResult);
         case TypeRecord:
-            return recordContainsLValueAux(type, aux);
-        default:    //  never goes here
+            return recordContainsLValueAux(type, aux, addressResult);
+        default:    //  never got here
             assert(false);
     }
+}
+
+static void tryToFindField(
+    myTypeFieldList fields, myLValueAux aux,
+    myType* typeReturnPtr, IR_myExp resultRegisterExp,
+    IR_myExp* addressResult)
+{
+    int count = 0;
+    while (fields)  //  try to find field
+    {
+        if (MySymbol_IsSymbolEqual(fields->head->name, aux->id))
+        {
+            *typeReturnPtr = fields->head->type;
+
+            //  do not change result register representations
+            IR_myStatement oneState =  IR_makeExp(IR_makeBinOperation(IR_Plus,
+                resultRegisterExp, IR_makeConst(-count * Frame_wordSize)));
+            (*addressResult)->u.eseq.statement = IR_makeSeq(
+                (*addressResult)->u.eseq.statement, oneState);
+            break;
+        }
+
+        count++;
+        fields = fields->tails;
+    }
+}
+
+static myType processsNextFieldOrReturn(
+    myLValueAux aux, IR_myExp resultRegisterExp,
+    IR_myExp* addressResult, myType typeReturn)
+{
+    if (aux->next)
+	{
+		//  must be of array or record type, fetch real address
+		//  from this address value.
+		IR_myExp newResultRegisterExp = IR_makeTemp(Temp_newTemp()); 
+		IR_myStatement oneState = IR_makeMove(
+            newResultRegisterExp, IR_makeMem(resultRegisterExp));
+		(*addressResult)->u.eseq.statement = IR_makeSeq(
+            (*addressResult)->u.eseq.statement, oneState);
+		(*addressResult)->u.eseq.exp = newResultRegisterExp;
+
+		return typeContainsLValueAux(
+            typeReturn, aux->next, addressResult);
+	}
+	else
+	    return typeReturn;
 }
 
 //  check whether field name in `aux` can be found inside record type.
 //  return NULL for checking error.
 static myType recordContainsLValueAux(
-    myType type, myLValueAux aux)
+    myType type, myLValueAux aux, IR_myExp* addressResult)
 {
     assert (isTypeRecord(type));
     assert (getLValueKind(aux) == RecordField);
@@ -563,15 +646,10 @@ static myType recordContainsLValueAux(
     myTypeFieldList fields = type->u.typeRecord->fieldList;
     myType typeReturn = NULL;
 
-    while (fields)  //  try to find field
-    {
-        if (MySymbol_IsSymbolEqual(fields->head->name, aux->id))
-        {
-            typeReturn = fields->head->type;
-            break;
-        }
-        fields = fields->tails;
-    }
+    IR_myExp resultRegisterExp = (*addressResult)->u.eseq.exp;
+    assert (resultRegisterExp->kind == IR_Temp);
+
+    tryToFindField(fields, aux, &typeReturn, resultRegisterExp, addressResult);
 
     if (typeReturn == NULL)   //  field not found
     {
@@ -581,33 +659,39 @@ static myType recordContainsLValueAux(
      }
     else    //  field found
     {
-        if (aux->next)  //  have next symbol or exp, do check
-            return typeContainsLValueAux(
-                typeReturn, aux->next);
-        else
-            return typeReturn;
+        return processsNextFieldOrReturn(
+            aux, resultRegisterExp, addressResult, typeReturn);
     }
 }
 
 //  check whether the type of array subscript is Integer.
 //  return NULL for checking error.
 static myType arrayContainsLValueAux(
-    myType type, myLValueAux aux)
+    myType type, myLValueAux aux, IR_myExp* addressResult)
 {
     assert (isTypeArray(type));
     assert (getLValueKind(aux) == ArraySubscript);
 
     //  check subscript's expression is of Integer type
     myExp subscriptExp = aux->exp;
-    if (!isExpInt(subscriptExp))
+    IR_myExp subscriptResult = NULL;
+    if (!isExpIntWithResult(subscriptExp, &subscriptResult))
     {
         MyError_pushErrorCode(ERROR_SUBSCRIPT_NOT_INT);
         return NULL;
     }
 
-    if (aux->next)  //  have next symbol or exp, do checking
+    *addressResult = IR_makeBinOperation(IR_Plus,
+        *addressResult, 
+        IR_makeBinOperation(IR_Multiply,
+            subscriptResult, IR_makeConst(Frame_wordSize)));
+
+    if (aux->next)
+    {
+        *addressResult = IR_makeMem(*addressResult);
         return typeContainsLValueAux(
-                type->u.typeArray->type, aux->next);
+                type->u.typeArray->type, aux->next, addressResult);
+    }
     else
         return type->u.typeArray->type;
 }
@@ -726,9 +810,11 @@ myTranslationAndType analyzeRecursiveArraySubscripts(
             ->u.typeArray->type;
 
         //  recursive checking
+        //  todo:
+        IR_myExp dummy;
         myType typeReturn = typeContainsLValueAux(
             elementType,
-            lValueExp->u.arraySubscriptAux->next);
+            lValueExp->u.arraySubscriptAux->next, &dummy);
 
         if (typeReturn == NULL)
         {
@@ -1989,12 +2075,10 @@ bool MySemantic_Decs(myDecList decs, IR_myStatement* resultPtr)
 ///////////////////////////////////////////////////////////////////////////////
 
 //  forwards
-bool areExpressionsLegal(
-    myExpList exps);
-myType getLastExpResultType(
-    myExpList exps);
-void processLetErrors(
-    bool areDeclarationsLegal, bool isBodyLegal);
+bool areExpressionsLegal(myExpList exps, IR_myExp* expsResult);
+myType getLastExpResultType(myExpList exps);
+IR_myExp combineDecsAndExpsResults(IR_myStatement decsResult, IR_myExp expsResult);
+void processLetErrors(bool areDeclarationsLegal, bool isBodyLegal);
 
 //  FORM:
 //      let decs in expseq end
@@ -2009,8 +2093,7 @@ void processLetErrors(
 //      if failed, it returns SEMANTIC_ERROR.
 //  STATUS:
 //      Tested.
-myTranslationAndType MySemantic_LetExp(
-    myLetExp letExp)
+myTranslationAndType MySemantic_LetExp(myLetExp letExp)
 {
     MySymbol_BeginScope(MySemantic_getVarAndFuncEnvironment());
     MySymbol_BeginScope(MySemantic_getTypeEnvironment());
@@ -2021,14 +2104,13 @@ myTranslationAndType MySemantic_LetExp(
 
     IR_myExp expsResult = NULL;
     bool isBodyLegal =
-        areExpressionsLegal(letExp->expList);
+        areExpressionsLegal(letExp->expList, &expsResult);
 
     myTranslationAndType result;
     if (areDeclarationsLegal && isBodyLegal)
     {
-        //  todo: change value part of this IR
         result = make_MyTranslationAndType(
-            IR_makeESeq(decsResult, expsResult),
+            combineDecsAndExpsResults(decsResult, expsResult),
             getLastExpResultType(letExp->expList));
     }
     else
@@ -2042,18 +2124,63 @@ myTranslationAndType MySemantic_LetExp(
     return result;
 }
 
-bool areExpressionsLegal(
-    myExpList exps)
+IR_myExp combineDecsAndExpsResults(IR_myStatement decsResult, IR_myExp expsResult)
 {
+	//  areExpressionsLegal() ensures it
+	assert (expsResult->kind == IR_ESeq);
+
+	return IR_makeESeq(
+	    IR_makeSeq(decsResult, expsResult->u.eseq.statement),
+	    expsResult->u.eseq.exp);
+}
+
+//////////////////////////
+
+#define STATEMENT_INIT(stateResult)             \
+    IR_myStatement* stateIter = &stateResult;   \
+    IR_myStatement* nextIter; 
+
+#define STATEMENT_ALLOCATE_AND_SET()            \
+    *stateIter = IR_makeSeq(NULL, NULL);        \
+    nextIter = &(*stateIter)->u.seq.right;      \
+    stateIter = &(*stateIter)->u.seq.left;
+
+#define STATEMENT_MOVE_TO_NEXT()                \
+    stateIter = nextIter;
+
+bool areExpressionsLegal(myExpList exps, IR_myExp* expResult)
+{
+    IR_myStatement stateResult = NULL;
+    IR_myExp valueResult = NULL;
+
+    STATEMENT_INIT(stateResult); 
     while (exps)
     {
-        if (MySemantic_Exp_(exps->exp)
-            == SEMANTIC_ERROR)
+        myTranslationAndType oneReturn = MySemantic_Exp_(exps->exp); 
+        if (oneReturn == SEMANTIC_ERROR)
+        {
+            *expResult = NULL;
             return false;
+        }
+        else
+        {
+            STATEMENT_ALLOCATE_AND_SET();
+            IR_divideExp(oneReturn->translation, stateIter, &valueResult);
+            STATEMENT_MOVE_TO_NEXT();
+        }
+
         exps = exps->next;
     }
+
+    *expResult = IR_makeESeq(stateResult, valueResult);
     return true;
 }
+
+#undef STATEMENT_INIT
+#undef STATEMENT_ALLOCATE_AND_SET
+#undef STATEMENT_MOVE_TO_NEXT
+
+//////////////////////////
 
 myType getLastExpResultType(
     myExpList exps)
