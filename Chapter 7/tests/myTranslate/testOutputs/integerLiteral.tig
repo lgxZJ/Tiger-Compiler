@@ -1,2 +1,10 @@
 
-Const(0)
+Eseq(
+  Move(
+    Temp(2)
+  , 
+    Const(0)
+  )
+, 
+  Temp(2)
+)

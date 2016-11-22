@@ -3,13 +3,29 @@ Eseq(
   Seq(
     null  , 
     Seq(
-      null    , 
+      Seq(
+        Move(
+          Temp(34)
+        , 
+          Const(0)
+        )
+      , 
+        null      )
+    , 
       Seq(
         Seq(
           Seq(
             null          , 
             Seq(
-              null            , 
+              Seq(
+                Move(
+                  Temp(35)
+                , 
+                  Const(12)
+                )
+              , 
+                null              )
+            , 
               null            )
           )
         , 
@@ -19,5 +35,5 @@ Eseq(
     )
   )
 , 
-  Const(12)
+  Temp(35)
 )

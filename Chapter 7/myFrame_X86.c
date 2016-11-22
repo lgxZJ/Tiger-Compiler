@@ -194,6 +194,7 @@ void fillFormalsFromFlags(myFrame frame, myBoolList formalFlags)
 
 void fillViewShiftFromFlags(myFrame frame)
 {
+    //  todo: include save callee-save registers
     frame->viewShift = "movl %esp, %ebp\n\t";
 }
 

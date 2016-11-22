@@ -310,12 +310,47 @@ void test_TransLValueRecordField_TwoField_SeeOutput(void)
 
 void test_TransLValueRecordField_NestedField_SeeOutput(void)
 {
-    testOneFileAndOutputCode("lValue_nestedField.tig");
+    testOneFileAndOutputCode("lValue_nestedFieldRecord.tig");
 }
 
 ////////////////
 
+void test_TransLValueArraySubscript_NoSubscript_SeeOutput(void)
+{
+    testOneFileAndOutputCode("lValue_noSubscriptArray.tig");
+}
 
+void test_TransLValueArraySubscript_OneSubscript_SeeOutput(void)
+{
+    testOneFileAndOutputCode("lValue_oneSubscriptArray.tig");
+}
+
+void test_TransLValueArraySubscript_nestedSubscript_SeeOutput(void)
+{
+    testOneFileAndOutputCode("lValue_nestedSubscriptArray.tig");
+}
+
+///////////////////////////
+
+void test_TransFunctionCall_NoParamFunction_SeeOutput(void)
+{
+    testOneFileAndOutputCode("funcCall_noParamFunction.tig");
+}
+
+void test_TransFunctionCall_oneParamFunction_SeeOutput(void)
+{
+    testOneFileAndOutputCode("funcCall_oneParamFunction.tig");
+}
+
+void test_TransFunctionCall_twoParamFunction_SeeOutput(void)
+{
+    testOneFileAndOutputCode("funcCall_twoParamFunction.tig");
+}
+
+void test_TransFunctionCall_twoParamProcedure_SeeOutput(void)
+{
+    testOneFileAndOutputCode("funcCall_twoParamProcedure.tig");
+}
 
 ///////////////////////////         main        ///////////////////////////////
 
@@ -361,10 +396,20 @@ int main()
 
         { "", test_TransLValueSimpleVar_InFrame_SeeOutput },
         { "", test_TransLValueSimpleVar_InReg_SeeOuput },
+
         { "", test_TransLValueRecordField_NoField_SeeOutput },
         { "", test_TransLValueRecordField_OneField_SeeOutput },
         { "", test_TransLValueRecordField_TwoField_SeeOutput },
         { "", test_TransLValueRecordField_NestedField_SeeOutput },
+
+        { "", test_TransLValueArraySubscript_NoSubscript_SeeOutput },
+        { "", test_TransLValueArraySubscript_OneSubscript_SeeOutput },
+        { "", test_TransLValueArraySubscript_nestedSubscript_SeeOutput },
+
+        { "", test_TransFunctionCall_NoParamFunction_SeeOutput },
+        { "", test_TransFunctionCall_oneParamFunction_SeeOutput },
+        { "", test_TransFunctionCall_twoParamFunction_SeeOutput },
+        { "", test_TransFunctionCall_twoParamProcedure_SeeOutput },
     };
     if (!addTests(&suite, tests, sizeof(tests) / sizeof(tests[0])))
         return EXIT_FAILURE;

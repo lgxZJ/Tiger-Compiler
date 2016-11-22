@@ -980,8 +980,17 @@ myTranslationAndType MySemantic_FunctionCallExp_NoParam(
         return SEMANTIC_ERROR;
     }
 
+    myLabel funcLabel = MyEnvironment_getFuncLabel(
+        MyEnvironment_getVarOrFuncFromName(
+            MySemantic_getVarAndFuncEnvironment(),
+            functionName));
+    assert (funcLabel != NULL);
+    //  include static link as param
+    IR_myExp funcCallExp = IR_makeCall(
+        IR_makeName(funcLabel),
+        IR_makeExpList(IR_makeTemp(Frame_FP()), NULL)); 
     return make_MyTranslationAndType(
-        NULL, getFunctionReturnType(functionName));
+        funcCallExp, getFunctionReturnType(functionName));
 }
 
 
@@ -1026,6 +1035,9 @@ myTranslationAndType analyzeParamsOfFunction(
 {
     assert (functioName);
 
+    //  include static link as param
+    IR_myExpList exps = IR_makeExpList(IR_makeTemp(Frame_FP()), NULL);
+    IR_myExpList* expsPtr = &exps->tails;
     while (formalVariables && formalTypes)
     {
         myTranslationAndType realParamResult = 
@@ -1038,6 +1050,10 @@ myTranslationAndType analyzeParamsOfFunction(
         {
             break;
         }
+
+        //  translation is correct only after checking
+        (*expsPtr) = IR_makeExpList(realParamResult->translation, NULL);
+        expsPtr = &((*expsPtr)->tails);
 
         formalVariables = formalVariables->next;
         formalTypes = formalTypes->tails;
@@ -1053,8 +1069,13 @@ myTranslationAndType analyzeParamsOfFunction(
     }
     else
     {
+        myLabel funcLabel = MyEnvironment_getFuncLabel(
+        MyEnvironment_getVarOrFuncFromName(
+            MySemantic_getVarAndFuncEnvironment(),
+            functioName));
+        IR_myExp funcCallExp = IR_makeCall(IR_makeName(funcLabel), exps);
         return make_MyTranslationAndType(
-            NULL, getFunctionReturnType(functioName));
+            funcCallExp, getFunctionReturnType(functioName));
     }
 }
 
@@ -2239,10 +2260,11 @@ bool areExpressionsLegal(myExpList exps, IR_myExp* expResult)
     IR_myStatement stateResult = NULL;
     IR_myExp valueResult = NULL;
 
-    STATEMENT_INIT(stateResult); 
+    STATEMENT_INIT(stateResult);
+    myTranslationAndType oneReturn = NULL; 
     while (exps)
     {
-        myTranslationAndType oneReturn = MySemantic_Exp_(exps->exp); 
+        oneReturn = MySemantic_Exp_(exps->exp); 
         if (oneReturn == SEMANTIC_ERROR)
         {
             *expResult = NULL;
@@ -2258,6 +2280,9 @@ bool areExpressionsLegal(myExpList exps, IR_myExp* expResult)
         exps = exps->next;
     }
 
+    //  last expression has no return
+    if (oneReturn == NULL || isTypeNoReturn(oneReturn->type))
+        valueResult = NULL;
     *expResult = IR_makeESeq(stateResult, valueResult);
     return true;
 }

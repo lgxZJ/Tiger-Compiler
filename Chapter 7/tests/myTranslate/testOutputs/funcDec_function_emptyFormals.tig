@@ -1,11 +1,19 @@
 foo:
 
   Seq(
-    null  , 
+    Seq(
+      Move(
+        Temp(30)
+      , 
+        Const(0)
+      )
+    , 
+      null    )
+  , 
     Move(
       Temp(return register)
     , 
-      Const(0)
+      Temp(30)
     )
   )
 

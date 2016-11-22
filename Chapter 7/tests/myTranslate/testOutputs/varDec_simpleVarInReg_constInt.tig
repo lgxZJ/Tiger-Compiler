@@ -4,11 +4,19 @@ Eseq(
     Seq(
       Seq(
         Seq(
-          null        , 
-          Move(
-            Temp(2)
+          Seq(
+            Move(
+              Temp(8)
+            , 
+              Const(23)
+            )
           , 
-            Const(23)
+            null          )
+        , 
+          Move(
+            Temp(7)
+          , 
+            Temp(8)
           )
         )
       , 

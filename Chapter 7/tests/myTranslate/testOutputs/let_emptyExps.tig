@@ -4,21 +4,37 @@ Eseq(
     Seq(
       Seq(
         Seq(
-          null        , 
-          Move(
-            Temp(19)
+          Seq(
+            Move(
+              Temp(42)
+            , 
+              Const(0)
+            )
           , 
-            Const(0)
+            null          )
+        , 
+          Move(
+            Temp(41)
+          , 
+            Temp(42)
           )
         )
       , 
         Seq(
           Seq(
-            null          , 
-            Move(
-              Temp(20)
+            Seq(
+              Move(
+                Temp(46)
+              , 
+                Const(12)
+              )
             , 
-              Const(12)
+              null            )
+          , 
+            Move(
+              Temp(45)
+            , 
+              Temp(46)
             )
           )
         , 
