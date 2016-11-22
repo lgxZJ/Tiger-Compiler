@@ -227,7 +227,10 @@ void printFragments(FILE* file, Frame_myFragList fragments)
     {
         if (fragments->head->kind == Frame_StringFrag)
         {
-            //  todo:
+            fprintf(file, "%s:\n", fragments->head->u.strFrag.str);
+            indentSpace(file, 2);
+            fprintf(file, "Label: %s\n\n",
+                MySymbol_GetName(fragments->head->u.strFrag.label));
         }
         else
         {
