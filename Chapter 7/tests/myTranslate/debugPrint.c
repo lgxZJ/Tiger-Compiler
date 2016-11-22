@@ -61,8 +61,10 @@ void printCJumpStatement(FILE* file, IR_myStatement statement, int spaceNum)
     printExpression(file,  statement->u.cjump.right, spaceNum + 2);
 
     indentAndPrintToFile(file, spaceNum, ", ");
-    fprintf(file, "%s, ", MySymbol_GetName(statement->u.cjump.trueLabel));
-    fprintf(file, "%s, ", MySymbol_GetName(statement->u.cjump.falseLabel));
+    myLabel trueLabel = statement->u.cjump.trueLabel;
+    fprintf(file, "%s, ", trueLabel == NULL ? "empty" : MySymbol_GetName(trueLabel));
+    myLabel falseLabel = statement->u.cjump.falseLabel;
+    fprintf(file, "%s, ", falseLabel == NULL ? "empty" : MySymbol_GetName(falseLabel));
 
     indentAndPrintToFile(file, spaceNum, ")\n");
 }
