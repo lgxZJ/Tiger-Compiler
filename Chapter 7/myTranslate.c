@@ -348,19 +348,25 @@ myFrame Trans_getFrame(Trans_myLevel level)
 ////////////////////////////////////////////////////////////////////////
 //
 
-#define ADD_ONE_FRAG(globalVar)  if (g_procFrags == NULL)   \
-        g_procFrags = Frame_makeFragList(NULL, NULL);       \
-                                                            \
-        if (g_procFrags->head == NULL)                      \
-            g_procFrags->head = frag;                       \
-        else                                                \
-            g_procFrags->tail = Frame_makeFragList(frag, NULL);
+static void addOneFrag(Frame_myFragList* fragHolder, Frame_myFrag frag)
+{
+    Frame_myFragList* iter = fragHolder;
+    if (*iter == NULL)
+        *iter = Frame_makeFragList(NULL, NULL);
+
+    if ((*iter)->head == NULL)
+        (*iter)->head = frag, iter = &(*iter)->tail;
+    else
+        (*iter)->tail = Frame_makeFragList(NULL, NULL),
+        (*iter)->tail->head = frag,
+        iter = &((*iter)->tail->tail);
+}
 
 static Frame_myFragList g_procFrags = NULL;
 void Trans_addOneProcFrag(Frame_myFrag frag)
 {
     assert (frag->kind == Frame_ProcFrag);
-    ADD_ONE_FRAG(g_procFrags);
+    addOneFrag(&g_procFrags, frag);
 }
 
 Frame_myFragList Trans_getProcFrags(void)
@@ -379,7 +385,7 @@ static Frame_myFragList g_stringFrags = NULL;
 void Trans_addOneStringFrag(Frame_myFrag frag)
 {
     assert (frag->kind == Frame_StringFrag);
-    ADD_ONE_FRAG(g_stringFrags);
+    addOneFrag(&g_stringFrags, frag);
 }
 
 Frame_myFragList Trans_getStringFrags(void)
@@ -501,7 +507,7 @@ IR_myExp doInFrameAssigment(Trans_myAccess varAccess, IR_myExp varBodyResult)
     return IR_makeESeq(resultStatement, IR_makeMem(calcValue));
 }
 
-IR_myExp doAssignment(Trans_myAccess varAccess, IR_myExp varBodyResult)
+IR_myExp doAssignmentTranslation(Trans_myAccess varAccess, IR_myExp varBodyResult)
 {
     if (Frame_isAccessInReg(varAccess->access))
     {
@@ -514,163 +520,6 @@ IR_myExp doAssignment(Trans_myAccess varAccess, IR_myExp varBodyResult)
 }
 ///////////////////////////
 
-
-////////////////////////////////////////////////////////////////////////////////
-
-static void getVarNameAndBody(
-    myVarDec varDec, mySymbol* varNamePtr, myExp* varBodyPtr)
-{
-    switch (varDec->kind)
-    {
-        case LongFormVar:
-            *varNamePtr = varDec->u.longFormVar->name;
-            *varBodyPtr = varDec->u.longFormVar->exp;
-            break;
-        case ShortFormVar:
-            *varNamePtr = varDec->u.shortFormVar->name;
-            *varBodyPtr = varDec->u.shortFormVar->exp;
-            break;
-        default:    assert (false);
-    }
-}
-
-IR_myStatement Trans_VarDec(myVarDec varDec)
-{
-    mySymbol varName;
-    myExp varBody;
-    getVarNameAndBody(varDec, &varName, &varBody);
- 
-    return doAssignment(getVarAccessFromName(varName), Trans_Exp_(varBody))
-        ->u.eseq.statement;
-}
-
-////////////////////////////////////////////////////////////////
-/*
-void getFuncParts(
-    myFuncDec funcDec, mySymbol* funcNamePtr,
-    myExp* funcBodyPtr, myTyFieldList* funcFormalsPtr)
-{
-    switch (funcDec->kind)
-    {
-        case ProcedureDec:
-            *funcNamePtr = funcDec->u.procedureDec->name;
-            *funcBodyPtr = funcDec->u.procedureDec->exp;
-            *funcFormalsPtr = funcDec->u.procedureDec->tyFieldList;
-            break;
-        case FunctionDec:
-            *funcNamePtr = funcDec->u.functionDec->name;
-            *funcBodyPtr = funcDec->u.functionDec->exp;
-            *funcFormalsPtr = funcDec->u.functionDec->tyFieldList;
-            break;
-        default:        assert (false);
-    }
-}
-
-void removeFormalsFromScope()
-{
-    //  remove formals from environments
-    MySymbol_EndScope(MySemantic_getTypeEnvironment());
-    MySymbol_EndScope(MySemantic_getVarAndFuncEnvironment());
-}
-
-void processFuncDec(mySymbol funcName, myTyFieldList funcFormals, myExp funcBody)
-{
-    addFormalsToScope(funcName, funcFormals);
-
-    //  no value expressions must have already been wrapped!!
-    IR_myStatement funcState = IR_makeExp(Trans_Exp_(funcBody));
-    Frame_myFrag procFrag = Frame_makeProcFrag(
-        funcState,
-        MySemantic_getCurrentLevel()->frame,
-        funcName);
-    Trans_addOneProcFrag(procFrag);
-
-    removeFormalsFromScope();
-}
-
-IR_myStatement Trans_FuncDec(myFuncDec funcDec)
-{
-    mySymbol funcName;
-    myExp funcBody;
-    myTyFieldList funcFormals;
-
-    getFuncParts(funcDec, &funcName, &funcBody, &funcFormals);
-    processFuncDec(funcName, funcFormals, funcBody);
-    return NULL;    //  function does not need return code
-}
-*/
-////////////////////////////////////////////////////////////////
-/*
-IR_myStatement Trans_Dec(myDec dec)
-{
-    switch (dec->kind)
-    {
-        case VarDec:    return Trans_VarDec(dec->u.varDec);
-        case TypeDec:   break;  //  do nothing
-        case FuncDec:   return Trans_FuncDec(dec->u.funcDec);
-        default:        assert (false); //  never get here
-    }
-}   
-
-//  declarations have no value, so they are just statements
-IR_myStatement Trans_Decs(myDecList list)
-{
-    IR_myStatement result;
-    if (list == NULL)   result = NULL;                  
-    else                result = IR_makeSeq(NULL, NULL);
-                                                        
-    IR_myStatement temp = result;                       
-    IR_myStatement oneResult = NULL;                          
-    while (list)                                        
-    {                                                   
-        oneResult = Trans_Dec(list->dec);           
-                                                        
-        temp->u.seq.left = oneResult;       
-        list->next ?                                    
-        (temp->u.seq.right = IR_makeSeq(NULL, NULL)):   
-        (temp->u.seq.right = NULL);                     
-                                                        
-        list = list->next;                             
-        temp = temp->u.seq.right;                       
-    }    
-    return result;
-}
-
-IR_myExp Trans_Exps(myExpList list)
-{
-    //  variable declarations have no value
-    IR_myExp result;
-    if (list == NULL)   return  NULL;              
-    else                result = IR_makeESeq(NULL, NULL);
-
-    IR_myExp toFill = result;
-    IR_myExp temp = result;                                        
-    while (list->next)                  
-    {                                                   
-        IR_myExp oneResult = Trans_Exp_(list->exp);           
-                                                        
-        temp->u.eseq.statement = IR_makeExp(oneResult);       
-        list->next->next ?                                    
-        (temp->u.eseq.exp = IR_makeESeq(NULL, NULL)):   
-        (toFill = temp);   
-                                                        
-        list = list->next;                             
-        temp = temp->u.eseq.exp;                       
-    } 
-
-    //  last one is the value of let-exp
-    toFill->u.eseq.exp = Trans_Exp_(list->exp);
-    return result;
-}*/
-
-IR_myExp Trans_LetExp(myLetExp letExp)
-{/*
-     IR_myStatement decsResult = Trans_Decs(letExp->decList);
-     IR_myExp expsResult = Trans_Exps(letExp->expList);
-
-     return IR_makeESeq(decsResult, expsResult);*/
-     return NULL;
-}
 
 //////////////////////////////////////////////////////////////
 
@@ -762,6 +611,7 @@ IR_myExp Trans_NilExp(myNilExp nilExp)
 
 ////////////////////////////////////////////////////////////
 
+//  todo: remove this wrap to places Binoperation used
 IR_myExp Trans_IntegerLiteralExp(myIntegerLiteralExp integerLiteralExp)
 {
     //  in order to make BinOperation left operand an register,
@@ -987,4 +837,14 @@ void Trans_functionBody(IR_myExp bodyResult, mySymbol funcName)
 {
     bool hasReturnValue = true;
     processFuncBody(bodyResult, funcName, hasReturnValue);
+}
+
+//////////////////////////////////////////////////////////////////////////////////
+
+//  keep a string fragment
+void Trans_string(IR_myExp labelExp, myString str)
+{
+    assert (labelExp->kind == IR_Name);
+    Frame_myFrag strFrag = Frame_makeStringFrag(labelExp->u.name, str);
+    Trans_addOneStringFrag(strFrag);
 }
