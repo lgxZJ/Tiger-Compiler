@@ -1109,8 +1109,8 @@ bool isFormalTypeMatchesRealTypeOrNil(myType formalType, myType realType)
 myTranslationAndType MySemantic_NilExp(
     myNilExp nilExp)
 {
-    //  no checking needed here
-    return make_MyTranslationAndType(NULL, makeType_Nil());  
+    //  treat nil as zero. When deferencing it, a segment fault will be thrown. 
+    return make_MyTranslationAndType(IR_makeConst(0), makeType_Nil());  
 }
 
 ////////////////////////////////////////////////////////////////////////////////////
@@ -2002,9 +2002,10 @@ void allocateAndAddNewVar_Short(myShortFormVar shortFormVar, myType valueType);
 //      a boolean variable indicates whether this function succeeds.
 //  STATUS:
 //      Tested.
-bool MySemantic_Dec_Var_ShortForm(myShortFormVar shortFormVar)
+bool MySemantic_Dec_Var_ShortForm(myShortFormVar shortFormVar, IR_myStatement* resultPtr)
 {
-    bool isValueExpLegal = isExpLegal(shortFormVar->exp);
+    IR_myExp valueResult = NULL;
+    bool isValueExpLegal = isExpLegalWithResult(shortFormVar->exp, &valueResult);
 
     if (isValueExpLegal)
     {
@@ -2013,6 +2014,9 @@ bool MySemantic_Dec_Var_ShortForm(myShortFormVar shortFormVar)
         if (!isTypeNil(actualValueType) && !isTypeNoReturn(actualValueType))
         {
             allocateAndAddNewVar_Short(shortFormVar, actualValueType);
+            *resultPtr = doAssignmentTranslation(
+                getVarAccessFromName(shortFormVar->name),valueResult)
+                ->u.eseq.statement;
             return true;
         }
         else
@@ -2059,10 +2063,13 @@ void processLongFormVarDecErrors(
 //      a boolean variable indicates whether this function succeeds.
 //  STATUS:
 //      Tested.
-bool MySemantic_Dec_Var_LongForm(myLongFormVar longFormVar)
+bool MySemantic_Dec_Var_LongForm(myLongFormVar longFormVar, IR_myStatement* resultPtr)
 {
     bool isVariableTypeDefined = isTypeDefined(longFormVar->type);
-    bool isValueExpLegal = isExpLegal(longFormVar->exp);
+
+    IR_myExp valueResult = NULL;
+    bool isValueExpLegal = isExpLegalWithResult(
+        longFormVar->exp, &valueResult);
 
     bool isTypeMatches = false;
     if (isVariableTypeDefined && isValueExpLegal)
@@ -2075,12 +2082,16 @@ bool MySemantic_Dec_Var_LongForm(myLongFormVar longFormVar)
     if (isTypeMatches)
     {
         allocateAndAddNewVar_Long(longFormVar);
+        *resultPtr = doAssignmentTranslation(
+            getVarAccessFromName(longFormVar->name),valueResult)
+            ->u.eseq.statement;
         return true;
     }
     else
     {
         processLongFormVarDecErrors(
-            isVariableTypeDefined, isValueExpLegal, isTypeMatches, longFormVar->type);
+            isVariableTypeDefined, isValueExpLegal,
+            isTypeMatches, longFormVar->type);
         return false;
     }
 }
@@ -2148,19 +2159,14 @@ bool MySemantic_Dec_Var(myVarDec varDec, IR_myStatement* resultPtr)
     switch (varDec->kind)
     {
         case ShortFormVar:
-            result = MySemantic_Dec_Var_ShortForm(
-                varDec->u.shortFormVar);
-            break;
+            return MySemantic_Dec_Var_ShortForm(
+                varDec->u.shortFormVar, resultPtr);
         case LongFormVar:
-            result = MySemantic_Dec_Var_LongForm(
-                varDec->u.longFormVar);
-            break;
+            return MySemantic_Dec_Var_LongForm(                
+                varDec->u.longFormVar, resultPtr);
         default:
             assert (false);
     }
-
-    if (result)     *resultPtr = Trans_VarDec(varDec);
-    return result;
 }
 
 //////////////////////////////////////////////////////////////////////

@@ -352,6 +352,18 @@ void test_TransFunctionCall_twoParamProcedure_SeeOutput(void)
     testOneFileAndOutputCode("funcCall_twoParamProcedure.tig");
 }
 
+///////////////////////////
+
+void test_TransNilExp_NilVarValue_SeeOutput(void)
+{
+    testOneFileAndOutputCode("nil_var.tig");
+}
+
+void test_TransNilExp_NilFuncReturn_SeeOutput(void)
+{
+    testOneFileAndOutputProcs("nil_func.tig");
+}
+
 ///////////////////////////         main        ///////////////////////////////
 
 int main()
@@ -410,6 +422,9 @@ int main()
         { "", test_TransFunctionCall_oneParamFunction_SeeOutput },
         { "", test_TransFunctionCall_twoParamFunction_SeeOutput },
         { "", test_TransFunctionCall_twoParamProcedure_SeeOutput },
+
+        { "", test_TransNilExp_NilVarValue_SeeOutput },
+        { "", test_TransNilExp_NilFuncReturn_SeeOutput },
     };
     if (!addTests(&suite, tests, sizeof(tests) / sizeof(tests[0])))
         return EXIT_FAILURE;
