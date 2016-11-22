@@ -380,7 +380,7 @@ void AddOneFunc(
     myTable varAndFuncEnv = MySemantic_getVarAndFuncEnvironment();
     //  fill these empty fields in two-pass
     myVarAndFuncEntry funcEntry = myEnvironment_makeFuncEntry(
-        (Trans_myLevel)NULL, (myLabel)NULL,
+        (Trans_myLevel)NULL, Temp_newLabel(),
         formalTypes, returnType);
     MyEnvironment_addNewVarOrFunc(
         varAndFuncEnv, funcName, funcEntry);
