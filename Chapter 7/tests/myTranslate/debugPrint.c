@@ -4,12 +4,12 @@
 #include <assert.h>
 
 static const char* g_binOperatorStr[] = {
-    "Plus", "Minus", "Nultiply", "Divide", "And", "Or",
+    "Plus", "Minus", "Multiply", "Divide", "And", "Or",
     "LShift", "RShift", "ARShift", "Xor"
 };
 static const char* g_relOperatorStr[] = {
     "Equal", "NotEqual", "LessThan", "GreaterThan", "LessEqual",
-    "GreaterThan", "ULessThan", "ULessEqual", "UGreaterThan", "UGreaterEqual"
+    "GreaterEqual", "ULessThan", "ULessEqual", "UGreaterThan", "UGreaterEqual"
 };
 
 static void indentSpace(FILE* file, int spaceNum)
