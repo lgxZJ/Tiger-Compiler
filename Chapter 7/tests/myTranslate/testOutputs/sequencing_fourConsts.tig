@@ -1,0 +1,46 @@
+
+Eseq(
+  Seq(
+    Seq(
+      Seq(
+        Seq(
+          Move(
+            Temp(298)
+          , 
+            Const(1)
+          )
+        , 
+          null        )
+      , 
+        Seq(
+          Move(
+            Temp(299)
+          , 
+            Const(2)
+          )
+        , 
+          null        )
+      )
+    , 
+      Seq(
+        Move(
+          Temp(300)
+        , 
+          Const(3)
+        )
+      , 
+        null      )
+    )
+  , 
+    Seq(
+      Move(
+        Temp(301)
+      , 
+        Const(4)
+      )
+    , 
+      null    )
+  )
+, 
+  Temp(301)
+)

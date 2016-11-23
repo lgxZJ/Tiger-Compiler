@@ -218,7 +218,14 @@ void test_TransIntegerLiteralExp_ByDefault_SeeOutput(void)
     testOneFileAndOutputCode("integerLiteral.tig");
 }
 
-//////////////
+///////////////////////////
+
+void test_TransStringLiteral_ByDefault_SeeOutput(void)
+{
+    testOneFileAndOutputStrings("stringLiteral.tig");
+}
+
+///////////////////////////
 
 void test_TransVarDecSimpleVarInReg_IntConst_SeeOutput(void)
 {
@@ -364,6 +371,96 @@ void test_TransNilExp_NilFuncReturn_SeeOutput(void)
     testOneFileAndOutputProcs("nil_func.tig");
 }
 
+///////////////////////////
+
+void test_TransArrayCreation_OneElementArray_SeeOutput(void)
+{
+    testOneFileAndOutputCode("arrayCreation_oneElement.tig");
+}
+
+void test_TransArrayCreation_TenElementArray_SeeOutput(void)
+{
+    testOneFileAndOutputCode("arrayCreation_tenElements.tig");
+}
+
+///////////////////////////
+
+void test_TransRecordCreation_NoField_SeeOutput(void)
+{
+    testOneFileAndOutputCode("recordCreation_noField.tig");
+}
+
+void test_TransRecordCreation_NoFieldAndAssign_SeeOutput(void)
+{
+    testOneFileAndOutputCode("recordCreation_noFieldAndAssign.tig");
+}
+
+void test_TransRecordCreation_OneField_SeeOutput(void)
+{
+    testOneFileAndOutputCode("recordCreation_oneField.tig");
+}
+
+void test_TransRecordCreation_TwoField_SeeOutput(void)
+{
+    testOneFileAndOutputCode("recordCreation_twoField.tig");
+}
+
+void test_TransRecordCreation_TwoFieldAndAssign_SeeOutput(void)
+{
+    testOneFileAndOutputCode("recordCreation_twoFieldAndAssign.tig");
+}
+
+///////////////////////////
+
+void test_TransArithmetic_VarAddVarInReg_SeeOutput(void)
+{
+    testOneFileAndOutputCode("arithmetic_varAddVarInReg.tig");
+}
+
+void test_TransArithmetic_VarAddVarInFrame_SeeOutput(void)
+{
+    testOneFileAndOutputCode("arithmetic_varAddVarInFrame.tig");
+}
+
+void test_TransArithmetic_VarAddVarInRegAndAssign_SeeOutput(void)
+{
+    testOneFileAndOutputCode("arithmetic_varAddVarInRegAndAssign.tig");
+}
+
+void test_TransArithmetic_VarAddVarInFrameAndAssign_SeeOutput(void)
+{
+    testOneFileAndOutputCode("arithmetic_varAddVarInFrameAndAssign.tig");
+}
+
+///////////////////////////
+
+void test_TransNoValue_ByDefault_SeeOutput(void)
+{
+    testOneFileAndOutputCode("noValue.tig");
+}
+
+///////////////////////////
+
+void test_TransSequencing_TwoConsts_SeeOutput(void)
+{
+    testOneFileAndOutputCode("sequencing_twoConsts.tig");
+}
+
+void test_TransSequencing_fourConsts_SeeOutput(void)
+{
+    testOneFileAndOutputCode("sequencing_fourConsts.tig");
+}
+
+void test_TransSequencing_threeVarsInReg_SeeOutput(void)
+{
+    testOneFileAndOutputCode("sequencing_threeVarsInReg.tig");
+}
+
+void test_TransSequencing_threeVarsInFrame_SeeOutput(void)
+{
+    testOneFileAndOutputCode("sequencing_threeVarsInFrame.tig");
+}
+
 ///////////////////////////         main        ///////////////////////////////
 
 int main()
@@ -391,6 +488,7 @@ int main()
 
         ///////////////////////////////////
         { "", test_TransIntegerLiteralExp_ByDefault_SeeOutput },
+        { "", test_TransStringLiteral_ByDefault_SeeOutput },
 
         { "", test_TransVarDecSimpleVarInReg_IntConst_SeeOutput },
         { "", test_TransVarDecSimpleVarInFrame_IntConst_SeeOutput },
@@ -425,6 +523,27 @@ int main()
 
         { "", test_TransNilExp_NilVarValue_SeeOutput },
         { "", test_TransNilExp_NilFuncReturn_SeeOutput },
+
+        { "", test_TransArrayCreation_OneElementArray_SeeOutput },
+        { "", test_TransArrayCreation_TenElementArray_SeeOutput },
+
+        { "", test_TransRecordCreation_NoField_SeeOutput },
+        { "", test_TransRecordCreation_NoFieldAndAssign_SeeOutput },
+        { "", test_TransRecordCreation_OneField_SeeOutput },
+        { "", test_TransRecordCreation_TwoField_SeeOutput },
+        { "", test_TransRecordCreation_TwoFieldAndAssign_SeeOutput },
+
+        { "", test_TransArithmetic_VarAddVarInReg_SeeOutput },
+        { "", test_TransArithmetic_VarAddVarInFrame_SeeOutput },
+        { "", test_TransArithmetic_VarAddVarInRegAndAssign_SeeOutput },
+        { "", test_TransArithmetic_VarAddVarInFrameAndAssign_SeeOutput },
+
+        { "", test_TransNoValue_ByDefault_SeeOutput },
+
+        { "", test_TransSequencing_TwoConsts_SeeOutput },
+        { "", test_TransSequencing_fourConsts_SeeOutput },
+        { "", test_TransSequencing_threeVarsInReg_SeeOutput },
+        { "", test_TransSequencing_threeVarsInFrame_SeeOutput },
     };
     if (!addTests(&suite, tests, sizeof(tests) / sizeof(tests[0])))
         return EXIT_FAILURE;

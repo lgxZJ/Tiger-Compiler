@@ -1640,6 +1640,14 @@ myTranslationAndType MySemantic_NoValueExp(
 
 ////////////////////////////////////////////////////////////////////////////
 
+static bool analyzeAndTranslateFirstTwoExps(
+    myExp exp1, myExp exp2,
+    IR_myStatement* stateResultPtr, IR_myExp* valueResultPtr,
+    myType* returnTypePtr);
+static void translateFirstTwoExps(
+    IR_myExp firstResult, IR_myExp secondResult,
+    IR_myStatement* stateResultPtr, IR_myExp* valueResultPtr);
+
 //  FORM:
 //      (exp;exp;...exp)
 //  DO:
@@ -1655,30 +1663,89 @@ myTranslationAndType MySemantic_SequencingExp(
 {
     //  expressions inside sequence-expression must be two or more than two
     assert (sequencingExp->exp1 && sequencingExp->exp2);
+    IR_myStatement stateResult = NULL;
+    IR_myExp valueResult = NULL;
+    myType returnType = NULL;
+/*
+    myTranslationAndType resultOne =
+        MySemantic_Exp_(sequencingExp->exp1); 
+    myTranslationAndType resultTwo =
+        MySemantic_Exp_(sequencingExp->exp2);
 
-    //  analyze and return the result of the last expression
+    if (resultOne == SEMANTIC_ERROR || resultTwo == SEMANTIC_ERROR)
+        return SEMANTIC_ERROR;
+
+    translateFirstTwoExps(
+        resultOne->translation, resultTwo->translation,
+        &stateResult, &valueResult);*/
+    if (!analyzeAndTranslateFirstTwoExps(
+            sequencingExp->exp1, sequencingExp->exp2,
+            &stateResult, &valueResult, &returnType))
+        return SEMANTIC_ERROR;
+
     if (sequencingExp->nextList == NULL)
     {
-        myTranslationAndType resultOne =
-            MySemantic_Exp_(sequencingExp->exp1); 
-        myTranslationAndType resultTwo =
-            MySemantic_Exp_(sequencingExp->exp2);
+        return make_MyTranslationAndType(
+            IR_makeESeq(stateResult, valueResult),
+            returnType);
+    }
 
-        if (resultOne != SEMANTIC_ERROR && resultTwo != SEMANTIC_ERROR)
-        {
-            return resultTwo;
-        }
-        else
-            return SEMANTIC_ERROR;
-    }
-    else
+        //////////////////////////
+
+    myTranslationAndType oneResult = NULL;
+    myExpList rests = sequencingExp->nextList;
+    while (rests)
     {
-        myExpList rests = sequencingExp->nextList;
-        while (rests->next)
-            rests = rests->next;
-        return MySemantic_Exp_(rests->exp);
+        //  todo: semantic check
+        //  although isn't the result type, semantic analysis needed here
+        oneResult = MySemantic_Exp_(rests->exp);
+        if (oneResult == SEMANTIC_ERROR)
+            return SEMANTIC_ERROR;
+        
+        IR_myStatement oneState;
+        IR_divideExp(oneResult->translation, &oneState, &valueResult);
+        stateResult = IR_makeSeq(stateResult, oneState);
+
+        rests = rests->next;
     }
+
+    oneResult->translation = IR_makeESeq(stateResult, valueResult);
+    //  not change last expression's return type
+    return oneResult;
 }
+
+static bool analyzeAndTranslateFirstTwoExps(myExp exp1, myExp exp2,
+    IR_myStatement* stateResultPtr, IR_myExp* valueResultPtr,
+    myType* returnTypePtr)
+{
+    myTranslationAndType resultOne = MySemantic_Exp_(exp1); 
+    myTranslationAndType resultTwo = MySemantic_Exp_(exp2);
+
+    if (resultOne == SEMANTIC_ERROR || resultTwo == SEMANTIC_ERROR)
+        return false;
+
+    translateFirstTwoExps(
+        resultOne->translation, resultTwo->translation,
+        stateResultPtr, valueResultPtr);
+    *returnTypePtr = resultTwo->type;
+    return true;
+}
+
+static void translateFirstTwoExps(
+    IR_myExp firstResult, IR_myExp secondResult,
+    IR_myStatement* stateResultPtr, IR_myExp* valueResultPtr)
+{
+    IR_myStatement firstState;
+    IR_myExp firstValue;
+    IR_divideExp(firstResult, &firstState, &firstValue);
+
+    IR_myStatement secondState;
+    IR_myExp secondValue;
+    IR_divideExp(secondResult, &secondState, &secondValue);
+
+    *stateResultPtr = IR_makeSeq(firstState, secondState);
+    *valueResultPtr = secondValue;
+} 
 
 //////////////////////////////////////////////////////////////////////////////
 

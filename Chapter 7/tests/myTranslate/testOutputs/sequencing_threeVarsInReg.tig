@@ -6,7 +6,7 @@ Eseq(
         Seq(
           Seq(
             Move(
-              Temp(262)
+              Temp(302)
             , 
               Const(1)
             )
@@ -14,9 +14,9 @@ Eseq(
             null          )
         , 
           Move(
-            Temp(264)
+            Temp(304)
           , 
-            Temp(262)
+            Temp(302)
           )
         )
       , 
@@ -24,7 +24,7 @@ Eseq(
           Seq(
             Seq(
               Move(
-                Temp(265)
+                Temp(305)
               , 
                 Const(2)
               )
@@ -32,43 +32,27 @@ Eseq(
               null            )
           , 
             Move(
-              Temp(267)
+              Temp(307)
             , 
-              Temp(265)
+              Temp(305)
             )
           )
         , 
           Seq(
             Seq(
               Seq(
-                Seq(
-                  Seq(
-                    Seq(
-                      null                    , 
-                      null                    )
-                  , 
-                    Move(
-                      Temp(268)
-                    , 
-                      Temp(264)
-                    )
-                  )
+                Move(
+                  Temp(308)
                 , 
-                  Exp(
-                    BinOperation(Plus, 
-                      Temp(268)
-                    , 
-                      Temp(267)
-                    )
-                  )
+                  Const(3)
                 )
               , 
                 null              )
             , 
               Move(
-                Temp(270)
+                Temp(310)
               , 
-                Temp(268)
+                Temp(308)
               )
             )
           , 
@@ -78,6 +62,19 @@ Eseq(
     , 
       null    )
   , 
-    null  )
+    Seq(
+      Seq(
+        Seq(
+          Seq(
+            null          , 
+            null          )
+        , 
+          null        )
+      , 
+        null      )
+    , 
+      null    )
+  )
 , 
-  null)
+  Temp(310)
+)

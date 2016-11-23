@@ -1040,11 +1040,14 @@ IR_myExp Trans_noFieldRecordCreation()
 
 /////////////////////////////////////////////////////////////////////////////////
 
-static IR_myStatement letTempRegHoldResult(
+static IR_myStatement calcAndletTempRegHoldResult(
     IR_myStatement leftState, IR_myStatement rightState,
     IR_myExp leftValueReg, IR_myExp rightValueReg,
     IR_BinOperator op, IR_myExp* tempRegPtr)
 {
+    //      when value is holded in a register, we cannot adjust it, which
+    //  will cause the original variable changed. So, we make a new register
+    //  hold the result, namely a temporary variable representation.
     IR_myExp tempReg = IR_makeTemp(Temp_newTemp());
     *tempRegPtr = tempReg;
 
@@ -1065,16 +1068,11 @@ IR_myExp Trans_arithmetic(IR_myExp leftTran, IR_myExp rightTran, IR_BinOperator 
     IR_myExp rightValueReg;
     IR_divideExp(rightTran, &rightState, &rightValueReg);
 
-    //  make left operand register hold the result
-    /*
-    IR_myExp tempReg = IR_makeTemp(Temp_newTemp());
-    IR_myStatement resultState = IR_makeSeq(
-        IR_makeSeq(IR_makeSeq(leftState, rightState),
-            IR_makeMove(tempReg, leftValueReg)),
-        IR_makeExp(IR_makeBinOperation(op, tempReg, rightValueReg)));*/
     IR_myExp tempReg;
-    IR_myStatement resultState = letTempRegHoldResult(
+    IR_myStatement resultState = calcAndletTempRegHoldResult(
         leftState, rightState, leftValueReg, rightValueReg,
         op, &tempReg);
     return IR_makeESeq(resultState, tempReg);
 }
+
+///////////////////////////////////////////////////////////////////////////////////
