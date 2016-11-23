@@ -4,7 +4,7 @@ foo:
     Seq(
       Seq(
         Move(
-          Temp(31)
+          Temp(34)
         , 
           Temp(frame pointer)
         )
@@ -12,7 +12,7 @@ foo:
         Seq(
           Exp(
             BinOperation(Plus, 
-              Temp(31)
+              Temp(34)
             , 
               Const(-8)
             )
@@ -21,14 +21,22 @@ foo:
           null        )
       )
     , 
-      null    )
+      Seq(
+        null      , 
+        Move(
+          Temp(36)
+        , 
+          Mem(
+            Temp(34)
+          )
+        )
+      )
+    )
   , 
     Move(
       Temp(return register)
     , 
-      Mem(
-        Temp(31)
-      )
+      Temp(36)
     )
   )
 

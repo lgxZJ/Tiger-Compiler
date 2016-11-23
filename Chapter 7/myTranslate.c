@@ -1038,3 +1038,43 @@ IR_myExp Trans_noFieldRecordCreation()
         "malloc", IR_makeExpList(constOne, NULL));
 }
 
+/////////////////////////////////////////////////////////////////////////////////
+
+static IR_myStatement letTempRegHoldResult(
+    IR_myStatement leftState, IR_myStatement rightState,
+    IR_myExp leftValueReg, IR_myExp rightValueReg,
+    IR_BinOperator op, IR_myExp* tempRegPtr)
+{
+    IR_myExp tempReg = IR_makeTemp(Temp_newTemp());
+    *tempRegPtr = tempReg;
+
+    return IR_makeSeq(
+        IR_makeSeq(
+            IR_makeSeq(leftState, rightState),
+            IR_makeMove(tempReg, leftValueReg)),
+        IR_makeExp(IR_makeBinOperation(op, tempReg, rightValueReg)));
+}
+
+IR_myExp Trans_arithmetic(IR_myExp leftTran, IR_myExp rightTran, IR_BinOperator op)
+{
+    IR_myStatement leftState;
+    IR_myExp leftValueReg;
+    IR_divideExp(leftTran, &leftState, &leftValueReg);
+
+    IR_myStatement rightState;
+    IR_myExp rightValueReg;
+    IR_divideExp(rightTran, &rightState, &rightValueReg);
+
+    //  make left operand register hold the result
+    /*
+    IR_myExp tempReg = IR_makeTemp(Temp_newTemp());
+    IR_myStatement resultState = IR_makeSeq(
+        IR_makeSeq(IR_makeSeq(leftState, rightState),
+            IR_makeMove(tempReg, leftValueReg)),
+        IR_makeExp(IR_makeBinOperation(op, tempReg, rightValueReg)));*/
+    IR_myExp tempReg;
+    IR_myStatement resultState = letTempRegHoldResult(
+        leftState, rightState, leftValueReg, rightValueReg,
+        op, &tempReg);
+    return IR_makeESeq(resultState, tempReg);
+}

@@ -6,7 +6,7 @@ Eseq(
         Seq(
           Seq(
             Move(
-              Temp(15)
+              Temp(16)
             , 
               Const(0)
             )
@@ -14,9 +14,9 @@ Eseq(
             null          )
         , 
           Move(
-            Temp(17)
+            Temp(18)
           , 
-            Temp(15)
+            Temp(16)
           )
         )
       , 
@@ -24,9 +24,9 @@ Eseq(
           Seq(
             null          , 
             Move(
-              Temp(18)
+              Temp(19)
             , 
-              Temp(17)
+              Temp(18)
             )
           )
         , 

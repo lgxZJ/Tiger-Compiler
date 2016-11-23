@@ -8,49 +8,6 @@ Eseq(
             Seq(
               Seq(
                 Move(
-                  Temp(21)
-                , 
-                  Temp(frame pointer)
-                )
-              , 
-                Seq(
-                  Exp(
-                    BinOperation(Plus, 
-                      Temp(21)
-                    , 
-                      Const(-4)
-                    )
-                  )
-                , 
-                  null                )
-              )
-            , 
-              null            )
-          , 
-            Seq(
-              Move(
-                Temp(19)
-              , 
-                Const(0)
-              )
-            , 
-              null            )
-          )
-        , 
-          Move(
-            Mem(
-              Temp(21)
-            )
-          , 
-            Temp(19)
-          )
-        )
-      , 
-        Seq(
-          Seq(
-            Seq(
-              Seq(
-                Move(
                   Temp(22)
                 , 
                   Temp(frame pointer)
@@ -70,12 +27,63 @@ Eseq(
             , 
               null            )
           , 
-            Move(
-              Temp(24)
-            , 
-              Mem(
-                Temp(22)
+            Seq(
+              Move(
+                Temp(20)
+              , 
+                Const(0)
               )
+            , 
+              null            )
+          )
+        , 
+          Move(
+            Mem(
+              Temp(22)
+            )
+          , 
+            Temp(20)
+          )
+        )
+      , 
+        Seq(
+          Seq(
+            Seq(
+              Seq(
+                Move(
+                  Temp(23)
+                , 
+                  Temp(frame pointer)
+                )
+              , 
+                Seq(
+                  Exp(
+                    BinOperation(Plus, 
+                      Temp(23)
+                    , 
+                      Const(-4)
+                    )
+                  )
+                , 
+                  null                )
+              )
+            , 
+              Seq(
+                null              , 
+                Move(
+                  Temp(26)
+                , 
+                  Mem(
+                    Temp(23)
+                  )
+                )
+              )
+            )
+          , 
+            Move(
+              Temp(25)
+            , 
+              Temp(26)
             )
           )
         , 

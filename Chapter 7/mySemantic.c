@@ -1535,6 +1535,7 @@ bool isTypeAndNameMatchesOrNil(
 //////////////////////////////////////////////////////////////////////////////////////
 
 //  forward declarations
+static IR_BinOperator convertOperatorFromASTToIR(enum myArithmeticOp op);
 void processArithmeticErrors(bool isLeftExpInt, bool isRightExpInt);
 
 //  FORM:
@@ -1551,12 +1552,18 @@ void processArithmeticErrors(bool isLeftExpInt, bool isRightExpInt);
 myTranslationAndType MySemantic_ArithmeticExp(
     myArithmeticExp arithmeticExp)
 {
-    bool isLeftExpInt = isExpInt(arithmeticExp->left);
-    bool isRightExpInt = isExpInt(arithmeticExp->right);
+    IR_myExp leftOperandTran = NULL;
+    bool isLeftExpInt = isExpIntWithResult(arithmeticExp->left, &leftOperandTran);
+
+    IR_myExp rightOperandTran = NULL;
+    bool isRightExpInt = isExpIntWithResult(arithmeticExp->right, &rightOperandTran);
 
     if (isLeftExpInt && isRightExpInt)
     {
-        return make_MyTranslationAndType(NULL, makeType_Int());
+        IR_myExp tranResult = Trans_arithmetic(
+            leftOperandTran, rightOperandTran,
+            convertOperatorFromASTToIR(arithmeticExp->op));
+        return make_MyTranslationAndType(tranResult, makeType_Int());
     }
     else
     {
@@ -1565,6 +1572,17 @@ myTranslationAndType MySemantic_ArithmeticExp(
     }
 }
 
+static IR_BinOperator convertOperatorFromASTToIR(enum myArithmeticOp op)
+{
+    switch (op)
+    {
+        case opPlus:        return IR_Plus;
+        case opMinus:       return IR_Minus;
+        case opMultiply:    return IR_Multiply;
+        case opDivide:      return IR_Divide;
+        default:    assert (false);
+    }
+}
 
 void processArithmeticErrors(bool isLeftExpInt, bool isRightExpInt)
 {

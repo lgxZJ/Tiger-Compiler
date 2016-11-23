@@ -10,7 +10,7 @@ Eseq(
               Seq(
                 Seq(
                   Move(
-                    Temp(63)
+                    Temp(70)
                   , 
                     Temp(frame pointer)
                   )
@@ -18,7 +18,7 @@ Eseq(
                   Seq(
                     Exp(
                       BinOperation(Plus, 
-                        Temp(63)
+                        Temp(70)
                       , 
                         Const(-4)
                       )
@@ -33,7 +33,7 @@ Eseq(
           , 
             Move(
               Mem(
-                Temp(63)
+                Temp(70)
               )
             , 
               Const(0)
@@ -52,7 +52,7 @@ Eseq(
             Seq(
               Seq(
                 Move(
-                  Temp(64)
+                  Temp(71)
                 , 
                   Temp(frame pointer)
                 )
@@ -60,7 +60,7 @@ Eseq(
                 Seq(
                   Exp(
                     BinOperation(Plus, 
-                      Temp(64)
+                      Temp(71)
                     , 
                       Const(-4)
                     )
@@ -70,17 +70,17 @@ Eseq(
               )
             , 
               Move(
-                Temp(65)
+                Temp(72)
               , 
                 Mem(
-                  Temp(64)
+                  Temp(71)
                 )
               )
             )
           , 
             Exp(
               BinOperation(Plus, 
-                Temp(65)
+                Temp(72)
               , 
                 Const(0)
               )
@@ -89,12 +89,20 @@ Eseq(
         , 
           null        )
       , 
-        null      )
+        Seq(
+          null        , 
+          Move(
+            Temp(73)
+          , 
+            Mem(
+              Temp(72)
+            )
+          )
+        )
+      )
     , 
       null    )
   )
 , 
-  Mem(
-    Temp(65)
-  )
+  Temp(73)
 )

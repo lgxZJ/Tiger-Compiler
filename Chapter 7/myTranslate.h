@@ -146,6 +146,7 @@ IR_myExp Trans_LValueExp_SimpleVar(myLValueExp lValueExp);
 IR_myExp Trans_IntegerLiteralExp(myIntegerLiteralExp integerLiteralExp);
 IR_myExp Trans_arrayCreation(IR_myExp subscriptResult, IR_myExp initValueResult);
 IR_myExp Trans_noFieldRecordCreation();
+IR_myExp Trans_arithmetic(IR_myExp leftTran, IR_myExp rightTran, IR_BinOperator op);
 
 //////////////////////////////////////
 
