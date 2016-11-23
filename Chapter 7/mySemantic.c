@@ -1326,7 +1326,8 @@ myTranslationAndType MySemantic_RecordCreationExp_NoField(
     mySymbol recordTypeName = noFieldRecordCreationExp->typeName;
 
     if (isTypeDefinedAsRecord(recordTypeName))
-        return make_MyTranslationAndType(NULL,
+        return make_MyTranslationAndType(
+            Trans_noFieldRecordCreation(),
             getActualTypeFromName(recordTypeName));
     else
     {

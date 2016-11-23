@@ -1,0 +1,30 @@
+
+Eseq(
+  Seq(
+    Seq(
+      null    , 
+      null    )
+  , 
+    Seq(
+      Seq(
+        Seq(
+          Seq(
+            null          , 
+            null          )
+        , 
+          Exp(
+            Call(
+              Name(malloc)
+            , 
+              Const(1)
+            )
+          )
+        )
+      , 
+        null      )
+    , 
+      null    )
+  )
+, 
+  Temp(return register)
+)

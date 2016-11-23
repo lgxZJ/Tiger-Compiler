@@ -1026,3 +1026,14 @@ IR_myExp Trans_arrayCreation(IR_myExp subscriptResult, IR_myExp initValueResult)
     doArrayAssignment(&combinedState, subscriptValueReg, memoryAddrReg, initValue);
     return IR_makeESeq(combinedState, resultAddr);
 }
+
+/////////////////////////////////////////////////////////////////////////////////
+
+IR_myExp Trans_noFieldRecordCreation()
+{
+    //  tiger supports empty record type, so although empty,
+    //  we must allocate some space for it.
+    IR_myExp constOne = IR_makeConst(1);
+    return Frame_externalCall(
+        "malloc", IR_makeExpList(constOne, NULL));
+}

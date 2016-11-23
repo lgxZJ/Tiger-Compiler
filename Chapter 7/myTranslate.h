@@ -138,27 +138,21 @@ void Trans_resetStringFrags(void);
 
 IR_myExp Trans_LValueExp_GetRecordPtr(myLValueExp lValueExp);
 IR_myExp Trans_LValueExp_GetArrayPtr(myLValueExp lValueExp);
-IR_myStatement Trans_VarDec(myVarDec varDec);
+IR_myExp doAssignmentTranslation(Trans_myAccess varAccess, IR_myExp varBodyResult);
 
 IR_myExp Trans_LValueExp_SimpleVar(myLValueExp lValueExp);
-IR_myExp Trans_LValueExp_RecordField(myLValueExp lValueExp);
+//IR_myExp Trans_LValueExp_RecordField(myLValueExp lValueExp);
 
 IR_myExp Trans_IntegerLiteralExp(myIntegerLiteralExp integerLiteralExp);
-
-///
-/// \brief      translate a let-exp into intermediate code
-/// \params[in] letExp  a let expression.
-/// \returns    an IR represetation of this let expression.
-///
-/// \remark     The value of the last expression is the entire value of the
-///             let-exp. if empty body, empty decs or no-value, then the
-///             value of this expression is 0; 
-IR_myExp Trans_LetExp(myLetExp letExp);
-IR_myExp Trans_Exp_(myExp exp);
+IR_myExp Trans_arrayCreation(IR_myExp subscriptResult, IR_myExp initValueResult);
+IR_myExp Trans_noFieldRecordCreation();
 
 //////////////////////////////////////
 
+void getAddressContent(IR_myExp* addressExpPtr);
+
 void Trans_proccedureBody(IR_myExp bodyResult, mySymbol procName);
 void Trans_functionBody(IR_myExp bodyResult, mySymbol funcName);
+void Trans_string(IR_myExp labeExp, myString str);
 
 #endif
