@@ -1634,7 +1634,7 @@ myTranslationAndType MySemantic_ParenthesesExp(
 myTranslationAndType MySemantic_NoValueExp(
     myNoValueExp noValueExp)
 {
-    //  no checking needed here
+    //  no checking and translation needed here
     return make_MyTranslationAndType(NULL, makeType_NoReturn());
 }
 
