@@ -1,0 +1,69 @@
+
+Eseq(
+  Seq(
+    Seq(
+      null    , 
+      null    )
+  , 
+    Seq(
+      Seq(
+        Seq(
+          Seq(
+            Seq(
+              Seq(
+                Seq(
+                  Seq(
+                    null                  , 
+                    null                  )
+                , 
+                  Exp(
+                    Call(
+                      Name(malloc)
+                    , 
+                      Const(4)
+                    )
+                  )
+                )
+              , 
+                Move(
+                  Temp(204)
+                , 
+                  Temp(return register)
+                )
+              )
+            , 
+              Seq(
+                Move(
+                  Temp(205)
+                , 
+                  Const(1)
+                )
+              , 
+                null              )
+            )
+          , 
+            Move(
+              Mem(
+                Temp(return register)
+              )
+            , 
+              Temp(205)
+            )
+          )
+        , 
+          Exp(
+            BinOperation(Plus, 
+              Temp(return register)
+            , 
+              Const(-4)
+            )
+          )
+        )
+      , 
+        null      )
+    , 
+      null    )
+  )
+, 
+  Temp(204)
+)

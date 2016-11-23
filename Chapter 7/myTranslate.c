@@ -1037,3 +1037,4 @@ IR_myExp Trans_noFieldRecordCreation()
     return Frame_externalCall(
         "malloc", IR_makeExpList(constOne, NULL));
 }
+

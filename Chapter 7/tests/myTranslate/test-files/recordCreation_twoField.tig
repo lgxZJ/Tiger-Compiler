@@ -1,0 +1,5 @@
+let
+	type recordType = { name:string, time:int }
+in
+	recordType{name="str", time=111}
+end

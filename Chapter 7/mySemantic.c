@@ -1340,8 +1340,8 @@ myTranslationAndType MySemantic_RecordCreationExp_NoField(
 
 
 //  forward declarations
-bool ifFieldNamesAndTypesMatches(
-    myFieldRecordCreationExp fieldRecordCreationExp);
+bool ifFieldNamesAndTypesMatchesWithResult(
+    myFieldRecordCreationExp fieldRecordCreationExp, IR_myExp* tranResult);
 void processFieldRecordCreationErrors(
     bool isRecordTypeDefined,
     bool isCreationFieldsMatchThisRecordType,
@@ -1366,13 +1366,15 @@ myTranslationAndType MySemantic_RecordCreationExp_Field(
 
     bool isRecordTypeDefined =
         isTypeDefinedAsRecord(recordTypeName);
+
+    IR_myExp tranResult = NULL;
     bool isCreationFieldsMatchThisRecordType = isRecordTypeDefined ?
-            ifFieldNamesAndTypesMatches(
-                fieldRecordCreationExp) :
+            ifFieldNamesAndTypesMatchesWithResult(
+                fieldRecordCreationExp, &tranResult) :
             false;
     
     if (isRecordTypeDefined && isCreationFieldsMatchThisRecordType)
-        return make_MyTranslationAndType(NULL,
+        return make_MyTranslationAndType(tranResult,
             getActualTypeFromName(recordTypeName));
     else
     {
@@ -1408,38 +1410,104 @@ bool isTypeAndNameMatchesOrNil(
     myType fieldType, myType valueType,
     mySymbol givenName, mySymbol fieldName);
 bool isOneFieldMatches(
-    myTypeFieldList typeFields, myRecordFieldList givenRecordFields);
+    myTypeFieldList typeFields, myRecordFieldList givenRecordFields,
+    IR_myExp* fieldValueTrans);
+int getTypeFieldCount(myTypeFieldList typeFields);
+
+static void allocateRecordSpaceTran(myTypeFieldList typeFields,
+    IR_myStatement* stateResult, IR_myExp* addressRegResult)
+{
+    IR_myExp result = Frame_externalCall("malloc",
+        IR_makeExpList(
+            IR_makeConst(getTypeFieldCount(typeFields) * 4),
+            NULL));
+    *stateResult = result->u.eseq.statement;
+    *addressRegResult = result->u.eseq.exp;
+}
+
+static IR_myExp saveAddrToResultReg(
+    IR_myStatement* stateTranResultPtr, IR_myExp memoryAddrReg)
+{
+    IR_myExp resultReg = IR_makeTemp(Temp_newTemp());
+    (*stateTranResultPtr) = IR_makeSeq(
+        (*stateTranResultPtr), IR_makeMove(resultReg, memoryAddrReg));
+    return resultReg;
+}
+
+static void assignOneFieldTran(
+    IR_myStatement* stateTranResultPtr,IR_myExp oneFieldValue,
+    IR_myExp memoryAddrReg)
+{
+    //  assign one field value
+    IR_myStatement fieldState;
+    IR_myExp fieldValue;
+    IR_divideExp(oneFieldValue, &fieldState, &fieldValue);
+
+    (*stateTranResultPtr) = IR_makeSeq((*stateTranResultPtr), fieldState);
+    (*stateTranResultPtr) = IR_makeSeq(
+        (*stateTranResultPtr),
+        IR_makeMove(IR_makeMem(memoryAddrReg), fieldValue));
+}
+
+static void moveToNextMemoryAddr(
+    IR_myStatement* stateTranResultPtr, IR_myExp memoryAddrReg)
+{
+    (*stateTranResultPtr) = IR_makeSeq(
+        (*stateTranResultPtr),
+        IR_makeExp(IR_makeBinOperation(IR_Plus,
+            memoryAddrReg, IR_makeConst(-Frame_wordSize))));
+}
 
 //  NOTE:   must be called after isTypeNotRecordAndSetError.
-bool ifFieldNamesAndTypesMatches(
-    myFieldRecordCreationExp fieldRecordCreationExp)
+bool ifFieldNamesAndTypesMatchesWithResult(
+    myFieldRecordCreationExp fieldRecordCreationExp, IR_myExp* translationResult)
 {
     mySymbol recordTypeName = fieldRecordCreationExp->typeName;
     myRecordFieldList givenRecordFields = fieldRecordCreationExp->fieldList;
     myTypeFieldList typeFields =
         getActualTypeFromName(recordTypeName)->u.typeRecord->fieldList;
 
+    IR_myStatement stateTranResult;
+    IR_myExp memoryAddrReg;
+    allocateRecordSpaceTran(typeFields, &stateTranResult, &memoryAddrReg);
+    IR_myExp resultReg = saveAddrToResultReg(&stateTranResult, memoryAddrReg);
+
     while (givenRecordFields && typeFields)
     {
-        if (!isOneFieldMatches(
-                typeFields, givenRecordFields))
+        IR_myExp oneFieldValue = NULL;
+        if (!isOneFieldMatches(typeFields, givenRecordFields, &oneFieldValue))
             return false;
+
+        assignOneFieldTran(&stateTranResult, oneFieldValue, memoryAddrReg);
+        moveToNextMemoryAddr(&stateTranResult, memoryAddrReg);
 
         givenRecordFields = givenRecordFields->next;
         typeFields = typeFields->tails;
     }
+    *translationResult = IR_makeESeq(stateTranResult, resultReg);
+
     //  field number not match!
     if (givenRecordFields || typeFields)    return false;
     else                                    return true;
 }
 
-bool isOneFieldMatches(
-    myTypeFieldList typeFields, myRecordFieldList givenRecordFields)
+int getTypeFieldCount(myTypeFieldList typeFields)
 {
+    int count = 0;
+    while (typeFields)
+        count++, typeFields = typeFields->tails;
+    return count;
+}
+
+bool isOneFieldMatches(
+    myTypeFieldList typeFields, myRecordFieldList givenRecordFields,
+    IR_myExp* fieldValueTrans)
+{
+    myTranslationAndType ret =
+        MySemantic_Exp_(givenRecordFields->field->varValue);
+
     myType fieldType = typeFields->head->type;
-    myType valueType = 
-        MySemantic_Exp_(givenRecordFields->field->varValue)
-            ->type;
+    myType valueType = ret->type;
     mySymbol fieldName = typeFields->head->name;
     mySymbol givenName = givenRecordFields->field->varName;
 
@@ -1451,6 +1519,8 @@ bool isOneFieldMatches(
                 MySymbol_GetName(givenName));
         return false;
     }
+
+    *fieldValueTrans = ret->translation;
     return true;
 }
 
