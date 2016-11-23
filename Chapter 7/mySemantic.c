@@ -1647,6 +1647,10 @@ static bool analyzeAndTranslateFirstTwoExps(
 static void translateFirstTwoExps(
     IR_myExp firstResult, IR_myExp secondResult,
     IR_myStatement* stateResultPtr, IR_myExp* valueResultPtr);
+static bool analyzeAndTranslateFolllowingExps(
+    mySequencingExp sequencingExp,
+    IR_myStatement* stateResultPtr, IR_myExp* valueResultPtr,
+    myType* returnTypePtr);
 
 //  FORM:
 //      (exp;exp;...exp)
@@ -1666,18 +1670,7 @@ myTranslationAndType MySemantic_SequencingExp(
     IR_myStatement stateResult = NULL;
     IR_myExp valueResult = NULL;
     myType returnType = NULL;
-/*
-    myTranslationAndType resultOne =
-        MySemantic_Exp_(sequencingExp->exp1); 
-    myTranslationAndType resultTwo =
-        MySemantic_Exp_(sequencingExp->exp2);
 
-    if (resultOne == SEMANTIC_ERROR || resultTwo == SEMANTIC_ERROR)
-        return SEMANTIC_ERROR;
-
-    translateFirstTwoExps(
-        resultOne->translation, resultTwo->translation,
-        &stateResult, &valueResult);*/
     if (!analyzeAndTranslateFirstTwoExps(
             sequencingExp->exp1, sequencingExp->exp2,
             &stateResult, &valueResult, &returnType))
@@ -1690,31 +1683,17 @@ myTranslationAndType MySemantic_SequencingExp(
             returnType);
     }
 
-        //////////////////////////
+    if (!analyzeAndTranslateFolllowingExps(
+        sequencingExp, &stateResult, &valueResult, &returnType))
+        return SEMANTIC_ERROR;
 
-    myTranslationAndType oneResult = NULL;
-    myExpList rests = sequencingExp->nextList;
-    while (rests)
-    {
-        //  todo: semantic check
-        //  although isn't the result type, semantic analysis needed here
-        oneResult = MySemantic_Exp_(rests->exp);
-        if (oneResult == SEMANTIC_ERROR)
-            return SEMANTIC_ERROR;
-        
-        IR_myStatement oneState;
-        IR_divideExp(oneResult->translation, &oneState, &valueResult);
-        stateResult = IR_makeSeq(stateResult, oneState);
-
-        rests = rests->next;
-    }
-
-    oneResult->translation = IR_makeESeq(stateResult, valueResult);
-    //  not change last expression's return type
-    return oneResult;
+    return make_MyTranslationAndType(
+            IR_makeESeq(stateResult, valueResult),
+            returnType);
 }
 
-static bool analyzeAndTranslateFirstTwoExps(myExp exp1, myExp exp2,
+static bool analyzeAndTranslateFirstTwoExps(
+    myExp exp1, myExp exp2,
     IR_myStatement* stateResultPtr, IR_myExp* valueResultPtr,
     myType* returnTypePtr)
 {
@@ -1746,6 +1725,33 @@ static void translateFirstTwoExps(
     *stateResultPtr = IR_makeSeq(firstState, secondState);
     *valueResultPtr = secondValue;
 } 
+
+static bool analyzeAndTranslateFolllowingExps(
+    mySequencingExp sequencingExp,
+    IR_myStatement* stateResultPtr, IR_myExp* valueResultPtr,
+    myType* returnTypePtr)
+{
+    myTranslationAndType oneResult = NULL;
+    myExpList rests = sequencingExp->nextList;
+
+    while (rests)
+    {
+        //  todo: test semantic check
+        //  although isn't the result type, semantic analysis needed here
+        oneResult = MySemantic_Exp_(rests->exp);
+        if (oneResult == SEMANTIC_ERROR)
+            return false;
+        
+        IR_myStatement oneState;
+        IR_divideExp(oneResult->translation, &oneState, valueResultPtr);
+        (*stateResultPtr) = IR_makeSeq((*stateResultPtr), oneState);
+
+        rests = rests->next;
+    }
+
+    *returnTypePtr = oneResult->type;
+    return true;
+}
 
 //////////////////////////////////////////////////////////////////////////////
 
