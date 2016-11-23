@@ -848,3 +848,181 @@ void Trans_string(IR_myExp labelExp, myString str)
     Frame_myFrag strFrag = Frame_makeStringFrag(labelExp->u.name, str);
     Trans_addOneStringFrag(strFrag);
 }
+
+//////////////////////////////////////////////////////////////////////////////////
+
+void getAddressContent(IR_myExp* addressExpPtr)
+{
+    assert (addressExpPtr && (*addressExpPtr)->kind == IR_ESeq);
+    assert ((*addressExpPtr)->u.eseq.exp->kind == IR_Temp);
+
+    IR_myExp tempReg = IR_makeTemp(Temp_newTemp());
+    (*addressExpPtr)->u.eseq.statement = IR_makeSeq(
+        (*addressExpPtr)->u.eseq.statement,
+        IR_makeMove(tempReg, IR_makeMem((*addressExpPtr)->u.eseq.exp))); 
+    (*addressExpPtr)->u.eseq.exp = tempReg;
+}
+
+///////////////////////////////////////////////////////////////////////////
+
+static IR_myStatement translateSpaceAllocation(
+    IR_myExp subscriptResult, IR_myExp* subscriptValuePtr, IR_myExp* memoryAddrResultPtr)
+{
+    //  maybe not needed
+    IR_myStatement subscriptState;
+    IR_myExp subscriptValue;
+    IR_divideExp(subscriptResult, &subscriptState, &subscriptValue);
+
+    //  todo: subscript bound check
+    //  allocate space for array at runtime
+    IR_myExp tempReg = IR_makeTemp(Temp_newTemp());
+    IR_myStatement tempRegMoveState = IR_makeMove(
+        tempReg, subscriptValue);
+    IR_myExp allocateResult = Frame_externalCall("malloc",
+        IR_makeExpList(
+            IR_makeBinOperation(IR_Multiply, tempReg, IR_makeConst(Frame_wordSize)),
+            NULL));
+    assert (allocateResult->kind == IR_ESeq);
+
+    //  save results
+    *subscriptValuePtr = subscriptValue;
+    *memoryAddrResultPtr = allocateResult->u.eseq.exp;
+    return IR_makeSeq(
+        IR_makeSeq(subscriptState, tempRegMoveState), 
+        allocateResult->u.eseq.statement);
+}
+
+static IR_myExp saveResultForReturn(IR_myExp memoryAddrReg, IR_myStatement* combinedStatePtr)
+{
+    assert (memoryAddrReg->kind == IR_Temp);
+    //  save result for return
+    IR_myExp resultAddr = IR_makeTemp(Temp_newTemp());
+    (*combinedStatePtr) = IR_makeSeq(
+        (*combinedStatePtr),
+        IR_makeMove(resultAddr, memoryAddrReg));
+
+    return resultAddr;
+}
+
+static IR_myExp combineInitState(IR_myExp initValueResult, IR_myStatement* combinedStatePtr)
+{
+    IR_myStatement initState;
+    IR_myExp initValue;
+    IR_divideExp(initValueResult, &initState, &initValue);
+
+    (*combinedStatePtr) = IR_makeSeq((*combinedStatePtr), initState);
+    return initValue;
+}
+
+static void prepareArrayAssignmentLoop(IR_myStatement* combinedStatePtr,
+    IR_myExp* loopRegPtr, IR_myStatement* loopLabelExpPtr,
+    IR_myStatement* skipLabelExpPtr)
+{
+    (*loopRegPtr) = IR_makeTemp(Temp_newTemp());
+    (*combinedStatePtr) = IR_makeSeq(
+        (*combinedStatePtr), IR_makeMove((*loopRegPtr), IR_makeConst(0)));
+
+    (*loopLabelExpPtr) = IR_makeLabel(Temp_newLabel());
+    (*skipLabelExpPtr) = IR_makeLabel(Temp_newLabel());
+
+    (*combinedStatePtr) = IR_makeSeq((*combinedStatePtr), *loopLabelExpPtr);
+} 
+
+static void combineLoopChecker(
+    IR_myStatement* combinedStatePtr, IR_myExp loopReg,
+    IR_myExp subscriptValueReg, IR_myStatement skipLabelExp)
+{
+    (*combinedStatePtr) = IR_makeSeq((*combinedStatePtr),
+        IR_makeCJump(IR_GreaterEqual,
+            loopReg, subscriptValueReg,
+            skipLabelExp->u.label, NULL));
+}
+
+static IR_myStatement doOneElementAssignment(
+    IR_myExp memoryAddrReg, IR_myExp initValue)
+{
+    return IR_makeMove(IR_makeMem(memoryAddrReg), initValue);
+}
+
+static void calcNextAddress(IR_myStatement* loopStatePtr, IR_myExp memoryAddrReg)
+{
+    *loopStatePtr = IR_makeSeq(
+        (*loopStatePtr),
+        IR_makeExp(IR_makeBinOperation(IR_Plus, 
+            memoryAddrReg, IR_makeConst(-Frame_wordSize))));
+}
+
+static void incrementLoopReg(IR_myStatement* loopStatePtr, IR_myExp loopReg)
+{
+    (*loopStatePtr) = IR_makeSeq(
+        (*loopStatePtr),
+        IR_makeExp(IR_makeBinOperation(IR_Plus, 
+            loopReg, IR_makeConst(1))));
+}
+
+static void jumpToLoop(
+    IR_myStatement* loopStatePtr, IR_myStatement loopLabelExp)
+{
+    (*loopStatePtr) = IR_makeSeq(
+        (*loopStatePtr),
+        IR_makeJump(IR_makeName(loopLabelExp->u.label),
+            Temp_makeLabelList(loopLabelExp->u.label, NULL)));
+}
+
+static void defineSkipLabel(
+    IR_myStatement* loopStatePtr, IR_myStatement skipLabelExp)
+{
+    (*loopStatePtr) = IR_makeSeq((*loopStatePtr), skipLabelExp);
+}
+
+static void combineLoopState(
+    IR_myStatement* combinedStatePtr, IR_myStatement loopState)
+{
+    (*combinedStatePtr) = IR_makeSeq((*combinedStatePtr), loopState);
+}
+
+static void doArrayAssignmentLoop(
+    IR_myStatement* combinedStatePtr, IR_myExp loopReg,
+    IR_myExp subscriptValueReg, IR_myStatement skipLabelExp,
+    IR_myStatement loopLabelExp, IR_myExp memoryAddrReg,
+    IR_myExp initValue)
+{
+    combineLoopChecker(
+        combinedStatePtr, loopReg, subscriptValueReg, skipLabelExp);
+
+    IR_myStatement loopState =
+        doOneElementAssignment(memoryAddrReg, initValue);
+    calcNextAddress(&loopState, memoryAddrReg);
+    incrementLoopReg(&loopState, loopReg);
+    jumpToLoop(&loopState, loopLabelExp);
+    defineSkipLabel(&loopState, skipLabelExp);
+
+    combineLoopState(combinedStatePtr, loopState);
+}
+
+static void doArrayAssignment(IR_myStatement* combinedStatePtr, IR_myExp subscriptValueReg,
+                        IR_myExp memoryAddrReg, IR_myExp initValue)
+{
+    IR_myExp loopReg = NULL;
+    IR_myStatement loopLabelExp = NULL, skipLabelExp = NULL;
+
+    prepareArrayAssignmentLoop(combinedStatePtr,
+        &loopReg, &loopLabelExp, &skipLabelExp);
+
+    doArrayAssignmentLoop(
+        combinedStatePtr, loopReg, subscriptValueReg,
+        skipLabelExp, loopLabelExp, memoryAddrReg, initValue);
+}
+
+IR_myExp Trans_arrayCreation(IR_myExp subscriptResult, IR_myExp initValueResult)
+{
+    IR_myExp memoryAddrReg = NULL;
+    IR_myExp subscriptValueReg = NULL;
+    IR_myStatement combinedState = translateSpaceAllocation(
+        subscriptResult, &subscriptValueReg, &memoryAddrReg);
+
+    IR_myExp resultAddr = saveResultForReturn(memoryAddrReg, &combinedState);
+    IR_myExp initValue = combineInitState(initValueResult, &combinedState);
+    doArrayAssignment(&combinedState, subscriptValueReg, memoryAddrReg, initValue);
+    return IR_makeESeq(combinedState, resultAddr);
+}

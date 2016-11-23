@@ -81,27 +81,48 @@ bool isExpLegalWithResult(myExp exp, IR_myExp* expResult)
     }
 }
 
+static bool isExpThisArrayElementWithResult(
+    myExp exp, mySymbol arrayTypeName, IR_myExp* result)
+{
+    assert (exp && arrayTypeName);
+    myTranslationAndType ret = MySemantic_Exp_(exp);
+
+    myType arrayElementType = getActualType(
+        getActualTypeFromName(arrayTypeName)
+        ->u.typeArray->type);
+    myType initialExpType = getActualType(ret->type); 
+    if (isTypeEqual(arrayElementType, initialExpType))
+    {
+        *result = ret->translation;
+        return true;
+    }
+    else
+        return false;
+}
+
+myType getExpActualResultTypeWithResult(myExp exp, IR_myExp* expResult)
+{
+    assert (exp);
+
+    myTranslationAndType result = MySemantic_Exp_(exp);
+    assert (result != SEMANTIC_ERROR);
+    *expResult = result->translation;
+
+    return getActualType(result->type);
+}
+
 //////////////////////////////////////
 
 //  DO:
 //      analyze if this expression fits its semantic
 bool isExpLegal(myExp exp)
 {
-    /*assert (exp);
-
-    myTranslationAndType result = MySemantic_Exp_(exp);
-        
-    if (result == SEMANTIC_ERROR)   return false;
-    else                            return true;*/
     IR_myExp dummy;
     return isExpLegalWithResult(exp, &dummy);
 }
 
 static bool isExpInt(myExp exp)
 {
-    /*
-    IR_myExp dummy;
-    return isExpOneTypeOrIllegal(exp, TypeInt, &dummy);*/
     IR_myExp dummy;
     return isExpIntWithResult(exp, &dummy);
 }
@@ -116,6 +137,7 @@ bool isExpNoReturn(myExp exp)
 static bool isExpThisArrayElement(
     myExp exp, mySymbol arrayTypeName)
 {
+    /*
     assert (exp && arrayTypeName);
 
     myType arrayElementType = getActualType(
@@ -123,7 +145,9 @@ static bool isExpThisArrayElement(
         ->u.typeArray->type);
     myType initialExpType = getActualType(
         MySemantic_Exp_(exp)->type); 
-    return isTypeEqual(arrayElementType, initialExpType);
+    return isTypeEqual(arrayElementType, initialExpType);*/
+    IR_myExp dummy;
+    return isExpThisArrayElementWithResult(exp, arrayTypeName, &dummy);
 }
 
 bool isLValueExpLegal(myLValueExp lValueExp)
@@ -152,18 +176,6 @@ myType getLValueExpActualResultType(myLValueExp  lValueExp)
     assert (result != SEMANTIC_ERROR);
 
     return getActualType(result->type);
-}
-
-void getAddressContent(IR_myExp* addressExpPtr)
-{
-    assert (addressExpPtr && (*addressExpPtr)->kind == IR_ESeq);
-    assert ((*addressExpPtr)->u.eseq.exp->kind == IR_Temp);
-
-    IR_myExp tempReg = IR_makeTemp(Temp_newTemp());
-    (*addressExpPtr)->u.eseq.statement = IR_makeSeq(
-        (*addressExpPtr)->u.eseq.statement,
-        IR_makeMove(tempReg, IR_makeMem((*addressExpPtr)->u.eseq.exp))); 
-    (*addressExpPtr)->u.eseq.exp = tempReg;
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -1158,8 +1170,10 @@ myTranslationAndType MySemantic_IntegerLiteralExp(
 myTranslationAndType MySemantic_StringLiteralExp(
     myStringLiteralExp stringLiteralExp)
 {
-    //  no checking needed here
-    return make_MyTranslationAndType(NULL, makeType_String());  
+    IR_myExp strExp = IR_makeName(Temp_newLabel());
+    Trans_string(strExp, stringLiteralExp->str);
+
+    return make_MyTranslationAndType(strExp, makeType_String());  
 }
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -1168,7 +1182,7 @@ myTranslationAndType MySemantic_StringLiteralExp(
 bool isTypeDefinedAsArray(
     mySymbol arrayTypeName);
 bool isValueTypeMatchesArrayElementOrNil(
-    myExp initialValue, mySymbol arrayTypeName);
+    myExp initialValue, mySymbol arrayTypeName, IR_myExp* initValueResult);
 void processArrayCreationErrors(
     bool isArrayTypeDefiend, bool isSubscriptAnIntExp,
     bool isInitialExpThisArrayType, mySymbol arrayTypeName);
@@ -1191,16 +1205,21 @@ myTranslationAndType MySemantic_ArrayCreationExp(
     mySymbol arrayTypeName = arrayCreationExp->typeName;
 
     bool isArrayTypeDefiend = isTypeDefinedAsArray(arrayTypeName);
-    bool isSubscriptAnIntExp = isExpInt(arrayCreationExp->length);
-    bool isInitialExpThisArrayElementType = false;
 
+    IR_myExp subscriptResult = NULL;
+    bool isSubscriptAnIntExp = isExpIntWithResult(
+        arrayCreationExp->length, &subscriptResult);
+
+    IR_myExp initValueResult = NULL;
+    bool isInitialExpThisArrayElementType = false;
     if (isArrayTypeDefiend)
         isInitialExpThisArrayElementType = isValueTypeMatchesArrayElementOrNil(
-            arrayCreationExp->initial, arrayTypeName);
+            arrayCreationExp->initial, arrayTypeName, &initValueResult);
 
     if (isArrayTypeDefiend && isSubscriptAnIntExp && isInitialExpThisArrayElementType)
     {
-        return make_MyTranslationAndType(NULL, getActualTypeFromName(arrayTypeName));
+        IR_myExp tranResult = Trans_arrayCreation(subscriptResult, initValueResult);
+        return make_MyTranslationAndType(tranResult,getActualTypeFromName(arrayTypeName));
     }
     else
     {
@@ -1211,13 +1230,13 @@ myTranslationAndType MySemantic_ArrayCreationExp(
 }
 
 bool isValueTypeMatchesArrayElementOrNil(
-    myExp initialValue, mySymbol arrayTypeName)
+    myExp initialValue, mySymbol arrayTypeName, IR_myExp* initValueResult)
 {
     myType arrayElementType = getActualType(
         getActualTypeFromName(arrayTypeName)
             ->u.typeArray->type);
     myType valueType = getActualType(
-        getExpActualResultType(initialValue));
+        getExpActualResultTypeWithResult(initialValue, initValueResult));
 
     return isExpThisArrayElement(
                 initialValue, arrayTypeName) ||
@@ -2083,7 +2102,7 @@ bool MySemantic_Dec_Var_LongForm(myLongFormVar longFormVar, IR_myStatement* resu
     {
         allocateAndAddNewVar_Long(longFormVar);
         *resultPtr = doAssignmentTranslation(
-            getVarAccessFromName(longFormVar->name),valueResult)
+            getVarAccessFromName(longFormVar->name), valueResult)
             ->u.eseq.statement;
         return true;
     }
@@ -2155,7 +2174,6 @@ bool MySemantic_Dec_Var(myVarDec varDec, IR_myStatement* resultPtr)
         return true;
     }
 
-    bool result;
     switch (varDec->kind)
     {
         case ShortFormVar:

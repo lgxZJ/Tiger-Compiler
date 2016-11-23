@@ -3,7 +3,7 @@ foo:
   Seq(
     Seq(
       Move(
-        Temp(30)
+        Temp(27)
       , 
         Const(0)
       )
@@ -13,7 +13,27 @@ foo:
     Move(
       Temp(return register)
     , 
-      Temp(30)
+      Temp(27)
+    )
+  )
+
+
+poo:
+
+  Seq(
+    Seq(
+      Move(
+        Temp(29)
+      , 
+        Const(1)
+      )
+    , 
+      null    )
+  , 
+    Move(
+      Temp(return register)
+    , 
+      Temp(29)
     )
   )
 

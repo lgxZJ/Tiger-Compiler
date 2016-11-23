@@ -6,7 +6,7 @@ Eseq(
         Seq(
           Seq(
             Move(
-              Temp(42)
+              Temp(38)
             , 
               Const(0)
             )
@@ -14,9 +14,9 @@ Eseq(
             null          )
         , 
           Move(
-            Temp(41)
+            Temp(40)
           , 
-            Temp(42)
+            Temp(38)
           )
         )
       , 
@@ -24,7 +24,7 @@ Eseq(
           Seq(
             Seq(
               Move(
-                Temp(46)
+                Temp(41)
               , 
                 Const(12)
               )
@@ -32,9 +32,9 @@ Eseq(
               null            )
           , 
             Move(
-              Temp(45)
+              Temp(43)
             , 
-              Temp(46)
+              Temp(41)
             )
           )
         , 

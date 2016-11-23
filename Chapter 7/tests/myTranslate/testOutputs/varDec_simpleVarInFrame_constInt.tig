@@ -29,7 +29,7 @@ Eseq(
           , 
             Seq(
               Move(
-                Temp(11)
+                Temp(10)
               , 
                 Const(0)
               )
@@ -42,7 +42,7 @@ Eseq(
               Temp(12)
             )
           , 
-            Temp(11)
+            Temp(10)
           )
         )
       , 
