@@ -1209,3 +1209,84 @@ IR_myExp Trans_for(
 
 ////////////////////////////////////////////////////////////////////////////////
 
+static void translateCondition(
+    IR_myExp conditionTrans, IR_myStatement* stateReturnPtr,
+    myLabel thenLabel, myLabel elseLabel)
+{
+    IR_myExp condiValue = NULL;
+    IR_divideExp(conditionTrans, stateReturnPtr, &condiValue);
+
+    //  if non-zero, fall through
+    (*stateReturnPtr) = IR_makeSeq(
+        (*stateReturnPtr),
+        IR_makeCJump(IR_Equal, condiValue, IR_makeConst(0),
+            elseLabel, NULL));
+}
+
+static void defineLabel(IR_myStatement* stateReturnPtr, myLabel label)
+{
+    (*stateReturnPtr) = IR_makeSeq(
+        (*stateReturnPtr), IR_makeLabel(label));
+} 
+
+static IR_myExp defineClause(
+    IR_myStatement* stateReturnPtr, IR_myExp clauseTrans)
+{
+    IR_myStatement clauseState;
+    IR_myExp clauseValue;
+    IR_divideExp(clauseTrans, &clauseState, &clauseValue);
+    (*stateReturnPtr) = IR_makeSeq(
+        (*stateReturnPtr), clauseState);
+
+    return clauseValue;
+}
+
+static void defineValueSaving(
+    IR_myStatement* stateReturnPtr, IR_myExp* valueReturnPtr, IR_myExp valueRep)
+{
+    assert ((*valueReturnPtr)->kind == IR_Temp);
+    assert (valueRep->kind == IR_Temp);
+
+    (*stateReturnPtr) = IR_makeSeq(
+            (*stateReturnPtr),
+            IR_makeMove((*valueReturnPtr), valueRep));
+}
+
+static void translateThenClause(
+    IR_myExp thenClauseTrans, myLabel thenLabel,
+    IR_myStatement* stateReturnPtr, IR_myExp* valueReturnPtr,
+    bool hasReturn)
+{
+    defineLabel(stateReturnPtr, thenLabel);
+    IR_myExp thenValue = defineClause(stateReturnPtr, thenClauseTrans);
+    if (hasReturn)
+        defineValueSaving(stateReturnPtr, valueReturnPtr, thenValue);
+}
+
+static void translateElseClause(
+    IR_myExp elseTrans, myLabel elseLabel,
+    IR_myStatement* stateReturnPtr, IR_myExp* valueReturnPtr,
+    bool hasReturn)
+{
+    defineLabel(stateReturnPtr, elseLabel);
+    IR_myExp elseValue = defineClause(stateReturnPtr, elseTrans);
+    if (hasReturn)
+        defineValueSaving(stateReturnPtr, valueReturnPtr, elseValue);
+}
+
+IR_myExp Trans_ifThenElse(
+    IR_myExp conditionTrans, IR_myExp thenTrans, IR_myExp elseTrans, bool hasReturn)
+{
+    IR_myStatement stateReturn;
+    IR_myExp valueReturn = IR_makeTemp(Temp_newTemp());
+    myLabel thenLabel = Temp_newLabel();
+    myLabel elseLabel = Temp_newLabel();
+
+    translateCondition(conditionTrans, &stateReturn, thenLabel, elseLabel);
+    translateThenClause(thenTrans, thenLabel, &stateReturn, &valueReturn, hasReturn);
+    translateElseClause(elseTrans, elseLabel, &stateReturn, &valueReturn, hasReturn);
+
+    if (!hasReturn)
+        valueReturn = NULL;
+    return IR_makeESeq(stateReturn, valueReturn);
+}

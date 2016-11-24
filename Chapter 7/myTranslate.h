@@ -147,6 +147,12 @@ IR_myExp Trans_IntegerLiteralExp(myIntegerLiteralExp integerLiteralExp);
 IR_myExp Trans_arrayCreation(IR_myExp subscriptResult, IR_myExp initValueResult);
 IR_myExp Trans_noFieldRecordCreation();
 IR_myExp Trans_arithmetic(IR_myExp leftTran, IR_myExp rightTran, IR_BinOperator op);
+IR_myExp Trans_for(
+    IR_myExp lowRangeResult, IR_myExp highRangeResult,
+    Trans_myAccess loopVarAccess, IR_myExp loopBodyResult);
+IR_myExp Trans_ifThenElse(
+    IR_myExp conditionTrans, IR_myExp thenTrans,
+    IR_myExp elseTrans, bool hasReturn);
 
 //////////////////////////////////////
 

@@ -478,6 +478,18 @@ void test_TransFor_LowRangeLargerHigh_SeeOutput(void)
     testOneFileAndOutputCode("for_lowRangeLargerHigh.tig");
 }
 
+///////////////////////////
+
+void test_TransIfThenElse_NoReturnValue_SeeOutput(void)
+{
+    testOneFileAndOutputCode("ifThenElse_noReturnValue.tig");
+}
+
+void test_TransIfThenElse_HasReturnValue_SeeOutput(void)
+{
+    testOneFileAndOutputCode("ifThenElse_hasReturnValue.tig");
+}
+
 ///////////////////////////         main        ///////////////////////////////
 
 int main()
@@ -565,6 +577,9 @@ int main()
         { "", test_TransFor_EmptyBody_SeeOutput },
         { "", test_TransFpr_NotEmptyBody_SeeOutput },
         { "", test_TransFor_LowRangeLargerHigh_SeeOutput },
+
+        { "", test_TransIfThenElse_NoReturnValue_SeeOutput },
+        { "", test_TransIfThenElse_HasReturnValue_SeeOutput },
     };
     if (!addTests(&suite, tests, sizeof(tests) / sizeof(tests[0])))
         return EXIT_FAILURE;

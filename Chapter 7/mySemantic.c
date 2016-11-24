@@ -37,7 +37,8 @@ myTranslationAndType MySemantic_LValueExp(myLValueExp lValueExp);
 //
 //  Exp Checkers
 
-bool isExpOneTypeOrIllegal(myExp exp, enum TypeKind kind, IR_myExp* expResultPtr)
+bool isExpOneTypeOrIllegal(
+    myExp exp, enum TypeKind kind, myTranslationAndType* resultPtr)
 {
     assert (exp);
     myTranslationAndType result = MySemantic_Exp_(exp);
@@ -45,7 +46,7 @@ bool isExpOneTypeOrIllegal(myExp exp, enum TypeKind kind, IR_myExp* expResultPtr
     if (result == SEMANTIC_ERROR)
         return false;
     else 
-        *expResultPtr = result->translation;
+        *resultPtr = result;
 
     myType expActualType = getActualType(result->type);
     switch (kind)
@@ -57,17 +58,38 @@ bool isExpOneTypeOrIllegal(myExp exp, enum TypeKind kind, IR_myExp* expResultPtr
     }
 }
 
-bool isExpNoReturnWithResult(myExp exp, IR_myExp* expResultPtr)
+bool isExpLegalWithResult(myExp exp, myTranslationAndType* resultPtr)
 {
-    return isExpOneTypeOrIllegal(exp, TypeNoReturn, expResultPtr);
+    *resultPtr = MySemantic_Exp_(exp);
+        
+    if (*resultPtr == SEMANTIC_ERROR)   return false;
+    else                                return true;
 }
 
-bool isExpIntWithResult(myExp exp, IR_myExp* expResult)
+bool isExpIntWithResult(myExp exp, myTranslationAndType* resultPtr)
 {
-    return isExpOneTypeOrIllegal(exp, TypeInt, expResult);
+    return isExpOneTypeOrIllegal(exp, TypeInt, resultPtr);
 }
 
-bool isExpLegalWithResult(myExp exp, IR_myExp* expResult)
+bool isExpNoReturnWithTrans(myExp exp, IR_myExp* expResultPtr)
+{
+    myTranslationAndType temp;
+    bool ret = isExpOneTypeOrIllegal(exp, TypeNoReturn, &temp);
+
+    *expResultPtr = temp->translation;
+    return ret;
+}
+
+bool isExpIntWithTrans(myExp exp, IR_myExp* expResult)
+{
+    myTranslationAndType temp;
+    bool ret = isExpOneTypeOrIllegal(exp, TypeInt, &temp);
+
+    *expResult = temp->translation;
+    return ret;
+}
+
+bool isExpLegalWithTrans(myExp exp, IR_myExp* expResult)
 {
     assert (exp);
 
@@ -82,7 +104,7 @@ bool isExpLegalWithResult(myExp exp, IR_myExp* expResult)
     }
 }
 
-static bool isExpThisArrayElementWithResult(
+static bool isExpThisArrayElementWithTrans(
     myExp exp, mySymbol arrayTypeName, IR_myExp* result)
 {
     assert (exp && arrayTypeName);
@@ -101,7 +123,7 @@ static bool isExpThisArrayElementWithResult(
         return false;
 }
 
-myType getExpActualResultTypeWithResult(myExp exp, IR_myExp* expResult)
+myType getExpActualResultTypeWithTrans(myExp exp, IR_myExp* expResult)
 {
     assert (exp);
 
@@ -119,19 +141,19 @@ myType getExpActualResultTypeWithResult(myExp exp, IR_myExp* expResult)
 bool isExpLegal(myExp exp)
 {
     IR_myExp dummy;
-    return isExpLegalWithResult(exp, &dummy);
+    return isExpLegalWithTrans(exp, &dummy);
 }
 
 static bool isExpInt(myExp exp)
 {
     IR_myExp dummy;
-    return isExpIntWithResult(exp, &dummy);
+    return isExpIntWithTrans(exp, &dummy);
 }
 
 bool isExpNoReturn(myExp exp)
 {
     IR_myExp dummy;
-    return isExpNoReturnWithResult(exp, &dummy);
+    return isExpNoReturnWithTrans(exp, &dummy);
 }
 
 //  NOTE:   array type named arrayTypeName must be valid. 
@@ -148,7 +170,7 @@ static bool isExpThisArrayElement(
         MySemantic_Exp_(exp)->type); 
     return isTypeEqual(arrayElementType, initialExpType);*/
     IR_myExp dummy;
-    return isExpThisArrayElementWithResult(exp, arrayTypeName, &dummy);
+    return isExpThisArrayElementWithTrans(exp, arrayTypeName, &dummy);
 }
 
 bool isLValueExpLegal(myLValueExp lValueExp)
@@ -729,7 +751,7 @@ static myType arrayContainsLValueAux(
     //  check subscript's expression is of Integer type
     myExp subscriptExp = aux->exp;
     IR_myExp subscriptResult = NULL;
-    if (!isExpIntWithResult(subscriptExp, &subscriptResult))
+    if (!isExpIntWithTrans(subscriptExp, &subscriptResult))
     {
         MyError_pushErrorCode(ERROR_SUBSCRIPT_NOT_INT);
         return NULL;
@@ -811,7 +833,7 @@ myTranslationAndType MySemantic_LValueExp_ArraySubscript(
 
     IR_myExp subscriptResult = NULL;
     myExp subscriptExp = lValueExp->u.arraySubscriptAux->exp;
-    bool isSubscriptInt = isExpIntWithResult(subscriptExp, &subscriptResult);
+    bool isSubscriptInt = isExpIntWithTrans(subscriptExp, &subscriptResult);
 
     myTranslationAndType result;
     if (isArrayVariableDeclared && isVariableAnArray && isSubscriptInt)
@@ -1208,7 +1230,7 @@ myTranslationAndType MySemantic_ArrayCreationExp(
     bool isArrayTypeDefiend = isTypeDefinedAsArray(arrayTypeName);
 
     IR_myExp subscriptResult = NULL;
-    bool isSubscriptAnIntExp = isExpIntWithResult(
+    bool isSubscriptAnIntExp = isExpIntWithTrans(
         arrayCreationExp->length, &subscriptResult);
 
     IR_myExp initValueResult = NULL;
@@ -1237,7 +1259,7 @@ bool isValueTypeMatchesArrayElementOrNil(
         getActualTypeFromName(arrayTypeName)
             ->u.typeArray->type);
     myType valueType = getActualType(
-        getExpActualResultTypeWithResult(initialValue, initValueResult));
+        getExpActualResultTypeWithTrans(initialValue, initValueResult));
 
     return isExpThisArrayElement(
                 initialValue, arrayTypeName) ||
@@ -1341,7 +1363,7 @@ myTranslationAndType MySemantic_RecordCreationExp_NoField(
 
 
 //  forward declarations
-bool ifFieldNamesAndTypesMatchesWithResult(
+bool ifFieldNamesAndTypesMatchesWithTrans(
     myFieldRecordCreationExp fieldRecordCreationExp, IR_myExp* tranResult);
 void processFieldRecordCreationErrors(
     bool isRecordTypeDefined,
@@ -1370,7 +1392,7 @@ myTranslationAndType MySemantic_RecordCreationExp_Field(
 
     IR_myExp tranResult = NULL;
     bool isCreationFieldsMatchThisRecordType = isRecordTypeDefined ?
-            ifFieldNamesAndTypesMatchesWithResult(
+            ifFieldNamesAndTypesMatchesWithTrans(
                 fieldRecordCreationExp, &tranResult) :
             false;
     
@@ -1460,7 +1482,7 @@ static void moveToNextMemoryAddr(
 }
 
 //  NOTE:   must be called after isTypeNotRecordAndSetError.
-bool ifFieldNamesAndTypesMatchesWithResult(
+bool ifFieldNamesAndTypesMatchesWithTrans(
     myFieldRecordCreationExp fieldRecordCreationExp, IR_myExp* translationResult)
 {
     mySymbol recordTypeName = fieldRecordCreationExp->typeName;
@@ -1554,10 +1576,10 @@ myTranslationAndType MySemantic_ArithmeticExp(
     myArithmeticExp arithmeticExp)
 {
     IR_myExp leftOperandTran = NULL;
-    bool isLeftExpInt = isExpIntWithResult(arithmeticExp->left, &leftOperandTran);
+    bool isLeftExpInt = isExpIntWithTrans(arithmeticExp->left, &leftOperandTran);
 
     IR_myExp rightOperandTran = NULL;
-    bool isRightExpInt = isExpIntWithResult(arithmeticExp->right, &rightOperandTran);
+    bool isRightExpInt = isExpIntWithTrans(arithmeticExp->right, &rightOperandTran);
 
     if (isLeftExpInt && isRightExpInt)
     {
@@ -1777,11 +1799,11 @@ myTranslationAndType MySemantic_ForExp(myForExp forExp)
 
     IR_myExp lowRangeResult = NULL;
     bool isLowRangeInt = 
-        isExpIntWithResult(forExp->varRangeLow, &lowRangeResult);
+        isExpIntWithTrans(forExp->varRangeLow, &lowRangeResult);
 
     IR_myExp highRangeResult = NULL;
     bool isHighRangeInt = 
-        isExpIntWithResult(forExp->varRangeHigh, &highRangeResult);
+        isExpIntWithTrans(forExp->varRangeHigh, &highRangeResult);
 
     if (isLowRangeInt && isHighRangeInt)
         addLoopVarToScope(forExp->varName);
@@ -1791,7 +1813,7 @@ myTranslationAndType MySemantic_ForExp(myForExp forExp)
     enterForLoop(forExp->varName);  //  for loop-var checking
     IR_myExp bodyResult = NULL;
     bool isBodyNoReturn =
-        isExpNoReturnWithResult(forExp->bodyExp, &bodyResult);
+        isExpNoReturnWithTrans(forExp->bodyExp, &bodyResult);
     leaveForLoop();  
     leaveLoop();
 
@@ -1841,8 +1863,8 @@ void processForErrors(bool isLowRangeInt, bool isHighRangeInt, bool isBodyNoRetu
 
 //  forward declarations
 myType getThenElseResultType(
-    myIfThenElseExp ifThenElseExp,
-    bool isThenClauseLegal, bool isElseClauseLegal);
+    bool isThenClauseLegal, bool isElseClauseLegal,
+    myType thenClauseType, myType elseClauseType);
 void processIfThenElseErrors(
     bool isConditionExpInt, bool isThenClauseLegal,
     bool isElseClauseLegal, bool isThenAndElseClauseSameType);
@@ -1860,20 +1882,33 @@ void processIfThenElseErrors(
 //      if failed, it returns SEMANTIC_ERROR.
 //  STATUS:
 //      Tested.
-myTranslationAndType MySemantic_IfThenElseExp(
-    myIfThenElseExp ifThenElseExp)
+myTranslationAndType MySemantic_IfThenElseExp(myIfThenElseExp ifThenElseExp)
 {
-    bool isConditionExpInt = isExpInt(ifThenElseExp->exp1);
-    bool isThenClauseLegal = isExpLegal(ifThenElseExp->exp2);
-    bool isElseClauseLegal = isExpLegal(ifThenElseExp->exp3);
+    myTranslationAndType conditionResult = NULL;
+    myTranslationAndType thenClauseResult = NULL;
+    myTranslationAndType elseClauseResult = NULL;
+
+    bool isConditionExpInt =
+        isExpIntWithResult(ifThenElseExp->exp1, &conditionResult);
+    bool isThenClauseLegal =
+        isExpLegalWithResult(ifThenElseExp->exp2, &thenClauseResult);
+    bool isElseClauseLegal =
+        isExpLegalWithResult(ifThenElseExp->exp3, &elseClauseResult);
     
     myType resultType = getThenElseResultType(
-        ifThenElseExp,
-        isThenClauseLegal, isElseClauseLegal);
+        isThenClauseLegal, isElseClauseLegal,
+        thenClauseResult->type, elseClauseResult->type);
     bool isThenAndElseClauseSameType = (resultType != NULL);
 
     if (isConditionExpInt && isThenAndElseClauseSameType)
-            return make_MyTranslationAndType(NULL, resultType);
+    {
+        IR_myExp ifThenElseTrans = Trans_ifThenElse(
+            conditionResult->translation,
+            thenClauseResult->translation,
+            elseClauseResult->translation,
+            !isTypeNoReturn(resultType));
+        return make_MyTranslationAndType(ifThenElseTrans, resultType);
+    }
     else
     {
         processIfThenElseErrors(isConditionExpInt, isThenClauseLegal, 
@@ -1890,15 +1925,11 @@ bool isTwoClausesTypeMatchesOrNil(
 //      type of `IfThenElseExp`;
 //  otherwise, it returns NULL; 
 myType getThenElseResultType(
-    myIfThenElseExp ifThenElseExp,
-    bool isThenClauseLegal, bool isElseClauseLegal)
+    bool isThenClauseLegal, bool isElseClauseLegal,
+    myType thenClauseType, myType elseClauseType)
 {
     if (isThenClauseLegal && isElseClauseLegal)
     {
-        myType thenClauseType = MySemantic_Exp_(ifThenElseExp->exp2)
-            ->type;
-        myType elseClauseType = MySemantic_Exp_(ifThenElseExp->exp3)
-            ->type;
         if (isTwoClausesTypeMatchesOrNil(thenClauseType, elseClauseType))
             return thenClauseType;
     }
@@ -2199,7 +2230,7 @@ void allocateAndAddNewVar_Short(myShortFormVar shortFormVar, myType valueType);
 bool MySemantic_Dec_Var_ShortForm(myShortFormVar shortFormVar, IR_myStatement* resultPtr)
 {
     IR_myExp valueResult = NULL;
-    bool isValueExpLegal = isExpLegalWithResult(shortFormVar->exp, &valueResult);
+    bool isValueExpLegal = isExpLegalWithTrans(shortFormVar->exp, &valueResult);
 
     if (isValueExpLegal)
     {
@@ -2262,7 +2293,7 @@ bool MySemantic_Dec_Var_LongForm(myLongFormVar longFormVar, IR_myStatement* resu
     bool isVariableTypeDefined = isTypeDefined(longFormVar->type);
 
     IR_myExp valueResult = NULL;
-    bool isValueExpLegal = isExpLegalWithResult(
+    bool isValueExpLegal = isExpLegalWithTrans(
         longFormVar->exp, &valueResult);
 
     bool isTypeMatches = false;

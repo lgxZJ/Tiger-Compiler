@@ -1,0 +1,105 @@
+
+Eseq(
+  Seq(
+    Seq(
+      Seq(
+        Seq(
+          Seq(
+            Seq(
+              Move(
+                Temp(382)
+              , 
+                Const(1)
+              )
+            , 
+              null            )
+          , 
+            CJump(Equal, 
+              Temp(382)
+            , 
+              Const(0)
+            , Label77, empty,             )
+          )
+        , 
+          Label(Label76)
+        )
+      , 
+        Seq(
+          Seq(
+            Seq(
+              Move(
+                Temp(383)
+              , 
+                Const(1)
+              )
+            , 
+              null            )
+          , 
+            null          )
+        , 
+          null        )
+      )
+    , 
+      Label(Label77)
+    )
+  , 
+    Seq(
+      Seq(
+        Seq(
+          Seq(
+            Move(
+              Temp(384)
+            , 
+              Const(2)
+            )
+          , 
+            null          )
+        , 
+          Seq(
+            Seq(
+              Seq(
+                Seq(
+                  Seq(
+                    Move(
+                      Temp(385)
+                    , 
+                      Const(3)
+                    )
+                  , 
+                    null                  )
+                , 
+                  Seq(
+                    Move(
+                      Temp(386)
+                    , 
+                      Const(3)
+                    )
+                  , 
+                    null                  )
+                )
+              , 
+                Move(
+                  Temp(387)
+                , 
+                  Temp(385)
+                )
+              )
+            , 
+              Exp(
+                BinOperation(Plus, 
+                  Temp(387)
+                , 
+                  Temp(386)
+                )
+              )
+            )
+          , 
+            null          )
+        )
+      , 
+        null      )
+    , 
+      null    )
+  )
+, 
+  null)
