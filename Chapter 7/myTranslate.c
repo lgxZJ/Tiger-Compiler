@@ -1210,8 +1210,7 @@ IR_myExp Trans_for(
 ////////////////////////////////////////////////////////////////////////////////
 
 static void translateCondition(
-    IR_myExp conditionTrans, IR_myStatement* stateReturnPtr,
-    myLabel thenLabel, myLabel elseLabel)
+    IR_myExp conditionTrans, IR_myStatement* stateReturnPtr, myLabel elseLabel)
 {
     IR_myExp condiValue = NULL;
     IR_divideExp(conditionTrans, stateReturnPtr, &condiValue);
@@ -1238,6 +1237,7 @@ static IR_myExp defineClause(
     (*stateReturnPtr) = IR_makeSeq(
         (*stateReturnPtr), clauseState);
 
+    assert (clauseValue == NULL || clauseValue->kind == IR_Temp);
     return clauseValue;
 }
 
@@ -1253,11 +1253,9 @@ static void defineValueSaving(
 }
 
 static void translateThenClause(
-    IR_myExp thenClauseTrans, myLabel thenLabel,
-    IR_myStatement* stateReturnPtr, IR_myExp* valueReturnPtr,
-    bool hasReturn)
+    IR_myExp thenClauseTrans, IR_myStatement* stateReturnPtr,
+    IR_myExp* valueReturnPtr, bool hasReturn)
 {
-    defineLabel(stateReturnPtr, thenLabel);
     IR_myExp thenValue = defineClause(stateReturnPtr, thenClauseTrans);
     if (hasReturn)
         defineValueSaving(stateReturnPtr, valueReturnPtr, thenValue);
@@ -1279,14 +1277,28 @@ IR_myExp Trans_ifThenElse(
 {
     IR_myStatement stateReturn;
     IR_myExp valueReturn = IR_makeTemp(Temp_newTemp());
-    myLabel thenLabel = Temp_newLabel();
     myLabel elseLabel = Temp_newLabel();
 
-    translateCondition(conditionTrans, &stateReturn, thenLabel, elseLabel);
-    translateThenClause(thenTrans, thenLabel, &stateReturn, &valueReturn, hasReturn);
+    translateCondition(conditionTrans, &stateReturn, elseLabel);
+    translateThenClause(thenTrans, &stateReturn, &valueReturn, hasReturn);
     translateElseClause(elseTrans, elseLabel, &stateReturn, &valueReturn, hasReturn);
 
     if (!hasReturn)
         valueReturn = NULL;
+    return IR_makeESeq(stateReturn, valueReturn);
+}
+
+////////////////////////////////////////////////////////////////////////
+
+IR_myExp Trans_ifThen(IR_myExp conditionTrans, IR_myExp thenTrans)
+{
+    IR_myStatement stateReturn;
+    myLabel thenLabel = Temp_newLabel();
+    myLabel skipLabel = Temp_newLabel();
+
+    translateCondition(conditionTrans, &stateReturn, skipLabel);
+    IR_myExp valueReturn = defineClause(&stateReturn, thenTrans);
+
+    defineLabel(&stateReturn, skipLabel);
     return IR_makeESeq(stateReturn, valueReturn);
 }
