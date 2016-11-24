@@ -461,6 +461,23 @@ void test_TransSequencing_threeVarsInFrame_SeeOutput(void)
     testOneFileAndOutputCode("sequencing_threeVarsInFrame.tig");
 }
 
+///////////////////////////
+
+void test_TransFor_EmptyBody_SeeOutput(void)
+{
+    testOneFileAndOutputCode("for_emptyBody.tig");
+}
+
+void test_TransFpr_NotEmptyBody_SeeOutput(void)
+{
+    testOneFileAndOutputCode("for_notEmptyBody.tig");
+}
+
+void test_TransFor_LowRangeLargerHigh_SeeOutput(void)
+{
+    testOneFileAndOutputCode("for_lowRangeLargerHigh.tig");
+}
+
 ///////////////////////////         main        ///////////////////////////////
 
 int main()
@@ -544,6 +561,10 @@ int main()
         { "", test_TransSequencing_fourConsts_SeeOutput },
         { "", test_TransSequencing_threeVarsInReg_SeeOutput },
         { "", test_TransSequencing_threeVarsInFrame_SeeOutput },
+
+        { "", test_TransFor_EmptyBody_SeeOutput },
+        { "", test_TransFpr_NotEmptyBody_SeeOutput },
+        { "", test_TransFor_LowRangeLargerHigh_SeeOutput },
     };
     if (!addTests(&suite, tests, sizeof(tests) / sizeof(tests[0])))
         return EXIT_FAILURE;

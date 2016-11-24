@@ -24,6 +24,7 @@
 
 
 //  forwards
+//  in myTranslate.c
 Trans_myAccess getVarAccessFromName(mySymbol varName);
 
 myTranslationAndType MySemantic_Exp_(myExp exp);
@@ -1770,26 +1771,38 @@ void processForErrors(bool isLowRangeInt, bool isHighRangeInt, bool isBodyNoRetu
 //      if it fails, it returns SEMANTIC_ERROR.
 //  STATUS:
 //      Tested.
-myTranslationAndType MySemantic_ForExp(
-    myForExp forExp)
+myTranslationAndType MySemantic_ForExp(myForExp forExp)
 {
     MySymbol_BeginScope(MySemantic_getVarAndFuncEnvironment());
 
-    bool isLowRangeInt = isExpInt(forExp->varRangeLow);
-    bool isHighRangeInt = isExpInt(forExp->varRangeHigh);
+    IR_myExp lowRangeResult = NULL;
+    bool isLowRangeInt = 
+        isExpIntWithResult(forExp->varRangeLow, &lowRangeResult);
+
+    IR_myExp highRangeResult = NULL;
+    bool isHighRangeInt = 
+        isExpIntWithResult(forExp->varRangeHigh, &highRangeResult);
+
     if (isLowRangeInt && isHighRangeInt)
         addLoopVarToScope(forExp->varName);
+    Trans_myAccess loopVarAccess = getVarAccessFromName(forExp->varName);
 
     enterLoop();    //  for break checking
     enterForLoop(forExp->varName);  //  for loop-var checking
-    bool isBodyNoReturn = isExpNoReturn(forExp->bodyExp);
+    IR_myExp bodyResult = NULL;
+    bool isBodyNoReturn =
+        isExpNoReturnWithResult(forExp->bodyExp, &bodyResult);
     leaveForLoop();  
     leaveLoop();
 
     MySymbol_EndScope(MySemantic_getVarAndFuncEnvironment());
 
     if (isLowRangeInt && isHighRangeInt && isBodyNoReturn)
-        return make_MyTranslationAndType(NULL, makeType_NoReturn());
+    {
+        IR_myExp tranResult =
+            Trans_for(lowRangeResult, highRangeResult, loopVarAccess, bodyResult);
+        return make_MyTranslationAndType(tranResult, makeType_NoReturn());
+    }
     else
     {
         processForErrors(isLowRangeInt, isHighRangeInt, isBodyNoReturn);

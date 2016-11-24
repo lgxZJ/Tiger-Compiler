@@ -9,50 +9,60 @@ Eseq(
             Seq(
               Seq(
                 Seq(
-                  Move(
-                    Temp(216)
-                  , 
-                    Temp(frame pointer)
-                  )
-                , 
                   Seq(
-                    Exp(
-                      BinOperation(Plus, 
-                        Temp(216)
-                      , 
-                        Const(-4)
-                      )
+                    Move(
+                      Temp(230)
+                    , 
+                      Temp(frame pointer)
                     )
                   , 
-                    null                  )
-                )
+                    Seq(
+                      Exp(
+                        BinOperation(Plus, 
+                          Temp(230)
+                        , 
+                          Const(-4)
+                        )
+                      )
+                    , 
+                      null                    )
+                  )
+                , 
+                  null                )
               , 
-                null              )
-            , 
-              Seq(
                 Seq(
                   Seq(
-                    null                  , 
-                    null                  )
-                , 
-                  Exp(
-                    Call(
-                      Name(malloc)
-                    , 
-                      Const(1)
+                    Seq(
+                      null                    , 
+                      null                    )
+                  , 
+                    Exp(
+                      Call(
+                        Name(malloc)
+                      , 
+                        Const(1)
+                      )
                     )
                   )
+                , 
+                  null                )
+              )
+            , 
+              Move(
+                Mem(
+                  Temp(230)
                 )
               , 
-                null              )
+                Temp(return register)
+              )
             )
           , 
             Move(
-              Mem(
-                Temp(216)
-              )
+              Temp(231)
             , 
-              Temp(return register)
+              Mem(
+                Temp(230)
+              )
             )
           )
         , 

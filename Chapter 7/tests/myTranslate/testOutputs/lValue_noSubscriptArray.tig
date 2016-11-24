@@ -9,27 +9,27 @@ Eseq(
             Seq(
               Seq(
                 Seq(
-                  Move(
-                    Temp(102)
-                  , 
-                    Temp(frame pointer)
-                  )
-                , 
                   Seq(
-                    Exp(
-                      BinOperation(Plus, 
-                        Temp(102)
-                      , 
-                        Const(-4)
-                      )
+                    Move(
+                      Temp(111)
+                    , 
+                      Temp(frame pointer)
                     )
                   , 
-                    null                  )
-                )
+                    Seq(
+                      Exp(
+                        BinOperation(Plus, 
+                          Temp(111)
+                        , 
+                          Const(-4)
+                        )
+                      )
+                    , 
+                      null                    )
+                  )
+                , 
+                  null                )
               , 
-                null              )
-            , 
-              Seq(
                 Seq(
                   Seq(
                     Seq(
@@ -39,128 +39,138 @@ Eseq(
                             Seq(
                               Seq(
                                 Seq(
-                                  Move(
-                                    Temp(90)
+                                  Seq(
+                                    Move(
+                                      Temp(99)
+                                    , 
+                                      Const(10)
+                                    )
                                   , 
-                                    Const(10)
+                                    null                                  )
+                                , 
+                                  Move(
+                                    Temp(102)
+                                  , 
+                                    Temp(99)
                                   )
-                                , 
-                                  null                                )
-                              , 
-                                Move(
-                                  Temp(93)
-                                , 
-                                  Temp(90)
                                 )
-                              )
-                            , 
-                              Seq(
+                              , 
                                 Seq(
-                                  null                                , 
                                   Seq(
                                     null                                  , 
-                                    Exp(
-                                      BinOperation(Multiply, 
-                                        Temp(93)
-                                      , 
-                                        Const(4)
+                                    Seq(
+                                      null                                    , 
+                                      Exp(
+                                        BinOperation(Multiply, 
+                                          Temp(102)
+                                        , 
+                                          Const(4)
+                                        )
                                       )
                                     )
                                   )
-                                )
-                              , 
-                                Exp(
-                                  Call(
-                                    Name(malloc)
-                                  , 
-                                    Temp(93)
+                                , 
+                                  Exp(
+                                    Call(
+                                      Name(malloc)
+                                    , 
+                                      Temp(102)
+                                    )
                                   )
                                 )
                               )
+                            , 
+                              Move(
+                                Temp(103)
+                              , 
+                                Temp(return register)
+                              )
                             )
                           , 
-                            Move(
-                              Temp(94)
+                            Seq(
+                              Move(
+                                Temp(100)
+                              , 
+                                Const(2)
+                              )
                             , 
-                              Temp(return register)
-                            )
+                              null                            )
                           )
                         , 
-                          Seq(
-                            Move(
-                              Temp(91)
-                            , 
-                              Const(2)
-                            )
+                          Move(
+                            Temp(104)
                           , 
-                            null                          )
+                            Const(0)
+                          )
                         )
                       , 
-                        Move(
-                          Temp(95)
-                        , 
-                          Const(0)
-                        )
+                        Label(Label21)
                       )
                     , 
-                      Label(Label21)
+                      CJump(GreaterEqual, 
+                        Temp(104)
+                      , 
+                        Temp(99)
+                      , Label22, empty,                       )
                     )
                   , 
-                    CJump(GreaterEqual, 
-                      Temp(95)
-                    , 
-                      Temp(90)
-                    , Label22, empty,                     )
-                  )
-                , 
-                  Seq(
                     Seq(
                       Seq(
                         Seq(
-                          Move(
-                            Mem(
-                              Temp(return register)
+                          Seq(
+                            Move(
+                              Mem(
+                                Temp(return register)
+                              )
+                            , 
+                              Temp(100)
                             )
                           , 
-                            Temp(91)
+                            Exp(
+                              BinOperation(Plus, 
+                                Temp(return register)
+                              , 
+                                Const(-4)
+                              )
+                            )
                           )
                         , 
                           Exp(
                             BinOperation(Plus, 
-                              Temp(return register)
+                              Temp(104)
                             , 
-                              Const(-4)
+                              Const(1)
                             )
                           )
                         )
                       , 
-                        Exp(
-                          BinOperation(Plus, 
-                            Temp(95)
-                          , 
-                            Const(1)
-                          )
+                        Jump(
+                          Name(Label21)
                         )
                       )
                     , 
-                      Jump(
-                        Name(Label21)
-                      )
+                      Label(Label22)
                     )
-                  , 
-                    Label(Label22)
                   )
+                , 
+                  null                )
+              )
+            , 
+              Move(
+                Mem(
+                  Temp(111)
                 )
               , 
-                null              )
+                Temp(103)
+              )
             )
           , 
             Move(
-              Mem(
-                Temp(102)
-              )
+              Temp(112)
             , 
-              Temp(94)
+              Mem(
+                Temp(111)
+              )
             )
           )
         , 
@@ -173,7 +183,7 @@ Eseq(
       Seq(
         Seq(
           Move(
-            Temp(103)
+            Temp(113)
           , 
             Temp(frame pointer)
           )
@@ -181,7 +191,7 @@ Eseq(
           Seq(
             Exp(
               BinOperation(Plus, 
-                Temp(103)
+                Temp(113)
               , 
                 Const(-4)
               )
@@ -193,10 +203,10 @@ Eseq(
         Seq(
           null        , 
           Move(
-            Temp(104)
+            Temp(114)
           , 
             Mem(
-              Temp(103)
+              Temp(113)
             )
           )
         )
@@ -205,5 +215,5 @@ Eseq(
       null    )
   )
 , 
-  Temp(104)
+  Temp(114)
 )

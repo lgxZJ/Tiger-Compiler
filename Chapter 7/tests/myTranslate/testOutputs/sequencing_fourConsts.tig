@@ -5,7 +5,7 @@ Eseq(
       Seq(
         Seq(
           Move(
-            Temp(298)
+            Temp(318)
           , 
             Const(1)
           )
@@ -14,7 +14,7 @@ Eseq(
       , 
         Seq(
           Move(
-            Temp(299)
+            Temp(319)
           , 
             Const(2)
           )
@@ -24,7 +24,7 @@ Eseq(
     , 
       Seq(
         Move(
-          Temp(300)
+          Temp(320)
         , 
           Const(3)
         )
@@ -34,7 +34,7 @@ Eseq(
   , 
     Seq(
       Move(
-        Temp(301)
+        Temp(321)
       , 
         Const(4)
       )
@@ -42,5 +42,5 @@ Eseq(
       null    )
   )
 , 
-  Temp(301)
+  Temp(321)
 )
