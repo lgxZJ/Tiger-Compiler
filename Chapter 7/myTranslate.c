@@ -1318,38 +1318,76 @@ static IR_myExp combineOneTrans(
     return valueOne;
 }
 
-static IR_myExp callResultToCompareResult_Equal(IR_myExp compareResult)
+static void jumpToResultSettingState(
+    IR_myStatement* stateReturnPtr, IR_myExp compareResultReg,
+    myLabel assignTrueLabel)
 {
-    IR_myStatement stateReturn;
+    assert (compareResultReg->kind == IR_Temp);
+
+    (*stateReturnPtr) = IR_makeCJump(
+        IR_Equal, compareResultReg, IR_makeConst(0),
+        assignTrueLabel, NULL);
+}
+
+static void assignFalseToResultRegAndJumpToEnd(
+    IR_myStatement* stateReturnPtr, IR_myExp resultReg, myLabel endLabel)
+{
+    assert (resultReg->kind == IR_Temp); 
+
+    (*stateReturnPtr) = IR_makeSeq(
+        (*stateReturnPtr), IR_makeMove(resultReg, IR_makeConst(0)));
+    (*stateReturnPtr) = IR_makeSeq(
+        (*stateReturnPtr),
+        IR_makeJump(IR_makeName(endLabel), Temp_makeLabelList(endLabel, NULL)));
+}
+
+static void assignTrueToResultRegAndDefineEndLabel(
+    IR_myStatement* stateReturnPtr, myLabel assignTrueLabel,
+    IR_myExp resultReg, myLabel endLabel)
+{
+    assert (resultReg->kind == IR_Temp);
+
+    (*stateReturnPtr) = IR_makeSeq(
+        (*stateReturnPtr), IR_makeLabel(assignTrueLabel));
+    (*stateReturnPtr) = IR_makeSeq(
+        (*stateReturnPtr), IR_makeMove(resultReg, IR_makeConst(1)));
+    (*stateReturnPtr) = IR_makeSeq(
+        (*stateReturnPtr), IR_makeLabel(endLabel));
+}
+
+static IR_myExp callResultToCompareResult_Equal(IR_myExp compareResultReg)
+{
+    IR_myStatement stateReturn = NULL;
 
     IR_myExp newReg = IR_makeTemp(Temp_newTemp());
     myLabel assignOneLabel = Temp_newLabel();
     myLabel endLabel = Temp_newLabel();
 
-    stateReturn = IR_makeCJump(
-        IR_Equal, compareResult, IR_makeConst(0),
-        assignOneLabel, NULL);
-
-    stateReturn = IR_makeSeq(stateReturn, IR_makeMove(newReg, IR_makeConst(0)));
-    stateReturn = IR_makeSeq(stateReturn,
-        IR_makeJump(IR_makeName(endLabel), Temp_makeLabelList(endLabel, NULL)));
-
-    stateReturn = IR_makeSeq(stateReturn, IR_makeLabel(assignOneLabel));
-    stateReturn = IR_makeSeq(stateReturn, IR_makeMove(newReg, IR_makeConst(1)));
-    stateReturn = IR_makeSeq(stateReturn, IR_makeLabel(endLabel));
+    jumpToResultSettingState(
+        &stateReturn, compareResultReg, assignOneLabel);
+    assignFalseToResultRegAndJumpToEnd(
+        &stateReturn, newReg, endLabel);
+    assignTrueToResultRegAndDefineEndLabel(
+        &stateReturn, assignOneLabel, newReg, endLabel);
 
     return IR_makeESeq(stateReturn, newReg);
 }
 
-static IR_myExp callResultToCompareResult(
-    IR_myExp compareResult, IR_RelOperator op)
+static IR_myExp callResultToCompareResult_NotEqual(IR_myExp compareResultReg)
 {
-    assert (compareResult->kind == IR_Temp);
+
+}
+
+static IR_myExp callResultToCompareResult(
+    IR_myExp compareResultReg, IR_RelOperator op)
+{
+    assert (compareResultReg->kind == IR_Temp);
     switch (op)
     {
         case IR_Equal:
-            return callResultToCompareResult_Equal(compareResult);
+            return callResultToCompareResult_Equal(compareResultReg);
         case IR_NotEqual:
+            return callResultToCompareResult_NotEqual(compareResultReg);
         case IR_GreaterThan:
         case IR_GreaterEqual:
         case IR_LessThan:
@@ -1372,10 +1410,12 @@ IR_myExp Trans_comparison(
         IR_myExp callExp = IR_makeCall(
             IR_makeName(Temp_newNamedLabel("strCompare")),
             IR_makeExpList(leftValue, IR_makeExpList(rightValue, NULL)));
-        IR_myExp compareResult = combineOneTrans(callExp, &stateResult);
+        IR_myExp callRetRep = combineOneTrans(callExp, &stateResult);
 
-        IR_myExp convertRet = callResultToCompareResult(compareResult, op);
+        IR_myExp convertRet = callResultToCompareResult(callRetRep, op);
+        assert (convertRet->kind == IR_ESeq);
         stateResult = IR_makeSeq(stateResult, convertRet->u.eseq.statement);
+
         return IR_makeESeq(stateResult, convertRet->u.eseq.exp);
     }
     else
