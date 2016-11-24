@@ -1142,57 +1142,42 @@ static void translateSkipLabelDefinition(
     (*stateResultPtr) = IR_makeSeq((*stateResultPtr), skipLabelExp);
 }
 
-static IR_myStatement translateLoop(
+static IR_myStatement translateCommonLoop(
     IR_myStatement skipCjumpStatementWithoutLabel, IR_myStatement loopState)
 {
     assert (skipCjumpStatementWithoutLabel->kind == IR_CJump);
     assert (skipCjumpStatementWithoutLabel->u.cjump.left->kind == IR_Temp);
-    IR_myExp loopReg = skipCjumpStatementWithoutLabel->u.cjump.left;
 
+    IR_myExp loopReg = skipCjumpStatementWithoutLabel->u.cjump.left;
     IR_myStatement skipLabelExp = IR_makeLabel(Temp_newLabel());
     IR_myStatement loopLabelExp = IR_makeLabel(Temp_newLabel());
 
-
-    IR_myStatement stateResult = translateLoopLabelDefinition(loopLabelExp);
-/*
-    assert (skipCjumpStatement->kind == IR_CJump);
-    skipCjumpStatement->u.cjump.trueLabel = skipLabelExp->u.label;
-    skipCjumpStatement->u.cjump.falseLabel = NULL;
-    stateResult = IR_makeSeq(stateResult, skipCjumpStatement);*/
+    IR_myStatement stateResult =
+        translateLoopLabelDefinition(loopLabelExp);
     translateLoopChecker(skipCjumpStatementWithoutLabel, skipLabelExp, &stateResult);
-
-    /*stateResult = IR_makeSeq(stateResult, loopState);*/
     translateLoopBody(loopState, &stateResult);
-
-    /*stateResult = IR_makeSeq(stateResult, 
-        IR_makeExp(IR_makeBinOperation(IR_Plus, loopReg, IR_makeConst(1))));*/
-    //translateLoopRegIncrement(loopReg, &stateResult);
-
-/*
-    stateResult = IR_makeSeq(stateResult,
-        IR_makeJump(IR_makeName(loopLabelExp->u.label),
-            Temp_makeLabelList(loopLabelExp->u.label, NULL)));*/
     translateLoopJumper(loopLabelExp, &stateResult);
-    /*stateResult = IR_makeSeq(stateResult, skipLabelExp);*/
     translateSkipLabelDefinition(skipLabelExp, &stateResult);
 
     return stateResult;
 }
 
-IR_myExp Trans_for(
-    IR_myExp lowRangeResult, IR_myExp highRangeResult,
-    Trans_myAccess loopVarAccess, IR_myExp loopBodyResult)
+static IR_myStatement translateInitDefinition(
+    Trans_myAccess loopVarAccess, IR_myExp lowRangeResult,
+    IR_myExp highRangeResult, IR_myExp* loopVarRepPtr,
+    IR_myExp* highRangeRepPtr)
 {
     IR_myStatement initResult;
-    IR_myExp loopVarRep;
     translateLoopVarInitial(
-        loopVarAccess, lowRangeResult, &initResult, &loopVarRep);
+        loopVarAccess, lowRangeResult, &initResult, loopVarRepPtr);
+    translateHighRange(highRangeResult, &initResult, highRangeRepPtr);
 
-    IR_myExp highRangeRep;
-    translateHighRange(highRangeResult, &initResult, &highRangeRep);
+    return initResult;
+}
 
-
-
+static IR_myStatement translateLoopDefinition(
+    IR_myExp loopVarRep, IR_myExp highRangeRep, IR_myExp loopBodyResult)
+{
     IR_myStatement skipCjumpstateWithoutLabel = IR_makeCJump(
         IR_GreaterThan, loopVarRep, highRangeRep, NULL, NULL);
     
@@ -1202,7 +1187,25 @@ IR_myExp Trans_for(
     loopState = IR_makeSeq(loopState, IR_makeExp(IR_makeBinOperation(IR_Plus,
         loopVarRep, IR_makeConst(1))));
 
-     IR_myStatement loopResult = translateLoop(skipCjumpstateWithoutLabel, loopState);
-     return IR_makeESeq(
+     return translateCommonLoop(skipCjumpstateWithoutLabel, loopState);
+}
+
+IR_myExp Trans_for(
+    IR_myExp lowRangeResult, IR_myExp highRangeResult,
+    Trans_myAccess loopVarAccess, IR_myExp loopBodyResult)
+{
+    IR_myExp loopVarRep;
+    IR_myExp highRangeRep;
+    IR_myStatement initResult =
+        translateInitDefinition(loopVarAccess, lowRangeResult, highRangeResult,
+            &loopVarRep, &highRangeRep);
+
+    IR_myStatement loopResult =
+        translateLoopDefinition(loopVarRep, highRangeRep, loopBodyResult);
+    //  for expressions have no value
+    return IR_makeESeq(
          IR_makeSeq(initResult, loopResult), NULL);
 }
+
+////////////////////////////////////////////////////////////////////////////////
+
