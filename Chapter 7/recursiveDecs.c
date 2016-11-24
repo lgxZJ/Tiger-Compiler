@@ -23,8 +23,8 @@ extern bool isExpNoReturn  (myExp exp);
 extern bool isTypeDefined  (mySymbol typeName);
 extern bool isExpLegal     (myExp exp);
 
-extern bool isExpLegalWithResult(myExp exp, IR_myExp* expResult);
-extern bool isExpNoReturnWithResult(myExp exp, IR_myExp* expResultPtr);
+extern bool isExpLegalWithTrans(myExp exp, IR_myExp* expResult);
+extern bool isExpNoReturnWithTrans(myExp exp, IR_myExp* expResultPtr);
 
 extern void MySemantic_enterNewLevel(Trans_myLevel newLevel);
 extern void MySemantic_leaveNewLevel(void);
@@ -514,7 +514,7 @@ bool MySemantic_Dec_Func_Procedure_TwoPass(
 
     bool isBodyNoReturn = false;
     IR_myExp bodyResult = NULL;
-    isBodyNoReturn = isExpNoReturnWithResult(procedureDec->exp, &bodyResult);
+    isBodyNoReturn = isExpNoReturnWithTrans(procedureDec->exp, &bodyResult);
     
 
     MySemantic_leaveNewLevel();
@@ -615,7 +615,7 @@ bool MySemantic_Dec_Func_Function_TwoPass(
     addFormalsToScope(functionDec->name, functionDec->tyFieldList);
 
     IR_myExp bodyResult = NULL;
-    bool isBodyLegal = isExpLegalWithResult(functionDec->exp, &bodyResult);
+    bool isBodyLegal = isExpLegalWithTrans(functionDec->exp, &bodyResult);
 
     bool isReturnTypeMatches = false;
     if (isBodyLegal)
