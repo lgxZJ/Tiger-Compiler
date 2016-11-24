@@ -1318,14 +1318,14 @@ static IR_myExp combineOneTrans(
     return valueOne;
 }
 
-static void jumpToResultSettingState(
+static void jumpToResultSettingStateByEqualValue(
     IR_myStatement* stateReturnPtr, IR_myExp compareResultReg,
-    myLabel assignTrueLabel)
+    myLabel assignTrueLabel, int equalValue)
 {
     assert (compareResultReg->kind == IR_Temp);
 
     (*stateReturnPtr) = IR_makeCJump(
-        IR_Equal, compareResultReg, IR_makeConst(0),
+        IR_Equal, compareResultReg, IR_makeConst(equalValue),
         assignTrueLabel, NULL);
 }
 
@@ -1355,7 +1355,10 @@ static void assignTrueToResultRegAndDefineEndLabel(
         (*stateReturnPtr), IR_makeLabel(endLabel));
 }
 
-static IR_myExp callResultToCompareResult_Equal(IR_myExp compareResultReg)
+//////////////////////////////////////////
+
+static IR_myExp callResultToCompareResult_Common(
+    IR_myExp compareResultReg, int equalValue)
 {
     IR_myStatement stateReturn = NULL;
 
@@ -1363,14 +1366,24 @@ static IR_myExp callResultToCompareResult_Equal(IR_myExp compareResultReg)
     myLabel assignOneLabel = Temp_newLabel();
     myLabel endLabel = Temp_newLabel();
 
-    jumpToResultSettingState(
-        &stateReturn, compareResultReg, assignOneLabel);
+    jumpToResultSettingStateByEqualValue(
+        &stateReturn, compareResultReg, assignOneLabel, equalValue);
     assignFalseToResultRegAndJumpToEnd(
         &stateReturn, newReg, endLabel);
     assignTrueToResultRegAndDefineEndLabel(
         &stateReturn, assignOneLabel, newReg, endLabel);
 
     return IR_makeESeq(stateReturn, newReg);
+}
+
+static IR_myExp callResultToCompareResult_Equal(
+    IR_myExp compareResultReg)
+{
+    //  the return value of strCompare() if string equals
+    static const int callReturnValueIfEqual = 0;
+
+    return callResultToCompareResult_Common(
+        compareResultReg, callReturnValueIfEqual);
 }
 
 static IR_myExp callResultToCompareResult_NotEqual(IR_myExp compareResultReg)
@@ -1385,6 +1398,28 @@ static IR_myExp callResultToCompareResult_NotEqual(IR_myExp compareResultReg)
         resultReg);
 }
 
+static IR_myExp callResultToCompareResult_GreaterThan(
+    IR_myExp compareResultReg)
+{
+    //  the return value of strCompare() if left greater than right
+    static const int callReturnValueIfGreaterThan = 1;
+
+    return callResultToCompareResult_Common(
+        compareResultReg, callReturnValueIfGreaterThan);
+}
+
+static IR_myExp callResultToCompareResult_LessThan(
+    IR_myExp compareResultReg)
+{
+    //  the return value of strCompare() if left less than right
+    static const int callReturnValueIfLessThan = -1;
+
+    return callResultToCompareResult_Common(
+        compareResultReg, callReturnValueIfLessThan);
+}
+
+///////////////////////
+
 static IR_myExp callResultToCompareResult(
     IR_myExp compareResultReg, IR_RelOperator op)
 {
@@ -1396,8 +1431,10 @@ static IR_myExp callResultToCompareResult(
         case IR_NotEqual:
             return callResultToCompareResult_NotEqual(compareResultReg);
         case IR_GreaterThan:
-        case IR_GreaterEqual:
+            return callResultToCompareResult_GreaterThan(compareResultReg);
         case IR_LessThan:
+            return callResultToCompareResult_LessThan(compareResultReg);
+        case IR_GreaterEqual:
         case IR_LessEqual:
         default:    assert (false);
     }
