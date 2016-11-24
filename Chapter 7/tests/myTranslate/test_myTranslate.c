@@ -490,6 +490,13 @@ void test_TransIfThenElse_HasReturnValue_SeeOutput(void)
     testOneFileAndOutputCode("ifThenElse_hasReturnValue.tig");
 }
 
+///////////////////////////
+
+void test_TransIfThen_ByDefault_SeeOutput(void)
+{
+    testOneFileAndOutputCode("ifThen.tig");
+}
+
 ///////////////////////////         main        ///////////////////////////////
 
 int main()
@@ -580,6 +587,8 @@ int main()
 
         { "", test_TransIfThenElse_NoReturnValue_SeeOutput },
         { "", test_TransIfThenElse_HasReturnValue_SeeOutput },
+
+        { "", test_TransIfThen_ByDefault_SeeOutput },
     };
     if (!addTests(&suite, tests, sizeof(tests) / sizeof(tests[0])))
         return EXIT_FAILURE;

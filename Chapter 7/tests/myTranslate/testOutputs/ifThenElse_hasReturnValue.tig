@@ -11,51 +11,47 @@ Eseq(
                   Seq(
                     Seq(
                       Seq(
-                        Seq(
-                          Move(
-                            Temp(389)
-                          , 
-                            Const(1)
-                          )
+                        Move(
+                          Temp(389)
                         , 
-                          null                        )
+                          Const(1)
+                        )
                       , 
-                        Seq(
-                          Move(
-                            Temp(390)
-                          , 
-                            Const(2)
-                          )
-                        , 
-                          null                        )
-                      )
+                        null                      )
                     , 
-                      Move(
-                        Temp(391)
+                      Seq(
+                        Move(
+                          Temp(390)
+                        , 
+                          Const(2)
+                        )
                       , 
-                        Temp(389)
-                      )
+                        null                      )
                     )
                   , 
-                    Exp(
-                      BinOperation(Plus, 
-                        Temp(391)
-                      , 
-                        Temp(390)
-                      )
+                    Move(
+                      Temp(391)
+                    , 
+                      Temp(389)
                     )
                   )
                 , 
-                  null                )
+                  Exp(
+                    BinOperation(Plus, 
+                      Temp(391)
+                    , 
+                      Temp(390)
+                    )
+                  )
+                )
               , 
-                CJump(Equal, 
-                  Temp(391)
-                , 
-                  Const(0)
-                , Label80, empty,                 )
-              )
+                null              )
             , 
-              Label(Label79)
+              CJump(Equal, 
+                Temp(391)
+              , 
+                Const(0)
+              , Label78, empty,               )
             )
           , 
             Seq(
@@ -107,7 +103,7 @@ Eseq(
           )
         )
       , 
-        Label(Label80)
+        Label(Label78)
       )
     , 
       Seq(

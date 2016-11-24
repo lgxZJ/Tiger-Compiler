@@ -1237,6 +1237,7 @@ static IR_myExp defineClause(
     (*stateReturnPtr) = IR_makeSeq(
         (*stateReturnPtr), clauseState);
 
+    //  may have value(IR_TEMP) or not(NULL)
     assert (clauseValue == NULL || clauseValue->kind == IR_Temp);
     return clauseValue;
 }
@@ -1293,12 +1294,12 @@ IR_myExp Trans_ifThenElse(
 IR_myExp Trans_ifThen(IR_myExp conditionTrans, IR_myExp thenTrans)
 {
     IR_myStatement stateReturn;
-    myLabel thenLabel = Temp_newLabel();
     myLabel skipLabel = Temp_newLabel();
 
     translateCondition(conditionTrans, &stateReturn, skipLabel);
-    IR_myExp valueReturn = defineClause(&stateReturn, thenTrans);
-
+    defineClause(&stateReturn, thenTrans);
     defineLabel(&stateReturn, skipLabel);
-    return IR_makeESeq(stateReturn, valueReturn);
+
+    //  no return value
+    return IR_makeESeq(stateReturn, NULL);
 }

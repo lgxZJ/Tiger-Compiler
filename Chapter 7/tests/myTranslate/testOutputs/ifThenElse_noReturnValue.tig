@@ -5,23 +5,19 @@ Eseq(
       Seq(
         Seq(
           Seq(
-            Seq(
-              Move(
-                Temp(382)
-              , 
-                Const(1)
-              )
-            , 
-              null            )
-          , 
-            CJump(Equal, 
+            Move(
               Temp(382)
             , 
-              Const(0)
-            , Label77, empty,             )
-          )
+              Const(1)
+            )
+          , 
+            null          )
         , 
-          Label(Label76)
+          CJump(Equal, 
+            Temp(382)
+          , 
+            Const(0)
+          , Label76, empty,           )
         )
       , 
         Seq(
@@ -40,7 +36,7 @@ Eseq(
           null        )
       )
     , 
-      Label(Label77)
+      Label(Label76)
     )
   , 
     Seq(

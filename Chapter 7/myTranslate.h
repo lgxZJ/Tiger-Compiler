@@ -153,6 +153,7 @@ IR_myExp Trans_for(
 IR_myExp Trans_ifThenElse(
     IR_myExp conditionTrans, IR_myExp thenTrans,
     IR_myExp elseTrans, bool hasReturn);
+IR_myExp Trans_ifThen(IR_myExp conditionTrans, IR_myExp thenTrans);
 
 //////////////////////////////////////
 

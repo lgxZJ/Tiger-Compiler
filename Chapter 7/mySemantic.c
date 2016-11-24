@@ -1988,11 +1988,19 @@ void processIfThenErrors(bool isIfConditionInt, bool isThenClauseNoReturn);
 myTranslationAndType MySemantic_IfThenExp(
     myIfThenExp ifThenExp)
 {
-    bool isIfConditionInt = isExpInt(ifThenExp->exp1);
-    bool isThenClauseNoReturn = isExpNoReturn(ifThenExp->exp2);
+    IR_myExp conditionTrans;
+    bool isIfConditionInt =
+        isExpIntWithTrans(ifThenExp->exp1, &conditionTrans);
+
+    IR_myExp thenTrans;
+    bool isThenClauseNoReturn =
+        isExpNoReturnWithTrans(ifThenExp->exp2, &thenTrans);
 
     if (isIfConditionInt && isThenClauseNoReturn)
-        return make_MyTranslationAndType(NULL, makeType_NoReturn());
+    {
+        IR_myExp ifThenTrans = Trans_ifThen(conditionTrans, thenTrans);
+        return make_MyTranslationAndType(ifThenTrans, makeType_NoReturn());
+    }
     else
     {
         processIfThenErrors(isIfConditionInt, isThenClauseNoReturn);
