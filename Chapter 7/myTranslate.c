@@ -1303,3 +1303,83 @@ IR_myExp Trans_ifThen(IR_myExp conditionTrans, IR_myExp thenTrans)
     //  no return value
     return IR_makeESeq(stateReturn, NULL);
 }
+
+///////////////////////////////////////////////////////////////////////
+
+//  NOTE: stateResultPtr must be already initialized!!!!
+static IR_myExp combineOneTrans(
+    IR_myExp oneOperandTrans, IR_myStatement* stateReturnPtr)
+{
+    IR_myStatement stateOne;
+    IR_myExp valueOne;
+    IR_divideExp(oneOperandTrans, &stateOne, &valueOne);
+
+    (*stateReturnPtr) = IR_makeSeq((*stateReturnPtr), stateOne);
+    return valueOne;
+}
+
+static IR_myExp callResultToCompareResult_Equal(IR_myExp compareResult)
+{
+    IR_myStatement stateReturn;
+
+    IR_myExp newReg = IR_makeTemp(Temp_newTemp());
+    myLabel assignOneLabel = Temp_newLabel();
+    myLabel endLabel = Temp_newLabel();
+
+    stateReturn = IR_makeCJump(
+        IR_Equal, compareResult, IR_makeConst(0),
+        assignOneLabel, NULL);
+
+    stateReturn = IR_makeSeq(stateReturn, IR_makeMove(newReg, IR_makeConst(0)));
+    stateReturn = IR_makeSeq(stateReturn,
+        IR_makeJump(IR_makeName(endLabel), Temp_makeLabelList(endLabel, NULL)));
+
+    stateReturn = IR_makeSeq(stateReturn, IR_makeLabel(assignOneLabel));
+    stateReturn = IR_makeSeq(stateReturn, IR_makeMove(newReg, IR_makeConst(1)));
+    stateReturn = IR_makeSeq(stateReturn, IR_makeLabel(endLabel));
+
+    return IR_makeESeq(stateReturn, newReg);
+}
+
+static IR_myExp callResultToCompareResult(
+    IR_myExp compareResult, IR_RelOperator op)
+{
+    assert (compareResult->kind == IR_Temp);
+    switch (op)
+    {
+        case IR_Equal:
+            return callResultToCompareResult_Equal(compareResult);
+        case IR_NotEqual:
+        case IR_GreaterThan:
+        case IR_GreaterEqual:
+        case IR_LessThan:
+        case IR_LessEqual:
+        default:    assert (false);
+    }
+}
+
+IR_myExp Trans_comparison(
+    IR_myExp leftTrans, IR_myExp rightTrans, IR_RelOperator op, bool isString)
+{
+    IR_myStatement stateResult = NULL;
+
+    IR_myExp leftValue = combineOneTrans(leftTrans, &stateResult);
+    IR_myExp rightValue = combineOneTrans(rightTrans, &stateResult);
+
+    if (isString)
+    {
+        //  todo: strCompare(,) return -1, 0, 1 if less, equal or greater
+        IR_myExp callExp = IR_makeCall(
+            IR_makeName(Temp_newNamedLabel("strCompare")),
+            IR_makeExpList(leftValue, IR_makeExpList(rightValue, NULL)));
+        IR_myExp compareResult = combineOneTrans(callExp, &stateResult);
+
+        IR_myExp convertRet = callResultToCompareResult(compareResult, op);
+        stateResult = IR_makeSeq(stateResult, convertRet->u.eseq.statement);
+        return IR_makeESeq(stateResult, convertRet->u.eseq.exp);
+    }
+    else
+    {
+
+    }
+}

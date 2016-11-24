@@ -497,6 +497,13 @@ void test_TransIfThen_ByDefault_SeeOutput(void)
     testOneFileAndOutputCode("ifThen.tig");
 }
 
+///////////////////////////
+
+void test_TransComparison_StringEqual_SeeOutput(void)
+{
+    testOneFileAndOutputCode("comparison_stringEqual.tig");
+}
+
 ///////////////////////////         main        ///////////////////////////////
 
 int main()
@@ -589,6 +596,8 @@ int main()
         { "", test_TransIfThenElse_HasReturnValue_SeeOutput },
 
         { "", test_TransIfThen_ByDefault_SeeOutput },
+
+        { "", test_TransComparison_StringEqual_SeeOutput },
     };
     if (!addTests(&suite, tests, sizeof(tests) / sizeof(tests[0])))
         return EXIT_FAILURE;

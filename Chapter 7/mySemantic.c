@@ -1193,10 +1193,10 @@ myTranslationAndType MySemantic_IntegerLiteralExp(
 myTranslationAndType MySemantic_StringLiteralExp(
     myStringLiteralExp stringLiteralExp)
 {
-    IR_myExp strExp = IR_makeName(Temp_newLabel());
-    Trans_string(strExp, stringLiteralExp->str);
+    IR_myExp strLabelExp = IR_makeName(Temp_newLabel());
+    Trans_string(strLabelExp, stringLiteralExp->str);
 
-    return make_MyTranslationAndType(strExp, makeType_String());  
+    return make_MyTranslationAndType(strLabelExp, makeType_String());  
 }
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -1558,7 +1558,7 @@ bool isTypeAndNameMatchesOrNil(
 //////////////////////////////////////////////////////////////////////////////////////
 
 //  forward declarations
-static IR_BinOperator convertOperatorFromASTToIR(enum myArithmeticOp op);
+static IR_BinOperator convertArithmeticOperatorFromASTToIR(enum myArithmeticOp op);
 void processArithmeticErrors(bool isLeftExpInt, bool isRightExpInt);
 
 //  FORM:
@@ -1585,7 +1585,7 @@ myTranslationAndType MySemantic_ArithmeticExp(
     {
         IR_myExp tranResult = Trans_arithmetic(
             leftOperandTran, rightOperandTran,
-            convertOperatorFromASTToIR(arithmeticExp->op));
+            convertArithmeticOperatorFromASTToIR(arithmeticExp->op));
         return make_MyTranslationAndType(tranResult, makeType_Int());
     }
     else
@@ -1595,7 +1595,7 @@ myTranslationAndType MySemantic_ArithmeticExp(
     }
 }
 
-static IR_BinOperator convertOperatorFromASTToIR(enum myArithmeticOp op)
+static IR_BinOperator convertArithmeticOperatorFromASTToIR(enum myArithmeticOp op)
 {
     switch (op)
     {
@@ -2021,8 +2021,9 @@ void processIfThenErrors(bool isIfConditionInt, bool isThenClauseNoReturn)
 ///////////////////////////////////////////////////////////////////////////////
 
 //  forward declarations
-bool isTwoComparisonOperandsTypeEqualsOrNil(
-    myComparisonExp comparisonExp);
+bool isTwoComparisonOperandsTypeEqualsOrNil(myType leftType, myType rightType);
+static IR_RelOperator convertComparisonOperatorFromASTToIR(
+    enum myComparisonOp op);
 void processComparisonErrors(
     bool isLeftOperandLegal, bool isRightOperandLegal, bool isOperandsTypeMatches);
 
@@ -2038,23 +2039,32 @@ void processComparisonErrors(
 //      if failed, it returns SEMANTIC_ERROR.  
 //  STATUS:
 //      Tested.
-myTranslationAndType MySemantic_ComparisonExp(
-    myComparisonExp comparisonExp)
+myTranslationAndType MySemantic_ComparisonExp(myComparisonExp comparisonExp)
 {
-    bool isLeftOperandLegal = isExpLegal(
-        comparisonExp->left);
-    bool isRightOperandLegal = isExpLegal(
-        comparisonExp->right);
+    myTranslationAndType leftResult;
+    bool isLeftOperandLegal =
+        isExpLegalWithResult(comparisonExp->left, &leftResult);
+    
+    myTranslationAndType rightResult;
+    bool isRightOperandLegal =
+        isExpLegalWithResult(comparisonExp->right, &rightResult);
 
     bool isOperandsTypeMatches = false;
     if (isLeftOperandLegal && isRightOperandLegal)
     {
         isOperandsTypeMatches = isTwoComparisonOperandsTypeEqualsOrNil(
-            comparisonExp);
+            leftResult->type, rightResult->type);
     }
 
     if (isLeftOperandLegal && isRightOperandLegal && isOperandsTypeMatches)
-        return make_MyTranslationAndType(NULL, makeType_Int());
+    {
+        IR_myExp comparisonTran = Trans_comparison(
+            leftResult->translation,
+            rightResult->translation,
+            convertComparisonOperatorFromASTToIR(comparisonExp->op),
+            isTypeString(leftResult->type));
+        return make_MyTranslationAndType(comparisonTran, makeType_Int());
+    }
     else
     {
         processComparisonErrors(
@@ -2063,19 +2073,31 @@ myTranslationAndType MySemantic_ComparisonExp(
     }
 }
 
-bool isTwoComparisonOperandsTypeEqualsOrNil(
-    myComparisonExp comparisonExp)
-{
-    myType leftType = getExpActualResultType(
-        comparisonExp->left);
-    myType rightType = getExpActualResultType(
-        comparisonExp->right);
+bool isTwoComparisonOperandsTypeEqualsOrNil(myType leftType, myType rightType)
+{// todo: inequality comparison cannot only applied to record or array 
+    myType leftActualType = getActualType(leftType);
+    myType rightActualType = getActualType(rightType);
 
-    if (isTypeNoReturn(leftType) || isTypeNoReturn(rightType))
+    if (isTypeNoReturn(leftActualType) || isTypeNoReturn(rightActualType))
         return false;
     else
-        return  isTypeEqual(leftType, rightType) ||
-                isOneRecordTypeAnotherNil(leftType, rightType);
+        return  isTypeEqual(leftActualType, rightActualType) ||
+                isOneRecordTypeAnotherNil(leftActualType, rightActualType);
+}
+
+static IR_RelOperator convertComparisonOperatorFromASTToIR(
+    enum myComparisonOp op)
+{
+    switch (op)
+    {
+        case opEqual:               return IR_Equal;
+        case opNotEqual:            return IR_NotEqual;
+        case opLargerThan:          return IR_GreaterThan;
+        case opSmallerThan:         return IR_LessThan;
+        case opLargerEqualThan:     return IR_GreaterEqual;
+        case opSmallerEqualThan:    return IR_LessEqual;
+        default:    assert (false);
+    }
 }
 
 void processComparisonErrors(
