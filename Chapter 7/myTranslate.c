@@ -1375,7 +1375,14 @@ static IR_myExp callResultToCompareResult_Equal(IR_myExp compareResultReg)
 
 static IR_myExp callResultToCompareResult_NotEqual(IR_myExp compareResultReg)
 {
+    IR_myExp ret = callResultToCompareResult_Equal(compareResultReg);
+    IR_myExp resultReg = ret->u.eseq.exp;
 
+    IR_myStatement notResult = IR_makeExp(
+        IR_makeBinOperation(IR_Xor, resultReg, IR_makeConst(1)));
+    return IR_makeESeq(
+        IR_makeSeq(ret->u.eseq.statement, notResult),
+        resultReg);
 }
 
 static IR_myExp callResultToCompareResult(
