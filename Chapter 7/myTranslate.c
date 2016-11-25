@@ -1255,11 +1255,14 @@ static void defineValueSaving(
 
 static void translateThenClause(
     IR_myExp thenClauseTrans, IR_myStatement* stateReturnPtr,
-    IR_myExp* valueReturnPtr, bool hasReturn)
+    IR_myExp* valueReturnPtr, myLabel endLabel, bool hasReturn)
 {
     IR_myExp thenValue = defineClause(stateReturnPtr, thenClauseTrans);
     if (hasReturn)
         defineValueSaving(stateReturnPtr, valueReturnPtr, thenValue);
+    (*stateReturnPtr) = IR_makeSeq(
+        (*stateReturnPtr),
+        IR_makeJump(IR_makeName(endLabel), Temp_makeLabelList(endLabel, NULL)));
 }
 
 static void translateElseClause(
@@ -1279,10 +1282,12 @@ IR_myExp Trans_ifThenElse(
     IR_myStatement stateReturn;
     IR_myExp valueReturn = IR_makeTemp(Temp_newTemp());
     myLabel elseLabel = Temp_newLabel();
+    myLabel endLabel = Temp_newLabel();
 
     translateCondition(conditionTrans, &stateReturn, elseLabel);
-    translateThenClause(thenTrans, &stateReturn, &valueReturn, hasReturn);
+    translateThenClause(thenTrans, &stateReturn, &valueReturn, endLabel, hasReturn);
     translateElseClause(elseTrans, elseLabel, &stateReturn, &valueReturn, hasReturn);
+    defineLabel(&stateReturn, endLabel);
 
     if (!hasReturn)
         valueReturn = NULL;
@@ -1318,14 +1323,14 @@ static IR_myExp combineOneTrans(
     return valueOne;
 }
 
-static void jumpToResultSettingStateByEqualValue(
+static void jumpToResultSettingStateByEqualValueAndOperator(
     IR_myStatement* stateReturnPtr, IR_myExp compareResultReg,
-    myLabel assignTrueLabel, int equalValue)
+    myLabel assignTrueLabel, int equalValue, IR_RelOperator equalOp)
 {
     assert (compareResultReg->kind == IR_Temp);
 
     (*stateReturnPtr) = IR_makeCJump(
-        IR_Equal, compareResultReg, IR_makeConst(equalValue),
+        equalOp, compareResultReg, IR_makeConst(equalValue),
         assignTrueLabel, NULL);
 }
 
@@ -1358,7 +1363,7 @@ static void assignTrueToResultRegAndDefineEndLabel(
 //////////////////////////////////////////
 
 static IR_myExp callResultToCompareResult_Common(
-    IR_myExp compareResultReg, int equalValue)
+    IR_myExp compareResultReg, int equalValue, IR_RelOperator equalOP)
 {
     IR_myStatement stateReturn = NULL;
 
@@ -1366,8 +1371,9 @@ static IR_myExp callResultToCompareResult_Common(
     myLabel assignOneLabel = Temp_newLabel();
     myLabel endLabel = Temp_newLabel();
 
-    jumpToResultSettingStateByEqualValue(
-        &stateReturn, compareResultReg, assignOneLabel, equalValue);
+    jumpToResultSettingStateByEqualValueAndOperator(
+        &stateReturn, compareResultReg, assignOneLabel,
+        equalValue, equalOP);
     assignFalseToResultRegAndJumpToEnd(
         &stateReturn, newReg, endLabel);
     assignTrueToResultRegAndDefineEndLabel(
@@ -1383,7 +1389,7 @@ static IR_myExp callResultToCompareResult_Equal(
     static const int callReturnValueIfEqual = 0;
 
     return callResultToCompareResult_Common(
-        compareResultReg, callReturnValueIfEqual);
+        compareResultReg, callReturnValueIfEqual, IR_Equal);
 }
 
 static IR_myExp callResultToCompareResult_NotEqual(IR_myExp compareResultReg)
@@ -1405,7 +1411,7 @@ static IR_myExp callResultToCompareResult_GreaterThan(
     static const int callReturnValueIfGreaterThan = 1;
 
     return callResultToCompareResult_Common(
-        compareResultReg, callReturnValueIfGreaterThan);
+        compareResultReg, callReturnValueIfGreaterThan, IR_Equal);
 }
 
 static IR_myExp callResultToCompareResult_LessThan(
@@ -1415,7 +1421,19 @@ static IR_myExp callResultToCompareResult_LessThan(
     static const int callReturnValueIfLessThan = -1;
 
     return callResultToCompareResult_Common(
-        compareResultReg, callReturnValueIfLessThan);
+        compareResultReg, callReturnValueIfLessThan, IR_Equal);
+}
+
+
+
+static IR_myExp callResultToCompareResult_GreaterEqual(
+    IR_myExp compareResultReg)
+{
+    //  the return value of strCompare() if left less than right
+    static const int callReturnValueIfLessThan = -1;
+
+    return callResultToCompareResult_Common(
+        compareResultReg, callReturnValueIfLessThan, IR_Equal);
 }
 
 ///////////////////////

@@ -5,97 +5,107 @@ Eseq(
       Seq(
         Seq(
           Seq(
-            Move(
-              Temp(382)
+            Seq(
+              Seq(
+                Move(
+                  Temp(382)
+                , 
+                  Const(1)
+                )
+              , 
+                null              )
             , 
-              Const(1)
+              CJump(Equal, 
+                Temp(382)
+              , 
+                Const(0)
+              , Label76, empty,               )
             )
           , 
-            null          )
+            Seq(
+              Seq(
+                Seq(
+                  Move(
+                    Temp(383)
+                  , 
+                    Const(1)
+                  )
+                , 
+                  null                )
+              , 
+                null              )
+            , 
+              null            )
+          )
         , 
-          CJump(Equal, 
-            Temp(382)
-          , 
-            Const(0)
-          , Label76, empty,           )
+          Jump(
+            Name(Label77)
+          )
         )
       , 
+        Label(Label76)
+      )
+    , 
+      Seq(
         Seq(
           Seq(
             Seq(
               Move(
-                Temp(383)
+                Temp(384)
               , 
-                Const(1)
+                Const(2)
               )
             , 
               null            )
           , 
-            null          )
-        , 
-          null        )
-      )
-    , 
-      Label(Label76)
-    )
-  , 
-    Seq(
-      Seq(
-        Seq(
-          Seq(
-            Move(
-              Temp(384)
-            , 
-              Const(2)
-            )
-          , 
-            null          )
-        , 
-          Seq(
             Seq(
               Seq(
                 Seq(
                   Seq(
-                    Move(
-                      Temp(385)
+                    Seq(
+                      Move(
+                        Temp(385)
+                      , 
+                        Const(3)
+                      )
                     , 
-                      Const(3)
-                    )
+                      null                    )
                   , 
-                    null                  )
+                    Seq(
+                      Move(
+                        Temp(386)
+                      , 
+                        Const(3)
+                      )
+                    , 
+                      null                    )
+                  )
                 , 
-                  Seq(
-                    Move(
-                      Temp(386)
-                    , 
-                      Const(3)
-                    )
+                  Move(
+                    Temp(387)
                   , 
-                    null                  )
+                    Temp(385)
+                  )
                 )
               , 
-                Move(
-                  Temp(387)
-                , 
-                  Temp(385)
+                Exp(
+                  BinOperation(Plus, 
+                    Temp(387)
+                  , 
+                    Temp(386)
+                  )
                 )
               )
             , 
-              Exp(
-                BinOperation(Plus, 
-                  Temp(387)
-                , 
-                  Temp(386)
-                )
-              )
-            )
-          , 
-            null          )
-        )
+              null            )
+          )
+        , 
+          null        )
       , 
         null      )
-    , 
-      null    )
+    )
+  , 
+    Label(Label77)
   )
 , 
   null)
