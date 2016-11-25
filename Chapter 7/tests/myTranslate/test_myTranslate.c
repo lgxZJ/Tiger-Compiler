@@ -524,6 +524,11 @@ void test_TransComparison_StringGreaterEqual_SeeOutput(void)
     testOneFileAndOutputCode("comparison_stringGreaterEqual.tig");
 }
 
+void test_TransComparison_StringLessEqual_SeeOutput(void)
+{
+    testOneFileAndOutputCode("comparison_stringLessEqual.tig");
+}
+
 ///////////////////////////         main        ///////////////////////////////
 
 int main()
@@ -622,6 +627,7 @@ int main()
         { "", test_TransComparison_StringGreaterThan_SeeOutput },
         { "", test_TransComparison_StringLessThan_SeeOutput },
         { "", test_TransComparison_StringGreaterEqual_SeeOutput },
+        { "", test_TransComparison_StringLessEqual_SeeOutput },
     };
     if (!addTests(&suite, tests, sizeof(tests) / sizeof(tests[0])))
         return EXIT_FAILURE;

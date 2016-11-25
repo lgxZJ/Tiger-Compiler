@@ -1436,6 +1436,16 @@ static IR_myExp callResultToCompareResult_GreaterEqual(
         compareResultReg, callReturnValueIfGreaterEqual, IR_GreaterEqual);
 }
 
+static IR_myExp callResultToCompareResult_LessEqual(
+    IR_myExp compareResultReg)
+{
+    //  the return value of strCompare() if left greater equal than right
+    static const int callReturnValueIfLessEqual = 0;
+
+    return callResultToCompareResult_Common(
+        compareResultReg, callReturnValueIfLessEqual, IR_LessEqual);
+}
+
 ///////////////////////
 
 static IR_myExp callResultToCompareResult(
@@ -1455,6 +1465,7 @@ static IR_myExp callResultToCompareResult(
         case IR_GreaterEqual:
             return callResultToCompareResult_GreaterEqual(compareResultReg);
         case IR_LessEqual:
+            return callResultToCompareResult_LessEqual(compareResultReg);
         default:    assert (false);
     }
 }
