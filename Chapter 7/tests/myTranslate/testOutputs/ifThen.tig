@@ -9,7 +9,7 @@ Eseq(
               Seq(
                 Seq(
                   Move(
-                    Temp(399)
+                    Temp(397)
                   , 
                     Const(1)
                   )
@@ -18,7 +18,7 @@ Eseq(
               , 
                 Seq(
                   Move(
-                    Temp(400)
+                    Temp(398)
                   , 
                     Const(1)
                   )
@@ -27,17 +27,17 @@ Eseq(
               )
             , 
               Move(
-                Temp(401)
-              , 
                 Temp(399)
+              , 
+                Temp(397)
               )
             )
           , 
             Exp(
               BinOperation(Minus, 
-                Temp(401)
+                Temp(399)
               , 
-                Temp(400)
+                Temp(398)
               )
             )
           )
@@ -45,7 +45,7 @@ Eseq(
           null        )
       , 
         CJump(Equal, 
-          Temp(401)
+          Temp(399)
         , 
           Const(0)
         , Label81, empty,         )
@@ -59,7 +59,7 @@ Eseq(
                 Seq(
                   Seq(
                     Move(
-                      Temp(402)
+                      Temp(400)
                     , 
                       Const(2)
                     )
@@ -72,7 +72,7 @@ Eseq(
                         Seq(
                           Seq(
                             Move(
-                              Temp(403)
+                              Temp(401)
                             , 
                               Const(3)
                             )
@@ -81,7 +81,7 @@ Eseq(
                         , 
                           Seq(
                             Move(
-                              Temp(404)
+                              Temp(402)
                             , 
                               Const(3)
                             )
@@ -90,17 +90,17 @@ Eseq(
                         )
                       , 
                         Move(
-                          Temp(405)
-                        , 
                           Temp(403)
+                        , 
+                          Temp(401)
                         )
                       )
                     , 
                       Exp(
                         BinOperation(Divide, 
-                          Temp(405)
+                          Temp(403)
                         , 
-                          Temp(404)
+                          Temp(402)
                         )
                       )
                     )
@@ -109,17 +109,17 @@ Eseq(
                 )
               , 
                 Move(
-                  Temp(406)
+                  Temp(404)
                 , 
-                  Temp(402)
+                  Temp(400)
                 )
               )
             , 
               Exp(
                 BinOperation(Plus, 
-                  Temp(406)
+                  Temp(404)
                 , 
-                  Temp(405)
+                  Temp(403)
                 )
               )
             )

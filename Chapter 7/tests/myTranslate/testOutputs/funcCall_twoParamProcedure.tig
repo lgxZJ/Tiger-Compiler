@@ -13,7 +13,7 @@ Eseq(
               null            , 
               Seq(
                 Move(
-                  Temp(199)
+                  Temp(197)
                 , 
                   Const(2)
                 )
@@ -23,7 +23,7 @@ Eseq(
           , 
             Seq(
               Move(
-                Temp(198)
+                Temp(196)
               , 
                 Const(1)
               )
@@ -39,9 +39,9 @@ Eseq(
           , 
             Temp(frame pointer)
           , 
-            Temp(198)
+            Temp(196)
           , 
-            Temp(199)
+            Temp(197)
           )
         )
       )

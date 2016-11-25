@@ -561,6 +561,28 @@ void test_TransBooleanOperate_NotSkipRightWithOperatorAnd_SeeOutput(void)
     testOneFileAndOutputCode("booleanOperate_notSkipRightWithOperatorAnd.tig");
 }
 
+////////////////////////////
+
+void test_TransAssignment_toVarInReg_SeeOutput(void)
+{
+    testOneFileAndOutputCode("assignment_toVarInReg.tig");
+}
+
+void test_TransAssignment_toVarInFrame_SeeOutput(void)
+{
+    testOneFileAndOutputCode("assignment_toVarInFrame.tig");
+}
+
+void test_TransAssignment_toArraySubscript_SeeOutput(void)
+{
+    testOneFileAndOutputCode("assignment_toArraySubscript.tig");
+}
+
+void test_TransAssignment_toRecordField_SeeOutput(void)
+{
+    testOneFileAndOutputCode("assignment_toRecordField.tig");
+}
+
 ///////////////////////////         main        ///////////////////////////////
 
 int main()
@@ -667,6 +689,11 @@ int main()
         { "", test_TransBooleanOperate_SkipRightWithOperatorAnd_SeeOutput },
         { "", test_TransBooleanOperate_NotSkipRightWithOperatorOr_SeeOutput },
         { "", test_TransBooleanOperate_NotSkipRightWithOperatorAnd_SeeOutput },
+
+        { "", test_TransAssignment_toVarInReg_SeeOutput },
+        { "", test_TransAssignment_toVarInFrame_SeeOutput },
+        { "", test_TransAssignment_toArraySubscript_SeeOutput },
+        { "", test_TransAssignment_toRecordField_SeeOutput },
     };
     if (!addTests(&suite, tests, sizeof(tests) / sizeof(tests[0])))
         return EXIT_FAILURE;

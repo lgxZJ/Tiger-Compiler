@@ -45,7 +45,7 @@ Eseq(
                 )
               , 
                 Move(
-                  Temp(408)
+                  Temp(406)
                 , 
                   Const(0)
                 )
@@ -60,7 +60,7 @@ Eseq(
           )
         , 
           Move(
-            Temp(408)
+            Temp(406)
           , 
             Const(1)
           )
@@ -71,7 +71,7 @@ Eseq(
     , 
       Exp(
         BinOperation(Xor, 
-          Temp(408)
+          Temp(406)
         , 
           Const(1)
         )
@@ -79,5 +79,5 @@ Eseq(
     )
   )
 , 
-  Temp(408)
+  Temp(406)
 )

@@ -1,0 +1,5 @@
+let
+	var varName := 1
+in
+	varName := 2
+end

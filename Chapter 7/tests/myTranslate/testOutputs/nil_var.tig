@@ -11,7 +11,7 @@ Eseq(
                 Seq(
                   Seq(
                     Move(
-                      Temp(202)
+                      Temp(200)
                     , 
                       Temp(frame pointer)
                     )
@@ -19,7 +19,7 @@ Eseq(
                     Seq(
                       Exp(
                         BinOperation(Plus, 
-                          Temp(202)
+                          Temp(200)
                         , 
                           Const(-4)
                         )
@@ -34,7 +34,7 @@ Eseq(
             , 
               Move(
                 Mem(
-                  Temp(202)
+                  Temp(200)
                 )
               , 
                 Const(0)
@@ -42,10 +42,10 @@ Eseq(
             )
           , 
             Move(
-              Temp(203)
+              Temp(201)
             , 
               Mem(
-                Temp(202)
+                Temp(200)
               )
             )
           )

@@ -509,7 +509,7 @@ IR_myExp doInFrameAssigment(Trans_myAccess varAccess, IR_myExp varBodyResult)
     return IR_makeESeq(resultStatement, newReg);
 }
 
-IR_myExp doAssignmentTranslation(Trans_myAccess varAccess, IR_myExp varBodyResult)
+IR_myExp doDecAssignmentTranslation(Trans_myAccess varAccess, IR_myExp varBodyResult)
 {
     if (Frame_isAccessInReg(varAccess->access))
     {
@@ -1084,7 +1084,7 @@ static void translateLoopVarInitial(
     IR_myStatement* stateResultPtr, IR_myExp* loopVarRepPtr)
 {
     IR_myExp loopVarInitialResult =
-        doAssignmentTranslation(loopVarAccess, lowRangeResult);
+        doDecAssignmentTranslation(loopVarAccess, lowRangeResult);
 
     (*stateResultPtr) = loopVarInitialResult->u.eseq.statement;
     (*loopVarRepPtr) = loopVarInitialResult->u.eseq.exp;
@@ -1312,6 +1312,8 @@ IR_myExp Trans_ifThen(IR_myExp conditionTrans, IR_myExp thenTrans)
 ///////////////////////////////////////////////////////////////////////
 
 //  NOTE: stateResultPtr must be already initialized!!!!
+//  This function will also make Mem() into a Temp, so use it
+//  carefully!
 static IR_myExp combineOneTrans(
     IR_myExp oneOperandTrans, IR_myStatement* stateReturnPtr)
 {
@@ -1558,9 +1560,29 @@ IR_myExp Trans_booleanOperate(
         skipToEndIfLeftResultIsTrue(resultReg, endLabel, &stateReturn);
     else
         skipToEndIfLeftResultIsFalse(resultReg, endLabel, &stateReturn);
-        
+
     combineOperandAndSaveResultToNewReg(rightTrans, resultReg, &stateReturn);
     defineLabel(&stateReturn, endLabel);
 
     return IR_makeESeq(stateReturn, resultReg);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+IR_myExp Trans_assignment(IR_myExp leftTrans, IR_myExp rightTrans)
+{
+    IR_myStatement stateReturn = NULL;
+
+    //  wrap with two treatXXX() calls to prevent IR_divideExp() from
+    //  converting Mem to Temp. Thus, what we got is actually the address
+    //  of lvalue with format Mem(addr).
+    treatLValueAsAddress();
+    IR_myExp leftValueRep = combineOneTrans(leftTrans, &stateReturn);
+    treatLValueAsContent();
+
+    IR_myExp rightValueRep = combineOneTrans(rightTrans, &stateReturn);
+
+    stateReturn = IR_makeSeq(
+        stateReturn, IR_makeMove(leftValueRep, rightValueRep));
+    return IR_makeESeq(stateReturn, leftValueRep);
 }

@@ -3,7 +3,7 @@ Eseq(
   Seq(
     Seq(
       Move(
-        Temp(316)
+        Temp(314)
       , 
         Const(1)
       )
@@ -12,7 +12,7 @@ Eseq(
   , 
     Seq(
       Move(
-        Temp(317)
+        Temp(315)
       , 
         Const(2)
       )
@@ -20,5 +20,5 @@ Eseq(
       null    )
   )
 , 
-  Temp(317)
+  Temp(315)
 )
