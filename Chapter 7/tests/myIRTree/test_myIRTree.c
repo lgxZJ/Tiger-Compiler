@@ -1,6 +1,7 @@
 #include "../testHelper.h"
 
 #include "../../myIRTree.h"
+#include "../../lValueTreater.h"
 #include "../../makeMemory.h"
 
 #include <stdlib.h>
@@ -246,21 +247,40 @@ void test_IRDivideExp_ConstExp_ReturnNullStateAndSameExp(void)
     testOneIRExp_ReturnNullStateSameExp(exp);
 }
 
-void test_IRDivideExp_MemExp_ReturnInnerExpAsItsExp(void)
+void test_IRDivideExp_TreatLValueAsAddress_DoNotConvertToRegister(void)
 {
-    IR_myExp exp = IR_makeMem(IR_makeESeq(NULL, IR_makeConst(0)));
+    treatLValueAsAddress();
+    myTemp addrTemp = Temp_newTemp();
+    IR_myExp exp = IR_makeMem(IR_makeTemp(addrTemp));
 
     IR_myStatement state;
     IR_myExp value;
     IR_divideExp(exp, &state, &value);
 
     CU_ASSERT_EQUAL(value->kind, IR_Mem);
-    CU_ASSERT_EQUAL(value->u.mem->kind, IR_Const)
-    CU_ASSERT_EQUAL(value->u.mem->u.constValue, 0);
+    CU_ASSERT_EQUAL(value->u.mem->kind, IR_Temp)
+    CU_ASSERT_EQUAL(value->u.mem->u.temp, addrTemp);
+}
+
+void test_IRDivideExp_TreatLValueAsContent_DoConvertToRegister(void)
+{
+    treatLValueAsContent();
+    myTemp addrTemp = Temp_newTemp();
+    IR_myExp exp = IR_makeMem(IR_makeTemp(addrTemp));
+
+    IR_myStatement state;
+    IR_myExp value;
+    IR_divideExp(exp, &state, &value);
+
+    CU_ASSERT_EQUAL(state->kind, IR_Seq);
+    CU_ASSERT_EQUAL(state->u.seq.right->kind, IR_Move);
+
+    CU_ASSERT_EQUAL(value->kind, IR_Temp);
 }
 
 void test_IRDivideExp_ESeqExp_ReturnInnerExpAsItsExp(void)
 {
+    treatLValueAsAddress();
     IR_myExp exp = IR_makeESeq(
         IR_makeLabel((myLabel)12), IR_makeMem(IR_makeConst(0)));
 
@@ -335,7 +355,8 @@ int main()
         { "", test_IRDivideExp_TempExp_ReturnNullStateAndSameExp },
         { "", test_IRDivideExp_NameExp_ReturnNullStateAndSameExp },
         { "", test_IRDivideExp_ConstExp_ReturnNullStateAndSameExp },
-        { "", test_IRDivideExp_MemExp_ReturnInnerExpAsItsExp },
+        { "", test_IRDivideExp_TreatLValueAsAddress_DoNotConvertToRegister },
+        { "", test_IRDivideExp_TreatLValueAsContent_DoConvertToRegister },
         { "", test_IRDivideExp_ESeqExp_ReturnInnerExpAsItsExp },
         { "", test_IRDivideExp_BinOperationExp_DivideRightAndRecombineWithLeft },
         { "", test_IRDivideExp_CallExp_ExtractArgs }

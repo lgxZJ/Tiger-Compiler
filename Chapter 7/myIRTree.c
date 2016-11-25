@@ -1,6 +1,7 @@
 #include "myIRTree.h"
 #include "makeMemory.h"
 #include "myFrame.h"
+#include "lValueTreater.h"
 
 #include <assert.h>
 #include <stdlib.h>
@@ -179,6 +180,13 @@ IR_myExpList IR_makeExpList(IR_myExp head, IR_myExpList tails)
 
 void IR_divideExp(IR_myExp one, IR_myStatement* stateParts, IR_myExp* valueParts)
 {
+    if (one == NULL)
+    {
+        *stateParts = NULL;
+        *valueParts = NULL;
+        return;
+    }
+
     switch (one->kind)
     {
         case IR_BinOperation:
@@ -202,8 +210,9 @@ void IR_divideExp(IR_myExp one, IR_myStatement* stateParts, IR_myExp* valueParts
             IR_myStatement resultState = NULL;
             IR_myExpList resultValueList = NULL;
 
-            IR_myStatement resultStateIter = resultState;
-            IR_myExpList resultValueListIter = resultValueList;
+            //  todo: need test
+            IR_myStatement* resultStateIter = &resultState;
+            IR_myExpList* resultValueListIter = &resultValueList;
             while (args)
             {
                 IR_myStatement argState;
@@ -211,11 +220,11 @@ void IR_divideExp(IR_myExp one, IR_myStatement* stateParts, IR_myExp* valueParts
                 IR_divideExp(args->head, &argState, &argValue);
 
                 //  first args, last execute
-                resultStateIter = IR_makeSeq(NULL, argState);
-                resultStateIter = resultState->u.seq.left;
+                *resultStateIter = IR_makeSeq(NULL, argState);
+                resultStateIter = &((*resultStateIter)->u.seq.left);
 
-                resultValueListIter = IR_makeExpList(argValue, NULL);
-                resultValueListIter = resultValueList->tails;
+                *resultValueListIter = IR_makeExpList(argValue, NULL);
+                resultValueListIter = &((*resultValueListIter)->tails);
 
                 args = args->tails;
             }
@@ -240,10 +249,22 @@ void IR_divideExp(IR_myExp one, IR_myStatement* stateParts, IR_myExp* valueParts
         }
         case IR_Mem:
         {
+            IR_myStatement state;
             IR_myExp value;   
-            IR_divideExp(one->u.mem, stateParts, &value);
+            IR_divideExp(one->u.mem, &state, &value);
 
-            *valueParts = IR_makeMem(value);
+            //  only LValue generate Mem as a return value
+            if (isLValueAsContent())
+            {
+                IR_myExp newReg = IR_makeTemp(Temp_newTemp());
+                *stateParts = IR_makeSeq(state, IR_makeMove(newReg, IR_makeMem(value)));
+                *valueParts = newReg;
+            }
+            else
+            {
+                *stateParts = state;
+                *valueParts = IR_makeMem(value);
+            }
             break;
         }
         case IR_Const:  //  fall through
