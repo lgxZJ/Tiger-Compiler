@@ -1429,11 +1429,11 @@ static IR_myExp callResultToCompareResult_LessThan(
 static IR_myExp callResultToCompareResult_GreaterEqual(
     IR_myExp compareResultReg)
 {
-    //  the return value of strCompare() if left less than right
-    static const int callReturnValueIfLessThan = -1;
+    //  the return value of strCompare() if left greater equal than right
+    static const int callReturnValueIfGreaterEqual = 0;
 
     return callResultToCompareResult_Common(
-        compareResultReg, callReturnValueIfLessThan, IR_Equal);
+        compareResultReg, callReturnValueIfGreaterEqual, IR_GreaterEqual);
 }
 
 ///////////////////////
@@ -1453,6 +1453,7 @@ static IR_myExp callResultToCompareResult(
         case IR_LessThan:
             return callResultToCompareResult_LessThan(compareResultReg);
         case IR_GreaterEqual:
+            return callResultToCompareResult_GreaterEqual(compareResultReg);
         case IR_LessEqual:
         default:    assert (false);
     }
