@@ -34,10 +34,10 @@ Eseq(
         Seq(
           Seq(
             Seq(
-              CJump(Equal, 
+              CJump(LessThan, 
                 Temp(return register)
               , 
-                Const(-1)
+                Const(0)
               , Label96, empty,               )
             , 
               Move(

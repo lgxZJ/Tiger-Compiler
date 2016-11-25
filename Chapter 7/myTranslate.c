@@ -1362,7 +1362,7 @@ static void assignTrueToResultRegAndDefineEndLabel(
 
 //////////////////////////////////////////
 
-static IR_myExp callResultToCompareResult_Common(
+static IR_myExp regToCompareResult_Common(
     IR_myExp compareResultReg, int equalValue, IR_RelOperator equalOP)
 {
     IR_myStatement stateReturn = NULL;
@@ -1382,19 +1382,20 @@ static IR_myExp callResultToCompareResult_Common(
     return IR_makeESeq(stateReturn, newReg);
 }
 
-static IR_myExp callResultToCompareResult_Equal(
+//  the return value of strCompare() if string equals
+static const int g_callReturnValueIfEqual = 0;
+
+
+static IR_myExp regToCompareResult_Equal(
     IR_myExp compareResultReg)
 {
-    //  the return value of strCompare() if string equals
-    static const int callReturnValueIfEqual = 0;
-
-    return callResultToCompareResult_Common(
-        compareResultReg, callReturnValueIfEqual, IR_Equal);
+    return regToCompareResult_Common(
+        compareResultReg, g_callReturnValueIfEqual, IR_Equal);
 }
 
-static IR_myExp callResultToCompareResult_NotEqual(IR_myExp compareResultReg)
+static IR_myExp regToCompareResult_NotEqual(IR_myExp compareResultReg)
 {
-    IR_myExp ret = callResultToCompareResult_Equal(compareResultReg);
+    IR_myExp ret = regToCompareResult_Equal(compareResultReg);
     IR_myExp resultReg = ret->u.eseq.exp;
 
     IR_myStatement notResult = IR_makeExp(
@@ -1404,96 +1405,112 @@ static IR_myExp callResultToCompareResult_NotEqual(IR_myExp compareResultReg)
         resultReg);
 }
 
-static IR_myExp callResultToCompareResult_GreaterThan(
+static IR_myExp regToCompareResult_GreaterThan(
     IR_myExp compareResultReg)
 {
-    //  the return value of strCompare() if left greater than right
-    static const int callReturnValueIfGreaterThan = 1;
-
-    return callResultToCompareResult_Common(
-        compareResultReg, callReturnValueIfGreaterThan, IR_Equal);
+    return regToCompareResult_Common(
+        compareResultReg, g_callReturnValueIfEqual, IR_GreaterThan);
 }
 
-static IR_myExp callResultToCompareResult_LessThan(
+static IR_myExp regToCompareResult_LessThan(
     IR_myExp compareResultReg)
 {
-    //  the return value of strCompare() if left less than right
-    static const int callReturnValueIfLessThan = -1;
-
-    return callResultToCompareResult_Common(
-        compareResultReg, callReturnValueIfLessThan, IR_Equal);
+    return regToCompareResult_Common(
+        compareResultReg, g_callReturnValueIfEqual, IR_LessThan);
 }
 
 
 
-static IR_myExp callResultToCompareResult_GreaterEqual(
+static IR_myExp regToCompareResult_GreaterEqual(
     IR_myExp compareResultReg)
 {
-    //  the return value of strCompare() if left greater equal than right
-    static const int callReturnValueIfGreaterEqual = 0;
-
-    return callResultToCompareResult_Common(
-        compareResultReg, callReturnValueIfGreaterEqual, IR_GreaterEqual);
+    return regToCompareResult_Common(
+        compareResultReg, g_callReturnValueIfEqual, IR_GreaterEqual);
 }
 
-static IR_myExp callResultToCompareResult_LessEqual(
+static IR_myExp regToCompareResult_LessEqual(
     IR_myExp compareResultReg)
 {
-    //  the return value of strCompare() if left greater equal than right
-    static const int callReturnValueIfLessEqual = 0;
-
-    return callResultToCompareResult_Common(
-        compareResultReg, callReturnValueIfLessEqual, IR_LessEqual);
+    return regToCompareResult_Common(
+        compareResultReg, g_callReturnValueIfEqual, IR_LessEqual);
 }
 
 ///////////////////////
 
-static IR_myExp callResultToCompareResult(
+static IR_myExp regToCompareResult(
     IR_myExp compareResultReg, IR_RelOperator op)
 {
     assert (compareResultReg->kind == IR_Temp);
     switch (op)
     {
         case IR_Equal:
-            return callResultToCompareResult_Equal(compareResultReg);
+            return regToCompareResult_Equal(compareResultReg);
         case IR_NotEqual:
-            return callResultToCompareResult_NotEqual(compareResultReg);
+            return regToCompareResult_NotEqual(compareResultReg);
         case IR_GreaterThan:
-            return callResultToCompareResult_GreaterThan(compareResultReg);
+            return regToCompareResult_GreaterThan(compareResultReg);
         case IR_LessThan:
-            return callResultToCompareResult_LessThan(compareResultReg);
+            return regToCompareResult_LessThan(compareResultReg);
         case IR_GreaterEqual:
-            return callResultToCompareResult_GreaterEqual(compareResultReg);
+            return regToCompareResult_GreaterEqual(compareResultReg);
         case IR_LessEqual:
-            return callResultToCompareResult_LessEqual(compareResultReg);
+            return regToCompareResult_LessEqual(compareResultReg);
         default:    assert (false);
     }
+}
+
+static IR_myExp prepareStringRegForConvert(
+    IR_myExp leftValue, IR_myExp rightValue, IR_myStatement* stateReturnPtr)
+{
+    //  todo:   a runtime call function---strCompare(,)
+    //        return -1, 0, 1 if less, equal or greater
+    IR_myExp callExp = IR_makeCall(
+            IR_makeName(Temp_newNamedLabel("strCompare")),
+            IR_makeExpList(leftValue, IR_makeExpList(rightValue, NULL)));
+    return combineOneTrans(callExp, stateReturnPtr);
+}
+
+static IR_myExp prepareOthersRegForConvert(
+    IR_myExp leftValue, IR_myExp rightValue, IR_myStatement* stateReturnPtr)
+{
+    //  array and record variables are actually pointers, treat them equally
+    (*stateReturnPtr) = IR_makeSeq(
+            (*stateReturnPtr),
+            IR_makeExp(IR_makeBinOperation(IR_Minus, leftValue, rightValue)));
+    return leftValue;
+}
+
+static IR_myExp convertToReturn(
+    IR_myExp regToConvert, IR_RelOperator op, IR_myStatement* stateReturnPtr)
+{
+    IR_myExp convertRet = regToCompareResult(regToConvert, op);
+    assert (convertRet->kind == IR_ESeq);
+    assert (convertRet->u.eseq.exp->kind == IR_Temp);
+
+    (*stateReturnPtr) = IR_makeSeq(
+        (*stateReturnPtr), convertRet->u.eseq.statement);
+    return IR_makeESeq((*stateReturnPtr), convertRet->u.eseq.exp);
 }
 
 IR_myExp Trans_comparison(
     IR_myExp leftTrans, IR_myExp rightTrans, IR_RelOperator op, bool isString)
 {
     IR_myStatement stateResult = NULL;
+    IR_myExp regToConvert = NULL;
 
     IR_myExp leftValue = combineOneTrans(leftTrans, &stateResult);
     IR_myExp rightValue = combineOneTrans(rightTrans, &stateResult);
 
     if (isString)
     {
-        //  todo: strCompare(,) return -1, 0, 1 if less, equal or greater
-        IR_myExp callExp = IR_makeCall(
-            IR_makeName(Temp_newNamedLabel("strCompare")),
-            IR_makeExpList(leftValue, IR_makeExpList(rightValue, NULL)));
-        IR_myExp callRetRep = combineOneTrans(callExp, &stateResult);
-
-        IR_myExp convertRet = callResultToCompareResult(callRetRep, op);
-        assert (convertRet->kind == IR_ESeq);
-        stateResult = IR_makeSeq(stateResult, convertRet->u.eseq.statement);
-
-        return IR_makeESeq(stateResult, convertRet->u.eseq.exp);
+        regToConvert =
+            prepareStringRegForConvert(leftValue, rightValue, &stateResult);
     }
     else
     {
-
+        regToConvert =
+            prepareOthersRegForConvert(leftValue, rightValue, &stateResult);
     }
+
+    return convertToReturn(regToConvert, op, &stateResult);
 }
