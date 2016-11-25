@@ -539,6 +539,28 @@ void test_TransComparison_ArrayLessThan_SeeOutput(void)
     testOneFileAndOutputCode("comparison_arrayLessThan.tig");
 }
 
+///////////////////////////
+
+void test_TransBooleanOperate_SkipRightWithOperatorOr_SeeOutput(void)
+{
+    testOneFileAndOutputCode("booleanOperate_skipRightWithOperatorOr.tig");
+}
+
+void test_TransBooleanOperate_SkipRightWithOperatorAnd_SeeOutput(void)
+{
+    testOneFileAndOutputCode("booleanOperate_skipRightWithOperatorAnd.tig");
+}
+
+void test_TransBooleanOperate_NotSkipRightWithOperatorOr_SeeOutput(void)
+{
+    testOneFileAndOutputCode("booleanOperate_notSkipRightWithOperatorOr.tig");
+}
+
+void test_TransBooleanOperate_NotSkipRightWithOperatorAnd_SeeOutput(void)
+{
+    testOneFileAndOutputCode("booleanOperate_notSkipRightWithOperatorAnd.tig");
+}
+
 ///////////////////////////         main        ///////////////////////////////
 
 int main()
@@ -640,6 +662,11 @@ int main()
         { "", test_TransComparison_StringLessEqual_SeeOutput },
         { "", test_TransComparison_IntLessEqual_SeeOutput },
         { "", test_TransComparison_ArrayLessThan_SeeOutput },
+
+        { "", test_TransBooleanOperate_SkipRightWithOperatorOr_SeeOutput },
+        { "", test_TransBooleanOperate_SkipRightWithOperatorAnd_SeeOutput },
+        { "", test_TransBooleanOperate_NotSkipRightWithOperatorOr_SeeOutput },
+        { "", test_TransBooleanOperate_NotSkipRightWithOperatorAnd_SeeOutput },
     };
     if (!addTests(&suite, tests, sizeof(tests) / sizeof(tests[0])))
         return EXIT_FAILURE;

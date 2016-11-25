@@ -141,7 +141,6 @@ IR_myExp Trans_LValueExp_GetArrayPtr(myLValueExp lValueExp);
 IR_myExp doAssignmentTranslation(Trans_myAccess varAccess, IR_myExp varBodyResult);
 
 IR_myExp Trans_LValueExp_SimpleVar(myLValueExp lValueExp);
-//IR_myExp Trans_LValueExp_RecordField(myLValueExp lValueExp);
 
 IR_myExp Trans_IntegerLiteralExp(myIntegerLiteralExp integerLiteralExp);
 IR_myExp Trans_arrayCreation(IR_myExp subscriptResult, IR_myExp initValueResult);
@@ -156,6 +155,8 @@ IR_myExp Trans_ifThenElse(
 IR_myExp Trans_ifThen(IR_myExp conditionTrans, IR_myExp thenTrans);
 IR_myExp Trans_comparison(
     IR_myExp leftTrans, IR_myExp rightTrans, IR_RelOperator op, bool isString);
+IR_myExp Trans_booleanOperate(
+    IR_myExp leftTrans, IR_myExp rightTrans, IR_BinOperator op);
 
 //////////////////////////////////////
 

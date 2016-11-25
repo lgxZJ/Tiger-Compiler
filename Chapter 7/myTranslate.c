@@ -1329,9 +1329,11 @@ static void jumpToResultSettingStateByEqualValueAndOperator(
 {
     assert (compareResultReg->kind == IR_Temp);
 
-    (*stateReturnPtr) = IR_makeCJump(
-        equalOp, compareResultReg, IR_makeConst(equalValue),
-        assignTrueLabel, NULL);
+    (*stateReturnPtr) = IR_makeSeq(
+        (*stateReturnPtr), 
+        IR_makeCJump(
+            equalOp, compareResultReg, IR_makeConst(equalValue),
+            assignTrueLabel, NULL));
 }
 
 static void assignFalseToResultRegAndJumpToEnd(
@@ -1513,4 +1515,52 @@ IR_myExp Trans_comparison(
     }
 
     return convertToReturn(regToConvert, op, &stateResult);
+}
+
+////////////////////////////////////////////////////////////////////////////
+
+static void combineOperandAndSaveResultToNewReg(
+    IR_myExp leftTrans, IR_myExp newReg, IR_myStatement* stateReturnPtr)
+{
+    IR_myExp leftValue = combineOneTrans(leftTrans, stateReturnPtr);
+    (*stateReturnPtr) = IR_makeSeq((*stateReturnPtr), IR_makeMove(newReg, leftValue));
+}
+
+static void skipToEndIfLeftResultIsValueGiven(
+    IR_myExp resultReg, myLabel endLabel, int value, IR_myStatement* stateReturnPtr)
+{
+    jumpToResultSettingStateByEqualValueAndOperator(
+        stateReturnPtr, resultReg, endLabel, value, IR_Equal);
+}
+
+static void skipToEndIfLeftResultIsTrue(
+    IR_myExp resultReg, myLabel endLabel, IR_myStatement* stateReturnPtr)
+{
+    skipToEndIfLeftResultIsValueGiven(resultReg, endLabel, true, stateReturnPtr);
+}
+
+static void skipToEndIfLeftResultIsFalse(
+    IR_myExp resultReg, myLabel endLabel, IR_myStatement* stateReturnPtr)
+{
+    skipToEndIfLeftResultIsValueGiven(resultReg, endLabel, false, stateReturnPtr);
+}
+
+IR_myExp Trans_booleanOperate(
+    IR_myExp leftTrans, IR_myExp rightTrans, IR_BinOperator op)
+{
+    IR_myStatement stateReturn = NULL;
+    IR_myExp resultReg = IR_makeTemp(Temp_newTemp());
+    myLabel endLabel = Temp_newLabel();
+
+    combineOperandAndSaveResultToNewReg(leftTrans, resultReg, &stateReturn);
+
+    if (op == IR_Or)
+        skipToEndIfLeftResultIsTrue(resultReg, endLabel, &stateReturn);
+    else
+        skipToEndIfLeftResultIsFalse(resultReg, endLabel, &stateReturn);
+        
+    combineOperandAndSaveResultToNewReg(rightTrans, resultReg, &stateReturn);
+    defineLabel(&stateReturn, endLabel);
+
+    return IR_makeESeq(stateReturn, resultReg);
 }

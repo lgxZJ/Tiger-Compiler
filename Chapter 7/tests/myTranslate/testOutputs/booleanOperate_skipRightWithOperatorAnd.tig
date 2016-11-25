@@ -1,0 +1,118 @@
+
+Eseq(
+  Seq(
+    Seq(
+      Seq(
+        Seq(
+          Seq(
+            Seq(
+              null            , 
+              Seq(
+                Move(
+                  Temp(460)
+                , 
+                  Const(0)
+                )
+              , 
+                null              )
+            )
+          , 
+            Move(
+              Temp(462)
+            , 
+              Temp(460)
+            )
+          )
+        , 
+          CJump(Equal, 
+            Temp(462)
+          , 
+            Const(0)
+          , Label125, empty,           )
+        )
+      , 
+        Seq(
+          Seq(
+            Seq(
+              Seq(
+                Seq(
+                  null                , 
+                  null                )
+              , 
+                null              )
+            , 
+              Seq(
+                Seq(
+                  Seq(
+                    null                  , 
+                    null                  )
+                , 
+                  null                )
+              , 
+                Exp(
+                  Call(
+                    Name(strCompare)
+                  , 
+                    Name(Label121)
+                  , 
+                    Name(Label122)
+                  )
+                )
+              )
+            )
+          , 
+            Seq(
+              Seq(
+                Seq(
+                  Seq(
+                    Seq(
+                      Seq(
+                        null                      , 
+                        CJump(Equal, 
+                          Temp(return register)
+                        , 
+                          Const(0)
+                        , Label123, empty,                         )
+                      )
+                    , 
+                      Move(
+                        Temp(461)
+                      , 
+                        Const(0)
+                      )
+                    )
+                  , 
+                    Jump(
+                      Name(Label124)
+                    )
+                  )
+                , 
+                  Label(Label123)
+                )
+              , 
+                Move(
+                  Temp(461)
+                , 
+                  Const(1)
+                )
+              )
+            , 
+              Label(Label124)
+            )
+          )
+        , 
+          null        )
+      )
+    , 
+      Move(
+        Temp(462)
+      , 
+        Temp(461)
+      )
+    )
+  , 
+    Label(Label125)
+  )
+, 
+  Temp(462)
+)

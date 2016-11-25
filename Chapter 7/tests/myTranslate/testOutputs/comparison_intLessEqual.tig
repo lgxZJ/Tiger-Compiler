@@ -39,11 +39,14 @@ Eseq(
         Seq(
           Seq(
             Seq(
-              CJump(LessEqual, 
-                Temp(413)
-              , 
-                Const(0)
-              , Label106, empty,               )
+              Seq(
+                null              , 
+                CJump(LessEqual, 
+                  Temp(413)
+                , 
+                  Const(0)
+                , Label106, empty,                 )
+              )
             , 
               Move(
                 Temp(415)

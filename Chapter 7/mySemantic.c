@@ -2117,6 +2117,7 @@ void processComparisonErrors(
 /////////////////////////////////////////////////////////////////////////////////
 
 //  forward declarations
+static IR_BinOperator convertBooleanOpFromASTToIR(enum myBooleanOperateOp op);
 void processBooleanOperateErrors(bool isLeftOperandInt, bool isRightOperandInt);
 
 //  FORM:
@@ -2129,21 +2130,38 @@ void processBooleanOperateErrors(bool isLeftOperandInt, bool isRightOperandInt);
 //      if failed, it returns SEMANTIC_ERROR.
 //  STATUS:
 //      Tested.
-myTranslationAndType MySemantic_BooleanOperateExp(
-    myBooleanOperateExp booleanOperateExp)
+myTranslationAndType MySemantic_BooleanOperateExp(myBooleanOperateExp booleanOperateExp)
 {
+    IR_myExp leftTrans = NULL;
     bool isLeftOperandInt =
-        isExpInt(booleanOperateExp->left);
+        isExpIntWithTrans(booleanOperateExp->left, &leftTrans);
+
+    IR_myExp rightTrans = NULL;
     bool isRightOperandInt = 
-        isExpInt(booleanOperateExp->right);
+        isExpIntWithTrans(booleanOperateExp->right, &rightTrans);
 
     if (isLeftOperandInt && isRightOperandInt)
-        return make_MyTranslationAndType(NULL, makeType_Int());
+    {
+        IR_myExp booleanTrans = Trans_booleanOperate(
+            leftTrans, rightTrans, convertBooleanOpFromASTToIR(booleanOperateExp->op));
+        return make_MyTranslationAndType(booleanTrans, makeType_Int());
+    }
     else
     {
         processBooleanOperateErrors(isLeftOperandInt, isRightOperandInt);
         return SEMANTIC_ERROR;
     }    
+}
+
+static IR_BinOperator convertBooleanOpFromASTToIR(
+    enum myBooleanOperateOp op)
+{
+    switch (op)
+    {
+        case opBooleanAnd:  return IR_And;
+        case opBooleanOr:   return IR_Or;
+        default:    assert (false);
+    }
 }
 
 void processBooleanOperateErrors(bool isLeftOperandInt, bool isRightOperandInt)

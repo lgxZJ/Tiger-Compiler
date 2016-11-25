@@ -1,0 +1,55 @@
+
+Eseq(
+  Seq(
+    Seq(
+      Seq(
+        Seq(
+          Seq(
+            Seq(
+              null            , 
+              Seq(
+                Move(
+                  Temp(457)
+                , 
+                  Const(1)
+                )
+              , 
+                null              )
+            )
+          , 
+            Move(
+              Temp(459)
+            , 
+              Temp(457)
+            )
+          )
+        , 
+          CJump(Equal, 
+            Temp(459)
+          , 
+            Const(1)
+          , Label120, empty,           )
+        )
+      , 
+        Seq(
+          Move(
+            Temp(458)
+          , 
+            Const(2)
+          )
+        , 
+          null        )
+      )
+    , 
+      Move(
+        Temp(459)
+      , 
+        Temp(458)
+      )
+    )
+  , 
+    Label(Label120)
+  )
+, 
+  Temp(459)
+)
