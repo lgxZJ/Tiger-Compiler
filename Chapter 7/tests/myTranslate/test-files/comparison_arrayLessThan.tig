@@ -1,8 +1,0 @@
-let
-	type arrayType = array of int
-	var varOne := arrayType[11] of 1
-	var varTwo := arrayType[22] of 2
-in
-	11111 + 11111;	/* to find the line below in translation file */
-	varOne < varTwo
-end
