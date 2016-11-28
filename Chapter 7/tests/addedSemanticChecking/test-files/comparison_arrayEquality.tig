@@ -1,0 +1,7 @@
+let
+	type arrayType = array of int
+	var varOne := arrayType[12] of 1
+	var varTwo := arrayType[12] of 1
+in
+	varOne = varTwo
+end

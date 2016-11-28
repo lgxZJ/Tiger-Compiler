@@ -24,11 +24,48 @@ static bool parseFile(char* filename)
 
 ///////////////////////        tests       ////////////////////////
 
-void test_MySemanticSequencing_MiddleExpsShouldBeChecked(void)
+void test_MySemanticSequencing_MiddleExpsError_ReturnError(void)
 {
-    assert (
-        parseFile("./test-files/sequencing_middleExpError.tig")
-        == false);
+    CU_ASSERT_EQUAL (
+        parseFile("./test-files/sequencing_middleExpError.tig"),
+        false);
+}
+
+void test_MySemanticSequencing_MiddleExps_ReturnNoError(void)
+{
+    CU_ASSERT_EQUAL (
+        parseFile("./test-files/sequencing_middleExpNoError.tig"),
+        true);
+}
+
+//////////////////////////////
+
+void test_MySemanticComparison_RecordInequality_ReturnError(void)
+{
+    CU_ASSERT_EQUAL (
+        parseFile("./test-files/comparison_recordInequality.tig"),
+        false);
+}
+
+void test_MySemanticComparison_ArrayInequality_ReturnError(void)
+{
+    CU_ASSERT_EQUAL (
+        parseFile("./test-files/comparison_arrayInequality.tig"),
+        false);
+}
+
+void test_MySemanticComparison_ArrayEquality_ReturnNoError(void)
+{
+    CU_ASSERT_EQUAL (
+        parseFile("./test-files/comparison_arrayEquality.tig"),
+        true);
+}
+
+void test_MySemanticComparison_RecordEquality_ReturnNoError(void)
+{
+    CU_ASSERT_EQUAL (
+        parseFile("./test-files/comparison_recordEquality.tig"),
+        true);
 }
 
 ///////////////////////         main        /////////////////////
@@ -39,7 +76,13 @@ int main()
     if (!initialTests(&suite))  return EXIT_FAILURE;
 
     CU_TestInfo tests[] = {
-        { "", test_MySemanticSequencing_MiddleExpsShouldBeChecked },
+        { "", test_MySemanticSequencing_MiddleExpsError_ReturnError },
+        { "", test_MySemanticSequencing_MiddleExps_ReturnNoError },
+
+        { "", test_MySemanticComparison_RecordInequality_ReturnError },
+        { "", test_MySemanticComparison_ArrayInequality_ReturnError },
+        { "", test_MySemanticComparison_ArrayEquality_ReturnNoError },
+        { "", test_MySemanticComparison_RecordEquality_ReturnNoError },
     };
     if (!addTests(&suite, tests, sizeof(tests) / sizeof(tests[0])))
         return EXIT_FAILURE;

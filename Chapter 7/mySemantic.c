@@ -1996,7 +1996,8 @@ void processIfThenErrors(bool isIfConditionInt, bool isThenClauseNoReturn)
 ///////////////////////////////////////////////////////////////////////////////
 
 //  forward declarations
-bool isTwoComparisonOperandsTypeEqualsOrNil(myType leftType, myType rightType);
+bool isTwoComparisonOperandsTypeEqualsOrNil(
+    myType leftType, myType rightType, enum myComparisonOp op);
 static IR_RelOperator convertComparisonOperatorFromASTToIR(
     enum myComparisonOp op);
 void processComparisonErrors(
@@ -2028,7 +2029,7 @@ myTranslationAndType MySemantic_ComparisonExp(myComparisonExp comparisonExp)
     if (isLeftOperandLegal && isRightOperandLegal)
     {
         isOperandsTypeMatches = isTwoComparisonOperandsTypeEqualsOrNil(
-            leftResult->type, rightResult->type);
+            leftResult->type, rightResult->type, comparisonExp->op);
     }
 
     if (isLeftOperandLegal && isRightOperandLegal && isOperandsTypeMatches)
@@ -2048,16 +2049,26 @@ myTranslationAndType MySemantic_ComparisonExp(myComparisonExp comparisonExp)
     }
 }
 
-bool isTwoComparisonOperandsTypeEqualsOrNil(myType leftType, myType rightType)
-{// todo: inequality comparison cannot only applied to record or array 
+bool isTwoComparisonOperandsTypeEqualsOrNil(
+    myType leftType, myType rightType, enum myComparisonOp op)
+{ 
     myType leftActualType = getActualType(leftType);
     myType rightActualType = getActualType(rightType);
 
     if (isTypeNoReturn(leftActualType) || isTypeNoReturn(rightActualType))
         return false;
     else
-        return  isTypeEqual(leftActualType, rightActualType) ||
-                isOneRecordTypeAnotherNil(leftActualType, rightActualType);
+    {
+        if (isTypeEqual(leftActualType, rightActualType))
+        {
+            if ((isTypeRecord(leftActualType) || isTypeArray(leftActualType))
+                && (op != opEqual && op != opNotEqual))
+                return false;
+            return true;
+        }
+        else
+            return isOneRecordTypeAnotherNil(leftActualType, rightActualType);
+    }
 }
 
 static IR_RelOperator convertComparisonOperatorFromASTToIR(
