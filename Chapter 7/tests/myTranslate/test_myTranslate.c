@@ -595,6 +595,18 @@ void test_TransWhile_notEmptyBody_SeeOutput(void)
     testOneFileAndOutputCode("while_notEmptyBody.tig");
 }
 
+///////////////////////////
+
+void test_TransNegative_const_SeeOutput(void)
+{
+    testOneFileAndOutputCode("negative_const.tig");
+}
+
+void test_TransNegative_varInFrame_SeeOutput(void)
+{
+    testOneFileAndOutputCode("negative_varInFrame.tig");
+}
+
 ///////////////////////////         main        ///////////////////////////////
 
 int main()
@@ -711,6 +723,9 @@ int main()
 
         { "", test_TransWhile_emptyBody_SeeOutput },
         { "", test_TransWhile_notEmptyBody_SeeOutput },
+
+        { "", test_TransNegative_const_SeeOutput },
+        { "", test_TransNegative_varInFrame_SeeOutput },
     };
     if (!addTests(&suite, tests, sizeof(tests) / sizeof(tests[0])))
         return EXIT_FAILURE;

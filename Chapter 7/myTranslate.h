@@ -160,6 +160,7 @@ IR_myExp Trans_booleanOperate(
     IR_myExp leftTrans, IR_myExp rightTrans, IR_BinOperator op);
 IR_myExp Trans_assignment(IR_myExp leftTrans, IR_myExp rightTrans);
 IR_myExp Trans_while(IR_myExp condiTrans, IR_myExp expTrans);
+IR_myExp Trans_negative(IR_myExp expTrans);
 
 //////////////////////////////////////
 

@@ -2642,9 +2642,14 @@ void processNegationErrors(bool isFollowingExpInt);
 myTranslationAndType MySemantic_NegationExp(
     myNegationExp negationExp)
 {
-    bool isFollowingExpInt = isExpInt(negationExp->exp);
+    IR_myExp expTrans = NULL;
+    bool isFollowingExpInt = isExpIntWithTrans(negationExp->exp, &expTrans);
+
     if (isFollowingExpInt)
-        return make_MyTranslationAndType(NULL, makeType_Int());
+    {
+        IR_myExp negativeTrans = Trans_negative(expTrans);
+        return make_MyTranslationAndType(negativeTrans, makeType_Int());
+    }
     else
     {
         processNegationErrors(isFollowingExpInt);

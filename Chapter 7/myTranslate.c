@@ -1618,6 +1618,32 @@ IR_myExp Trans_while(IR_myExp condiTrans, IR_myExp expTrans)
     combineOneTrans(expTrans, &stateReturn);
     jumpToWhileLoop(loopLabel, &stateReturn);
     defineLabel(&stateReturn, endLabel);
-    
+
     return IR_makeESeq(stateReturn, NULL);
+}
+
+/////////////////////////////////////////////////////////////////////////////////
+
+static IR_myExp translateNegative(IR_myExp valueReg, IR_myStatement* stateReturnPtr)
+{
+    IR_myExp newReg = IR_makeTemp(Temp_newTemp());
+    *stateReturnPtr = IR_makeSeq(
+        (*stateReturnPtr), IR_makeMove(newReg, IR_makeConst(0)));
+
+    (*stateReturnPtr) = IR_makeSeq(
+        (*stateReturnPtr),
+        IR_makeExp(IR_makeBinOperation(IR_Minus, newReg, valueReg)));
+
+    //  return result value register
+    return newReg;
+}
+
+IR_myExp Trans_negative(IR_myExp expTrans)
+{
+    IR_myStatement stateReturn = NULL;
+    IR_myExp valueReg = combineOneTrans(expTrans, &stateReturn);
+
+    //  todo: bound check needed here
+    valueReg = translateNegative(valueReg, &stateReturn);
+    return IR_makeESeq(stateReturn, valueReg);
 }
