@@ -11,6 +11,7 @@
 #include "myEscape.h"
 #include "recursiveDecs.h"
 #include "lValueTreater.h"
+#include "breakGetter.h"
 
 #include <stdio.h>  //  for fprintf().
 #include <assert.h> //  for assert().
@@ -1787,20 +1788,27 @@ myTranslationAndType MySemantic_ForExp(myForExp forExp)
         addLoopVarToScope(forExp->varName);
     Trans_myAccess loopVarAccess = getVarAccessFromName(forExp->varName);
 
+    myLabel endLabel = Temp_newLabel();
+    pushBreakTarget(endLabel);
+
     enterLoop();    //  for break checking
     enterForLoop(forExp->varName);  //  for loop-var checking
+
     IR_myExp bodyResult = NULL;
     bool isBodyNoReturn =
         isExpNoReturnWithTrans(forExp->bodyExp, &bodyResult);
+
     leaveForLoop();  
     leaveLoop();
+
+    popBreakTarget();
 
     MySymbol_EndScope(MySemantic_getVarAndFuncEnvironment());
 
     if (isLowRangeInt && isHighRangeInt && isBodyNoReturn)
     {
         IR_myExp tranResult =
-            Trans_for(lowRangeResult, highRangeResult, loopVarAccess, bodyResult);
+            Trans_for(endLabel, lowRangeResult, highRangeResult, loopVarAccess, bodyResult);
         return make_MyTranslationAndType(tranResult, makeType_NoReturn());
     }
     else
@@ -2598,15 +2606,22 @@ myTranslationAndType MySemantic_WhileExp(myWhileExp whileExp)
     bool isConditionInt =
         isExpIntWithTrans(whileExp->whileExp, &condiTrans);
 
+    // end label for possible while-inside break using
+    myLabel endLabel = Temp_newLabel();
+    pushBreakTarget(endLabel);
+
     IR_myExp expTrans = NULL;
     enterLoop();
     bool isBodyNoReturn =
         isExpNoReturnWithTrans(whileExp->bodyExp, &expTrans);
     leaveLoop();
 
+    //  pop this label after leave the scope
+    popBreakTarget();
+
     if (isConditionInt && isBodyNoReturn)
     {   
-        IR_myExp whileTrans = Trans_while(condiTrans, expTrans);
+        IR_myExp whileTrans = Trans_while(endLabel, condiTrans, expTrans);
         return make_MyTranslationAndType(whileTrans, makeType_NoReturn());
     }
     else

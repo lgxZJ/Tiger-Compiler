@@ -1143,13 +1143,14 @@ static void translateSkipLabelDefinition(
 }
 
 static IR_myStatement translateCommonLoop(
+    myLabel endLabel,
     IR_myStatement skipCjumpStatementWithoutLabel, IR_myStatement loopState)
 {
     assert (skipCjumpStatementWithoutLabel->kind == IR_CJump);
     assert (skipCjumpStatementWithoutLabel->u.cjump.left->kind == IR_Temp);
 
     IR_myExp loopReg = skipCjumpStatementWithoutLabel->u.cjump.left;
-    IR_myStatement skipLabelExp = IR_makeLabel(Temp_newLabel());
+    IR_myStatement skipLabelExp = IR_makeLabel(endLabel);
     IR_myStatement loopLabelExp = IR_makeLabel(Temp_newLabel());
 
     IR_myStatement stateResult =
@@ -1176,6 +1177,7 @@ static IR_myStatement translateInitDefinition(
 }
 
 static IR_myStatement translateLoopDefinition(
+    myLabel endLabel,
     IR_myExp loopVarRep, IR_myExp highRangeRep, IR_myExp loopBodyResult)
 {
     IR_myStatement skipCjumpstateWithoutLabel = IR_makeCJump(
@@ -1187,10 +1189,11 @@ static IR_myStatement translateLoopDefinition(
     loopState = IR_makeSeq(loopState, IR_makeExp(IR_makeBinOperation(IR_Plus,
         loopVarRep, IR_makeConst(1))));
 
-     return translateCommonLoop(skipCjumpstateWithoutLabel, loopState);
+     return translateCommonLoop(endLabel, skipCjumpstateWithoutLabel, loopState);
 }
 
 IR_myExp Trans_for(
+    myLabel endLabel,
     IR_myExp lowRangeResult, IR_myExp highRangeResult,
     Trans_myAccess loopVarAccess, IR_myExp loopBodyResult)
 {
@@ -1201,7 +1204,7 @@ IR_myExp Trans_for(
             &loopVarRep, &highRangeRep);
 
     IR_myStatement loopResult =
-        translateLoopDefinition(loopVarRep, highRangeRep, loopBodyResult);
+        translateLoopDefinition(endLabel, loopVarRep, highRangeRep, loopBodyResult);
     //  for expressions have no value
     return IR_makeESeq(
          IR_makeSeq(initResult, loopResult), NULL);
@@ -1604,11 +1607,10 @@ static void jumpToWhileLoop(myLabel loopLabel, IR_myStatement* stateReturnPtr)
     (*stateReturnPtr) = IR_makeSeq((*stateReturnPtr), jumpToLoop);
 }
 
-IR_myExp Trans_while(IR_myExp condiTrans, IR_myExp expTrans)
+IR_myExp Trans_while(myLabel endLabel, IR_myExp condiTrans, IR_myExp expTrans)
 {
     IR_myStatement stateReturn = NULL;
     myLabel loopLabel = Temp_newLabel();
-    myLabel endLabel = Temp_newLabel();
 
     defineLabel(&stateReturn, loopLabel);
     IR_myExp condiValueReg = combineOneTrans(condiTrans, &stateReturn);

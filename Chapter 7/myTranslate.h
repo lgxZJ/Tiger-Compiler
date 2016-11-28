@@ -148,6 +148,7 @@ IR_myExp Trans_arrayCreation(IR_myExp subscriptResult, IR_myExp initValueResult)
 IR_myExp Trans_noFieldRecordCreation();
 IR_myExp Trans_arithmetic(IR_myExp leftTran, IR_myExp rightTran, IR_BinOperator op);
 IR_myExp Trans_for(
+    myLabel endLabel,
     IR_myExp lowRangeResult, IR_myExp highRangeResult,
     Trans_myAccess loopVarAccess, IR_myExp loopBodyResult);
 IR_myExp Trans_ifThenElse(
@@ -159,7 +160,7 @@ IR_myExp Trans_comparison(
 IR_myExp Trans_booleanOperate(
     IR_myExp leftTrans, IR_myExp rightTrans, IR_BinOperator op);
 IR_myExp Trans_assignment(IR_myExp leftTrans, IR_myExp rightTrans);
-IR_myExp Trans_while(IR_myExp condiTrans, IR_myExp expTrans);
+IR_myExp Trans_while(myLabel endLabel, IR_myExp condiTrans, IR_myExp expTrans);
 IR_myExp Trans_negative(IR_myExp expTrans);
 
 //////////////////////////////////////
