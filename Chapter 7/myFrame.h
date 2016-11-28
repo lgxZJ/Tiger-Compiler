@@ -239,18 +239,6 @@ myTemp Frame_FP(void);
 myTemp Frame_RV(void);
 
 //  DO:
-//      turn a variable into the IR representation;
-//  PARAMS:
-//      access      an access variable.
-//      framePtr    the stack frame address from which the given variable is declared.
-//  RETURN:
-//      if the given variable is in frame, return the address of it;
-//      otherwise, return the temporary representation of it.
-//  REMARK:
-//      if `access` is a register access, then the argument `framePtr` is ignored.
-IR_myExp Frame_accessToIRExp(myAccess access, IR_myExp framePtr);
-
-//  DO:
 //      convert Tiger calling convention into C call convention. 
 //  PARAMS:
 //      str     the name of the external function.

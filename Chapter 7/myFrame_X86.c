@@ -38,7 +38,7 @@ struct myFrame_
 {
     myAccessList    formals;
     myString        viewShift;
-    int             localCount;     //  include `formalLocalCount`
+    int             localCount;     //  not include `formalLocalCount`
     int             formalLocalCount;    //  in frame formal local count
     myLabel         label;
 };
@@ -220,7 +220,7 @@ bool Frame_isFrameSame(myFrame lhs, myFrame rhs)
 myAccess Frame_allocateLocal(myFrame frame, bool escapeFlag)
 {
     if (escapeFlag)
-        return makeInFrameAccess(-(++(frame->localCount)) * BASE_SIZE);
+        return makeInFrameAccess(-(++frame->localCount) * BASE_SIZE);
     else    
         return makeInRegAccess(Temp_newTemp());
 }
@@ -281,20 +281,18 @@ myTemp Frame_RV(void)
 
 ////////////////
 
-IR_myExp Frame_accessToIRExp(myAccess access, IR_myExp framePtr)
-{
-    if (Frame_isAccessInReg(access))
-        return IR_makeTemp(access->u.reg);
-    else
-        return IR_makeBinOperation(IR_Plus, IR_makeConst(access->u.offset), framePtr);
-}
-
-////////////////
-
 IR_myExp Frame_externalCall(myString str, IR_myExpList args)
 {
     //  todo:   maybe adjust static link
-    return IR_makeCall(IR_makeName(Temp_newNamedLabel(str)), args);
+    //  todo:   push arguments, save registers and so on
+    IR_myExp callRet = IR_makeCall(IR_makeName(Temp_newNamedLabel(str)), args);
+
+    IR_myStatement callstate;
+    IR_myExp callValue;
+    IR_divideExp(callRet, &callstate, &callValue);
+
+    //  IR_divideExp() ensure callValue is a register representation
+    return IR_makeESeq(callstate, callValue);
 }
 
 ////////////////

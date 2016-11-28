@@ -103,6 +103,18 @@ void test_FramenewFrame_AllEscapes_NegativeOffsetWithFourInterval(void)
     CU_ASSERT_EQUAL(secondArgOffset, -4);
 }
 
+void test_FramenewFrame_AllEscapes_IncrementOnlyLocal(void)
+{
+    myBoolList formalFlags = Frame_makeBoolList(Frame_makeBoolList(NULL, true), true);
+
+    myFrame frame = Frame_newFrame((myLabel)12, formalFlags);
+
+    int localCount = Frame_getLocalCount(frame);
+    int formalCount = Frame_getformalLocalCount(frame);
+    CU_ASSERT_EQUAL(localCount, 0);
+    CU_ASSERT_EQUAL(formalCount, 2);
+}
+
 //  a parameterized test
 void test_FramenewFrame_FormalCountEqualsFlags(myBoolList flags, int countExpected)
 {
@@ -259,6 +271,17 @@ void test_FrameallocateLocal_TwoCallsInDifferentNewFrame_OffsetSame(void)
     CU_ASSERT_EQUAL(accessTwoOffset, accessOneOffset);
 }
 
+void test_FrameallocateLocal_ByDefault_IncrementLocal(void)
+{
+    myFrame frameOne = Frame_newFrame((myLabel)NULL, NULL);
+    int localCountBefore = Frame_getLocalCount(frameOne);
+
+    Frame_allocateLocal(frameOne, true);
+    int localCountAfter = Frame_getLocalCount(frameOne);
+
+    CU_ASSERT_EQUAL(localCountAfter - localCountBefore, 1);
+}
+
 ///////////////////////
 
 void test_FrameMakeStringFrag_ByDefault_MakeStringFragWithWhatPassed(void)
@@ -315,32 +338,6 @@ void test_FrameRV_ByDefault_AlwaysReturnTheSameOne(void)
     CU_ASSERT_EQUAL(rvFirst, rvSecond);
 }
 
-//////////////////////
-
-void test_FrameAccessToIRExp_AccessInTemp_ReturnTempExp(void)
-{
-    myAccess firstAccess =
-        Frame_allocateLocal(Frame_newFrame((myLabel)12, NULL), false);
-
-    IR_myExp exp = Frame_accessToIRExp(firstAccess, NULL);
-
-    CU_ASSERT_EQUAL(exp->kind, IR_Temp);
-}
-
-void test_FrameAccessToIRExp_AccessInFrame_ReturnTempExp(void)
-{
-    myAccess firstAccess =
-        Frame_allocateLocal(Frame_newFrame((myLabel)12, NULL), true);
-    IR_myExp fpTemp = IR_makeTemp(Frame_FP());
-
-    IR_myExp exp = Frame_accessToIRExp(firstAccess,fpTemp);
-
-    int inFrameOffset = -4;
-    CU_ASSERT_EQUAL(exp->kind, IR_BinOperation);
-    CU_ASSERT_EQUAL(exp->u.binOperation.left->u.constValue, inFrameOffset);
-    CU_ASSERT_EQUAL(exp->u.binOperation.right, fpTemp);
-    CU_ASSERT_EQUAL(exp->u.binOperation.op, IR_Plus);
-}
 
 ///////////////////////         main        /////////////////////
 
@@ -358,6 +355,7 @@ int main()
         { "", test_FramenewFrame_AllEscapes_FormalAndLocalCountEquals },
         { "", test_FramenewFrame_NotAllEscapes_FormalAndLocalCountEquals },
         { "", test_FramenewFrame_AllEscapes_NegativeOffsetWithFourInterval },
+        { "", test_FramenewFrame_AllEscapes_IncrementOnlyLocal },
 
         { "", test_FrameIsFrameEqual_ByDefault_WorkRight },
         { "", test_FrameIsFrameSame_DifferentFrame_ReturnFalse },
@@ -371,6 +369,7 @@ int main()
         { "", test_FrameallocateLocal_AllocateInReg_FormalCountNotChange },
         { "", test_FrameallocateLocal_TwoConsecutiveCallsInSameFrame_OffsetIncrementFour },
         { "", test_FrameallocateLocal_TwoCallsInDifferentNewFrame_OffsetSame },
+        { "", test_FrameallocateLocal_ByDefault_IncrementLocal },
 
         { "", test_FrameMakeStringFrag_ByDefault_MakeStringFragWithWhatPassed },
         { "", test_FrameMakeProcFrag_ByDefault_MakeProcFragWithWhatPassed },
@@ -378,9 +377,6 @@ int main()
 
         { "", test_FrameFP_ByDefault_AlwaysReturnTheSameOne },
         { "", test_FrameRV_ByDefault_AlwaysReturnTheSameOne },
-
-        { "", test_FrameAccessToIRExp_AccessInTemp_ReturnTempExp },
-        { "", test_FrameAccessToIRExp_AccessInFrame_ReturnTempExp }
     };
     if (!addTests(&suite, tests, sizeof(tests) / sizeof(tests[0])))
         return EXIT_FAILURE;
