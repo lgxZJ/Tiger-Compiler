@@ -470,7 +470,7 @@ myTranslationAndType MySemantic_LValueExp_SimpleVar(
     }
     
     return make_MyTranslationAndType(
-        Trans_LValueExp_SimpleVar(lValueExp),
+        Trans_LValueExp_simpleVar(lValueExp),
         getVariableType(lValueExp->id));
 }
 
@@ -994,17 +994,9 @@ myTranslationAndType MySemantic_FunctionCallExp_NoParam(
         return SEMANTIC_ERROR;
     }
 
-    myLabel funcLabel = MyEnvironment_getFuncLabel(
-        MyEnvironment_getVarOrFuncFromName(
-            MySemantic_getVarAndFuncEnvironment(),
-            functionName));
-    assert (funcLabel != NULL);
-    //  include static link as param
-    IR_myExp funcCallExp = IR_makeCall(
-        IR_makeName(funcLabel),
-        IR_makeExpList(IR_makeTemp(Frame_FP()), NULL)); 
     return make_MyTranslationAndType(
-        funcCallExp, getFunctionReturnType(functionName));
+        Trans_noParamfunctionCall(functionName),
+        getFunctionReturnType(functionName));
 }
 
 
@@ -1124,7 +1116,7 @@ myTranslationAndType MySemantic_NilExp(
     myNilExp nilExp)
 {
     //  treat nil as zero. When deferencing it, a segment fault will be thrown. 
-    return make_MyTranslationAndType(IR_makeConst(0), makeType_Nil());  
+    return make_MyTranslationAndType(Trans_nil(), makeType_Nil());  
 }
 
 ////////////////////////////////////////////////////////////////////////////////////
@@ -1149,7 +1141,7 @@ myTranslationAndType MySemantic_IntegerLiteralExp(
 {
     //  no checking needed here
     return make_MyTranslationAndType(
-        Trans_IntegerLiteralExp(integerLiteralExp), makeType_Int());
+        Trans_integerLiteralExp(integerLiteralExp), makeType_Int());
 }
 
 ///////////////////////////////////////////////////////////////////////////////////
@@ -1172,10 +1164,8 @@ myTranslationAndType MySemantic_IntegerLiteralExp(
 myTranslationAndType MySemantic_StringLiteralExp(
     myStringLiteralExp stringLiteralExp)
 {
-    IR_myExp strLabelExp = IR_makeName(Temp_newLabel());
-    Trans_string(strLabelExp, stringLiteralExp->str);
-
-    return make_MyTranslationAndType(strLabelExp, makeType_String());  
+    return make_MyTranslationAndType(
+        Trans_stringLiteralExp(stringLiteralExp->str), makeType_String());  
 }
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -1637,7 +1627,7 @@ myTranslationAndType MySemantic_NoValueExp(
     myNoValueExp noValueExp)
 {
     //  no checking and translation needed here
-    return make_MyTranslationAndType(NULL, makeType_NoReturn());
+    return make_MyTranslationAndType(Trans_noValue(), makeType_NoReturn());
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -1738,7 +1728,6 @@ static bool analyzeAndTranslateFolllowingExps(
 
     while (rests)
     {
-        //  todo: test semantic check
         //  although isn't the result type, semantic analysis needed here
         oneResult = MySemantic_Exp_(rests->exp);
         if (oneResult == SEMANTIC_ERROR)
@@ -2281,7 +2270,7 @@ bool MySemantic_Dec_Var_ShortForm(myShortFormVar shortFormVar, IR_myStatement* r
         if (!isTypeNil(actualValueType) && !isTypeNoReturn(actualValueType))
         {
             allocateAndAddNewVar_Short(shortFormVar, actualValueType);
-            *resultPtr = doDecAssignmentTranslation(
+            *resultPtr = Trans_decAssignment(
                 getVarAccessFromName(shortFormVar->name),valueResult)
                 ->u.eseq.statement;
             return true;
@@ -2349,7 +2338,7 @@ bool MySemantic_Dec_Var_LongForm(myLongFormVar longFormVar, IR_myStatement* resu
     if (isTypeMatches)
     {
         allocateAndAddNewVar_Long(longFormVar);
-        *resultPtr = doDecAssignmentTranslation(
+        *resultPtr = Trans_decAssignment(
             getVarAccessFromName(longFormVar->name), valueResult)
             ->u.eseq.statement;
         return true;
@@ -2456,7 +2445,6 @@ bool MySemantic_Decs(myDecList decs, IR_myStatement* resultPtr)
 //  forwards
 bool areExpressionsLegal(myExpList exps, IR_myExp* expsResult);
 myType getLastExpResultType(myExpList exps);
-IR_myExp combineDecsAndExpsResults(IR_myStatement decsResult, IR_myExp expsResult);
 void processLetErrors(bool areDeclarationsLegal, bool isBodyLegal);
 
 //  FORM:
@@ -2489,7 +2477,7 @@ myTranslationAndType MySemantic_LetExp(myLetExp letExp)
     if (areDeclarationsLegal && isBodyLegal)
     {
         result = make_MyTranslationAndType(
-            combineDecsAndExpsResults(decsResult, expsResult),
+            Trans_let(decsResult, expsResult),
             getLastExpResultType(letExp->expList));
     }
     else
@@ -2501,16 +2489,6 @@ myTranslationAndType MySemantic_LetExp(myLetExp letExp)
     MySymbol_EndScope(MySemantic_getVarAndFuncEnvironment());
     MySymbol_EndScope(MySemantic_getTypeEnvironment());
     return result;
-}
-
-IR_myExp combineDecsAndExpsResults(IR_myStatement decsResult, IR_myExp expsResult)
-{
-	//  areExpressionsLegal() ensures it
-	assert (expsResult->kind == IR_ESeq);
-
-	return IR_makeESeq(
-	    IR_makeSeq(decsResult, expsResult->u.eseq.statement),
-	    expsResult->u.eseq.exp);
 }
 
 //////////////////////////
