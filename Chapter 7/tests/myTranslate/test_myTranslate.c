@@ -583,6 +583,18 @@ void test_TransAssignment_toRecordField_SeeOutput(void)
     testOneFileAndOutputCode("assignment_toRecordField.tig");
 }
 
+///////////////////////////
+
+void test_TransWhile_emptyBody_SeeOutput(void)
+{
+    testOneFileAndOutputCode("while_emptyBody.tig");
+}
+
+void test_TransWhile_notEmptyBody_SeeOutput(void)
+{
+    testOneFileAndOutputCode("while_notEmptyBody.tig");
+}
+
 ///////////////////////////         main        ///////////////////////////////
 
 int main()
@@ -608,7 +620,9 @@ int main()
         { "", test_TransGetFormals_PassOtherLevels_FormalCountEqualsToBoolFlags },
         { "", test_TransGetFormals_PassOutermostLevel_FormalCountIsZero },
 
-        ///////////////////////////////////
+        /////////////////////////////////////
+        /////////////////////////////////////
+        
         { "", test_TransIntegerLiteralExp_ByDefault_SeeOutput },
         { "", test_TransStringLiteral_ByDefault_SeeOutput },
 
@@ -694,6 +708,9 @@ int main()
         { "", test_TransAssignment_toVarInFrame_SeeOutput },
         { "", test_TransAssignment_toArraySubscript_SeeOutput },
         { "", test_TransAssignment_toRecordField_SeeOutput },
+
+        { "", test_TransWhile_emptyBody_SeeOutput },
+        { "", test_TransWhile_notEmptyBody_SeeOutput },
     };
     if (!addTests(&suite, tests, sizeof(tests) / sizeof(tests[0])))
         return EXIT_FAILURE;

@@ -1586,3 +1586,38 @@ IR_myExp Trans_assignment(IR_myExp leftTrans, IR_myExp rightTrans)
         stateReturn, IR_makeMove(leftValueRep, rightValueRep));
     return IR_makeESeq(stateReturn, leftValueRep);
 }
+
+/////////////////////////////////////////////////////////////////////////////////
+
+static void jumpToEndIfNotTrue(
+    IR_myExp condiValueReg, myLabel endLabel, IR_myStatement* stateReturnPtr)
+{
+    IR_myStatement jumpToEndIfNotTrue = IR_makeCJump(
+        IR_NotEqual, condiValueReg, IR_makeConst(1), endLabel, NULL);
+    (*stateReturnPtr) = IR_makeSeq((*stateReturnPtr), jumpToEndIfNotTrue);
+}
+
+static void jumpToWhileLoop(myLabel loopLabel, IR_myStatement* stateReturnPtr)
+{
+    IR_myStatement jumpToLoop = IR_makeJump(
+    IR_makeName(loopLabel), Temp_makeLabelList(loopLabel, NULL));
+    (*stateReturnPtr) = IR_makeSeq((*stateReturnPtr), jumpToLoop);
+}
+
+IR_myExp Trans_while(IR_myExp condiTrans, IR_myExp expTrans)
+{
+    IR_myStatement stateReturn = NULL;
+    myLabel loopLabel = Temp_newLabel();
+    myLabel endLabel = Temp_newLabel();
+
+    defineLabel(&stateReturn, loopLabel);
+    IR_myExp condiValueReg = combineOneTrans(condiTrans, &stateReturn);
+
+    jumpToEndIfNotTrue(condiValueReg, endLabel, &stateReturn);
+    //  while expressions have no return value
+    combineOneTrans(expTrans, &stateReturn);
+    jumpToWhileLoop(loopLabel, &stateReturn);
+    defineLabel(&stateReturn, endLabel);
+    
+    return IR_makeESeq(stateReturn, NULL);
+}

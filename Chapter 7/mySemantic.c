@@ -2592,19 +2592,23 @@ void processWhileErrors(bool isConditionInt, bool isBodyNoReturn);
 //      if failed, it returns SEMANTIC_ERROR.
 //  STATUS:
 //      Tested.
-myTranslationAndType MySemantic_WhileExp(
-    myWhileExp whileExp)
+myTranslationAndType MySemantic_WhileExp(myWhileExp whileExp)
 {
+    IR_myExp condiTrans = NULL;
     bool isConditionInt =
-        isExpInt(whileExp->whileExp);
+        isExpIntWithTrans(whileExp->whileExp, &condiTrans);
 
+    IR_myExp expTrans = NULL;
     enterLoop();
     bool isBodyNoReturn =
-        isExpNoReturn(whileExp->bodyExp);
+        isExpNoReturnWithTrans(whileExp->bodyExp, &expTrans);
     leaveLoop();
 
     if (isConditionInt && isBodyNoReturn)
-        return make_MyTranslationAndType(NULL, makeType_NoReturn());
+    {   
+        IR_myExp whileTrans = Trans_while(condiTrans, expTrans);
+        return make_MyTranslationAndType(whileTrans, makeType_NoReturn());
+    }
     else
     {
         processWhileErrors(isConditionInt, isBodyNoReturn);

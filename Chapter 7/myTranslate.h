@@ -4,6 +4,7 @@
 #include "myFrame.h"
 #include "myAbstractSyntax.h"
 #include "myIRTree.h"
+#include "lValueTreater.h"
 
 ///////////////////////////////////////////////////////////////////////////
 //
@@ -138,7 +139,7 @@ void Trans_resetStringFrags(void);
 
 IR_myExp Trans_LValueExp_GetRecordPtr(myLValueExp lValueExp);
 IR_myExp Trans_LValueExp_GetArrayPtr(myLValueExp lValueExp);
-IR_myExp doAssignmentTranslation(Trans_myAccess varAccess, IR_myExp varBodyResult);
+IR_myExp doDecAssignmentTranslation(Trans_myAccess varAccess, IR_myExp varBodyResult);
 
 IR_myExp Trans_LValueExp_SimpleVar(myLValueExp lValueExp);
 
@@ -157,6 +158,8 @@ IR_myExp Trans_comparison(
     IR_myExp leftTrans, IR_myExp rightTrans, IR_RelOperator op, bool isString);
 IR_myExp Trans_booleanOperate(
     IR_myExp leftTrans, IR_myExp rightTrans, IR_BinOperator op);
+IR_myExp Trans_assignment(IR_myExp leftTrans, IR_myExp rightTrans);
+IR_myExp Trans_while(IR_myExp condiTrans, IR_myExp expTrans);
 
 //////////////////////////////////////
 
