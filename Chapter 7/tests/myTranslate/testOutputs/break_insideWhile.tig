@@ -7,12 +7,12 @@ Eseq(
           Seq(
             Seq(
               null            , 
-              Label(Label158)
+              Label(Label164)
             )
           , 
             Seq(
               Move(
-                Temp(591)
+                Temp(613)
               , 
                 Const(1)
               )
@@ -21,10 +21,10 @@ Eseq(
           )
         , 
           CJump(NotEqual, 
-            Temp(591)
+            Temp(613)
           , 
             Const(1)
-          , Label157, empty,           )
+          , Label163, empty,           )
         )
       , 
         Seq(
@@ -35,7 +35,7 @@ Eseq(
                   Seq(
                     Seq(
                       Move(
-                        Temp(592)
+                        Temp(614)
                       , 
                         Const(1)
                       )
@@ -44,7 +44,7 @@ Eseq(
                   , 
                     Seq(
                       Move(
-                        Temp(593)
+                        Temp(615)
                       , 
                         Const(1)
                       )
@@ -53,17 +53,17 @@ Eseq(
                   )
                 , 
                   Move(
-                    Temp(594)
+                    Temp(616)
                   , 
-                    Temp(592)
+                    Temp(614)
                   )
                 )
               , 
                 Exp(
                   BinOperation(Divide, 
-                    Temp(594)
+                    Temp(616)
                   , 
-                    Temp(593)
+                    Temp(615)
                   )
                 )
               )
@@ -72,7 +72,7 @@ Eseq(
           , 
             Seq(
               Jump(
-                Name(Label157)
+                Name(Label163)
               )
             , 
               null            )
@@ -82,11 +82,11 @@ Eseq(
       )
     , 
       Jump(
-        Name(Label158)
+        Name(Label164)
       )
     )
   , 
-    Label(Label157)
+    Label(Label163)
   )
 , 
   null)

@@ -11,7 +11,7 @@ Eseq(
                 Seq(
                   Seq(
                     Move(
-                      Temp(76)
+                      Temp(98)
                     , 
                       Temp(frame pointer)
                     )
@@ -19,7 +19,7 @@ Eseq(
                     Seq(
                       Exp(
                         BinOperation(Plus, 
-                          Temp(76)
+                          Temp(98)
                         , 
                           Const(-4)
                         )
@@ -34,7 +34,7 @@ Eseq(
             , 
               Move(
                 Mem(
-                  Temp(76)
+                  Temp(98)
                 )
               , 
                 Const(0)
@@ -42,10 +42,10 @@ Eseq(
             )
           , 
             Move(
-              Temp(77)
+              Temp(99)
             , 
               Mem(
-                Temp(76)
+                Temp(98)
               )
             )
           )
@@ -62,7 +62,7 @@ Eseq(
             Seq(
               Seq(
                 Move(
-                  Temp(78)
+                  Temp(100)
                 , 
                   Temp(frame pointer)
                 )
@@ -70,7 +70,7 @@ Eseq(
                 Seq(
                   Exp(
                     BinOperation(Plus, 
-                      Temp(78)
+                      Temp(100)
                     , 
                       Const(-4)
                     )
@@ -80,17 +80,17 @@ Eseq(
               )
             , 
               Move(
-                Temp(79)
+                Temp(101)
               , 
                 Mem(
-                  Temp(78)
+                  Temp(100)
                 )
               )
             )
           , 
             Exp(
               BinOperation(Plus, 
-                Temp(79)
+                Temp(101)
               , 
                 Const(0)
               )
@@ -102,10 +102,10 @@ Eseq(
         Seq(
           null        , 
           Move(
-            Temp(80)
+            Temp(102)
           , 
             Mem(
-              Temp(79)
+              Temp(101)
             )
           )
         )
@@ -114,5 +114,5 @@ Eseq(
       null    )
   )
 , 
-  Temp(80)
+  Temp(102)
 )

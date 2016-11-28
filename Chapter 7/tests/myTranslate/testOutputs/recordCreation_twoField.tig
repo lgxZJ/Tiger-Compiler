@@ -29,7 +29,7 @@ Eseq(
                       )
                     , 
                       Move(
-                        Temp(234)
+                        Temp(256)
                       , 
                         Temp(return register)
                       )
@@ -42,7 +42,7 @@ Eseq(
                       Temp(return register)
                     )
                   , 
-                    Name(Label59)
+                    Name(Label65)
                   )
                 )
               , 
@@ -57,7 +57,7 @@ Eseq(
             , 
               Seq(
                 Move(
-                  Temp(235)
+                  Temp(257)
                 , 
                   Const(111)
                 )
@@ -70,7 +70,7 @@ Eseq(
                 Temp(return register)
               )
             , 
-              Temp(235)
+              Temp(257)
             )
           )
         , 
@@ -88,5 +88,5 @@ Eseq(
       null    )
   )
 , 
-  Temp(234)
+  Temp(256)
 )

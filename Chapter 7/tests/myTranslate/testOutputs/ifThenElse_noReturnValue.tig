@@ -8,7 +8,7 @@ Eseq(
             Seq(
               Seq(
                 Move(
-                  Temp(380)
+                  Temp(402)
                 , 
                   Const(1)
                 )
@@ -16,17 +16,17 @@ Eseq(
                 null              )
             , 
               CJump(Equal, 
-                Temp(380)
+                Temp(402)
               , 
                 Const(0)
-              , Label76, empty,               )
+              , Label82, empty,               )
             )
           , 
             Seq(
               Seq(
                 Seq(
                   Move(
-                    Temp(381)
+                    Temp(403)
                   , 
                     Const(1)
                   )
@@ -39,11 +39,11 @@ Eseq(
           )
         , 
           Jump(
-            Name(Label77)
+            Name(Label83)
           )
         )
       , 
-        Label(Label76)
+        Label(Label82)
       )
     , 
       Seq(
@@ -51,7 +51,7 @@ Eseq(
           Seq(
             Seq(
               Move(
-                Temp(382)
+                Temp(404)
               , 
                 Const(2)
               )
@@ -64,7 +64,7 @@ Eseq(
                   Seq(
                     Seq(
                       Move(
-                        Temp(383)
+                        Temp(405)
                       , 
                         Const(3)
                       )
@@ -73,7 +73,7 @@ Eseq(
                   , 
                     Seq(
                       Move(
-                        Temp(384)
+                        Temp(406)
                       , 
                         Const(3)
                       )
@@ -82,17 +82,17 @@ Eseq(
                   )
                 , 
                   Move(
-                    Temp(385)
+                    Temp(407)
                   , 
-                    Temp(383)
+                    Temp(405)
                   )
                 )
               , 
                 Exp(
                   BinOperation(Plus, 
-                    Temp(385)
+                    Temp(407)
                   , 
-                    Temp(384)
+                    Temp(406)
                   )
                 )
               )
@@ -105,7 +105,7 @@ Eseq(
         null      )
     )
   , 
-    Label(Label77)
+    Label(Label83)
   )
 , 
   null)

@@ -1,0 +1,150 @@
+poo:
+
+  Seq(
+    Seq(
+      Seq(
+        Move(
+          Temp(78)
+        , 
+          Temp(frame pointer)
+        )
+      , 
+        Seq(
+          Exp(
+            BinOperation(Plus, 
+              Temp(78)
+            , 
+              Const(8)
+            )
+          )
+        , 
+          Seq(
+            Exp(
+              BinOperation(Plus, 
+                Temp(78)
+              , 
+                Const(20)
+              )
+            )
+          , 
+            Seq(
+              Exp(
+                BinOperation(Plus, 
+                  Temp(78)
+                , 
+                  Const(-4)
+                )
+              )
+            , 
+              null            )
+          )
+        )
+      )
+    , 
+      Seq(
+        null      , 
+        Move(
+          Temp(80)
+        , 
+          Mem(
+            Temp(78)
+          )
+        )
+      )
+    )
+  , 
+    Move(
+      Temp(return register)
+    , 
+      Temp(80)
+    )
+  )
+
+
+foo:
+
+  Seq(
+    Seq(
+      Seq(
+        Seq(
+          Seq(
+            Seq(
+              Seq(
+                Move(
+                  Temp(75)
+                , 
+                  Const(2)
+                )
+              , 
+                null              )
+            , 
+              Move(
+                Temp(77)
+              , 
+                Temp(75)
+              )
+            )
+          , 
+            null          )
+        , 
+          Seq(
+            null          , 
+            null          )
+        )
+      , 
+        Seq(
+          Seq(
+            Seq(
+              Move(
+                Temp(81)
+              , 
+                Temp(frame pointer)
+              )
+            , 
+              Seq(
+                Exp(
+                  BinOperation(Plus, 
+                    Temp(81)
+                  , 
+                    Const(20)
+                  )
+                )
+              , 
+                Seq(
+                  Exp(
+                    BinOperation(Plus, 
+                      Temp(81)
+                    , 
+                      Const(-4)
+                    )
+                  )
+                , 
+                  null                )
+              )
+            )
+          , 
+            Seq(
+              null            , 
+              Move(
+                Temp(82)
+              , 
+                Mem(
+                  Temp(81)
+                )
+              )
+            )
+          )
+        , 
+          null        )
+      )
+    , 
+      null    )
+  , 
+    Move(
+      Temp(return register)
+    , 
+      Temp(82)
+    )
+  )
+
+

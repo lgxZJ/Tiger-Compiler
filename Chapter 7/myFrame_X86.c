@@ -38,8 +38,8 @@ struct myFrame_
 {
     myAccessList    formals;
     myString        viewShift;
-    int             localCount;     //  not include `formalLocalCount`
-    int             formalLocalCount;    //  in frame formal local count
+    int             localCount;         //  not include `formalLocalCount`
+    int             formalLocalCount;   //  in frame formal local count
     myLabel         label;
 };
 

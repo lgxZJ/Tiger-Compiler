@@ -9,7 +9,7 @@ Eseq(
               null            , 
               Seq(
                 Move(
-                  Temp(455)
+                  Temp(477)
                 , 
                   Const(1)
                 )
@@ -18,22 +18,22 @@ Eseq(
             )
           , 
             Move(
-              Temp(457)
+              Temp(479)
             , 
-              Temp(455)
+              Temp(477)
             )
           )
         , 
           CJump(Equal, 
-            Temp(457)
+            Temp(479)
           , 
             Const(1)
-          , Label120, empty,           )
+          , Label126, empty,           )
         )
       , 
         Seq(
           Move(
-            Temp(456)
+            Temp(478)
           , 
             Const(2)
           )
@@ -42,14 +42,14 @@ Eseq(
       )
     , 
       Move(
-        Temp(457)
+        Temp(479)
       , 
-        Temp(456)
+        Temp(478)
       )
     )
   , 
-    Label(Label120)
+    Label(Label126)
   )
 , 
-  Temp(457)
+  Temp(479)
 )
