@@ -298,6 +298,11 @@ void test_TransLValueSimpleVar_InReg_SeeOuput(void)
     testOneFileAndOutputCode("lValue_simpleVarInReg.tig");
 }
 
+void test_TransLValueSimpleVar_InNestedScope_SeeOutput(void)
+{
+    testOneFileAndOutputProcs("lValue_simpleVarInNestedScope.tig");
+}
+
 ///////////////
 
 void test_TransLValueRecordField_NoField_SeeOutput(void)
@@ -534,9 +539,9 @@ void test_TransComparison_IntLessEqual_SeeOutput(void)
     testOneFileAndOutputCode("comparison_intLessEqual.tig");
 }
 
-void test_TransComparison_ArrayLessThan_SeeOutput(void)
+void test_TransComparison_ArrayEqual_SeeOutput(void)
 {
-    testOneFileAndOutputCode("comparison_arrayLessThan.tig");
+    testOneFileAndOutputCode("comparison_arrayEqual.tig");
 }
 
 ///////////////////////////
@@ -676,6 +681,7 @@ int main()
 
         { "", test_TransLValueSimpleVar_InFrame_SeeOutput },
         { "", test_TransLValueSimpleVar_InReg_SeeOuput },
+        { "", test_TransLValueSimpleVar_InNestedScope_SeeOutput },
 
         { "", test_TransLValueRecordField_NoField_SeeOutput },
         { "", test_TransLValueRecordField_OneField_SeeOutput },
@@ -731,7 +737,7 @@ int main()
         { "", test_TransComparison_StringGreaterEqual_SeeOutput },
         { "", test_TransComparison_StringLessEqual_SeeOutput },
         { "", test_TransComparison_IntLessEqual_SeeOutput },
-        { "", test_TransComparison_ArrayLessThan_SeeOutput },
+        { "", test_TransComparison_ArrayEqual_SeeOutput },
 
         { "", test_TransBooleanOperate_SkipRightWithOperatorOr_SeeOutput },
         { "", test_TransBooleanOperate_SkipRightWithOperatorAnd_SeeOutput },
