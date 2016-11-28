@@ -1791,7 +1791,7 @@ myTranslationAndType MySemantic_ForExp(myForExp forExp)
     myLabel endLabel = Temp_newLabel();
     pushBreakTarget(endLabel);
 
-    enterLoop();    //  for break checking
+    enterLoop();                    //  for break checking
     enterForLoop(forExp->varName);  //  for loop-var checking
 
     IR_myExp bodyResult = NULL;
@@ -2695,7 +2695,11 @@ myTranslationAndType MySemantic_BreakExp(
     myBreakExp breakExp)
 {
     if (isBreakInsideLoop())
-        return make_MyTranslationAndType(NULL, makeType_NoReturn());
+    {
+        myLabel targetLabel = getBreakTarget();
+        return make_MyTranslationAndType(
+            Trans_break(targetLabel), makeType_NoReturn());
+    }
     else
     {
         MyError_pushErrorCode(ERROR__BREAK__NOT_INSIDE_LOOP);

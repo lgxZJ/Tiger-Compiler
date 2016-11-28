@@ -1649,3 +1649,12 @@ IR_myExp Trans_negative(IR_myExp expTrans)
     valueReg = translateNegative(valueReg, &stateReturn);
     return IR_makeESeq(stateReturn, valueReg);
 }
+
+///////////////////////////////////////////////////////////////////////////////
+
+IR_myExp Trans_break(myLabel targetLabel)
+{
+    IR_myStatement jumpToTarget = IR_makeJump(
+        IR_makeName(targetLabel), Temp_makeLabelList(targetLabel, NULL));
+    return IR_makeESeq(jumpToTarget, NULL);
+}

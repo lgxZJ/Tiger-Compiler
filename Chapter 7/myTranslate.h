@@ -162,6 +162,7 @@ IR_myExp Trans_booleanOperate(
 IR_myExp Trans_assignment(IR_myExp leftTrans, IR_myExp rightTrans);
 IR_myExp Trans_while(myLabel endLabel, IR_myExp condiTrans, IR_myExp expTrans);
 IR_myExp Trans_negative(IR_myExp expTrans);
+IR_myExp Trans_break(myLabel targetLabel);
 
 //////////////////////////////////////
 

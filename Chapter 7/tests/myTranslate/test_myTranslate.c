@@ -607,6 +607,28 @@ void test_TransNegative_varInFrame_SeeOutput(void)
     testOneFileAndOutputCode("negative_varInFrame.tig");
 }
 
+///////////////////////////
+
+void test_TransBreak_InsideFor_SeeOutput(void)
+{
+    testOneFileAndOutputCode("break_insideFor.tig");
+}
+
+void test_TransBreak_InsideWhile_SeeOutput(void)
+{
+    testOneFileAndOutputCode("break_insideWhile.tig");
+}
+
+void test_TransBreak_InsideNestedLoop_SeeOutput(void)
+{
+    testOneFileAndOutputCode("break_insideNestedLoop.tig");
+}
+
+void test_TransBreak_InsideOuterLoop_SeeOutput(void)
+{
+    testOneFileAndOutputCode("break_insideOuterLoop.tig");
+}
+
 ///////////////////////////         main        ///////////////////////////////
 
 int main()
@@ -726,6 +748,11 @@ int main()
 
         { "", test_TransNegative_const_SeeOutput },
         { "", test_TransNegative_varInFrame_SeeOutput },
+
+        { "", test_TransBreak_InsideFor_SeeOutput },
+        { "", test_TransBreak_InsideWhile_SeeOutput },
+        { "", test_TransBreak_InsideNestedLoop_SeeOutput },
+        { "", test_TransBreak_InsideOuterLoop_SeeOutput },
     };
     if (!addTests(&suite, tests, sizeof(tests) / sizeof(tests[0])))
         return EXIT_FAILURE;

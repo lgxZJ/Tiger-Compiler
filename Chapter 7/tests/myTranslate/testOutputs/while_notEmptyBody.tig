@@ -7,7 +7,7 @@ Eseq(
           Seq(
             Seq(
               null            , 
-              Label(Label151)
+              Label(Label152)
             )
           , 
             Seq(
@@ -56,7 +56,7 @@ Eseq(
             Temp(565)
           , 
             Const(1)
-          , Label152, empty,           )
+          , Label149, empty,           )
         )
       , 
         Seq(
@@ -107,7 +107,7 @@ Eseq(
                               Temp(566)
                             , 
                               Const(0)
-                            , Label149, empty,                             )
+                            , Label150, empty,                             )
                           )
                         , 
                           Move(
@@ -118,11 +118,11 @@ Eseq(
                         )
                       , 
                         Jump(
-                          Name(Label150)
+                          Name(Label151)
                         )
                       )
                     , 
-                      Label(Label149)
+                      Label(Label150)
                     )
                   , 
                     Move(
@@ -132,7 +132,7 @@ Eseq(
                     )
                   )
                 , 
-                  Label(Label150)
+                  Label(Label151)
                 )
               )
             , 
@@ -144,11 +144,11 @@ Eseq(
       )
     , 
       Jump(
-        Name(Label151)
+        Name(Label152)
       )
     )
   , 
-    Label(Label152)
+    Label(Label149)
   )
 , 
   null)
