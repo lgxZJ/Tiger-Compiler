@@ -1,0 +1,8 @@
+AC_INIT([all.out], [1.0], [])
+AM_INIT_AUTOMAKE([foreign])
+AC_PROG_CC
+AC_PROG_CC_C_O
+AC_PROG_RANLIB
+AM_PROG_AR
+AC_CONFIG_FILES([Makefile])
+AC_OUTPUT
