@@ -1779,7 +1779,6 @@ myTranslationAndType MySemantic_ForExp(myForExp forExp)
 
     myLabel endLabel = Temp_newLabel();
     pushBreakTarget(endLabel);
-
     enterLoop();                    //  for break checking
     enterForLoop(forExp->varName);  //  for loop-var checking
 
@@ -1789,7 +1788,6 @@ myTranslationAndType MySemantic_ForExp(myForExp forExp)
 
     leaveForLoop();  
     leaveLoop();
-
     popBreakTarget();
 
     MySymbol_EndScope(MySemantic_getVarAndFuncEnvironment());
@@ -1812,9 +1810,9 @@ void addLoopVarToScope(mySymbol varName)
     myTable varAndFuncEnv = MySemantic_getVarAndFuncEnvironment(); 
     myType loopVarType = makeType_Int();
     
-    //  loop-var always escapes
+    //  loop-var always not escape
     Trans_myAccess varAccess = Trans_allocateLocal(
-        MySemantic_getCurrentLevel(), true);
+        MySemantic_getCurrentLevel(), false);
     myVarAndFuncEntry varEntry = myEnvironment_makeVarEntry(
         varAccess, loopVarType);
     

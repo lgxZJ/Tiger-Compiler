@@ -1404,7 +1404,6 @@ IR_myExp Trans_negative(IR_myExp expTrans)
     IR_myStatement stateReturn = NULL;
     IR_myExp valueReg = combineOneTrans(expTrans, &stateReturn);
 
-    //  todo: bound check needed here
     valueReg = translateNegative(valueReg, &stateReturn);
     return IR_makeESeq(stateReturn, valueReg);
 }

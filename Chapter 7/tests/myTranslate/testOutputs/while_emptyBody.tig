@@ -12,7 +12,7 @@ Eseq(
           , 
             Seq(
               Move(
-                Temp(632)
+                Temp(629)
               , 
                 Const(1)
               )
@@ -21,7 +21,7 @@ Eseq(
           )
         , 
           CJump(NotEqual, 
-            Temp(632)
+            Temp(629)
           , 
             Const(1)
           , Label201, empty,           )
