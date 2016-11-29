@@ -9,7 +9,7 @@ Eseq(
               null            , 
               Seq(
                 Move(
-                  Temp(513)
+                  Temp(544)
                 , 
                   Const(0)
                 )
@@ -18,17 +18,17 @@ Eseq(
             )
           , 
             Move(
-              Temp(515)
+              Temp(546)
             , 
-              Temp(513)
+              Temp(544)
             )
           )
         , 
           CJump(Equal, 
-            Temp(515)
+            Temp(546)
           , 
             Const(0)
-          , Label167, empty,           )
+          , Label175, empty,           )
         )
       , 
         Seq(
@@ -53,9 +53,9 @@ Eseq(
                   Call(
                     Name(strCompare)
                   , 
-                    Name(Label163)
+                    Name(Label171)
                   , 
-                    Name(Label164)
+                    Name(Label172)
                   )
                 )
               )
@@ -72,32 +72,32 @@ Eseq(
                           Temp(return register)
                         , 
                           Const(0)
-                        , Label165, empty,                         )
+                        , Label173, empty,                         )
                       )
                     , 
                       Move(
-                        Temp(514)
+                        Temp(545)
                       , 
                         Const(0)
                       )
                     )
                   , 
                     Jump(
-                      Name(Label166)
+                      Name(Label174)
                     )
                   )
                 , 
-                  Label(Label165)
+                  Label(Label173)
                 )
               , 
                 Move(
-                  Temp(514)
+                  Temp(545)
                 , 
                   Const(1)
                 )
               )
             , 
-              Label(Label166)
+              Label(Label174)
             )
           )
         , 
@@ -105,14 +105,14 @@ Eseq(
       )
     , 
       Move(
-        Temp(515)
+        Temp(546)
       , 
-        Temp(514)
+        Temp(545)
       )
     )
   , 
-    Label(Label167)
+    Label(Label175)
   )
 , 
-  Temp(515)
+  Temp(546)
 )

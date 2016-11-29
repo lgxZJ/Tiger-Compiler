@@ -12,7 +12,7 @@ Eseq(
             null          , 
             Seq(
               Move(
-                Temp(229)
+                Temp(260)
               , 
                 Const(1)
               )
@@ -24,11 +24,11 @@ Eseq(
       , 
         Exp(
           Call(
-            Name(Label69)
+            Name(Label77)
           , 
             Temp(frame pointer)
           , 
-            Temp(229)
+            Temp(260)
           )
         )
       )

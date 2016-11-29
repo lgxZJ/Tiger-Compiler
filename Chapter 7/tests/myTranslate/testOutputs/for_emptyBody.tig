@@ -5,7 +5,7 @@ Eseq(
       Seq(
         Seq(
           Move(
-            Temp(415)
+            Temp(446)
           , 
             Const(1)
           )
@@ -13,15 +13,15 @@ Eseq(
           null        )
       , 
         Move(
-          Temp(417)
+          Temp(448)
         , 
-          Temp(415)
+          Temp(446)
         )
       )
     , 
       Seq(
         Move(
-          Temp(416)
+          Temp(447)
         , 
           Const(3)
         )
@@ -33,20 +33,20 @@ Eseq(
       Seq(
         Seq(
           Seq(
-            Label(Label104)
+            Label(Label112)
           , 
             CJump(GreaterThan, 
-              Temp(417)
+              Temp(448)
             , 
-              Temp(416)
-            , Label103, empty,             )
+              Temp(447)
+            , Label111, empty,             )
           )
         , 
           Seq(
             null          , 
             Exp(
               BinOperation(Plus, 
-                Temp(417)
+                Temp(448)
               , 
                 Const(1)
               )
@@ -55,11 +55,11 @@ Eseq(
         )
       , 
         Jump(
-          Name(Label104)
+          Name(Label112)
         )
       )
     , 
-      Label(Label103)
+      Label(Label111)
     )
   )
 , 
