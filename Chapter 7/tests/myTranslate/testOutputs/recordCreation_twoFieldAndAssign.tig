@@ -11,7 +11,7 @@ Eseq(
                 Seq(
                   Seq(
                     Move(
-                      Temp(264)
+                      Temp(292)
                     , 
                       Temp(frame pointer)
                     )
@@ -19,7 +19,7 @@ Eseq(
                     Seq(
                       Exp(
                         BinOperation(Plus, 
-                          Temp(264)
+                          Temp(292)
                         , 
                           Const(-4)
                         )
@@ -53,7 +53,7 @@ Eseq(
                                 )
                               , 
                                 Move(
-                                  Temp(260)
+                                  Temp(288)
                                 , 
                                   Temp(return register)
                                 )
@@ -66,7 +66,7 @@ Eseq(
                                 Temp(return register)
                               )
                             , 
-                              Name(Label67)
+                              Name(Label95)
                             )
                           )
                         , 
@@ -81,7 +81,7 @@ Eseq(
                       , 
                         Seq(
                           Move(
-                            Temp(261)
+                            Temp(289)
                           , 
                             Const(11)
                           )
@@ -94,7 +94,7 @@ Eseq(
                           Temp(return register)
                         )
                       , 
-                        Temp(261)
+                        Temp(289)
                       )
                     )
                   , 
@@ -112,18 +112,18 @@ Eseq(
             , 
               Move(
                 Mem(
-                  Temp(264)
+                  Temp(292)
                 )
               , 
-                Temp(260)
+                Temp(288)
               )
             )
           , 
             Move(
-              Temp(265)
+              Temp(293)
             , 
               Mem(
-                Temp(264)
+                Temp(292)
               )
             )
           )

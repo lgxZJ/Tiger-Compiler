@@ -2,6 +2,7 @@
 #include "myEnvironment.h"
 #include "mySemantic.h"
 #include "recursiveDecs.h"  //  for addFormalsToScope().
+#include "myError.h"
 
 #include <assert.h> //  for assert()
 #include <stdlib.h> //  for NULL macro
@@ -469,7 +470,7 @@ IR_myExp Trans_nil(void)
 
 ////////////////////////////////////////////////////////////
 
-//  todo: remove this wrap to places Binoperation used
+//  todo: remove this wrap to places where BinOperation is used
 IR_myExp Trans_integerLiteralExp(myIntegerLiteralExp integerLiteralExp)
 {
     //  in order to make BinOperation left operand an register,
@@ -546,6 +547,73 @@ void getAddressContent(IR_myExp* addressExpPtr)
 
 ///////////////////////////////////////////////////////////////////////////
 
+//  forwards
+static void defineLabel(IR_myStatement* stateReturnPtr, myLabel label);
+static IR_myExp combineOneTrans(
+    IR_myExp oneOperandTrans, IR_myStatement* stateReturnPtr);
+
+/////////
+
+static const int g_maxArraySizze = 1024;
+
+static void continueIfCondition(
+    IR_myExp subscriptReg, IR_RelOperator op, int continueValue,
+    IR_myStatement* stateReturnPtr)
+{
+    IR_myExp newReg = IR_makeTemp(Temp_newTemp());
+    myLabel nextLabel = Temp_newLabel();
+
+    (*stateReturnPtr) = IR_makeSeq(
+        (*stateReturnPtr),
+        IR_makeCJump(op, subscriptReg, IR_makeConst(continueValue),
+            nextLabel, NULL));
+    (*stateReturnPtr) = IR_makeSeq(
+        (*stateReturnPtr),
+        IR_makeSeq(
+            IR_makeMove(newReg, IR_makeConst(ERROR__ARRAYSIZE__NOTPOSITIVE)),
+            IR_makeExp(IR_makeCall(
+                IR_makeName(Temp_newNamedLabel("exit")),
+                IR_makeExpList(newReg, NULL)))));
+    defineLabel(stateReturnPtr, nextLabel);
+}
+
+static void exitIfSubscriptNegative(
+    IR_myExp subscriptReg, IR_myStatement* stateReturnPtr)
+{/*
+    IR_myExp newReg = IR_makeTemp(Temp_newTemp());
+    myLabel nextLabel = Temp_newLabel();
+
+    (*stateReturnPtr) = IR_makeSeq(
+        (*stateReturnPtr),
+        IR_makeCJump(IR_GreaterThan, subscriptReg, IR_makeConst(0),
+            nextLabel, NULL));
+    (*stateReturnPtr) = IR_makeSeq(
+        (*stateReturnPtr),
+        IR_makeSeq(
+            IR_makeMove(newReg, IR_makeConst(ERROR__ARRAYSIZE__NOTPOSITIVE)),
+            IR_makeExp(IR_makeCall(
+                IR_makeName(Temp_newNamedLabel("exit")),
+                IR_makeExpList(newReg, NULL)))));
+    defineLabel(stateReturnPtr, nextLabel);*/
+    continueIfCondition(subscriptReg, IR_GreaterThan, 0, stateReturnPtr);
+}
+
+static void exitIfSubscriptExceedMax(
+    IR_myExp subscriptReg, IR_myStatement* stateReturnPtr)
+{
+    continueIfCondition(subscriptReg, IR_LessEqual, g_maxArraySizze, stateReturnPtr);
+}
+
+static void checkArrayBoundsInDefinition(
+    IR_myExp subscriptReg, IR_myStatement* stateReturnPtr)
+{
+    assert (subscriptReg->kind = IR_Temp);
+    IR_myStatement stateReturn = NULL;
+
+    exitIfSubscriptNegative(subscriptReg, stateReturnPtr);
+    exitIfSubscriptExceedMax(subscriptReg, stateReturnPtr);
+}
+
 static IR_myStatement translateSpaceAllocation(
     IR_myExp subscriptResult, IR_myExp* subscriptValuePtr, IR_myExp* memoryAddrResultPtr)
 {
@@ -554,11 +622,12 @@ static IR_myStatement translateSpaceAllocation(
     IR_myExp subscriptValue;
     IR_divideExp(subscriptResult, &subscriptState, &subscriptValue);
 
-    //  todo: subscript bound check
     //  allocate space for array at runtime
     IR_myExp tempReg = IR_makeTemp(Temp_newTemp());
     IR_myStatement tempRegMoveState = IR_makeMove(
         tempReg, subscriptValue);
+    checkArrayBoundsInDefinition(tempReg, &tempRegMoveState);///////////////
+
     IR_myExp allocateResult = Frame_externalCall("malloc",
         IR_makeExpList(
             IR_makeBinOperation(IR_Multiply, tempReg, IR_makeConst(Frame_wordSize)),

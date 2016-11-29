@@ -6,7 +6,7 @@ Eseq(
         Seq(
           Seq(
             Move(
-              Temp(300)
+              Temp(328)
             , 
               Const(1)
             )
@@ -14,9 +14,9 @@ Eseq(
             null          )
         , 
           Move(
-            Temp(302)
+            Temp(330)
           , 
-            Temp(300)
+            Temp(328)
           )
         )
       , 
@@ -24,7 +24,7 @@ Eseq(
           Seq(
             Seq(
               Move(
-                Temp(303)
+                Temp(331)
               , 
                 Const(2)
               )
@@ -32,9 +32,9 @@ Eseq(
               null            )
           , 
             Move(
-              Temp(305)
+              Temp(333)
             , 
-              Temp(303)
+              Temp(331)
             )
           )
         , 
@@ -48,17 +48,17 @@ Eseq(
                       null                    )
                   , 
                     Move(
-                      Temp(306)
+                      Temp(334)
                     , 
-                      Temp(302)
+                      Temp(330)
                     )
                   )
                 , 
                   Exp(
                     BinOperation(Plus, 
-                      Temp(306)
+                      Temp(334)
                     , 
-                      Temp(305)
+                      Temp(333)
                     )
                   )
                 )
@@ -66,9 +66,9 @@ Eseq(
                 null              )
             , 
               Move(
-                Temp(308)
+                Temp(336)
               , 
-                Temp(306)
+                Temp(334)
               )
             )
           , 

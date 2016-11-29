@@ -8,7 +8,7 @@ Eseq(
             Seq(
               Seq(
                 Move(
-                  Temp(402)
+                  Temp(430)
                 , 
                   Const(1)
                 )
@@ -16,17 +16,17 @@ Eseq(
                 null              )
             , 
               CJump(Equal, 
-                Temp(402)
+                Temp(430)
               , 
                 Const(0)
-              , Label82, empty,               )
+              , Label110, empty,               )
             )
           , 
             Seq(
               Seq(
                 Seq(
                   Move(
-                    Temp(403)
+                    Temp(431)
                   , 
                     Const(1)
                   )
@@ -39,11 +39,11 @@ Eseq(
           )
         , 
           Jump(
-            Name(Label83)
+            Name(Label111)
           )
         )
       , 
-        Label(Label82)
+        Label(Label110)
       )
     , 
       Seq(
@@ -51,7 +51,7 @@ Eseq(
           Seq(
             Seq(
               Move(
-                Temp(404)
+                Temp(432)
               , 
                 Const(2)
               )
@@ -64,7 +64,7 @@ Eseq(
                   Seq(
                     Seq(
                       Move(
-                        Temp(405)
+                        Temp(433)
                       , 
                         Const(3)
                       )
@@ -73,7 +73,7 @@ Eseq(
                   , 
                     Seq(
                       Move(
-                        Temp(406)
+                        Temp(434)
                       , 
                         Const(3)
                       )
@@ -82,17 +82,17 @@ Eseq(
                   )
                 , 
                   Move(
-                    Temp(407)
+                    Temp(435)
                   , 
-                    Temp(405)
+                    Temp(433)
                   )
                 )
               , 
                 Exp(
                   BinOperation(Plus, 
-                    Temp(407)
+                    Temp(435)
                   , 
-                    Temp(406)
+                    Temp(434)
                   )
                 )
               )
@@ -105,7 +105,7 @@ Eseq(
         null      )
     )
   , 
-    Label(Label83)
+    Label(Label111)
   )
 , 
   null)

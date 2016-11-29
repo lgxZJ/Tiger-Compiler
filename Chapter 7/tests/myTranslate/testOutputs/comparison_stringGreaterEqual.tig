@@ -21,9 +21,9 @@ Eseq(
           Call(
             Name(strCompare)
           , 
-            Name(Label104)
+            Name(Label132)
           , 
-            Name(Label105)
+            Name(Label133)
           )
         )
       )
@@ -40,34 +40,34 @@ Eseq(
                   Temp(return register)
                 , 
                   Const(0)
-                , Label106, empty,                 )
+                , Label134, empty,                 )
               )
             , 
               Move(
-                Temp(431)
+                Temp(459)
               , 
                 Const(0)
               )
             )
           , 
             Jump(
-              Name(Label107)
+              Name(Label135)
             )
           )
         , 
-          Label(Label106)
+          Label(Label134)
         )
       , 
         Move(
-          Temp(431)
+          Temp(459)
         , 
           Const(1)
         )
       )
     , 
-      Label(Label107)
+      Label(Label135)
     )
   )
 , 
-  Temp(431)
+  Temp(459)
 )

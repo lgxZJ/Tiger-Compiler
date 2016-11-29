@@ -7,12 +7,12 @@ Eseq(
           Seq(
             Seq(
               null            , 
-              Label(Label154)
+              Label(Label202)
             )
           , 
             Seq(
               Move(
-                Temp(584)
+                Temp(632)
               , 
                 Const(1)
               )
@@ -21,20 +21,20 @@ Eseq(
           )
         , 
           CJump(NotEqual, 
-            Temp(584)
+            Temp(632)
           , 
             Const(1)
-          , Label153, empty,           )
+          , Label201, empty,           )
         )
       , 
         null      )
     , 
       Jump(
-        Name(Label154)
+        Name(Label202)
       )
     )
   , 
-    Label(Label153)
+    Label(Label201)
   )
 , 
   null)

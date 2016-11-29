@@ -21,9 +21,9 @@ Eseq(
           Call(
             Name(strCompare)
           , 
-            Name(Label92)
+            Name(Label120)
           , 
-            Name(Label93)
+            Name(Label121)
           )
         )
       )
@@ -41,37 +41,37 @@ Eseq(
                     Temp(return register)
                   , 
                     Const(0)
-                  , Label94, empty,                   )
+                  , Label122, empty,                   )
                 )
               , 
                 Move(
-                  Temp(428)
+                  Temp(456)
                 , 
                   Const(0)
                 )
               )
             , 
               Jump(
-                Name(Label95)
+                Name(Label123)
               )
             )
           , 
-            Label(Label94)
+            Label(Label122)
           )
         , 
           Move(
-            Temp(428)
+            Temp(456)
           , 
             Const(1)
           )
         )
       , 
-        Label(Label95)
+        Label(Label123)
       )
     , 
       Exp(
         BinOperation(Xor, 
-          Temp(428)
+          Temp(456)
         , 
           Const(1)
         )
@@ -79,5 +79,5 @@ Eseq(
     )
   )
 , 
-  Temp(428)
+  Temp(456)
 )
