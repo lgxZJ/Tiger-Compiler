@@ -342,6 +342,13 @@ void test_TransLValueArraySubscript_nestedSubscript_SeeOutput(void)
     testOneFileAndOutputCode("lValue_nestedSubscriptArray.tig");
 }
 
+///////////////
+
+void test_TransLValue_ArraySubscriptRecordFieldMixed_SeeOutput(void)
+{
+    testOneFileAndOutputCode("lValue_mixed.tig");
+}
+
 ///////////////////////////
 
 void test_TransFunctionCall_NoParamFunction_SeeOutput(void)
@@ -691,6 +698,7 @@ int main()
         { "", test_TransLValueArraySubscript_NoSubscript_SeeOutput },
         { "", test_TransLValueArraySubscript_OneSubscript_SeeOutput },
         { "", test_TransLValueArraySubscript_nestedSubscript_SeeOutput },
+        { "", test_TransLValue_ArraySubscriptRecordFieldMixed_SeeOutput },
 
         { "", test_TransFunctionCall_NoParamFunction_SeeOutput },
         { "", test_TransFunctionCall_oneParamFunction_SeeOutput },

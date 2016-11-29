@@ -1,0 +1,31 @@
+#include "../testHelper.h"
+
+#include "../../XXX.h"
+
+#include <stdlib.h>
+
+///////////////////////     test helpers    ///////////////////////
+
+
+
+///////////////////////        tests       ////////////////////////
+
+
+
+///////////////////////         main        /////////////////////
+
+int main()
+{
+    CU_pSuite suite;
+    if (!initialTests(&suite))  return EXIT_FAILURE;
+
+    CU_TestInfo tests[] = {
+        
+    };
+    if (!addTests(&suite, tests, sizeof(tests) / sizeof(tests[0])))
+        return EXIT_FAILURE;
+
+    if (!runTests(&suite))  return EXIT_FAILURE;
+    freeMemoryChain();
+    return EXIT_SUCCESS;
+}

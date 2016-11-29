@@ -470,7 +470,6 @@ IR_myExp Trans_nil(void)
 
 ////////////////////////////////////////////////////////////
 
-//  todo: remove this wrap to places where BinOperation is used
 IR_myExp Trans_integerLiteralExp(myIntegerLiteralExp integerLiteralExp)
 {
     //  in order to make BinOperation left operand an register,

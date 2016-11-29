@@ -2,7 +2,8 @@
 
 /////////////////////////////////////////////
 
-static bool g_asContent = false;
+//  treat lvalue as content by default 
+static bool g_asContent = true;
 
 /////////////////////////////////////////////
 

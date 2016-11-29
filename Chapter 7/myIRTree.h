@@ -106,7 +106,8 @@ IR_myStatement IR_makeCJump(
     IR_RelOperator op, IR_myExp leftExp, IR_myExp rightExp,
     myLabel trueLabel, myLabel falseLabel);
 
-//  every binary operation must begin with a temp expression.
+//  every binary operation must begin with a temp expression. And left register
+//  is the result.
 IR_myExp IR_makeBinOperation(IR_BinOperator op, IR_myExp left, IR_myExp right);
 IR_myExp IR_makeMem(IR_myExp addr);
 IR_myExp IR_makeTemp(myTemp temp);

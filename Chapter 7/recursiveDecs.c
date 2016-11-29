@@ -522,7 +522,7 @@ bool MySemantic_Dec_Func_Procedure_TwoPass(
 
     if (isBodyNoReturn)
     {
-        Trans_proccedureBody(bodyResult, procedureDec->name);
+        Trans_proccedureDec(bodyResult, procedureDec->name);
         return true;
     }
     else
@@ -627,7 +627,7 @@ bool MySemantic_Dec_Func_Function_TwoPass(
 
     if (isReturnTypeMatches)
     {
-        Trans_functionBody(bodyResult, functionDec->name);
+        Trans_functionDec(bodyResult, functionDec->name);
         return true;
     }
     else

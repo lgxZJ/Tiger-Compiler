@@ -14,6 +14,11 @@ myTable MySemantic_getVarAndFuncEnvironment(void)
     return MySymbol_MakeNewTable();
 }
 
+Trans_myLevel MySemantic_getCurrentLevel(void)
+{
+    return Trans_outermostLevel();
+}
+
 void test_makeVarEntry_ByDefault_MakeOneValidVarEntry(void)
 {
     Trans_myAccess fakeVarAccess = (Trans_myAccess)12;
