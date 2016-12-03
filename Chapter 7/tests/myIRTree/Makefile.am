@@ -1,12 +1,12 @@
-AM_CFLAGS = -I/home/lgxZJ/Libraries/CUnit/include\
-    -L/home/lgxZJ/Libraries/CUnit/lib       -std=c99
+AM_CFLAGS = -std=c99 -static
 
 noinst_PROGRAMS = all.out
 all_out_SOURCES = test_myIRTree.c		../../mySymbol.c\
 	../../myTable.c     	../../makeMemory.c\
-    ../testHelper.c         ../../myTemp.c
+    ../testHelper.c         ../../myTemp.c\
+	../../lValueTreater.c	../../myFrame_X86.c
 all_out_LDFLAGS = -lcunit -coverage
-all_out_LDADD = libmyIRTree.a
+all_out_LDADD = libmyIRTree.a -lcunit	
 
 noinst_LIBRARIES = libmyIRTree.a
 libmyIRTree_a_SOURCES = ../../myIRTree.c ../../myIRTree.h
