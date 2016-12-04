@@ -323,6 +323,8 @@ void test_IRDivideExp_CallExp_ExtractArgs(void)
     IR_divideExp(exp, &state, &value);
 
     CU_ASSERT_EQUAL(state->kind, IR_Seq);
+    CU_ASSERT_EQUAL(state->u.seq.right->kind, IR_Move);
+    CU_ASSERT_EQUAL(state->u.seq.right->u.move.src->kind, IR_Temp);
     CU_ASSERT_EQUAL(value->kind, IR_Temp);
 }
 
