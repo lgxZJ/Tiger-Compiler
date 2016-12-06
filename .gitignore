@@ -28,3 +28,18 @@
 
 #	input files for autotools
 **/*.in
+
+#	auto-generated files of autotools
+**/aclocal.m4
+**/autom4te.cache/*
+**/ar-lib
+**/configure
+**/depcomp
+**/install-sh
+**/missing
+**/.deps/*
+**/.dirstamp
+**/.vscode/*
+
+#	build directory
+**/build
