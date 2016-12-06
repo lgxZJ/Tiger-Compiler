@@ -328,6 +328,47 @@ void test_IRDivideExp_CallExp_ExtractArgs(void)
     CU_ASSERT_EQUAL(value->kind, IR_Temp);
 }
 
+/////////////////////////////////////////////////////////////////
+
+void test_RevertRelOperator_OneOperator_CheckWithExpected(
+    IR_RelOperator inputOp, IR_RelOperator expectedResult)
+{
+    IR_RelOperator actualResult = revertRelOperator(inputOp);
+    CU_ASSERT_EQUAL(expectedResult, actualResult);
+}
+
+///////////////////////
+
+void test_RevertRelOperator_Equal_ReturnNotEqual(void)
+{
+    test_RevertRelOperator_OneOperator_CheckWithExpected(IR_Equal, IR_NotEqual);
+}
+
+void test_RevertRelOperator_NotEqual_ReturnEqual(void)
+{
+    test_RevertRelOperator_OneOperator_CheckWithExpected(IR_NotEqual, IR_Equal);
+}
+
+void test_RevertRelOperator_LessThan_ReturnGreaterEqual(void)
+{
+    test_RevertRelOperator_OneOperator_CheckWithExpected(IR_LessThan, IR_GreaterEqual);
+}
+
+void test_RevertRelOperator_LessEqual_ReturnGreaterThan(void)
+{
+    test_RevertRelOperator_OneOperator_CheckWithExpected(IR_LessEqual, IR_GreaterThan);
+}
+
+void test_RevertRelOperator_GreaterThan_ReturnLessEqual(void)
+{
+    test_RevertRelOperator_OneOperator_CheckWithExpected(IR_GreaterThan, IR_LessEqual);
+}
+
+void test_RevertRelOperator_GreaterEqual_ReturnLessThan(void)
+{
+    test_RevertRelOperator_OneOperator_CheckWithExpected(IR_GreaterEqual, IR_LessThan);
+}
+
 ///////////////////////         main        /////////////////////
 
 int main()
@@ -361,7 +402,14 @@ int main()
         { "", test_IRDivideExp_TreatLValueAsContent_DoConvertToRegister },
         { "", test_IRDivideExp_ESeqExp_ReturnInnerExpAsItsExp },
         { "", test_IRDivideExp_BinOperationExp_DivideRightAndRecombineWithLeft },
-        { "", test_IRDivideExp_CallExp_ExtractArgs }
+        { "", test_IRDivideExp_CallExp_ExtractArgs },
+
+        { "", test_RevertRelOperator_Equal_ReturnNotEqual },
+        { "", test_RevertRelOperator_Equal_ReturnNotEqual },
+	{ "", test_RevertRelOperator_LessThan_ReturnGreaterEqual},
+	{ "", test_RevertRelOperator_LessEqual_ReturnGreaterThan },
+	{ "", test_RevertRelOperator_GreaterThan_ReturnLessEqual },
+	{ "", test_RevertRelOperator_GreaterEqual_ReturnLessThan },
     };
     if (!addTests(&suite, tests, sizeof(tests) / sizeof(tests[0])))
         return EXIT_FAILURE;

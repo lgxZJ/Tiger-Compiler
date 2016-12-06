@@ -293,3 +293,25 @@ void IR_divideExp(IR_myExp one, IR_myStatement* stateParts, IR_myExp* valueParts
         default:       assert (false);
     }
 }
+
+//////////////////////////////////////////////////////////////////////////
+
+IR_RelOperator revertRelOperator(IR_RelOperator op)
+{
+    switch (op)
+    {
+        case IR_Equal:          return IR_NotEqual;
+        case IR_NotEqual:       return IR_Equal;
+	
+        case IR_LessThan:       return IR_GreaterEqual;
+        case IR_LessEqual:      return IR_GreaterThan;
+        case IR_GreaterThan:    return IR_LessEqual;
+        case IR_GreaterEqual:   return IR_LessThan;
+	
+        case IR_ULessThan:      return IR_UGreaterEqual;
+        case IR_ULessEqual:     return IR_UGreaterThan;
+        case IR_UGreaterThan:   return IR_ULessEqual;
+        case IR_UGreaterEqual:  return IR_ULessThan;
+        default:        assert (false);
+    }
+}
