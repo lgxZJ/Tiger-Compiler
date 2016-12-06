@@ -134,6 +134,8 @@ IR_myExpList IR_makeExpList(IR_myExp head, IR_myExpList tails);
 // 
 void IR_divideExp(IR_myExp one, IR_myStatement* stateParts, IR_myExp* valueParts);
 
+IR_RelOperator revertRelOperator(IR_RelOperator op);
+
 }
 
 #endif
