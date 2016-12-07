@@ -42,7 +42,7 @@ namespace lgxZJ
 
         /////////////////////////////////////////////////////////////////////
 
-        Blocks Canonical::ToBlocks(Statements statements)
+        Blocks Canonical::ToBlocks(Statements& statements)
         {
             Blocks blocks;
 
@@ -51,6 +51,8 @@ namespace lgxZJ
             {
                 if (BlockStartsWithoutLabel(block, state))
                     DefineALabelForBlock(block);
+                if (FormerBlockEndsWithNonFalseLabelCJump(blocks))
+                    FillNonFalseLabelCJump(blocks.back(), GetCurrentBlockLabel(block, state));
 
                 if (BlockEndsWithoutJumpable(block, state))
                     AddJumpableAndAddBlockToResult(blocks, block, state->u.label);
@@ -79,13 +81,33 @@ namespace lgxZJ
         bool Canonical::BlockEndsWithoutJumpable(Block& block, IR_myStatement state)
         {
             return  state->kind == IR_myStatement_::IR_Label &&
-                    !block.empty() &&
-                    !IsJumpableStatement(state);
+                    !block.empty();
         }
 
         void Canonical::DefineALabelForBlock(Block& block)
         {
             block.push_back(IR_makeLabel(Temp_newLabel()));
+        }
+
+
+        bool Canonical::FormerBlockEndsWithNonFalseLabelCJump(Blocks& blocks)
+        {
+            if (blocks.empty())
+                return false;
+
+            Block& formerBlock = blocks.back();
+            return  formerBlock.back()->kind == IR_myStatement_::IR_CJump &&
+                    formerBlock.back()->u.cjump.falseLabel == nullptr;
+        }
+
+        myLabel Canonical::GetCurrentBlockLabel(Block& block, IR_myStatement statement)
+        {
+            return block.empty() ? statement->u.label : block.front()->u.label;
+        }
+
+        void Canonical::FillNonFalseLabelCJump(Block& formerBlock, myLabel falseLabel)
+        {
+            formerBlock.back()->u.cjump.falseLabel = falseLabel;
         }
 
         void Canonical::AddBlockToResult(Blocks& blocks, Block& block)
@@ -110,6 +132,162 @@ namespace lgxZJ
                 DefineALabelForBlock(block); 
             myLabel epilogueLabel = Temp_newLabel();
             AddJumpableAndAddBlockToResult(blocks, block, epilogueLabel);
+        }
+
+        /////////////////////////////////////////////////////////////////////
+
+        Blocks Canonical::Trace(Blocks blocks)
+        {
+            Blocks result;
+
+            IndexSet currentTraceIndices;
+            while (!blocks.empty())
+            {
+                currentTraceIndices = GetNewTraceIndices(blocks);
+                AppendNewTraceToResult(result, blocks, currentTraceIndices);
+                RemoveMarkedBlocks(blocks, currentTraceIndices);
+            }
+
+            return result;
+        }
+
+        Canonical::IndexSet Canonical::GetNewTraceIndices(Blocks& blocks)
+        {
+            //  trace start from the first block
+            IndexSet traceIndices;
+            traceIndices.push_back(0);
+
+            int nextBlockIndex = GetNextBlockIndex(blocks, traceIndices);
+            while (nextBlockIndex != -1 && !IsBlockMarked(traceIndices, nextBlockIndex))
+            {
+                traceIndices.push_back(nextBlockIndex);
+            }
+
+            return traceIndices;
+        }
+
+
+        void Canonical::AppendNewTraceToResult(Blocks& result, Blocks& blocks, IndexSet& traceIndices)
+        {
+            for_each(traceIndices.begin(), traceIndices.end(),
+                [&result, &blocks](int index)
+                {
+                result.push_back(blocks.at(index));
+                });
+        }
+
+        int Canonical::GetNextBlockIndex(Blocks& blocks, IndexSet& currentTraceIndices)
+        {
+            assert (!currentTraceIndices.empty());
+
+            //  The traced block index sequence is ordered to make the same with traced blocks.
+            //  So, the last index belongs to the last traced block
+            IR_myStatement jumpableState = blocks.at(currentTraceIndices.back()).back();
+            myLabel nextLabel = GetNextLabelFromJumpable(jumpableState);
+
+            if (IsEpilogueLabel(blocks, nextLabel))
+                return -1;
+            else
+                FindLabelInBlocks(blocks, nextLabel);
+        }
+
+        myLabel Canonical::GetNextLabelFromJumpable(IR_myStatement jumpableState)
+        {
+            switch (jumpableState->kind)
+            {
+                case IR_myStatement_::IR_Jump:
+                {
+                    assert (jumpableState->u.jump.exp->kind == IR_myExp_::IR_Name);
+                    return jumpableState->u.jump.exp->u.name;
+                }
+                case IR_myStatement_::IR_CJump:
+                {
+                    myLabel falseLabel = jumpableState->u.cjump.falseLabel;
+
+                    //      every cjump should only contain valid labels and there must be one
+                    //  label that is valid.
+                    if (falseLabel == nullptr)
+                    {
+                        jumpableState->u.cjump.falseLabel = jumpableState->u.cjump.trueLabel;
+                        jumpableState->u.cjump.trueLabel = falseLabel;
+                        jumpableState->u.cjump.op = revertRelOperator(jumpableState->u.cjump.op);
+                    }
+                    return jumpableState->u.cjump.falseLabel;
+                }
+                default:    assert (false);
+            }
+        }
+
+        bool Canonical::IsEpilogueLabel(Blocks& blocks, myLabel label)
+        {
+            return label == blocks.back().back()->u.jump.exp->u.name;
+        }
+
+        int Canonical::FindLabelInBlocks(Blocks& blocks, myLabel label)
+        {
+            for (int i = 0; i < blocks.size(); ++i)
+                if (blocks.at(i).front()->u.label == label) return i;
+            return -1;
+        }
+
+        bool Canonical::IsBlockMarked(IndexSet& currentTraceIndices, unsigned blockIndex)
+        {
+            return find_if(currentTraceIndices.begin(), currentTraceIndices.end(), [blockIndex](unsigned one)
+                        {
+                            return one == blockIndex;
+                        })
+                    != currentTraceIndices.end();
+        }
+
+        void Canonical::RemoveMarkedBlocks(Blocks& blocks, IndexSet& indices)
+        {
+            Blocks result;
+            for (int i = 0; i < blocks.size(); ++i)
+            {
+                if (!IsBlockMarked(indices, i))
+                    result.push_back(blocks.at(i));
+            }
+            swap(blocks, result);
+        }
+
+        ///////////////////////////////////////////////////////////////////////////
+
+        Statements Canonical::Flatten(Blocks blocks)
+        {
+            RemoveRedundantJumps(blocks);
+
+            Statements statements;
+            for_each (blocks.begin(), blocks.end(), [&statements](Block& block)
+            {
+                for_each (block.begin(), block.end(), [&statements](IR_myStatement state)
+                {
+                    statements.push_back(state);
+                });
+            });
+
+            return statements;
+        }
+
+        void Canonical::RemoveRedundantJumps(Blocks& blocks)
+        {
+            //  skip epilogue jump
+            for (size_t i = 0; i + 1 < blocks.size(); ++i)
+            {
+                IR_myStatement jumpableState = blocks.at(i).back();
+                switch (jumpableState->kind)
+                {
+                    case IR_myStatement_::IR_CJump:
+                        break;
+                    case IR_myStatement_::IR_Jump:
+                        //  i only use on jump target in all the former phases
+                        assert (jumpableState->u.jump.exp->kind == IR_myExp_::IR_Name);
+                        assert (jumpableState->u.jump.jumpLabels->tail == nullptr);
+                        if (jumpableState->u.jump.jumpLabels->head == blocks.at(i + 1).front()->u.label)
+                            blocks.at(i).pop_back();
+                        break;
+                    default:        assert (false);
+                }
+            }
         }
     }
 }

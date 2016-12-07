@@ -30,13 +30,30 @@ class CanonicalTest: public CppUnit::TestFixture
                 "testLinearize", &CanonicalTest::testLinearize_ExpStatement_CollectedInResult));
 
             suiteOfTests->addTest(new CppUnit::TestCaller<CanonicalTest>(
-                "testLinearize", &CanonicalTest::testToBlocks_EmptyStatements_CollectOnlyEpilogueBlock));
+                "testToBlocks", &CanonicalTest::testToBlocks_EmptyStatements_CollectOnlyEpilogueBlock));
             suiteOfTests->addTest(new CppUnit::TestCaller<CanonicalTest>(
-                "testLinearize", &CanonicalTest::testToBlocks_OneBlockStatementsWithNoBeginLabel_AddLabelAutomatically));
+                "testToBlocks", &CanonicalTest::testToBlocks_OneBlockStatementsWithNoBeginLabel_AddLabelAutomatically));
             suiteOfTests->addTest(new CppUnit::TestCaller<CanonicalTest>(
-                "testLinearize", &CanonicalTest::testToBlocks_TwoBlockStatementWithNoJumpAtEnd_AddEpilogueJumpAutomatically));
+                "testToBlocks", &CanonicalTest::testToBlocks_TwoBlockStatementWithNoJumpAtEnd_AddEpilogueJumpAutomatically));
             suiteOfTests->addTest(new CppUnit::TestCaller<CanonicalTest>(
-                "testLinearize", &CanonicalTest::testToBlocks_OneBlockstatementsEndWithJumpable_AddEpilogueBlock));
+                "testToBlocks", &CanonicalTest::testToBlocks_OneBlockstatementsEndWithJumpable_AddEpilogueBlock));
+                suiteOfTests->addTest(new CppUnit::TestCaller<CanonicalTest>(
+                "testToBlocks", &CanonicalTest::testToBlocks_NonFalseLabelCJumpBlocks_FillThatCJump));
+
+            suiteOfTests->addTest(new CppUnit::TestCaller<CanonicalTest>(
+                "testTrace", &CanonicalTest::testTrace_OneControlFlowBlocks_SequenceNotChange));
+            suiteOfTests->addTest(new CppUnit::TestCaller<CanonicalTest>(
+                "testTrace", &CanonicalTest::testTrace_OneTrueFollowedCJumpBlocks_FirstFollowedByFalseFlow));
+            suiteOfTests->addTest(new CppUnit::TestCaller<CanonicalTest>(
+                "testTrace", &CanonicalTest::testTrace_OneFalseFollowedCJumpBlocks_FirstFollowedByFalseFlow));
+            suiteOfTests->addTest(new CppUnit::TestCaller<CanonicalTest>(
+                "testTrace", &CanonicalTest::testTrace_JumpNotFollowedByTargetBlocks_JumpFollowedByTarget));
+            suiteOfTests->addTest(new CppUnit::TestCaller<CanonicalTest>(
+                "testTrace", &CanonicalTest::testTrace_JumpFollowedByTargetBlocks_JumpFollowedByTarget));
+            suiteOfTests->addTest(new CppUnit::TestCaller<CanonicalTest>(
+                "testTrace", &CanonicalTest::testFlatten_JumpFollowedByTargetBlocks_JumpRemoved));
+            suiteOfTests->addTest(new CppUnit::TestCaller<CanonicalTest>(
+                "testTrace", &CanonicalTest::testFlatten_ByDefault_StatementsOrderIsKept));
             
             return suiteOfTests;
         }
@@ -175,6 +192,224 @@ class CanonicalTest: public CppUnit::TestFixture
             CPPUNIT_ASSERT_EQUAL(blocks.front().at(0)->kind, IR_myStatement_::IR_Label);
             CPPUNIT_ASSERT_EQUAL(blocks.front().at(1)->kind, IR_myStatement_::IR_Label);
             CPPUNIT_ASSERT_EQUAL(blocks.front().at(2)->kind, IR_myStatement_::IR_Label);
+        }
+
+    void testToBlocks_NonFalseLabelCJumpBlocks_FillThatCJump()
+    {
+        myLabel trueLabel = Temp_newLabel();
+        myLabel doneLabel = Temp_newLabel();
+        Statements statements = makeNonFalseLabelCJumpStatements(trueLabel, doneLabel);        
+
+        Blocks result = Canonical::ToBlocks(statements);
+
+        CPPUNIT_ASSERT_EQUAL((size_t)4, result.size());
+        CPPUNIT_ASSERT_EQUAL(IR_myStatement_::IR_Label, result.at(1).front()->kind);
+        CPPUNIT_ASSERT_EQUAL(result.at(1).front()->u.label, result.at(0).back()->u.cjump.falseLabel);
+    }
+
+        /////////////////////////////////////////////////////////////////////////////////
+
+        static Statements makeNonFalseLabelCJumpStatements(myLabel trueLabel, myLabel doneLabel)
+        {
+            Statements statements;
+            statements.push_back(
+            IR_makeCJump(IR_Equal, IR_makeConst(1), IR_makeConst(1), trueLabel, nullptr));
+
+            //  uncomment lines below to see if ToBlocks() works correct if label is followed but
+            //  no cjump false-label filled.
+            //statements.push_back(IR_makeLabel(Temp_newLabel()));
+            statements.push_back(IR_makeExp((IR_myExp)12));
+            statements.push_back(IR_makeJump(IR_makeName(doneLabel), Temp_makeLabelList(doneLabel, nullptr)));
+
+            statements.push_back(IR_makeLabel(trueLabel));
+            statements.push_back(IR_makeLabel(doneLabel));
+            return statements;
+        }
+
+        static Blocks makeOneControlFlowBlocks()
+        {
+            Statements statements;
+            myLabel firstLabel = Temp_newLabel();
+            statements.push_back(IR_makeJump(
+                IR_makeName(firstLabel), Temp_makeLabelList(firstLabel, nullptr)));
+
+            myLabel secondLabel = Temp_newLabel();
+            statements.push_back(IR_makeLabel(firstLabel));
+            statements.push_back(IR_makeJump(
+                IR_makeName(secondLabel), Temp_makeLabelList(secondLabel, nullptr)));
+            
+            statements.push_back(IR_makeLabel(secondLabel));
+
+            return Canonical::ToBlocks(statements);
+        }
+
+        Blocks makeOneTrueFollowedCJumpBlocks(
+            myLabel trueLabel, myLabel falseLabel, myLabel doneLabel)
+        {
+            Statements statements;
+            statements.push_back(
+                IR_makeCJump(IR_Equal, IR_makeConst(1), IR_makeConst(1),trueLabel, falseLabel));
+            
+            statements.push_back(IR_makeLabel(trueLabel));
+            statements.push_back(
+                IR_makeJump(IR_makeName(doneLabel), Temp_makeLabelList(doneLabel, nullptr)));
+            
+            statements.push_back(IR_makeLabel(falseLabel));
+            statements.push_back(
+                IR_makeJump(IR_makeName(doneLabel), Temp_makeLabelList(doneLabel, nullptr)));
+            
+            statements.push_back(IR_makeLabel(doneLabel));
+            return Canonical::ToBlocks(statements);
+        }
+
+        Blocks makeOneFalseFollowedCJumpBlocks(
+            myLabel trueLabel, myLabel falseLabel, myLabel doneLabel)
+        {
+            return makeOneTrueFollowedCJumpBlocks(falseLabel, trueLabel, doneLabel);
+        }
+
+        Blocks makeJumpNotFollowedByTargetBlocks(myLabel jumpTarget, myLabel followedLabel)
+        {
+            myLabel doneLabel = Temp_newLabel();
+            Statements statements;
+
+            statements.push_back(
+                IR_makeJump(IR_makeName(jumpTarget), Temp_makeLabelList(jumpTarget, nullptr)));
+            
+            statements.push_back(IR_makeLabel(followedLabel));
+            statements.push_back(IR_makeExp((IR_myExp)12));
+            statements.push_back(
+                IR_makeJump(IR_makeName(doneLabel), Temp_makeLabelList(doneLabel, nullptr)));
+
+            statements.push_back(IR_makeLabel(jumpTarget));
+            statements.push_back(
+                IR_makeJump(IR_makeName(doneLabel), Temp_makeLabelList(doneLabel, nullptr)));
+
+            statements.push_back(IR_makeLabel(doneLabel));
+            return Canonical::ToBlocks(statements);
+        }
+
+        Blocks makeJumpFollowedByTargetBlocks(myLabel jumpTarget)
+        {
+            Statements statements;
+
+            statements.push_back(
+                IR_makeJump(IR_makeName(jumpTarget), Temp_makeLabelList(jumpTarget, nullptr)));
+            statements.push_back(IR_makeLabel(jumpTarget));
+            return Canonical::ToBlocks(statements);
+        }
+
+        //////////////////////////
+
+        void testTrace_OneControlFlowBlocks_SequenceNotChange()
+        {
+            Blocks blocks = makeOneControlFlowBlocks();
+
+            Blocks result = Canonical::Trace(blocks);
+
+            CPPUNIT_ASSERT_EQUAL(blocks.size(), result.size());
+            for (int i = 0; i < blocks.size(); ++i)
+                CPPUNIT_ASSERT_EQUAL(blocks.at(i).front(), result.at(i).front());
+        }
+
+        void testTrace_OneTrueFollowedCJumpBlocks_FirstFollowedByFalseFlow()
+        {
+            myLabel doneLabel = Temp_newLabel();
+            myLabel trueLabel = Temp_newLabel();
+            myLabel falseLabel = Temp_newLabel();
+            Blocks blocks = makeOneTrueFollowedCJumpBlocks(trueLabel, falseLabel, doneLabel); 
+
+            Blocks result = Canonical::Trace(blocks);
+
+            CPPUNIT_ASSERT_EQUAL((size_t)4, result.size());
+            CPPUNIT_ASSERT_EQUAL(IR_myStatement_::IR_CJump, result.at(0).back()->kind);
+            CPPUNIT_ASSERT_EQUAL(falseLabel, result.at(1).front()->u.label);
+        }
+
+        void testTrace_OneFalseFollowedCJumpBlocks_FirstFollowedByFalseFlow()
+        {
+            myLabel doneLabel = Temp_newLabel();
+            myLabel trueLabel = Temp_newLabel();
+            myLabel falseLabel = Temp_newLabel();
+            Blocks blocks = makeOneFalseFollowedCJumpBlocks(falseLabel, trueLabel, doneLabel); 
+
+            Blocks result = Canonical::Trace(blocks);
+
+            CPPUNIT_ASSERT_EQUAL((size_t)4, result.size());
+            CPPUNIT_ASSERT_EQUAL(IR_myStatement_::IR_CJump, result.at(0).back()->kind);
+            CPPUNIT_ASSERT_EQUAL(falseLabel, result.at(1).front()->u.label);
+        }
+
+        void testTrace_JumpNotFollowedByTargetBlocks_JumpFollowedByTarget()
+        {
+            myLabel jumpTarget = Temp_newLabel();
+            myLabel followedLabel = Temp_newLabel();
+            Blocks blocks = makeJumpNotFollowedByTargetBlocks(jumpTarget, followedLabel);
+
+            Blocks result = Canonical::Trace(blocks);
+
+            CPPUNIT_ASSERT_EQUAL((size_t)4, result.size());
+            CPPUNIT_ASSERT_EQUAL(result.at(1).front()->u.label, result.at(0).back()->u.jump.exp->u.name);
+        }
+
+        void testTrace_JumpFollowedByTargetBlocks_JumpFollowedByTarget()
+        {
+            myLabel jumpTarget = Temp_newLabel();
+            Blocks blocks = makeJumpFollowedByTargetBlocks(jumpTarget);
+
+            Blocks result = Canonical::Trace(blocks);
+
+            CPPUNIT_ASSERT_EQUAL((size_t)2, result.size());
+            CPPUNIT_ASSERT_EQUAL(result.at(1).front()->u.label, result.at(0).back()->u.jump.exp->u.name);
+        }
+
+        /////////////////////////////////////////////////////////////////////
+
+        Statements makeOneStatements()
+        {
+            Statements statements;
+            myLabel firstLabel = Temp_newLabel();
+            myLabel secondLabel = Temp_newLabel();
+
+            statements.push_back(IR_makeLabel(Temp_newLabel()));
+            statements.push_back(
+                IR_makeCJump(IR_Equal, IR_makeConst(1), IR_makeConst(1), secondLabel, nullptr));
+
+            statements.push_back(IR_makeLabel(firstLabel));
+            statements.push_back(IR_makeJump(IR_makeName(secondLabel), Temp_makeLabelList(secondLabel, nullptr)));
+
+            statements.push_back(IR_makeLabel(secondLabel));
+            return statements;
+        }
+
+        ////////////////////////////////
+
+        void testFlatten_JumpFollowedByTargetBlocks_JumpRemoved()
+        {
+            myLabel jumpTarget = Temp_newLabel();
+            Blocks blocks = Canonical::Trace(makeJumpFollowedByTargetBlocks(jumpTarget));
+
+            Statements result = Canonical::Flatten(blocks);
+
+            CPPUNIT_ASSERT_EQUAL((size_t)3, result.size());
+            CPPUNIT_ASSERT_EQUAL(IR_myStatement_::IR_Label, result.at(0)->kind);
+            CPPUNIT_ASSERT_EQUAL(IR_myStatement_::IR_Label, result.at(1)->kind);
+            CPPUNIT_ASSERT_EQUAL(IR_myStatement_::IR_Jump, result.at(2)->kind);
+        }
+
+        void testFlatten_ByDefault_StatementsOrderIsKept()
+        {
+            Statements statements = makeOneStatements();
+            
+            Statements result =
+                Canonical::Flatten(Canonical::Trace(Canonical::ToBlocks(statements)));
+
+            CPPUNIT_ASSERT_EQUAL((size_t)5, result.size());
+            CPPUNIT_ASSERT_EQUAL(IR_myStatement_::IR_Label, result.at(0)->kind);
+            CPPUNIT_ASSERT_EQUAL(IR_myStatement_::IR_CJump, result.at(1)->kind);
+            CPPUNIT_ASSERT_EQUAL(IR_myStatement_::IR_Label, result.at(2)->kind);
+            CPPUNIT_ASSERT_EQUAL(IR_myStatement_::IR_Label, result.at(3)->kind);
+            CPPUNIT_ASSERT_EQUAL(IR_myStatement_::IR_Jump, result.at(4)->kind);
         }
 };
 
