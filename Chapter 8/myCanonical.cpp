@@ -157,8 +157,9 @@ namespace lgxZJ
             IndexSet traceIndices;
             traceIndices.push_back(0);
 
-            int nextBlockIndex = GetNextBlockIndex(blocks, traceIndices);
-            while (nextBlockIndex != -1 && !IsBlockMarked(traceIndices, nextBlockIndex))
+            int nextBlockIndex = -1;
+            while ((nextBlockIndex = GetNextBlockIndex(blocks, traceIndices)) != -1 &&
+                    !IsBlockMarked(traceIndices, nextBlockIndex))
             {
                 traceIndices.push_back(nextBlockIndex);
             }
@@ -170,9 +171,9 @@ namespace lgxZJ
         void Canonical::AppendNewTraceToResult(Blocks& result, Blocks& blocks, IndexSet& traceIndices)
         {
             for_each(traceIndices.begin(), traceIndices.end(),
-                [&result, &blocks](int index)
+                [&result, &blocks](unsigned index)
                 {
-                result.push_back(blocks.at(index));
+                    result.push_back(blocks.at(index));
                 });
         }
 
@@ -182,13 +183,14 @@ namespace lgxZJ
 
             //  The traced block index sequence is ordered to make the same with traced blocks.
             //  So, the last index belongs to the last traced block
+            int ii = currentTraceIndices.back();
             IR_myStatement jumpableState = blocks.at(currentTraceIndices.back()).back();
             myLabel nextLabel = GetNextLabelFromJumpable(jumpableState);
 
             if (IsEpilogueLabel(blocks, nextLabel))
                 return -1;
             else
-                FindLabelInBlocks(blocks, nextLabel);
+                return FindLabelInBlocks(blocks, nextLabel);
         }
 
         myLabel Canonical::GetNextLabelFromJumpable(IR_myStatement jumpableState)
@@ -196,24 +198,10 @@ namespace lgxZJ
             switch (jumpableState->kind)
             {
                 case IR_myStatement_::IR_Jump:
-                {
                     assert (jumpableState->u.jump.exp->kind == IR_myExp_::IR_Name);
                     return jumpableState->u.jump.exp->u.name;
-                }
                 case IR_myStatement_::IR_CJump:
-                {
-                    myLabel falseLabel = jumpableState->u.cjump.falseLabel;
-
-                    //      every cjump should only contain valid labels and there must be one
-                    //  label that is valid.
-                    if (falseLabel == nullptr)
-                    {
-                        jumpableState->u.cjump.falseLabel = jumpableState->u.cjump.trueLabel;
-                        jumpableState->u.cjump.trueLabel = falseLabel;
-                        jumpableState->u.cjump.op = revertRelOperator(jumpableState->u.cjump.op);
-                    }
                     return jumpableState->u.cjump.falseLabel;
-                }
                 default:    assert (false);
             }
         }

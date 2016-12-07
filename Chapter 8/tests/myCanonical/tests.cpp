@@ -50,10 +50,11 @@ class CanonicalTest: public CppUnit::TestFixture
                 "testTrace", &CanonicalTest::testTrace_JumpNotFollowedByTargetBlocks_JumpFollowedByTarget));
             suiteOfTests->addTest(new CppUnit::TestCaller<CanonicalTest>(
                 "testTrace", &CanonicalTest::testTrace_JumpFollowedByTargetBlocks_JumpFollowedByTarget));
+	    
             suiteOfTests->addTest(new CppUnit::TestCaller<CanonicalTest>(
-                "testTrace", &CanonicalTest::testFlatten_JumpFollowedByTargetBlocks_JumpRemoved));
+                "testFlatten", &CanonicalTest::testFlatten_JumpFollowedByTargetBlocks_JumpRemoved));
             suiteOfTests->addTest(new CppUnit::TestCaller<CanonicalTest>(
-                "testTrace", &CanonicalTest::testFlatten_ByDefault_StatementsOrderIsKept));
+                "testFlatten", &CanonicalTest::testFlatten_ByDefault_StatementsOrderIsKept));
             
             return suiteOfTests;
         }
@@ -194,18 +195,18 @@ class CanonicalTest: public CppUnit::TestFixture
             CPPUNIT_ASSERT_EQUAL(blocks.front().at(2)->kind, IR_myStatement_::IR_Label);
         }
 
-    void testToBlocks_NonFalseLabelCJumpBlocks_FillThatCJump()
-    {
-        myLabel trueLabel = Temp_newLabel();
-        myLabel doneLabel = Temp_newLabel();
-        Statements statements = makeNonFalseLabelCJumpStatements(trueLabel, doneLabel);        
+        void testToBlocks_NonFalseLabelCJumpBlocks_FillThatCJump()
+        {
+            myLabel trueLabel = Temp_newLabel();
+            myLabel doneLabel = Temp_newLabel();
+            Statements statements = makeNonFalseLabelCJumpStatements(trueLabel, doneLabel);        
 
-        Blocks result = Canonical::ToBlocks(statements);
+            Blocks result = Canonical::ToBlocks(statements);
 
-        CPPUNIT_ASSERT_EQUAL((size_t)4, result.size());
-        CPPUNIT_ASSERT_EQUAL(IR_myStatement_::IR_Label, result.at(1).front()->kind);
-        CPPUNIT_ASSERT_EQUAL(result.at(1).front()->u.label, result.at(0).back()->u.cjump.falseLabel);
-    }
+            CPPUNIT_ASSERT_EQUAL((size_t)4, result.size());
+            CPPUNIT_ASSERT_EQUAL(IR_myStatement_::IR_Label, result.at(1).front()->kind);
+            CPPUNIT_ASSERT_EQUAL(result.at(1).front()->u.label, result.at(0).back()->u.cjump.falseLabel);
+        }
 
         /////////////////////////////////////////////////////////////////////////////////
 
