@@ -64,8 +64,11 @@ namespace lgxZJ
                 static bool IsJumpableStatement(IR_myStatement statement);
                 static void DefineALabelForBlock(Block& block);
                 static bool FormerBlockEndsWithNonFalseLabelCJump(Blocks& blocks);
+                static bool FormerBlockEndsWithCJump(Blocks& blocks);
                 static myLabel GetCurrentBlockLabel(Block& block, IR_myStatement statement);
-                static void FillNonFalseLabelCJump(Block& formerBlock, myLabel falseLabel);                
+                static void FillNonFalseLabelCJump(Block& formerBlock, myLabel falseLabel);
+                static bool FormerBlockEndsWithCJumpButNeitherFollows(Blocks& blocks, myLabel followLabel);
+                static void RewriteCJump(Blocks& blocks);                
                 static void AddJumpableAndAddBlockToResult(Blocks& blocks, Block& block, myLabel nextLabel);
                 static void AddBlockToResult(Blocks& blocks, Block& block);
                 static void AddEpilogueToRemainedAndAddBlockToResult(Blocks& blocks, Block& block);

@@ -53,6 +53,8 @@ namespace lgxZJ
                     DefineALabelForBlock(block);
                 if (FormerBlockEndsWithNonFalseLabelCJump(blocks))
                     FillNonFalseLabelCJump(blocks.back(), GetCurrentBlockLabel(block, state));
+                if (FormerBlockEndsWithCJumpButNeitherFollows(blocks, GetCurrentBlockLabel(block, state)))
+                    RewriteCJump(blocks);
 
                 if (BlockEndsWithoutJumpable(block, state))
                     AddJumpableAndAddBlockToResult(blocks, block, state->u.label);
@@ -89,15 +91,19 @@ namespace lgxZJ
             block.push_back(IR_makeLabel(Temp_newLabel()));
         }
 
-
         bool Canonical::FormerBlockEndsWithNonFalseLabelCJump(Blocks& blocks)
+        {
+            return  FormerBlockEndsWithCJump(blocks) &&
+                    blocks.back().back()->u.cjump.falseLabel == nullptr;
+        }
+
+        bool Canonical::FormerBlockEndsWithCJump(Blocks& blocks)
         {
             if (blocks.empty())
                 return false;
 
             Block& formerBlock = blocks.back();
-            return  formerBlock.back()->kind == IR_myStatement_::IR_CJump &&
-                    formerBlock.back()->u.cjump.falseLabel == nullptr;
+            return  formerBlock.back()->kind == IR_myStatement_::IR_CJump;
         }
 
         myLabel Canonical::GetCurrentBlockLabel(Block& block, IR_myStatement statement)
@@ -108,6 +114,29 @@ namespace lgxZJ
         void Canonical::FillNonFalseLabelCJump(Block& formerBlock, myLabel falseLabel)
         {
             formerBlock.back()->u.cjump.falseLabel = falseLabel;
+        }
+
+        bool Canonical::FormerBlockEndsWithCJumpButNeitherFollows(Blocks& blocks, myLabel followLabel)
+        {
+            return  FormerBlockEndsWithCJump(blocks) &&
+                    blocks.back().back()->u.cjump.falseLabel != followLabel &&
+                    blocks.back().back()->u.cjump.trueLabel != followLabel;
+        }
+
+        void Canonical::RewriteCJump(Blocks& blocks)
+        {
+            myLabel newLabel = Temp_newLabel();
+            myLabel oldFalseLabel = blocks.back().back()->u.cjump.falseLabel;
+
+            blocks.back().back()->u.cjump.falseLabel = newLabel;
+
+            Block block;
+            block.push_back(IR_makeLabel(newLabel));
+            block.push_back(
+                IR_makeJump(IR_makeName(oldFalseLabel),
+                Temp_makeLabelList(oldFalseLabel, nullptr)));
+            
+            blocks.push_back(block);
         }
 
         void Canonical::AddBlockToResult(Blocks& blocks, Block& block)

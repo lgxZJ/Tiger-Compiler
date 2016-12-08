@@ -37,8 +37,10 @@ class CanonicalTest: public CppUnit::TestFixture
                 "testToBlocks", &CanonicalTest::testToBlocks_TwoBlockStatementWithNoJumpAtEnd_AddEpilogueJumpAutomatically));
             suiteOfTests->addTest(new CppUnit::TestCaller<CanonicalTest>(
                 "testToBlocks", &CanonicalTest::testToBlocks_OneBlockstatementsEndWithJumpable_AddEpilogueBlock));
-                suiteOfTests->addTest(new CppUnit::TestCaller<CanonicalTest>(
+            suiteOfTests->addTest(new CppUnit::TestCaller<CanonicalTest>(
                 "testToBlocks", &CanonicalTest::testToBlocks_NonFalseLabelCJumpBlocks_FillThatCJump));
+            suiteOfTests->addTest(new CppUnit::TestCaller<CanonicalTest>(
+                "testToBlocks", &CanonicalTest::testToBlocks_NeitherCJumpLabelFollows_RewriteCJump));
 
             suiteOfTests->addTest(new CppUnit::TestCaller<CanonicalTest>(
                 "testTrace", &CanonicalTest::testTrace_OneControlFlowBlocks_SequenceNotChange));
@@ -197,9 +199,7 @@ class CanonicalTest: public CppUnit::TestFixture
 
         void testToBlocks_NonFalseLabelCJumpBlocks_FillThatCJump()
         {
-            myLabel trueLabel = Temp_newLabel();
-            myLabel doneLabel = Temp_newLabel();
-            Statements statements = makeNonFalseLabelCJumpStatements(trueLabel, doneLabel);        
+            Statements statements = makeNonFalseLabelCJumpStatements();        
 
             Blocks result = Canonical::ToBlocks(statements);
 
@@ -208,10 +208,49 @@ class CanonicalTest: public CppUnit::TestFixture
             CPPUNIT_ASSERT_EQUAL(result.at(1).front()->u.label, result.at(0).back()->u.cjump.falseLabel);
         }
 
+        void testToBlocks_NeitherCJumpLabelFollows_RewriteCJump()
+        {
+            Statements statements = makeCJumpWithNeitherLabelFollows();
+
+            Blocks result = Canonical::ToBlocks(statements);
+
+            CPPUNIT_ASSERT_EQUAL((size_t)6, result.size());
+            CPPUNIT_ASSERT_EQUAL(
+                result.front().back()->u.cjump.falseLabel,
+                result.at(1).front()->u.label);
+        }
+
         /////////////////////////////////////////////////////////////////////////////////
 
-        static Statements makeNonFalseLabelCJumpStatements(myLabel trueLabel, myLabel doneLabel)
+        static Statements makeCJumpWithNeitherLabelFollows()
         {
+            myLabel trueLabel = Temp_newLabel();
+            myLabel falseLabel = Temp_newLabel();
+            myLabel doneLabel = Temp_newLabel();
+
+            Statements statements;
+            statements.push_back(
+            IR_makeCJump(IR_Equal, IR_makeConst(1), IR_makeConst(1), trueLabel, falseLabel));
+
+            statements.push_back(IR_makeLabel(Temp_newLabel()));
+            statements.push_back(IR_makeExp((IR_myExp)12));
+            statements.push_back(IR_makeJump(IR_makeName(doneLabel), Temp_makeLabelList(doneLabel, nullptr)));
+
+            statements.push_back(IR_makeLabel(falseLabel));
+            statements.push_back(IR_makeJump(IR_makeName(doneLabel), Temp_makeLabelList(doneLabel, nullptr)));
+
+            statements.push_back(IR_makeLabel(trueLabel));
+            statements.push_back(IR_makeJump(IR_makeName(doneLabel), Temp_makeLabelList(doneLabel, nullptr)));
+
+            statements.push_back(IR_makeLabel(doneLabel));
+            return statements;
+        }
+
+        static Statements makeNonFalseLabelCJumpStatements()
+        {
+            myLabel trueLabel = Temp_newLabel();
+            myLabel doneLabel = Temp_newLabel();
+
             Statements statements;
             statements.push_back(
             IR_makeCJump(IR_Equal, IR_makeConst(1), IR_makeConst(1), trueLabel, nullptr));
