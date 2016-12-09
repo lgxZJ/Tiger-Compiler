@@ -1,0 +1,51 @@
+#include <cppunit/TestFixture.h>
+#include <cppunit/TestSuite.h>
+#include <cppunit/TestCaller.h>
+#include <cppunit/ui/text/TestRunner.h>
+
+#include "../../AAI/XXX.h"
+
+using namespace lgxZJ::IS;
+
+//////////////////////////////////////////////////////////////////////////////
+//                          Fakers
+
+class XXXFaker : public XXX
+{
+    public:
+        explicit XXXFaker(Move move) : Move(move)  {}
+
+        myTemp GetDstReg() const        { return dstReg; }
+        myTemp GetSrcReg() const        { return srcRep.u.reg;; }
+        OperandType GetDstType() const  { return dstType; }
+        OperandType GetSrcType() const  { return srcType; }
+        int GetSrcValue() const         { return srcRep.u.value; }
+};
+
+class XXXTest : public CppUnit::TestFixture
+{
+    public:
+        /////////////////////////////////////////////////////////////////////
+        //                          Suite Maker
+
+        static CppUnit::Test* suite()
+        {
+            CppUnit::TestSuite* suite = new CppUnit::TestSuite("XXXTest");
+
+            suite->addTest(new CppUnit::TestCaller<MoveTest>(
+                "testCtor", &MoveTest::testCtor_TwoContentOperands_SetAsItIs));
+
+            return suite;
+        }
+
+        ////////////////////////////////////////////////////////////////////
+        //                          tests
+};
+
+int main()
+{
+    CppUnit::TextUi::TestRunner runner;
+    runner.addTest(XXXTest::suite());
+    runner.run();
+    return 0;
+}
