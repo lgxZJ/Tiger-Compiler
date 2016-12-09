@@ -45,5 +45,3 @@ show-coverage:
 > lcov --directory . --capture --output-file $(COVERAGE_FOLDER)/coverage.info
 > genhtml -f $(COVERAGE_FOLDER)/coverage.info --output-directory $(COVERAGE_FOLDER)
 > firefox $(COVERAGE_FOLDER)/index.html &
-
-

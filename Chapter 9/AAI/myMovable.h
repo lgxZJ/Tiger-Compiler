@@ -1,7 +1,7 @@
 #ifndef MY_MOVABLE_H
 #define MY_MOVABLE_H
 
-#include "myAAIs.h"
+#include "myAaiBase.h"
 
 namespace lgxZJ
 {
@@ -17,16 +17,23 @@ namespace lgxZJ
             public:
                 //  Content -> Register
                 //  Memory  -> [Register]
-                enum OperandType { Content, Memory };
+                enum OperandType { Content, Memory, None };
 
-                explicit Move(myTemp dst,myTemp src,
-                            OperandType dstType = Content,
-                            OperandType srcType = Content);
+                explicit Move(myTemp oneDstReg, myTemp oneSrcReg,
+                            OperandType oneDstType = Content,
+                            OperandType oneSrcType = Content);
+                explicit Move(myTemp oneDstReg, OperandType oneDstType, int constValue);
+
+                virtual std::string ToString() const;
 
             private:
-                myTemp      dst;
-                myTemp      src;
+                std::string OneOperandToString(myTemp operand, OperandType type) const;
+
+            protected:
+                myTemp      dstReg;
                 OperandType dstType;
+
+                BinaryUnion srcRep;
                 OperandType srcType;
         };
     }

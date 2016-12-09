@@ -1,4 +1,6 @@
 #include "myComputable.h"
+#include "../CXX_myFrame.h"
+
 
 using namespace std;
 
@@ -19,15 +21,28 @@ using namespace std;
             srcRep.u.value = constValue;                \
         }                                   
 
+#define DEFINE_ONECOMPUTE_CTOR(CLS)                     \
+        CLS::CLS(myTemp oneSrcReg)                      \
+        {                                               \
+            srcRep.kind = BinaryUnion::Kind::Reg;       \
+            srcRep.u.reg = oneSrcReg;                   \
+        }                                               \
+                                                        \
+        CLS::CLS(int constValue)                        \
+        {                                               \
+            srcRep.kind = BinaryUnion::Kind::Value;     \
+            srcRep.u.value = constValue;                \
+        }
+
 namespace lgxZJ
 {
     namespace IS
     {
         //////////////////////////////////////////////////////////////
-        //                      CommonTwoCompute
+        //                      TwoOperandCompute
         //////////////////////////////////////////////////////////////
 
-        string CommonTwoCompute::ToCommonString(string insStr) const
+        string TwoOperandCompute::ToCommonString(string insStr) const
         {
             string result(insStr + " ");
             result += OneRegToString(dstReg);
@@ -41,9 +56,25 @@ namespace lgxZJ
             return result;
         }
 
-        string CommonTwoCompute::OneRegToString(myTemp reg) const
+        string TwoOperandCompute::OneRegToString(myTemp reg) const
         {
             return "register" + to_string(Temp_getTempNum(reg));
+        }
+
+        ///////////////////////////////////////////////////////////////
+        //                      OneOperandCompute
+        ///////////////////////////////////////////////////////////////
+
+        string OneOperandCompute::ToCommonString(string insStr) const
+        {
+            string result(insStr + " ");
+            
+            if (srcRep.kind == BinaryUnion::Kind::Reg)
+                result += "register" + to_string(Temp_getTempNum(srcRep.u.reg));
+            else
+                result += to_string(srcRep.u.value);
+
+            return result;
         }
 
         //////////////////////////////////////////////////////////////
@@ -68,6 +99,49 @@ namespace lgxZJ
             return  ToCommonString("sub");
         }
 
-        
+        //////////////////////////////////////////////////////////////////
+        //                          IMul class
+        //////////////////////////////////////////////////////////////////
+
+        DEFINE_ONECOMPUTE_CTOR(IMul);
+
+        string IMul::ToString() const
+        {
+            return ToCommonString("imul");
+        }
+
+        myTempList IMul::TrashedRegs() const
+        {
+            //  When multiply, high order 32-bits are stored in `edx` register.
+            return Temp_makeTempList(Frame_EDX(), nullptr);
+        }
+
+        ////////////////////////////////////////////////////////////////////
+        //                          IDiv class
+        ////////////////////////////////////////////////////////////////////
+
+        DEFINE_ONECOMPUTE_CTOR(IDiv);
+
+        string IDiv::ToString() const
+        {
+            return ToCommonString("idiv");
+        }
+
+        myTempList IDiv::TrashedRegs() const
+        {
+            //  When multiply, low order 32-bits(namely remainder) are stored in `edx` register.
+            return Temp_makeTempList(Frame_EDX(), nullptr);
+        }
+
+        ////////////////////////////////////////////////////////////////////
+        //                          Xor class
+        ////////////////////////////////////////////////////////////////////
+
+        DEFINE_TWOCOMPUTE_CTOR(Xor);
+
+        string Xor::ToString() const
+        {
+            return ToCommonString("xor");
+        }
     }
 }
