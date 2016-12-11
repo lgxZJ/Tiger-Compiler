@@ -322,22 +322,61 @@ void test_FrameMakeFragList_ByDefault_MakeFragListWithWhatPassed(void)
 
 /////////////
 
-void test_FrameFP_ByDefault_AlwaysReturnTheSameOne(void)
-{
-    myTemp pfFirst = Frame_FP();
-    myTemp pfSecond = Frame_FP();
+//  test macros
+#define TEST_REG(regName)                                               \
+    void test_Frame##regName##_ByDefault_AlwaysReturnTheSameOne(void)   \
+    {                                                                   \
+        myTemp pfFirst = Frame_##regName();                             \
+        myTemp pfSecond = Frame_##regName();                            \
+                                                                        \
+        CU_ASSERT_EQUAL(pfFirst, pfSecond);                             \
+    }
 
-    CU_ASSERT_EQUAL(pfFirst, pfSecond);
+/////////
+
+TEST_REG(EAX);
+TEST_REG(EBX);
+TEST_REG(ECX);
+TEST_REG(EDX);
+TEST_REG(ESI);
+TEST_REG(EDI);
+TEST_REG(ESP);
+
+void test_FrameRV_ByDefault_ReturnSameAsEAX(void)
+{
+    myTemp regRV = Frame_RV();
+    myTemp regEAX = Frame_EAX();
+
+    CU_ASSERT_EQUAL(regRV, regEAX);
 }
 
-void test_FrameRV_ByDefault_AlwaysReturnTheSameOne(void)
+void test_FrameFP_ByDefault_ReturnSameAsEBP(void)
 {
-    myTemp rvFirst = Frame_RV();
-    myTemp rvSecond = Frame_RV();
+    myTemp regFP = Frame_FP();
+    myTemp regEBP = Frame_EBP();
 
-    CU_ASSERT_EQUAL(rvFirst, rvSecond);
+    CU_ASSERT_EQUAL(regFP, regEBP);
 }
 
+void test_FramecallerSaveRegs_ByDefault_EAXECXEDX(void)
+{
+    myTempList regs = Frame_callerSaveRegs();
+
+    CU_ASSERT_EQUAL(Frame_EAX() ,regs->head);
+    CU_ASSERT_EQUAL(Frame_ECX() ,regs->tail->head);
+    CU_ASSERT_EQUAL(Frame_EDX() ,regs->tail->tail->head);
+}
+
+void test_FramecalleeSaveRegs_ByDefault_EBXEBPESIEDIESP(void)
+{
+    myTempList regs = Frame_calleeSaveRegs();
+
+    CU_ASSERT_EQUAL(Frame_EBX() ,regs->head);
+    CU_ASSERT_EQUAL(Frame_EBP() ,regs->tail->head);
+    CU_ASSERT_EQUAL(Frame_ESI() ,regs->tail->tail->head);
+    CU_ASSERT_EQUAL(Frame_EDI() ,regs->tail->tail->tail->head);
+    CU_ASSERT_EQUAL(Frame_ESP() ,regs->tail->tail->tail->tail->head);
+}
 
 ///////////////////////         main        /////////////////////
 
@@ -375,8 +414,16 @@ int main()
         { "", test_FrameMakeProcFrag_ByDefault_MakeProcFragWithWhatPassed },
         { "", test_FrameMakeFragList_ByDefault_MakeFragListWithWhatPassed },
 
-        { "", test_FrameFP_ByDefault_AlwaysReturnTheSameOne },
-        { "", test_FrameRV_ByDefault_AlwaysReturnTheSameOne },
+        { "", test_FrameEAX_ByDefault_AlwaysReturnTheSameOne },
+        { "", test_FrameEBX_ByDefault_AlwaysReturnTheSameOne },
+        { "", test_FrameECX_ByDefault_AlwaysReturnTheSameOne },
+        { "", test_FrameEDX_ByDefault_AlwaysReturnTheSameOne },
+
+        { "", test_FrameRV_ByDefault_ReturnSameAsEAX },
+        { "", test_FrameFP_ByDefault_ReturnSameAsEBP },
+
+        { "", test_FramecallerSaveRegs_ByDefault_EAXECXEDX },
+        { "", test_FramecalleeSaveRegs_ByDefault_EBXEBPESIEDIESP },
     };
     if (!addTests(&suite, tests, sizeof(tests) / sizeof(tests[0])))
         return EXIT_FAILURE;

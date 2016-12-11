@@ -2,7 +2,8 @@ OUT_DIR := ./bin
 OBJECTS := $(OUT_DIR)/myFrame_X86.o		$(OUT_DIR)/test_myFrame_X86.o\
 	$(OUT_DIR)/testHelper.o				$(OUT_DIR)/makeMemory.o\
 	$(OUT_DIR)/myTemp.o					$(OUT_DIR)/mySymbol.o\
-	$(OUT_DIR)/myTable.o			$(OUT_DIR)/myIRTree.o
+	$(OUT_DIR)/myTable.o			$(OUT_DIR)/myIRTree.o\
+	$(OUT_DIR)/lValueTreater.o
 
 COMPILE_FLAGS := gcc -g -c -std=c99
 COVERAGE_OPTIONS := -fprofile-arcs -ftest-coverage

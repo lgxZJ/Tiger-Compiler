@@ -223,20 +223,48 @@ myTemp Frame_getAccessReg(myAccess access);
 myAccessList Frame_getFormals(myFrame frame);
 
 //  DO:
+//      get the appropriate registers.
+//  RETURN:
+//      a temporary which holds the stack pointer.
+myTemp Frame_EAX(void);
+myTemp Frame_EBX(void);
+myTemp Frame_ECX(void);
+myTemp Frame_EDX(void);
+myTemp Frame_ESI(void);
+myTemp Frame_EDI(void);
+myTemp Frame_EBP(void);
+
+//  DO:
+//      get the stack pointer of this target machine.
+//  RETURN:
+//      a temporary which holds the stack pointer.
+myTemp Frame_ESP(void);
+
+//  DO:
 //      get the frame pointer of this target machine.
-//  PARAMS:
-//      this function has no parameters.
 //  RETURN:
 //      a temporary which holds the frame pointer.
 myTemp Frame_FP(void);
 
 //  DO:
 //      get register of return value in this target machine.
-//  PARAMS:
-//      this function has no parameters.
 //  RETURN:
 //      a temporary which holds the return value register. 
 myTemp Frame_RV(void);
+
+//  DO:
+//      get the caller-save registers in X86 machines.
+//  RETURN:
+//      return caller-save registers:
+//          EAX, ECX, EDX
+myTempList Frame_callerSaveRegs(void);
+
+//  DO:
+//      get the callee-save registers in X86 machines.
+//  RETURN:
+//      return caller-save registers:
+//          EBX, EBP, ESI, EDI, ESP
+myTempList Frame_calleeSaveRegs(void);
 
 //  DO:
 //      convert Tiger calling convention into C call convention. 

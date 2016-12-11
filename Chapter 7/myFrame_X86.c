@@ -259,27 +259,62 @@ myTemp Frame_getAccessReg(myAccess access)
 }
 
 /////////////////////////////////////////////////////////////////////
+//                              X86 Registers
 /////////////////////////////////////////////////////////////////////
 
-static myTemp g_framePtr = NULL;
+#define REG_GETTER(regName ,regGlobal)  \
+    static myTemp regGlobal = NULL;     \
+    myTemp Frame_##regName(void)          \
+    {                                   \
+        if (regGlobal == NULL)          \
+            regGlobal = Temp_newTemp(); \
+        return regGlobal;               \
+    }
+
+
+/////////
+
+REG_GETTER(EAX, g_regEax);
+REG_GETTER(EBX, g_regEbx);
+REG_GETTER(ECX, g_regEcx);
+REG_GETTER(EDX, g_regEdx);
+
+REG_GETTER(ESI, g_regEsi);
+REG_GETTER(EDI, g_regEdi);
+
+REG_GETTER(EBP, g_regEbp);
+
+
+REG_GETTER(ESP, g_regSP);
+
 myTemp Frame_FP(void)
 {
-    if (g_framePtr == NULL)
-        g_framePtr = Temp_newTemp();
-    return g_framePtr;
+    return Frame_EBP();
 }
 
-////////////////
-
-static myTemp g_RV = NULL;
 myTemp Frame_RV(void)
 {
-    if (g_RV == NULL)
-        g_RV = Temp_newTemp();
-    return g_RV;
+    return Frame_EAX();
 }
 
-////////////////
+myTempList Frame_callerSaveRegs(void)
+{
+    return Temp_makeTempList(Frame_EAX(),
+            Temp_makeTempList(Frame_ECX(),
+                Temp_makeTempList(Frame_EDX(), NULL)));
+}
+
+myTempList Frame_calleeSaveRegs(void)
+{
+    return Temp_makeTempList(Frame_EBX(),
+            Temp_makeTempList(Frame_EBP(),
+                Temp_makeTempList(Frame_ESI(),
+                    Temp_makeTempList(Frame_EDI(),
+                        Temp_makeTempList(Frame_ESP(), NULL)))));
+}
+
+////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////
 
 IR_myExp Frame_externalCall(myString str, IR_myExpList args)
 {
