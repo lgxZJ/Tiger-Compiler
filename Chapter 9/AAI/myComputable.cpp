@@ -39,45 +39,6 @@ namespace lgxZJ
     namespace IS
     {
         //////////////////////////////////////////////////////////////
-        //                      TwoOperandCompute
-        //////////////////////////////////////////////////////////////
-
-        string TwoOperandCompute::ToCommonString(string insStr) const
-        {
-            string result(insStr + " ");
-            result += OneRegToString(dstReg);
-
-            result += ", ";
-            if (srcRep.kind == BinaryUnion::Kind::Reg)
-                result += OneRegToString(srcRep.u.reg);
-            else
-                result += to_string(srcRep.u.value);
-
-            return result;
-        }
-
-        string TwoOperandCompute::OneRegToString(myTemp reg) const
-        {
-            return "register" + to_string(Temp_getTempNum(reg));
-        }
-
-        ///////////////////////////////////////////////////////////////
-        //                      OneOperandCompute
-        ///////////////////////////////////////////////////////////////
-
-        string OneOperandCompute::ToCommonString(string insStr) const
-        {
-            string result(insStr + " ");
-            
-            if (srcRep.kind == BinaryUnion::Kind::Reg)
-                result += "register" + to_string(Temp_getTempNum(srcRep.u.reg));
-            else
-                result += to_string(srcRep.u.value);
-
-            return result;
-        }
-
-        //////////////////////////////////////////////////////////////
         //                      Add class
         //////////////////////////////////////////////////////////////
 

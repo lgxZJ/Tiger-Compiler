@@ -7,9 +7,10 @@
 //	version.					                               //
 /////////////////////////////////////////////////////////////////
 
-#include "myTemp.h"
-#include "myIRTree.h"
+#include "CXX_myTemp.h"
+#include "CXX_myIRTree.h"
 
+extern "C" {
 
 extern const int Frame_wordSize;
 
@@ -275,5 +276,7 @@ IR_myExp Frame_externalCall(myString str, IR_myExpList args);
 
 //  todo:   implemented in later phases.
 IR_myStatement Frame_procEntryExit1(myFrame frame, IR_myStatement statement);
+
+}
 
 #endif

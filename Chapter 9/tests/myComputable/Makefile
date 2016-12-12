@@ -1,5 +1,5 @@
 OUT_DIR := ./bin
-OBJECTS := $(addprefix $(OUT_DIR)/, tests.o myComputable.o)
+OBJECTS := $(addprefix $(OUT_DIR)/, tests.o myComputable.o myAaiBase.o)
 
 COMPILE_FLAGS := g++ -g -c -std=c++11
 COVERAGE_OPTIONS := -fprofile-arcs -ftest-coverage

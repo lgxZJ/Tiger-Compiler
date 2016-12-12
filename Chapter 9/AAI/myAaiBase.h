@@ -38,6 +38,31 @@ namespace lgxZJ
         class Controlable : public AAI  {};
         class Computable :  public AAI  {};
         class Movable :     public AAI  {};
+
+        ////////////////////////////////////////////////////////////////////
+        //              Abstract class for common computes
+        ////////////////////////////////////////////////////////////////////
+
+        class TwoOperandOperate
+        {
+            protected:
+                myTemp      dstReg;
+                BinaryUnion srcRep;
+
+                //  default converter.
+                std::string ToCommonString(std::string insStr) const;
+
+            private:
+                std::string OneRegToString(myTemp reg) const;
+        };
+
+        class OneOperandOperate
+        {
+            protected:
+                BinaryUnion srcRep;
+
+                std::string ToCommonString(std::string insStr) const;
+        };
 	}
 }
 
