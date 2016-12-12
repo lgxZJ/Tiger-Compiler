@@ -43,7 +43,7 @@ namespace lgxZJ
         myTempList IMul::TrashedRegs() const
         {
             //  When multiply, high order 32-bits are stored in `edx` register.
-            return Temp_makeTempList(Frame_EDX(), nullptr);
+            return Temp_makeTempList(Frame_EDX(), Temp_makeTempList(Frame_EAX(), nullptr));
         }
 
         ////////////////////////////////////////////////////////////////////
@@ -60,7 +60,7 @@ namespace lgxZJ
         myTempList IDiv::TrashedRegs() const
         {
             //  When multiply, low order 32-bits(namely remainder) are stored in `edx` register.
-            return Temp_makeTempList(Frame_EDX(), nullptr);
+            return Temp_makeTempList(Frame_EDX(), Temp_makeTempList(Frame_EAX(), nullptr));
         }
 
         ////////////////////////////////////////////////////////////////////
