@@ -9,13 +9,16 @@ namespace lgxZJ
     {
         class CommonJump : public Controlable
         {
-            protected:
-                CommonJump(myLabel oneDstLabel);
+            public:
+                std::string ToCommonString(std::string ins) const
+                {
+                    return ins + " " + std::string(MySymbol_GetName(dstLabel));
+                }
 
-            private:
+            protected:
                 myLabel dstLabel;
         };
-#error "here"
+
         //////////////////////////////////////////////////////////////////////////
         //                          Label definition
         //////////////////////////////////////////////////////////////////////////
@@ -25,7 +28,9 @@ namespace lgxZJ
             public:
                 explicit Label(myLabel oneLabel);
 
-            private:
+                std::string ToString() const;
+
+            protected:
                 myLabel label;
         };
 
@@ -33,15 +38,13 @@ namespace lgxZJ
         //                      Compare instructions
         //////////////////////////////////////////////////////////////////////////
 
-        class Cmp : public AAI
+        class Cmp : public TwoOperandOperate
         {
             public:
-                explicit Cmp (myTemp dstReg, myTemp srcReg);
-                explicit Cmp (myTemp dstReg, int constValue);
+                explicit Cmp (myTemp oneDstReg, myTemp oneSrcReg);
+                explicit Cmp (myTemp oneDstReg, int constValue);
 
-            private:
-                myTemp      dstReg;
-                BinaryUnion srcRep;
+                std::string ToString() const;
         };
 
         ///////////////////////////////////////////////////////////////////////////////
@@ -53,10 +56,12 @@ namespace lgxZJ
         //          If one day there is a need, we can use overload instead.
         //////////////////////////////////////////////////////////////////////////////
 
-        class Jmp : public CommonJump  
+        class Jmp : public CommonJump
         {
             public:
                 explicit Jmp(myLabel oneDstLabel);
+
+                std::string ToString() const;
         };
 
         /////////////////////////////////////////////////////////////////////////////////
@@ -70,36 +75,48 @@ namespace lgxZJ
         {
             public:
                 explicit Je(myLabel oneDstLabel);
+
+                std::string ToString() const;
         };
 
         class Jne : public CommonJump
         {
             public:
                 explicit Jne(myLabel oneDstLabel);
+
+                std::string ToString() const;
         };
 
         class Jg : public CommonJump
         {
             public:
                 explicit Jg(myLabel oneDstLabel);
+
+                std::string ToString() const;
         };
 
         class Jge : public CommonJump
         {
             public:
                 explicit Jge(myLabel oneDstLabel);
+
+                std::string ToString() const;
         };
 
         class Jl : public CommonJump
         {
             public:
                 explicit Jl(myLabel oneDstLabel);
+
+                std::string ToString() const;
         };
 
         class Jle : public CommonJump
         {
             public:
                 explicit Jle(myLabel oneDstLabel);
+
+                std::string ToString() const;
         };
 
         //      Tiger do not permit unsigned comparison jumps.
@@ -111,11 +128,15 @@ namespace lgxZJ
         class Call : public Controlable
         {
             public:
-                explicit Call (myLabel funcLabel, myTempList regList);
+                explicit Call (myLabel oneFuncLabel, myTempList oneRegList);
 
-            private:
-                static myTempList TrashedRegs();
-        }
+                std::string ToString() const;
+                myTempList TrashedRegs() const;
+
+                private:
+                    myLabel funcLabel;
+                    myTempList regList;
+        };
     }
 }
 

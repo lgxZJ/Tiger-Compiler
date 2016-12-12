@@ -43,7 +43,7 @@ namespace lgxZJ
         //              Abstract class for common computes
         ////////////////////////////////////////////////////////////////////
 
-        class TwoOperandOperate
+        class TwoOperandOperate : public AAI
         {
             protected:
                 myTemp      dstReg;
@@ -56,7 +56,7 @@ namespace lgxZJ
                 std::string OneRegToString(myTemp reg) const;
         };
 
-        class OneOperandOperate
+        class OneOperandOperate : public AAI
         {
             protected:
                 BinaryUnion srcRep;
