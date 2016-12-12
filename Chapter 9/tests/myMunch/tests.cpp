@@ -21,6 +21,11 @@ class MunchTest : public CppUnit::TestFixture
         CPPUNIT_TEST(testMunchState_JumpState_PutJmp);
         CPPUNIT_TEST(testMunchState_RightRegisterCJump_PutCmpAndJe);
         CPPUNIT_TEST(testMunchState_RightConstCJump_PutCmpAndJl);
+        CPPUNIT_TEST(testMunchState_NotEqualCJump_PutJne);
+        CPPUNIT_TEST(testMunchState_LessThanCJump_PutJle);
+        CPPUNIT_TEST(testMunchState_LessEqualCJump_PutJle);
+        CPPUNIT_TEST(testMunchState_GreaterThanCJump_PutJg);
+        CPPUNIT_TEST(testMunchState_GreaterEqualCJump_PutJge);
         CPPUNIT_TEST(testMunchState_LeftMemoryRightRegisterMove_PutMove);
         CPPUNIT_TEST(testMunchState_LeftMemoryRightConstMove_PutMove);
         CPPUNIT_TEST(testMunchState_BothOperandRegistersMove_PutMove);
@@ -38,7 +43,7 @@ class MunchTest : public CppUnit::TestFixture
         //                          test helper
 
         #define DEFINE_AAI_CHECKER(CHECKER_NAME, strToFind)             \
-            bool CHECKER_NAME(shared_ptr<AAI> ptr)                      \
+            static bool CHECKER_NAME(shared_ptr<AAI> ptr)               \
             {                                                           \
                 return string::npos != ptr->ToString().find(strToFind); \
             }
@@ -46,8 +51,12 @@ class MunchTest : public CppUnit::TestFixture
         DEFINE_AAI_CHECKER(isAAILabel, ":");
         DEFINE_AAI_CHECKER(isAAIJmp, "jmp");
         DEFINE_AAI_CHECKER(isAAIJe, "je");
+        DEFINE_AAI_CHECKER(isAAIJne, "jne");
         DEFINE_AAI_CHECKER(isAAICmp, "cmp")
         DEFINE_AAI_CHECKER(isAAIJl, "jl")
+        DEFINE_AAI_CHECKER(isAAIJle, "jle")
+        DEFINE_AAI_CHECKER(isAAIJg, "jg")
+        DEFINE_AAI_CHECKER(isAAIJge, "jge")
 
         bool isAAIContainsConst(shared_ptr<AAI> ptr, int constValue)
         {
@@ -121,6 +130,47 @@ class MunchTest : public CppUnit::TestFixture
                 isAAIContainsConst(result.at(0), constValue));
             CPPUNIT_ASSERT_EQUAL(true, isAAIJl(result.at(1)));
             CPPUNIT_ASSERT_EQUAL(true, isAAIContainsString(result.at(1), MySymbol_GetName(trueLabel)));
+        }
+
+        /////////////////////////////////////////////////////////////
+        //                      parameterized tests
+
+        void testMunchState_OneCJump_PutOneAAI(
+            IR_RelOperator op, bool (checkFunc)(shared_ptr<AAI> ptr))
+        {
+            Munch::State(IR_makeCJump(op,
+                IR_makeTemp(Temp_newTemp()), IR_makeConst(1),
+                Temp_newLabel(), Temp_newLabel()));
+
+            Instructions result = Munch::GetIns();
+            CPPUNIT_ASSERT_EQUAL(true, checkFunc(result.at(1)));
+        }
+
+        ////////////////
+
+        void testMunchState_NotEqualCJump_PutJne()
+        {
+            testMunchState_OneCJump_PutOneAAI(IR_NotEqual, MunchTest::isAAIJne);
+        }
+
+        void testMunchState_LessThanCJump_PutJle()
+        {
+            testMunchState_OneCJump_PutOneAAI(IR_LessThan, MunchTest::isAAIJl);
+        }
+
+        void testMunchState_LessEqualCJump_PutJle()
+        {
+            testMunchState_OneCJump_PutOneAAI(IR_LessEqual, MunchTest::isAAIJle);
+        }
+
+        void testMunchState_GreaterThanCJump_PutJg()
+        {
+            testMunchState_OneCJump_PutOneAAI(IR_GreaterThan, MunchTest::isAAIJg);
+        }
+
+        void testMunchState_GreaterEqualCJump_PutJge()
+        {
+            testMunchState_OneCJump_PutOneAAI(IR_GreaterEqual, MunchTest::isAAIJge);
         }
 
         //////////////
