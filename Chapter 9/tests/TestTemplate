@@ -13,7 +13,7 @@ using namespace lgxZJ::IS;
 class XXXFaker : public XXX
 {
     public:
-        explicit XXXFaker(Move move) : Move(move)  {}
+        explicit XXXFaker(XXX XXX) : XXX(XXX)  {}
 
         myTemp GetDstReg() const        { return dstReg; }
         myTemp GetSrcReg() const        { return srcRep.u.reg;; }
@@ -32,8 +32,8 @@ class XXXTest : public CppUnit::TestFixture
         {
             CppUnit::TestSuite* suite = new CppUnit::TestSuite("XXXTest");
 
-            suite->addTest(new CppUnit::TestCaller<MoveTest>(
-                "testCtor", &MoveTest::testCtor_TwoContentOperands_SetAsItIs));
+            suite->addTest(new CppUnit::TestCaller<XXXTest>(
+                "testCtor", &XXXTest::testCtor_TwoContentOperands_SetAsItIs));
 
             return suite;
         }
