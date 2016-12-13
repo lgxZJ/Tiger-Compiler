@@ -35,10 +35,6 @@ namespace lgxZJ
                 virtual myTempList TrashedRegs() const { return nullptr; }
 		};
 
-        class Controlable : public AAI  {};
-        class Computable :  public AAI  {};
-        class Movable :     public AAI  {};
-
         ////////////////////////////////////////////////////////////////////
         //              Abstract class for common computes
         ////////////////////////////////////////////////////////////////////

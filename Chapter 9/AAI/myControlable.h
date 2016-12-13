@@ -7,7 +7,7 @@ namespace lgxZJ
 {
     namespace IS
     {
-        class CommonJump : public Controlable
+        class CommonJump : public AAI
         {
             public:
                 std::string ToCommonString(std::string ins) const
@@ -23,7 +23,7 @@ namespace lgxZJ
         //                          Label definition
         //////////////////////////////////////////////////////////////////////////
 
-        class Label : public Controlable
+        class Label : public AAI
         {
             public:
                 explicit Label(myLabel oneLabel);
@@ -125,7 +125,7 @@ namespace lgxZJ
         //                          Function calls
         ////////////////////////////////////////////////////////////////////////
 
-        class Call : public Controlable
+        class Call : public AAI
         {
             public:
                 explicit Call (myLabel oneFuncLabel, myTempList oneRegList);

@@ -12,7 +12,7 @@ namespace lgxZJ
         //  locations pointed to by registers. However, there are too many conditions.
         //  To make things simple, i just use enumerators rather than more subclass to
         //  differ them.
-        class Move : public Movable
+        class Move : public AAI
         {
             public:
                 //  Content -> Register
