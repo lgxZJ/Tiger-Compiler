@@ -26,8 +26,10 @@ namespace lgxZJ
                 static myTemp Exp(IR_myExp exp);
 
                 static Instructions GetIns();
-                static void PutIns(std::shared_ptr<AAI> aai);
                 static void Reset();
+
+            private:
+                static void PutIns(std::shared_ptr<AAI> aai);
 
             private:
                 static void LabelState(IR_myStatement labelState);
@@ -39,6 +41,23 @@ namespace lgxZJ
                 static void LeftMemoryMoveState(IR_myExp leftOper, IR_myExp rightOper);
                 static void LeftRegisterMoveState(IR_myExp leftOper, IR_myExp rightOper);
                 static void ExpState(IR_myStatement expState);
+
+                ///////////////////////////
+
+                static myTemp BinExp(IR_myExp exp);
+                static myTemp BinAddExp(IR_myExp exp);
+                static myTemp BinSubExp(IR_myExp exp);
+                static myTemp BinMulExp(IR_myExp exp);
+                static myTemp BinDivExp(IR_myExp exp);
+                static myTemp BinXorExp(IR_myExp exp);
+                
+                static myTemp MemExp(IR_myExp exp);
+                static myTemp TempExp(IR_myExp exp);
+                static myTemp ESeqExp(IR_myExp exp);
+                static myTemp NameExp(IR_myExp exp);
+                static myTemp ConstExp(IR_myExp exp);
+                static myTemp CallExp(IR_myExp exp);
+                static myTempList GetArgRegs(IR_myExpList argExps);
         };
     }
 }

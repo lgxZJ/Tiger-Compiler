@@ -2,6 +2,7 @@
 #include "AAI/myControlable.h"
 #include "AAI/myComputable.h"
 #include "myMunch.h"
+#include "CXX_myFrame.h"
 
 #include <cassert>
 #include <vector>
@@ -20,11 +21,13 @@ namespace lgxZJ
         Instructions Munch::ins;
 
         ////////////////////////////////////////////////////////////////////
-        //                          functions
+        //                          static functions
         ////////////////////////////////////////////////////////////////////
 
         void Munch::State(IR_myStatement statement)
         {
+            if (statement == nullptr)   return;
+
             switch (statement->kind)
             {
                 case IR_myStatement_::IR_Label:
@@ -175,10 +178,14 @@ namespace lgxZJ
             ins.push_back(aaiPtr);
         }
 
+        ////////////////////////////////////////////////////////////////////
+
         Instructions Munch::GetIns()
         {
             return ins;
         }
+
+        ////////////////////////////////////////////////////////////////////
 
         void Munch::Reset()
         {
@@ -186,10 +193,184 @@ namespace lgxZJ
         }
 
         /////////////////////////////////////////////////////////////////////
+        /////////////////////////////////////////////////////////////////////
 
         myTemp Munch::Exp(IR_myExp exp)
         {
-            //  todo:
+            if (exp == nullptr)         return nullptr;
+
+            switch (exp->kind)
+            {
+                case IR_myExp_::IR_BinOperation:    return BinExp(exp);
+                case IR_myExp_::IR_Mem:             return MemExp(exp);
+                case IR_myExp_::IR_Temp:            return TempExp(exp);
+                case IR_myExp_::IR_ESeq:            return ESeqExp(exp);
+                case IR_myExp_::IR_Name:            return NameExp(exp);
+                case IR_myExp_::IR_Const:           return ConstExp(exp);
+                case IR_myExp_::IR_Call:            return CallExp(exp);
+
+                default:                            assert (false);
+            }
+        }
+
+        myTemp Munch::BinExp(IR_myExp exp)
+        {
+            //  only these arithmetic operations are needed in tiger.
+            switch(exp->u.binOperation.op)
+            {
+                case IR_BinOperator::IR_And:        return BinAddExp(exp);
+                case IR_BinOperator::IR_Minus:      return BinSubExp(exp);
+                case IR_BinOperator::IR_Multiply:   return BinMulExp(exp);
+                case IR_BinOperator::IR_Divide:     return BinDivExp(exp);
+                case IR_BinOperator::IR_Xor:        return BinXorExp(exp);
+
+                default:    assert (false);
+            }
+        }
+
+        //////////////////////////////////////////////
+
+        #define DEFINE_ADDORSUBORXOR(CLSNAME)                                               \
+            IR_myExp leftOper = exp->u.binOperation.left;                                   \
+            IR_myExp rightOper = exp->u.binOperation.right;                                 \
+            assert (leftOper->kind == IR_myExp_::IR_Temp);                                  \
+                                                                                            \
+            if (rightOper->kind == IR_myExp_::IR_Temp)                                      \
+            {                                                                               \
+                /*  add reg, reg        */                                                  \
+                PutIns(shared_ptr<CLSNAME>(new CLSNAME(leftOper->u.temp, rightOper->u.temp)));      \
+                return leftOper->u.temp;                                                    \
+            }                                                                               \
+            else if (rightOper->kind == IR_myExp_::IR_Const)                                \
+            {                                                                               \
+                /*  add reg, constValue       */                                            \
+                PutIns(shared_ptr<CLSNAME>(new CLSNAME(leftOper->u.temp, rightOper->u.constValue)));\
+                return leftOper->u.temp;                                                    \
+            }                                                                               \
+            else                                                                            \
+            {                                                                               \
+                /*  no other forms used in tiger.   */                                      \
+                assert (false);                                                             \
+            }
+
+            #define DEFINE_MULORDIV(CLSNAME)                                        \
+                IR_myExp leftOper = exp->u.binOperation.left;                       \
+                IR_myExp rightOper = exp->u.binOperation.right;                     \
+                                                                                    \
+                assert (leftOper->kind == IR_myExp_::IR_Temp);                      \
+                PutIns(shared_ptr<Move>(new Move(Frame_EAX(), leftOper->u.temp)));  \
+                                                                                    \
+                if (rightOper->kind == IR_myExp_::IR_Temp)                          \
+                {                                                                   \
+                    PutIns(shared_ptr<CLSNAME>(new CLSNAME(rightOper->u.temp)));    \
+                    return Frame_EAX();                                             \
+                }                                                                   \
+                else if (rightOper->kind == IR_myExp_::IR_Const)                    \
+                {                                                                   \
+                    PutIns(shared_ptr<CLSNAME>(new CLSNAME(rightOper->u.constValue)));\
+                    return Frame_EAX();                                             \
+                }                                                                   \
+                else                                                                \
+                {                                                                   \
+                    assert (false);                                                 \
+                }
+
+        myTemp Munch::BinAddExp(IR_myExp exp)
+        {
+            DEFINE_ADDORSUBORXOR(Add);
+        }
+
+        myTemp Munch::BinSubExp(IR_myExp exp)
+        {
+            DEFINE_ADDORSUBORXOR(Sub);
+        }
+
+        myTemp Munch::BinMulExp(IR_myExp exp)
+        {
+            DEFINE_MULORDIV(IMul);
+        }
+
+        myTemp Munch::BinDivExp(IR_myExp exp)
+        {
+            DEFINE_MULORDIV(IDiv);
+        }
+
+        myTemp Munch::BinXorExp(IR_myExp exp)
+        {
+            DEFINE_ADDORSUBORXOR(Xor);
+        }
+
+        #undef DEFINE_ADDORSUB
+        #undef DEFINE_MULORDIV
+
+        //////////////////////////////////////////////
+
+        myTemp Munch::MemExp(IR_myExp exp)
+        {
+            assert (exp->u.mem->kind == IR_myExp_::IR_Temp);
+
+            //  mov newReg, [reg]
+            myTemp newReg = Temp_newTemp();
+            PutIns(shared_ptr<Move>(
+                new Move(newReg, exp->u.mem->u.temp,
+                        Move::OperandType::Content, Move::OperandType::Memory)));
+            return newReg;
+        }
+
+        myTemp Munch::TempExp(IR_myExp exp)
+        {
+            return exp->u.temp;
+        }
+
+        myTemp Munch::ESeqExp(IR_myExp exp)
+        {
+            Munch::State(exp->u.eseq.statement);
+
+            assert(exp->u.eseq.exp->kind == IR_myExp_::IR_Temp);
+            return exp->u.eseq.exp->u.temp;
+        }
+
+        myTemp Munch::NameExp(IR_myExp exp)
+        {
+            //  never got here
+            assert (false);
+        }
+
+        myTemp Munch::ConstExp(IR_myExp exp)
+        {
+            myTemp newReg = Temp_newTemp();
+            PutIns(shared_ptr<Move>(
+                new Move(newReg, Move::OperandType::Content, exp->u.constValue)));
+            return newReg;
+        }
+
+        myTemp Munch::CallExp(IR_myExp exp)
+        {
+            assert(exp->u.call.func->kind == IR_myExp_::IR_Name);
+
+            myLabel funcLabel = exp->u.call.func->u.name;
+            myTempList argRegs = GetArgRegs(exp->u.call.args);
+
+            PutIns(shared_ptr<Call>(new Call(funcLabel, argRegs)));
+            return Frame_EAX();
+        }
+
+        myTempList Munch::GetArgRegs(IR_myExpList argExps)
+        {
+            myTempList argRegs = nullptr;
+
+            myTempList* listPtr = &argRegs;
+            while (argExps)
+            {
+                assert (argExps->head->kind == IR_myExp_::IR_Temp);
+
+                *listPtr = Temp_makeTempList(argExps->head->u.temp, nullptr),
+                listPtr = &(*listPtr)->tail;
+
+                argExps = argExps->tails;
+            }
+
+            return argRegs;
         }
     }
 }
