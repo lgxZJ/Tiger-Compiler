@@ -100,8 +100,8 @@ namespace lgxZJ
 
             string result = "call " + string(MySymbol_GetName(funcLabel)) + "(";
             while (regs)
-                result += " register" + to_string(Temp_getTempNum(regList->head)) + ",",
-                regs = regList->tail;
+                result += " register" + to_string(Temp_getTempNum(regs->head)) + ",",
+                regs = regs->tail;
 
             result += ")";
             return result;
