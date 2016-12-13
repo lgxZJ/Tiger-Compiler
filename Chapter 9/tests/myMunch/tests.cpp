@@ -11,6 +11,7 @@
 #include <algorithm>
 
 using namespace lgxZJ::IS;
+using namespace lgxZJ::Canonical;
 using namespace std;
 
 class MunchTest : public CppUnit::TestFixture
@@ -54,6 +55,8 @@ class MunchTest : public CppUnit::TestFixture
         CPPUNIT_TEST(testMunchExp_Const_PutMove);
         CPPUNIT_TEST(testMunchExp_Call_PutCall);
         CPPUNIT_TEST(testMunchExp_Call_ReturnEax);
+
+        CPPUNIT_TEST(testMunchAll_ByDefault_MunchEveryOne);
 
         CPPUNIT_TEST_SUITE_END();
 
@@ -100,7 +103,8 @@ class MunchTest : public CppUnit::TestFixture
         }
 
         ////////////////////////////////////////////////////////////////////
-        //                          tests
+        //                          Munch::State
+        ////////////////////////////////////////////////////////////////////
 
         void testMunchState_NullState_DoNothing()
         {
@@ -533,6 +537,26 @@ class MunchTest : public CppUnit::TestFixture
                 IR_makeName(Temp_newLabel()), nullptr));
 
             CPPUNIT_ASSERT_EQUAL(Frame_EAX() ,ret);
+        }
+
+        ////////////////////////////////////////////////////////////////////
+        //                          Munch::All
+        ////////////////////////////////////////////////////////////////////
+
+        void testMunchAll_ByDefault_MunchEveryOne()
+        {
+            Statements statements;
+            statements.push_back(IR_makeLabel(Temp_newLabel()));
+            statements.push_back(IR_makeMove(IR_makeTemp(Temp_newTemp()), IR_makeTemp(Temp_newTemp())));
+            statements.push_back(IR_makeExp(IR_makeConst(1)));
+
+            Munch::All(statements);
+
+            Instructions result = Munch::GetIns();
+            CPPUNIT_ASSERT_EQUAL((size_t)3, result.size());
+            CPPUNIT_ASSERT_EQUAL(true, isAAILabel(result.at(0)));
+            CPPUNIT_ASSERT_EQUAL(true, isAAIMov(result.at(1)));
+            CPPUNIT_ASSERT_EQUAL(true, isAAIMov(result.at(2)));
         }
 
 };

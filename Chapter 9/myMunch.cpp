@@ -6,6 +6,7 @@
 
 #include <cassert>
 #include <vector>
+#include <algorithm>
 
 using namespace lgxZJ::Canonical;
 using namespace std;
@@ -371,6 +372,16 @@ namespace lgxZJ
             }
 
             return argRegs;
+        }
+
+        /////////////////////////////////////////////////////////////////////////////
+        //                          Munch::All()
+        /////////////////////////////////////////////////////////////////////////////
+
+        void Munch::All(Canonical::Statements statements)
+        {
+            for (IR_myStatement state : statements)
+                Munch::State(state);
         }
     }
 }
