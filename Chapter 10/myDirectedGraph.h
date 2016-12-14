@@ -47,6 +47,15 @@ namespace lgxZJ
                 {
                     std::vector<Node>    successors;
                     std::vector<Node>    predecessors;
+
+                    void AddSuccessor(Node successor);
+                    void AddPredecessor(Node predecessor);
+
+                    void RemoveSuccessor(Node successor);
+                    void RemovePredecessor(Node predecessor);
+
+                    void RemoveOneNodeInSet(NodeSet& nodes, Node one);
+                    int GetNodeIndex(NodeSet& nodes, Node node) const;
                 };
 
                 std::vector<RealNode>   nodes;
@@ -54,12 +63,13 @@ namespace lgxZJ
 
             public:
                 explicit DirectedGraph();
+                explicit DirectedGraph(unsigned n);
 
                 //  DO:
                 //      Make a new node and add it to the calling graph.
                 //  RETURN:
                 //      The new node. 
-                Node NewNode();
+                Node AddNode();
 
                 //  DO:
                 //      Get the node by postion.
@@ -69,6 +79,9 @@ namespace lgxZJ
                 //      Node positions start from 0 and are recorded in order. So,
                 //      the first one has position 0, the second 1, the thrid 2 and
                 //      so on...
+                //
+                //      It's a checked runtime error if the given position is illegal
+                //      or does not exists.
                 Node GetNode(int pos) const;
 
                 //  DO:
@@ -79,14 +92,20 @@ namespace lgxZJ
 
                 //  DO:
                 //      Check if the given node is inside the graph.
+                //  REMARK:
+                //      If the given node is illegal, it will throw a runtime error.
                 bool IsNodeInside(Node node) const;
 
                 //  DO:
                 //      Get all the successors of the given node.
+                //  REMARK:
+                //      If the given node not exists, it will throw a runtime error.
                 NodeSet GetSuccessors(Node node) const;
 
                 //  DO:
                 //      Get all the predessors of the given node.
+                //  REMARK:
+                //      If the given node not exists, it will throw a runtime error.
                 NodeSet GetPredecessors(Node node) const;
 
 
@@ -98,35 +117,38 @@ namespace lgxZJ
                 //  REMARK:
                 //      After this call, 'm' will be found in the successor set of node 'n' and
                 //      node 'n' will be found in the predecessor set of node 'm'.
-                void NewEdge(Node from, Node to);
+                //
+                //      It is a checked runtime error if trying to add a self-edge or the given
+                //      nodes not exists.
+                void AddEdge(Node from, Node to);
 
                 //  DO:
                 //      Check if the given edge exists in the calling graph.
                 //  PARAMS:
                 //      from    The node where the new edge starts.
                 //      to      The node where the new edge ends.
-                void IsEdgeInside(Node from, Node to) const;
+                //  REMARK:
+                //      It will throw a runtime error if the given nodes not exists.
+                bool IsEdgeInside(Node from, Node to) const;
 
                 //  DO:
                 //      Get all the edges in the calling graph.
                 EdgeSet GetEdges() const;
 
                 //  DO:
-                //      Count the number of edges start from the given node.
-                int EdgeCountFrom(Node node);
-
-                //  DO:
-                //      Count the number of edges end to the given node.
-                int EdgeCountTo(Node node);
+                //      Get the degreee of the given node
+                int GetNodeDegree(Node node) const;
 
                 //  DO:
                 //      Remove the specified edge.
                 //  PARAMS:
-                //      from    The node position where the new edge starts.
-                //      to      The node position where the new edge ends.
+                //      from    The node where the new edge starts.
+                //      to      The node where the new edge ends.
                 //  REMARK:
                 //      Remove an edge also removes the relations between node 'n' and 'm'.
-                void RemoveEdge(int from, int to);
+                //      After removed, edges used before cannot be used anymore, and users
+                //      must re-acquire them.
+                void RemoveEdge(Node from, Node to);
 
                 //  DO:
                 //      Remove all edges in the calling graph.
@@ -137,6 +159,10 @@ namespace lgxZJ
                 //  DO:
                 //      Remove all, include nodes and edges.
                 void RemoveAll();
+
+            private:
+                void RemoveOneEdge(Node from, Node to);
+                int GetEdgeIndex(Node from, Node to) const;
         };
     }
 }
