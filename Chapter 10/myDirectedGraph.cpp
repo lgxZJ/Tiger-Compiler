@@ -39,10 +39,10 @@ namespace lgxZJ
             int nodeIndex = GetNodeIndex(nodes, one);
             assert (nodeIndex != -1);
 
-            NodeSet::iterator iter = successors.begin();
+            NodeSet::iterator iter = nodes.begin();
             advance(iter, nodeIndex);
 
-            successors.erase(iter);
+            nodes.erase(iter);
         }
 
         int DirectedGraph::RealNode::GetNodeIndex(NodeSet& nodes, Node node) const
@@ -169,7 +169,7 @@ namespace lgxZJ
             
             nodes.at(from).RemoveSuccessor(to);
             nodes.at(to).RemovePredecessor(from);
-        }#error "here, test this method"
+        }
 
         void DirectedGraph::RemoveOneEdge(Node from, Node to)
         {
@@ -180,6 +180,25 @@ namespace lgxZJ
             advance(iter, edgeIndex);
 
             edges.erase(iter);
+        }
+
+        /////////////////////////////////////////////////////////////////////
+
+        void DirectedGraph::RemoveAllEdges()
+        {
+            edges.clear();
+
+            for (auto& node : nodes)
+                node.successors.clear(),
+                node.predecessors.clear();
+        }
+
+        /////////////////////////////////////////////////////////////////////
+
+        void DirectedGraph::RemoveAll()
+        {
+            RemoveAllEdges();
+            nodes.clear();
         }
 
         ////////////////////////////////////////////////////////////////////

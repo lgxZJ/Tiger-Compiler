@@ -147,13 +147,14 @@ namespace lgxZJ
                 //  REMARK:
                 //      Remove an edge also removes the relations between node 'n' and 'm'.
                 //      After removed, edges used before cannot be used anymore, and users
-                //      must re-acquire them.
+                //      must re-acquire them. It's a checked runtime error if the specified
+                //      edge not exists.
                 void RemoveEdge(Node from, Node to);
 
                 //  DO:
                 //      Remove all edges in the calling graph.
                 //  REMARK:
-                //      While edges are al removed, node numbers are not affected.
+                //      Remove all edges also remove all relations between any nodes.
                 void RemoveAllEdges();
 
                 //  DO:

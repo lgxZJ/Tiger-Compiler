@@ -24,6 +24,9 @@ class DirectedGraphTest : public CppUnit::TestFixture
         CPPUNIT_TEST(testIsEdgeInside_PassEdgeNotInside_ReturnFalse);
         CPPUNIT_TEST(testIsEdgeInside_PassEdgeInside_ReturnTrue);
         CPPUNIT_TEST(testGetNodeDegree_ByDefault_ReturnSuccessorCountPlusPredecessorCount);
+        CPPUNIT_TEST(testRemoveEdge_ByDefault_RemoveEdgeAndRelations);
+        CPPUNIT_TEST(testRemoveAllEdges_ByDefault_RemoveAllAndAllRelations);
+        CPPUNIT_TEST(testRemoveAll_ByDefault_RemoveNodesAndEdgesAndRelations);
 
         CPPUNIT_TEST_SUITE_END();
 
@@ -194,6 +197,55 @@ class DirectedGraphTest : public CppUnit::TestFixture
             CPPUNIT_ASSERT_EQUAL(2, firstResult);
             CPPUNIT_ASSERT_EQUAL(1, secondResult);
         }
+
+        void testRemoveEdge_ByDefault_RemoveEdgeAndRelations()
+        {
+            DirectedGraph graph(3);
+            Node firstNode = 0, secondNode = 1,  thirdNode = 2;
+            graph.AddEdge(firstNode, thirdNode);
+
+            graph.RemoveEdge(firstNode, thirdNode);
+
+            CPPUNIT_ASSERT_EQUAL((size_t)0, graph.GetEdges().size());
+            CPPUNIT_ASSERT_EQUAL((size_t)0, graph.GetSuccessors(firstNode).size());
+            CPPUNIT_ASSERT_EQUAL((size_t)0, graph.GetPredecessors(firstNode).size());
+            CPPUNIT_ASSERT_EQUAL((size_t)0, graph.GetSuccessors(secondNode).size());
+            CPPUNIT_ASSERT_EQUAL((size_t)0, graph.GetPredecessors(secondNode).size());
+            CPPUNIT_ASSERT_EQUAL((size_t)0, graph.GetSuccessors(thirdNode).size());
+            CPPUNIT_ASSERT_EQUAL((size_t)0, graph.GetPredecessors(thirdNode).size());
+        }
+
+        void testRemoveAllEdges_ByDefault_RemoveAllAndAllRelations()
+        {
+            DirectedGraph graph(3);
+            Node firstNode = 0, secondNode = 1, thirdNode = 2;
+            graph.AddEdge(firstNode, secondNode);
+            graph.AddEdge(firstNode, thirdNode);
+
+            graph.RemoveAllEdges();
+
+            CPPUNIT_ASSERT_EQUAL((size_t)0, graph.GetEdges().size());
+            CPPUNIT_ASSERT_EQUAL((size_t)0, graph.GetSuccessors(firstNode).size());
+            CPPUNIT_ASSERT_EQUAL((size_t)0, graph.GetPredecessors(firstNode).size());
+            CPPUNIT_ASSERT_EQUAL((size_t)0, graph.GetSuccessors(secondNode).size());
+            CPPUNIT_ASSERT_EQUAL((size_t)0, graph.GetPredecessors(secondNode).size());
+            CPPUNIT_ASSERT_EQUAL((size_t)0, graph.GetSuccessors(thirdNode).size());
+            CPPUNIT_ASSERT_EQUAL((size_t)0, graph.GetPredecessors(thirdNode).size());
+        }
+
+        void testRemoveAll_ByDefault_RemoveNodesAndEdgesAndRelations()
+        {
+            DirectedGraph graph(3);
+            Node firstNode = 0, secondNode = 1, thirdNode = 2;
+            graph.AddEdge(firstNode, secondNode);
+            graph.AddEdge(firstNode, thirdNode);
+
+            graph.RemoveAll();
+
+            CPPUNIT_ASSERT_EQUAL((size_t)0, graph.GetEdges().size());
+            CPPUNIT_ASSERT_EQUAL((size_t)0, graph.GetNodes().size());
+        }
+
 };
 
 int main ()
