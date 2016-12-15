@@ -1,4 +1,5 @@
 #include "../AAI/myAaiBase.h"
+#include "../CXX_myFrame.h"
 
 template <typename T>
 class TwoComputeMocker : public T
@@ -70,4 +71,56 @@ void testOneOperandCtor_ValueSource_SetWhatPassed()
     OneComputeMocker<T> oneMocker(one);
     CPPUNIT_ASSERT_EQUAL(lgxZJ::IS::BinaryUnion::Kind::Value, oneMocker.GetSrcType());
     CPPUNIT_ASSERT_EQUAL(srcValue, oneMocker.GetSrcValue());
+}
+
+template <typename T>
+void testTwoOperandGetDstReg_ByDefault_ReturnDstReg()
+{
+    myTemp dstReg = Temp_newTemp();
+    T one(dstReg, 1);
+
+    CPPUNIT_ASSERT_EQUAL(dstReg, one.GetDstReg());
+}
+
+template <typename T>
+void testTwoOperandGetSrcReg_ConstSrc_ReturnNull()
+{
+    T one(Temp_newTemp(), 1);
+
+    CPPUNIT_ASSERT_EQUAL(static_cast<myTemp>(nullptr), one.GetSrcReg());
+}
+
+template <typename T>
+void testTwoOperandGetSrcReg_RegisterSrc_ReturnRegister()
+{
+    myTemp srcReg = Temp_newTemp();
+    T one(Temp_newTemp(), srcReg);
+
+    CPPUNIT_ASSERT_EQUAL(srcReg, one.GetSrcReg());
+}
+
+
+template <typename T>
+void testOneOperandGetDstReg_ByDefault_ReturnDstReg()
+{
+    T one(1);
+
+    CPPUNIT_ASSERT_EQUAL(Frame_EAX(), one.GetDstReg());
+}
+
+template <typename T>
+void testOneOperandGetSrcReg_ConstSrc_ReturnNull()
+{
+    T one(1);
+
+    CPPUNIT_ASSERT_EQUAL(static_cast<myTemp>(nullptr), one.GetSrcReg());
+}
+
+template <typename T>
+void testOneOperandGetSrcReg_RegisterSrc_ReturnRegister()
+{
+    myTemp srcReg = Temp_newTemp();
+    T one(srcReg);
+
+    CPPUNIT_ASSERT_EQUAL(srcReg, one.GetSrcReg());
 }
