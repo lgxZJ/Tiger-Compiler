@@ -11,17 +11,19 @@ namespace lgxZJ
         //                      TwoOperandOperate
         //////////////////////////////////////////////////////////////
 
-        myTemp TwoOperandOperate::GetDstReg() const
+        Registers TwoOperandOperate::GetDstRegs() const
         {
-            return dstReg;
+            return Registers(1, dstReg);
         }
 
-        myTemp TwoOperandOperate::GetSrcReg() const
+        Registers TwoOperandOperate::GetSrcRegs() const
         {
+            Registers result = GetDstRegs();            
+
             if (srcRep.kind == BinaryUnion::Kind::Reg)
-                return srcRep.u.reg;
-            else
-                return nullptr;
+                result.push_back(srcRep.u.reg);
+
+            return result;
         }
 
         string TwoOperandOperate::ToCommonString(string insStr) const
@@ -47,18 +49,20 @@ namespace lgxZJ
         //                      OneOperandOperate
         ///////////////////////////////////////////////////////////////
 
-        myTemp OneOperandOperate::GetDstReg() const
+        Registers OneOperandOperate::GetDstRegs() const
         {
             //  default destination register
-            return Frame_EAX();
+            return Registers(1, Frame_EAX());
         }
 
-        myTemp OneOperandOperate::GetSrcReg() const
+        Registers OneOperandOperate::GetSrcRegs() const
         {
+            Registers result = GetDstRegs();
+
             if (srcRep.kind == BinaryUnion::Kind::Reg)
-                return srcRep.u.reg;
-            else
-                return nullptr;
+                result.push_back(srcRep.u.reg);
+            
+            return result;
         }
 
         string OneOperandOperate::ToCommonString(string insStr) const

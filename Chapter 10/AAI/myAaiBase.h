@@ -3,6 +3,7 @@
 
 #include "../CXX_myTemp.h"
 #include <string>
+#include <vector>
 
 namespace lgxZJ
 {
@@ -20,6 +21,8 @@ namespace lgxZJ
         //      not all of them are needed in tiger.
         ///////////////////////////////////////////////////////////////////////
 
+        typedef std::vector<myTemp>     Registers;
+
         struct BinaryUnion
         {
             enum Kind { Reg, Value }    kind;
@@ -31,8 +34,8 @@ namespace lgxZJ
 		    public:
 		        virtual std::string ToString() const = 0;
 
-                virtual myTemp GetDstReg() const = 0;
-                virtual myTemp GetSrcReg() const = 0;
+                virtual Registers GetDstRegs() const = 0;
+                virtual Registers GetSrcRegs() const = 0;
 
                 //  Default definition
                 virtual myLabel GetLabel() const { return nullptr; }
@@ -53,8 +56,8 @@ namespace lgxZJ
                 std::string ToCommonString(std::string insStr) const;
 
             public:
-                virtual myTemp GetDstReg() const;
-                virtual myTemp GetSrcReg() const;
+                virtual Registers GetDstRegs() const;
+                virtual Registers GetSrcRegs() const;
 
             private:
                 std::string OneRegToString(myTemp reg) const;
@@ -68,8 +71,8 @@ namespace lgxZJ
                 std::string ToCommonString(std::string insStr) const;
 
             public:
-                virtual myTemp GetDstReg() const;
-                virtual myTemp GetSrcReg() const;
+                virtual Registers GetDstRegs() const;
+                virtual Registers GetSrcRegs() const;
         };
 
 #define DEFINE_TWOCOMPUTE_CTOR(CLS)                     \

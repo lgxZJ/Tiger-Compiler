@@ -15,8 +15,8 @@ namespace lgxZJ
                     return ins + " " + std::string(MySymbol_GetName(dstLabel));
                 }
 
-                virtual myTemp GetDstReg() const { return nullptr; }
-                virtual myTemp GetSrcReg() const { return nullptr; }
+                virtual Registers GetDstRegs() const { return {}; }
+                virtual Registers GetSrcRegs() const { return {}; }
                 virtual myLabel GetLabel() const { return dstLabel; }
 
             protected:
@@ -34,8 +34,8 @@ namespace lgxZJ
 
                 std::string ToString() const;
 
-                virtual myTemp GetDstReg() const { return nullptr; }
-                virtual myTemp GetSrcReg() const { return nullptr; }
+                virtual Registers GetDstRegs() const { return {}; }
+                virtual Registers GetSrcRegs() const { return {}; }
 
             protected:
                 myLabel label;
@@ -52,6 +52,9 @@ namespace lgxZJ
                 explicit Cmp (myTemp oneDstReg, int constValue);
 
                 std::string ToString() const;
+
+                virtual Registers GetDstRegs() const;
+                virtual Registers GetSrcRegs() const;
         };
 
         ///////////////////////////////////////////////////////////////////////////////
@@ -137,8 +140,8 @@ namespace lgxZJ
             public:
                 explicit Call (myLabel oneFuncLabel, myTempList oneRegList);
 
-                virtual myTemp GetDstReg() const { return nullptr; }
-                virtual myTemp GetSrcReg() const { return nullptr; }
+                virtual Registers GetDstRegs() const { return {}; }
+                virtual Registers GetSrcRegs() const { return {}; }
 
                 std::string ToString() const;
                 myTempList TrashedRegs() const;

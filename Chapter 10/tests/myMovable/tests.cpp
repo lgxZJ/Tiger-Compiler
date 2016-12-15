@@ -40,11 +40,11 @@ class MoveTest : public CppUnit::TestFixture
             suite->addTest(new CppUnit::TestCaller<MoveTest>(
                 "testCtor", &MoveTest::testToString_LeftContentRightValue_NoSquareBrackets));
             suite->addTest(new CppUnit::TestCaller<MoveTest>(
-                "testCtor", &MoveTest::testGetDstReg_ByDefault_ReturnDstReg));
+                "testCtor", &MoveTest::testGetDstRegs_ByDefault_ReturnDstReg));
             suite->addTest(new CppUnit::TestCaller<MoveTest>(
-                "testCtor", &MoveTest::testGetSrcReg_RightOperandRegister_ReturnSrcReg));
+                "testCtor", &MoveTest::testGetSrcRegs_RightOperandRegister_ReturnSrcReg));
             suite->addTest(new CppUnit::TestCaller<MoveTest>(
-                "testCtor", &MoveTest::testGetSrcReg_RightOperandConst_ReturnNullptr));
+                "testCtor", &MoveTest::testGetSrcRegs_RightOperandConst_ReturnEmpty));
             suite->addTest(new CppUnit::TestCaller<MoveTest>(
                 "testCtor", &MoveTest::testGetLabel_BeDefault_ReturnNull));
             
@@ -118,34 +118,37 @@ class MoveTest : public CppUnit::TestFixture
             CPPUNIT_ASSERT_EQUAL(0, (int)count(result.begin(), result.end(), ']'));
         }
 
-        void testGetDstReg_ByDefault_ReturnDstReg()
+        void testGetDstRegs_ByDefault_ReturnDstReg()
         {
             myTemp dstReg = Temp_newTemp();
             Move one(dstReg, Move::OperandType::Content, 1);
 
-            myTemp result = one.GetDstReg();
+            Registers result = one.GetDstRegs();
 
-            CPPUNIT_ASSERT_EQUAL(dstReg, result);
+            CPPUNIT_ASSERT_EQUAL((size_t)1, result.size());
+            CPPUNIT_ASSERT_EQUAL(dstReg, result.at(0));
         }
 
-        void testGetSrcReg_RightOperandRegister_ReturnSrcReg()
+        void testGetSrcRegs_RightOperandRegister_ReturnSrcReg()
         {
             myTemp dstReg = Temp_newTemp();
             myTemp srcReg = Temp_newTemp();
             Move one(dstReg, srcReg);
 
-            myTemp result = one.GetSrcReg();
+            Registers result = one.GetSrcRegs();
 
-            CPPUNIT_ASSERT_EQUAL(srcReg, result);
+            CPPUNIT_ASSERT_EQUAL((size_t)1, result.size());
+            CPPUNIT_ASSERT_EQUAL(srcReg, result.at(0));
         }
 
-        void testGetSrcReg_RightOperandConst_ReturnNullptr()
+        void testGetSrcRegs_RightOperandConst_ReturnEmpty()
         {
-            Move one(Temp_newTemp(), Move::OperandType::Content, 1);
+            myTemp dstReg = Temp_newTemp();
+            Move one(dstReg, Move::OperandType::Content, 1);
 
-            myTemp result = one.GetSrcReg();
+            Registers result = one.GetSrcRegs();
 
-            CPPUNIT_ASSERT_EQUAL(static_cast<myTemp>(nullptr), result);
+            CPPUNIT_ASSERT_EQUAL((size_t)0, result.size());
         }
 
         void testGetLabel_BeDefault_ReturnNull()

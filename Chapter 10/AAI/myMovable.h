@@ -24,8 +24,8 @@ namespace lgxZJ
                             OperandType oneSrcType = Content);
                 explicit Move(myTemp oneDstReg, OperandType oneDstType, int constValue);
 
-                virtual myTemp GetDstReg() const;
-                virtual myTemp GetSrcReg() const;
+                virtual Registers GetDstRegs() const;
+                virtual Registers GetSrcRegs() const;
 
                 virtual std::string ToString() const;
 

@@ -74,53 +74,75 @@ void testOneOperandCtor_ValueSource_SetWhatPassed()
 }
 
 template <typename T>
-void testTwoOperandGetDstReg_ByDefault_ReturnDstReg()
+void testTwoOperandGetDstRegs_ByDefault_ReturnDstRegs()
 {
     myTemp dstReg = Temp_newTemp();
     T one(dstReg, 1);
 
-    CPPUNIT_ASSERT_EQUAL(dstReg, one.GetDstReg());
+    lgxZJ::IS::Registers result = one.GetDstRegs();
+
+    CPPUNIT_ASSERT_EQUAL((size_t)1, result.size());
+    CPPUNIT_ASSERT_EQUAL(dstReg, result.at(0));
 }
 
 template <typename T>
-void testTwoOperandGetSrcReg_ConstSrc_ReturnNull()
+void testTwoOperandGetSrcRegs_ConstSrc_ReturnDstReg()
 {
-    T one(Temp_newTemp(), 1);
+    myTemp dstReg = Temp_newTemp();
+    T one(dstReg, 1);
 
-    CPPUNIT_ASSERT_EQUAL(static_cast<myTemp>(nullptr), one.GetSrcReg());
+    lgxZJ::IS::Registers result = one.GetSrcRegs();
+
+    CPPUNIT_ASSERT_EQUAL((size_t)1, result.size());
+    CPPUNIT_ASSERT_EQUAL(dstReg, result.at(0));
 }
 
 template <typename T>
-void testTwoOperandGetSrcReg_RegisterSrc_ReturnRegister()
+void testTwoOperandGetSrcRegs_RegisterSrc_ReturnRegisters()
 {
+    myTemp dstReg = Temp_newTemp();
     myTemp srcReg = Temp_newTemp();
-    T one(Temp_newTemp(), srcReg);
+    T one(dstReg, srcReg);
 
-    CPPUNIT_ASSERT_EQUAL(srcReg, one.GetSrcReg());
+    lgxZJ::IS::Registers result = one.GetSrcRegs();
+
+    CPPUNIT_ASSERT_EQUAL((size_t)2, result.size());
+    CPPUNIT_ASSERT_EQUAL(dstReg, result.at(0));
+    CPPUNIT_ASSERT_EQUAL(srcReg, result.at(1));
 }
 
 
 template <typename T>
-void testOneOperandGetDstReg_ByDefault_ReturnDstReg()
+void testOneOperandGetDstRegs_ByDefault_ReturnDstRegs()
 {
     T one(1);
 
-    CPPUNIT_ASSERT_EQUAL(Frame_EAX(), one.GetDstReg());
+    lgxZJ::IS::Registers result = one.GetDstRegs();
+
+    CPPUNIT_ASSERT_EQUAL((size_t)1, result.size());
+    CPPUNIT_ASSERT_EQUAL(Frame_EAX(), result.at(0));
 }
 
 template <typename T>
-void testOneOperandGetSrcReg_ConstSrc_ReturnNull()
+void testOneOperandGetSrcRegs_ConstSrc_ReturnDstReg()
 {
     T one(1);
 
-    CPPUNIT_ASSERT_EQUAL(static_cast<myTemp>(nullptr), one.GetSrcReg());
+    lgxZJ::IS::Registers result = one.GetSrcRegs();
+
+    CPPUNIT_ASSERT_EQUAL((size_t)1, result.size());
+    CPPUNIT_ASSERT_EQUAL(Frame_EAX(), result.at(0));
 }
 
 template <typename T>
-void testOneOperandGetSrcReg_RegisterSrc_ReturnRegister()
+void testOneOperandGetSrcRegs_RegisterSrc_ReturnRegisters()
 {
     myTemp srcReg = Temp_newTemp();
     T one(srcReg);
 
-    CPPUNIT_ASSERT_EQUAL(srcReg, one.GetSrcReg());
+    lgxZJ::IS::Registers result = one.GetSrcRegs();
+
+    CPPUNIT_ASSERT_EQUAL((size_t)2, result.size());
+    CPPUNIT_ASSERT_EQUAL(Frame_EAX(), result.at(0));
+    CPPUNIT_ASSERT_EQUAL(srcReg, result.at(1));
 }

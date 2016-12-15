@@ -44,6 +44,19 @@ namespace lgxZJ
             return ToCommonString("cmp");
         }
 
+        Registers Cmp::GetDstRegs() const
+        {
+            return Registers(1, dstReg);
+        }
+
+        Registers Cmp::GetSrcRegs() const
+        {
+            if (srcRep.kind == BinaryUnion::Kind::Reg)
+                return Registers(1, srcRep.u.reg);
+            else
+                return {};
+        }
+
         /////////////////////////////////////////////////////////////////////////
         //                              Jmp
         /////////////////////////////////////////////////////////////////////////

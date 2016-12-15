@@ -25,17 +25,17 @@ namespace lgxZJ
             srcRep.u.value = constValue;
         }
 
-        myTemp Move::GetDstReg() const
+        Registers Move::GetDstRegs() const
         {
-            return dstReg;
+            return Registers(1, dstReg);
         }
 
-        myTemp Move::GetSrcReg() const
+        Registers Move::GetSrcRegs() const
         {
             if (srcRep.kind == BinaryUnion::Kind::Reg)
-                return srcRep.u.reg;
+                return Registers(1, srcRep.u.reg);
             else
-                return nullptr;
+                return {};
         }
 
         string Move::ToString() const
