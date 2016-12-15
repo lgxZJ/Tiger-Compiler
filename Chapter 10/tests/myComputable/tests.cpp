@@ -26,7 +26,8 @@ class TwoComputeTest : public CppUnit::TestFixture
                 "testCtor", &TwoComputeTest::testAddGetSrcReg_ConstSrc_ReturnNull));
             suite->addTest(new CppUnit::TestCaller<TwoComputeTest>(
                 "testCtor", &TwoComputeTest::testAddGetSrcReg_ReigsterSrc_ReturnRegister));
-            
+            suite->addTest(new CppUnit::TestCaller<TwoComputeTest>(
+                "testCtor", &TwoComputeTest::testAddGetLabel_ByDefault_ReturnNull));
 
             suite->addTest(new CppUnit::TestCaller<TwoComputeTest>(
                 "testCtor", &TwoComputeTest::testSubCtor_BothOperandsReg_SetWhatPassed));
@@ -38,6 +39,8 @@ class TwoComputeTest : public CppUnit::TestFixture
                 "testCtor", &TwoComputeTest::testSubGetSrcReg_ConstSrc_ReturnNull));
             suite->addTest(new CppUnit::TestCaller<TwoComputeTest>(
                 "testCtor", &TwoComputeTest::testSubGetSrcReg_ReigsterSrc_ReturnRegister));
+            suite->addTest(new CppUnit::TestCaller<TwoComputeTest>(
+                "testCtor", &TwoComputeTest::testSubGetLabel_ByDefault_ReturnNull));
 
             suite->addTest(new CppUnit::TestCaller<TwoComputeTest>(
                 "testCtor", &TwoComputeTest::testIMulCtor_RegSource_SetWhatPassed));
@@ -49,6 +52,8 @@ class TwoComputeTest : public CppUnit::TestFixture
                 "testCtor", &TwoComputeTest::testIMulGetSrcReg_ConstSrc_ReturnNull));
             suite->addTest(new CppUnit::TestCaller<TwoComputeTest>(
                 "testCtor", &TwoComputeTest::testIMulGetSrcReg_ReigsterSrc_ReturnRegister));
+            suite->addTest(new CppUnit::TestCaller<TwoComputeTest>(
+                "testCtor", &TwoComputeTest::testIMulGetLabel_ByDefault_ReturnNull));
 
             suite->addTest(new CppUnit::TestCaller<TwoComputeTest>(
                 "testCtor", &TwoComputeTest::testIDivCtor_RegSource_SetWhatPassed));
@@ -60,6 +65,8 @@ class TwoComputeTest : public CppUnit::TestFixture
                 "testCtor", &TwoComputeTest::testIDivGetSrcReg_ConstSrc_ReturnNull));
             suite->addTest(new CppUnit::TestCaller<TwoComputeTest>(
                 "testCtor", &TwoComputeTest::testIDivGetSrcReg_ReigsterSrc_ReturnRegister));
+            suite->addTest(new CppUnit::TestCaller<TwoComputeTest>(
+                "testCtor", &TwoComputeTest::testIDivGetLabel_ByDefault_ReturnNull));       
                 
             suite->addTest(new CppUnit::TestCaller<TwoComputeTest>(
                 "testCtor", &TwoComputeTest::testXorCtor_BothOperandsReg_SetWhatPassed));
@@ -71,7 +78,8 @@ class TwoComputeTest : public CppUnit::TestFixture
                 "testCtor", &TwoComputeTest::testXorGetSrcReg_ConstSrc_ReturnNull));
             suite->addTest(new CppUnit::TestCaller<TwoComputeTest>(
                 "testCtor", &TwoComputeTest::testXorGetSrcReg_ReigsterSrc_ReturnRegister));
-            
+            suite->addTest(new CppUnit::TestCaller<TwoComputeTest>(
+                "testCtor", &TwoComputeTest::testXorGetLabel_ByDefault_ReturnNull));
                 
             return suite;
         }
@@ -104,6 +112,13 @@ class TwoComputeTest : public CppUnit::TestFixture
             testTwoOperandGetSrcReg_RegisterSrc_ReturnRegister<Add>();
         }
 
+        void testAddGetLabel_ByDefault_ReturnNull()
+        {
+            Add add(Temp_newTemp(), Temp_newTemp());
+
+            CPPUNIT_ASSERT_EQUAL(static_cast<myLabel>(nullptr), add.GetLabel());
+        }
+
         /////////////////////////////
 
         void testSubCtor_BothOperandsReg_SetWhatPassed()
@@ -129,6 +144,13 @@ class TwoComputeTest : public CppUnit::TestFixture
         void testSubGetSrcReg_ReigsterSrc_ReturnRegister()
         {
             testTwoOperandGetSrcReg_RegisterSrc_ReturnRegister<Sub>();
+        }
+
+        void testSubGetLabel_ByDefault_ReturnNull()
+        {
+            Sub sub(Temp_newTemp(), Temp_newTemp());
+
+            CPPUNIT_ASSERT_EQUAL(static_cast<myLabel>(nullptr), sub.GetLabel());
         }
 
         //////////////////////////////
@@ -158,6 +180,13 @@ class TwoComputeTest : public CppUnit::TestFixture
             testOneOperandGetSrcReg_RegisterSrc_ReturnRegister<IMul>();
         }
 
+        void testIMulGetLabel_ByDefault_ReturnNull()
+        {
+            IMul mul(Temp_newTemp());
+
+            CPPUNIT_ASSERT_EQUAL(static_cast<myLabel>(nullptr), mul.GetLabel());
+        }
+
         ///////////////////////////////
 
         void testIDivCtor_RegSource_SetWhatPassed()
@@ -185,6 +214,13 @@ class TwoComputeTest : public CppUnit::TestFixture
             testOneOperandGetSrcReg_RegisterSrc_ReturnRegister<IDiv>();
         }
 
+        void testIDivGetLabel_ByDefault_ReturnNull()
+        {
+            IDiv div(Temp_newTemp());
+
+            CPPUNIT_ASSERT_EQUAL(static_cast<myLabel>(nullptr), div.GetLabel());
+        }
+
         /////////////////////////////
 
         void testXorCtor_BothOperandsReg_SetWhatPassed()
@@ -210,6 +246,13 @@ class TwoComputeTest : public CppUnit::TestFixture
         void testXorGetSrcReg_ReigsterSrc_ReturnRegister()
         {
             testTwoOperandGetSrcReg_RegisterSrc_ReturnRegister<Xor>();
+        }
+
+        void testXorGetLabel_ByDefault_ReturnNull()
+        {
+            Xor xorr(Temp_newTemp(), Temp_newTemp());
+
+            CPPUNIT_ASSERT_EQUAL(static_cast<myLabel>(nullptr), xorr.GetLabel());
         }
 };
 

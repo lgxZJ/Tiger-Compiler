@@ -45,6 +45,9 @@ class MoveTest : public CppUnit::TestFixture
                 "testCtor", &MoveTest::testGetSrcReg_RightOperandRegister_ReturnSrcReg));
             suite->addTest(new CppUnit::TestCaller<MoveTest>(
                 "testCtor", &MoveTest::testGetSrcReg_RightOperandConst_ReturnNullptr));
+            suite->addTest(new CppUnit::TestCaller<MoveTest>(
+                "testCtor", &MoveTest::testGetLabel_BeDefault_ReturnNull));
+            
 
             return suite;
         }
@@ -143,6 +146,13 @@ class MoveTest : public CppUnit::TestFixture
             myTemp result = one.GetSrcReg();
 
             CPPUNIT_ASSERT_EQUAL(static_cast<myTemp>(nullptr), result);
+        }
+
+        void testGetLabel_BeDefault_ReturnNull()
+        {
+            Move move(Temp_newTemp(), Temp_newTemp());
+
+            CPPUNIT_ASSERT_EQUAL(static_cast<myLabel>(nullptr), move.GetLabel());
         }
 };
 

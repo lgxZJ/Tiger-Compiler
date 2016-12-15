@@ -17,6 +17,7 @@ namespace lgxZJ
 
                 virtual myTemp GetDstReg() const { return nullptr; }
                 virtual myTemp GetSrcReg() const { return nullptr; }
+                virtual myLabel GetLabel() const { return dstLabel; }
 
             protected:
                 myLabel dstLabel;

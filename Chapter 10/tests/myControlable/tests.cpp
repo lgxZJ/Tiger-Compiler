@@ -37,8 +37,10 @@ class myControlableTest : public CppUnit::TestFixture
                 "testCtor", &myControlableTest::testCmpCtor_BothOperandsRegs_SetWhatPassed));
             suite->addTest(new CppUnit::TestCaller<myControlableTest>(
                 "testCtor", &myControlableTest::testCmpCtor_LeftRegRightValue_SetWhatPassed));
+
             suite->addTest(new CppUnit::TestCaller<myControlableTest>(
                 "testCtor", &myControlableTest::testCallTrashedRegs_ByDefault_EAX));
+
             suite->addTest(new CppUnit::TestCaller<myControlableTest>(
                 "testCtor", &myControlableTest::testLabelGetDstRegAndGetSrcReg_ByDefault_BothReturnNull));
             suite->addTest(new CppUnit::TestCaller<myControlableTest>(
@@ -63,7 +65,27 @@ class myControlableTest : public CppUnit::TestFixture
                 "testCtor", &myControlableTest::testJleGetSrcRegAndGetDstReg_ByDefault_BothReturnNull));
             suite->addTest(new CppUnit::TestCaller<myControlableTest>(
                 "testCtor", &myControlableTest::testCallGetSrcRegAndGetDstReg_ByDefault_BothReturnNull));
-
+            
+            suite->addTest(new CppUnit::TestCaller<myControlableTest>(
+                "testCtor", &myControlableTest::testLabelGetLabel_ByDefault_ReturnNull));
+            suite->addTest(new CppUnit::TestCaller<myControlableTest>(
+                "testCtor", &myControlableTest::testCmpGetLabel_ByDefault_ReturnNull));
+            suite->addTest(new CppUnit::TestCaller<myControlableTest>(
+                "testCtor", &myControlableTest::testCallGetLabel_ByDefault_ReturnNull));
+            suite->addTest(new CppUnit::TestCaller<myControlableTest>(
+                "testCtor", &myControlableTest::testJmpGetLabel_ByDefault_ReturnDstLabel));
+            suite->addTest(new CppUnit::TestCaller<myControlableTest>(
+                "testCtor", &myControlableTest::testJeGetLabel_ByDefault_ReturnDstLabel));
+            suite->addTest(new CppUnit::TestCaller<myControlableTest>(
+                "testCtor", &myControlableTest::testJneGetLabel_ByDefault_ReturnDstLabel));
+            suite->addTest(new CppUnit::TestCaller<myControlableTest>(
+                "testCtor", &myControlableTest::testJgGetLabel_ByDefault_ReturnDstLabel));
+            suite->addTest(new CppUnit::TestCaller<myControlableTest>(
+                "testCtor", &myControlableTest::testJgeGetLabel_ByDefault_ReturnDstLabel));
+            suite->addTest(new CppUnit::TestCaller<myControlableTest>(
+                "testCtor", &myControlableTest::testJlGetLabel_ByDefault_ReturnDstLabel));
+            suite->addTest(new CppUnit::TestCaller<myControlableTest>(
+                "testCtor", &myControlableTest::testJleGetLabel_ByDefault_ReturnDstLabel));
             return suite;
         }
 
@@ -79,6 +101,13 @@ class myControlableTest : public CppUnit::TestFixture
             CPPUNIT_ASSERT_EQUAL(label, faker.GetLabel());
         }
 
+        void testLabelGetLabel_ByDefault_ReturnNull()
+        {
+            Label label(Temp_newLabel());
+
+            CPPUNIT_ASSERT_EQUAL(static_cast<myLabel>(nullptr), label.GetLabel());
+        }
+
         ////////////////////////////////
 
         void testCmpCtor_BothOperandsRegs_SetWhatPassed()
@@ -91,6 +120,13 @@ class myControlableTest : public CppUnit::TestFixture
             testTwoOperandCtor_LeftRegRightConstValue_SetWhatPassed<Cmp>();
         }
 
+        void testCmpGetLabel_ByDefault_ReturnNull()
+        {
+            Cmp cmp(Temp_newTemp(), Temp_newTemp());
+
+            CPPUNIT_ASSERT_EQUAL(static_cast<myLabel>(nullptr), cmp.GetLabel());
+        }
+
         ///////////////////////////////
 
         void testCallTrashedRegs_ByDefault_EAX()
@@ -99,6 +135,13 @@ class myControlableTest : public CppUnit::TestFixture
 
             CPPUNIT_ASSERT_EQUAL(Frame_RV(), call.TrashedRegs()->head);
             CPPUNIT_ASSERT_EQUAL((myTempList)nullptr, call.TrashedRegs()->tail);
+        }
+
+        void testCallGetLabel_ByDefault_ReturnNull()
+        {
+            Call call(Temp_newLabel(), nullptr);
+
+            CPPUNIT_ASSERT_EQUAL(static_cast<myLabel>(nullptr), call.GetLabel());
         }
 
         ////////////////////////////////
@@ -211,6 +254,67 @@ class myControlableTest : public CppUnit::TestFixture
 
             CPPUNIT_ASSERT_EQUAL(static_cast<myTemp>(nullptr), call.GetDstReg());
             CPPUNIT_ASSERT_EQUAL(static_cast<myTemp>(nullptr), call.GetSrcReg());
+        }
+
+        ////////////////////////////////
+        ////////////////////////////////
+
+        template <typename T>
+        void testOneGetLabel_ByDefault_ReturnDstLabel()
+        {
+            myLabel label = Temp_newLabel();
+            T one(label);
+
+            CPPUNIT_ASSERT_EQUAL(label, one.GetLabel());
+        }
+
+        ////////////////
+
+        void testJmpGetLabel_ByDefault_ReturnDstLabel()
+        {
+            testOneGetLabel_ByDefault_ReturnDstLabel<Jmp>();
+        }
+
+        ////////////////
+
+        void testJeGetLabel_ByDefault_ReturnDstLabel()
+        {
+            testOneGetLabel_ByDefault_ReturnDstLabel<Je>();
+        }
+
+        ////////////////
+
+        void testJneGetLabel_ByDefault_ReturnDstLabel()
+        {
+            testOneGetLabel_ByDefault_ReturnDstLabel<Jne>();
+        }
+
+        ////////////////
+
+        void testJgGetLabel_ByDefault_ReturnDstLabel()
+        {
+            testOneGetLabel_ByDefault_ReturnDstLabel<Jg>();
+        }
+
+        ////////////////
+
+        void testJgeGetLabel_ByDefault_ReturnDstLabel()
+        {
+            testOneGetLabel_ByDefault_ReturnDstLabel<Jge>();
+        }
+
+        ////////////////
+
+        void testJlGetLabel_ByDefault_ReturnDstLabel()
+        {
+            testOneGetLabel_ByDefault_ReturnDstLabel<Jl>();
+        }
+
+        ////////////////
+
+        void testJleGetLabel_ByDefault_ReturnDstLabel()
+        {
+            testOneGetLabel_ByDefault_ReturnDstLabel<Jle>();
         }
 };
 

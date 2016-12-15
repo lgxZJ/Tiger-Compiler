@@ -35,6 +35,7 @@ namespace lgxZJ
                 virtual myTemp GetSrcReg() const = 0;
 
                 //  Default definition
+                virtual myLabel GetLabel() const { return nullptr; }
                 virtual myTempList TrashedRegs() const { return nullptr; }
 		};
 
