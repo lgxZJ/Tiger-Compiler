@@ -34,9 +34,20 @@ namespace lgxZJ
 		    public:
 		        virtual std::string ToString() const = 0;
 
+                //  NOTE:
+                //      Dst means the destination in arithmetic manner, not in assembly manner.
+                //      For example:
+                //          cmp eax, ebx
+                //      In x86 manner, eax is the destination and ebx is the source. But in
+                //      arithmetic, eax is not assigned by ebx, so eax is a source registers.
+                //
+                //      However, code like the following obeys the arithmetic order:
+                //          add eax, ebx
+                //      because code above could be written to ---- eax = eax + ebx. So, eax
+                //      is really a destination register, and ebx is a source register.
                 virtual Registers GetDstRegs() const = 0;
                 virtual Registers GetSrcRegs() const = 0;
-
+                 
                 virtual myLabel GetDstLabel() const { return nullptr; }
                 virtual myLabel GetDefLabel() const { return nullptr; }
                 virtual myTempList TrashedRegs() const { return nullptr; }
@@ -56,6 +67,13 @@ namespace lgxZJ
                 std::string ToCommonString(std::string insStr) const;
 
             public:
+                //  Two operand operate has the following instruction syntax:
+                //      ins dstReg, srcReg(if register)
+                //  which has the following arithmetic semantic:
+                //      dstReg = dstReg op srcReg
+                //  So,
+                //      the Dst registers are----dstReg
+                //      the Src registers are----dstReg, srcReg.
                 virtual Registers GetDstRegs() const;
                 virtual Registers GetSrcRegs() const;
 
@@ -71,6 +89,13 @@ namespace lgxZJ
                 std::string ToCommonString(std::string insStr) const;
 
             public:
+                //  One operand operate has the following instruction syntax:
+                //      ins srcReg(if register)
+                //  which has the following arithmetic semantic:
+                //      eax = eax op srcReg
+                //  So,
+                //      the Dst registers are----eax
+                //      the Src registers are----eax, srcReg.
                 virtual Registers GetDstRegs() const;
                 virtual Registers GetSrcRegs() const;
         };
