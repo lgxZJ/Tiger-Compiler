@@ -32,6 +32,8 @@ class CFGraphTest : public CppUnit::TestFixture
         CPPUNIT_TEST(testCtor_ByDefault_ConstructGraph);
         CPPUNIT_TEST(testCtor_ByDefault_ConstructUses);
         CPPUNIT_TEST(testCtor_ByDefault_ConstructDefs);
+        CPPUNIT_TEST(testIsMoveIns_PassMove_ReturnTrue);
+        CPPUNIT_TEST(testIsMoveIns_PassNonMove_ReturnTrue);
 
         CPPUNIT_TEST_SUITE_END();
 
@@ -131,6 +133,32 @@ class CFGraphTest : public CppUnit::TestFixture
             CPPUNIT_ASSERT_EQUAL((size_t)1, cfGraph.GetDefs(5).size());
             CPPUNIT_ASSERT_EQUAL((size_t)0, cfGraph.GetDefs(6).size());
             CPPUNIT_ASSERT_EQUAL((size_t)1, cfGraph.GetDefs(7).size());
+        }
+
+        void testIsMoveIns_PassMove_ReturnTrue()
+        {
+            Instructions ins;
+            ins.push_back(make_shared<Move>(Temp_newTemp(), Temp_newTemp()));
+
+            CFGraph graph(ins);
+
+            CPPUNIT_ASSERT_EQUAL(true, graph.IsMoveIns(0));
+        }
+
+        void testIsMoveIns_PassNonMove_ReturnTrue()
+        {
+            myLabel label = Temp_newLabel();
+            Instructions ins;
+            ins.push_back(make_shared<Label>(label));
+            ins.push_back(make_shared<Add>(Temp_newTemp(), Temp_newTemp()));
+            ins.push_back(make_shared<IMul>(Temp_newTemp()));
+            ins.push_back(make_shared<Cmp>(Temp_newTemp(), Temp_newTemp()));
+            ins.push_back(make_shared<Jmp>(label));
+
+            CFGraph graph(ins);
+
+            for (int i = 0; i < 5; ++i)
+                CPPUNIT_ASSERT_EQUAL(false, graph.IsMoveIns(i));
         }
 };
 

@@ -101,5 +101,13 @@ namespace lgxZJ
             return defs.at(node);
         }
 
+        /////////////////////////////////////////////////////
+
+        bool CFGraph::IsMoveIns(Node node) const
+        {
+            assert (node >= 0 && node < uses.size());
+            return ins.at(node)->ToString().find("mov") != string::npos;
+        }
+
     }
 }

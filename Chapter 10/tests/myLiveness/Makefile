@@ -1,12 +1,14 @@
 OUT_DIR := ./bin
-OBJECTS := $(addprefix $(OUT_DIR)/, tests.o myCFGraph.o myDirectedGraph.o myControlable.o myAaiBase.o myMovable.o myComputable.o)
+OBJECTS := $(addprefix $(OUT_DIR)/, tests.o myLiveness.o myDirectedGraph.o\
+                                    myMovable.o myComputable.o myControlable.o\
+                                    myAaiBase.o myCFGraph.o)
 
 COMPILE_FLAGS := g++ -g -c -std=c++11
 COVERAGE_OPTIONS := -fprofile-arcs -ftest-coverage
 COVERAGE_FOLDER := ./coverage
 
 .RECIPEPREFIX := >
-VPATH := ../../:../../AAI/
+VPATH := ../../:../../AAI
 
 all.out : $(COVERAGE_FOLDER) $(OBJECTS)
 > g++ -g -coverage -o $(OUT_DIR)/all.out $(OBJECTS) -lcppunit -ldl ../Libraries/frontend.a
@@ -20,7 +22,7 @@ $(COVERAGE_FOLDER):
 > mkdir -p $@
 
 
-$(OUT_DIR)/myCFGraph.o : myCFGraph.cpp
+$(OUT_DIR)/myLiveness.o : myLiveness.cpp
 > $(COMPILE_FLAGS) $(COVERAGE_OPTIONS) -o $@ $<
 
 $(OUT_DIR)/%.o : %.cpp
