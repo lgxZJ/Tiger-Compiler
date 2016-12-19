@@ -44,11 +44,11 @@ class myControlableTest : public CppUnit::TestFixture
             suite->addTest(new CppUnit::TestCaller<myControlableTest>(
                 "testCtor", &myControlableTest::testLabelGetDstRegsAndGetSrcRegs_ByDefault_BothReturnEmpty));
             suite->addTest(new CppUnit::TestCaller<myControlableTest>(
-                "testCtor", &myControlableTest::testCmpGetDstRegs_ByDefault_ReturnDstRegs));
+                "testCtor", &myControlableTest::testCmpGetDstRegs_ByDefault_ReturnEmpty));
             suite->addTest(new CppUnit::TestCaller<myControlableTest>(
-                "testCtor", &myControlableTest::testCmpGetSrcRegs_ConstSrc_ReturnEmpty));
+                "testCtor", &myControlableTest::testCmpGetSrcRegs_ConstSrc_ReturnLeftReg));
             suite->addTest(new CppUnit::TestCaller<myControlableTest>(
-                "testCtor", &myControlableTest::testCmpGetSrcRegs_RegSrc_ReturnSrcRegs));
+                "testCtor", &myControlableTest::testCmpGetSrcRegs_RegSrc_ReturnLeftAndRightRegs));
             suite->addTest(new CppUnit::TestCaller<myControlableTest>(
                 "testCtor", &myControlableTest::testJmpGetSrcRegsAndGetDstRegs_ByDefault_BothReturnEmpty));
             suite->addTest(new CppUnit::TestCaller<myControlableTest>(
@@ -156,39 +156,42 @@ class myControlableTest : public CppUnit::TestFixture
 
         ////////////////////////////////
 
-        void testCmpGetDstRegs_ByDefault_ReturnDstRegs()
+        void testCmpGetDstRegs_ByDefault_ReturnEmpty()
         {
             myTemp dstReg = Temp_newTemp();
             Cmp cmp(dstReg, 1);
 
             Registers result = cmp.GetDstRegs();
 
-            CPPUNIT_ASSERT_EQUAL((size_t)1, result.size());
-            CPPUNIT_ASSERT_EQUAL(dstReg, result.at(0));
+            CPPUNIT_ASSERT_EQUAL((size_t)0, result.size());
         }
 
         /////////////////////////////////
 
-        void testCmpGetSrcRegs_ConstSrc_ReturnEmpty()
+        void testCmpGetSrcRegs_ConstSrc_ReturnLeftReg()
         {
-            Cmp cmp(Temp_newTemp(), 1);
-
-            Registers result = cmp.GetSrcRegs();
-
-            CPPUNIT_ASSERT_EQUAL((size_t)0, result.size());
-        }
-
-        //////////////////////////////////
-
-        void testCmpGetSrcRegs_RegSrc_ReturnSrcRegs()
-        {
-            myTemp srcReg = Temp_newTemp();
-            Cmp cmp(Temp_newTemp(), srcReg);
+            myTemp dstReg = Temp_newTemp();
+            Cmp cmp(dstReg, 1);
 
             Registers result = cmp.GetSrcRegs();
 
             CPPUNIT_ASSERT_EQUAL((size_t)1, result.size());
-            CPPUNIT_ASSERT_EQUAL(srcReg, result.at(0));
+            CPPUNIT_ASSERT_EQUAL(dstReg, result.at(0));
+        }
+
+        //////////////////////////////////
+
+        void testCmpGetSrcRegs_RegSrc_ReturnLeftAndRightRegs()
+        {
+            myTemp srcReg = Temp_newTemp();
+            myTemp dstReg = Temp_newTemp();  
+            Cmp cmp(dstReg, srcReg);
+
+            Registers result = cmp.GetSrcRegs();
+
+            CPPUNIT_ASSERT_EQUAL((size_t)2, result.size());
+            CPPUNIT_ASSERT_EQUAL(dstReg, result.at(0));
+            CPPUNIT_ASSERT_EQUAL(srcReg, result.at(1));
         }
 
         //////////////////////////////////

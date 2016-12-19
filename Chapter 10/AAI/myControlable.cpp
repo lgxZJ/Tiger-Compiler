@@ -46,15 +46,18 @@ namespace lgxZJ
 
         Registers Cmp::GetDstRegs() const
         {
-            return Registers(1, dstReg);
+            //return Registers(1, dstReg);
+            return {};
         }
 
         Registers Cmp::GetSrcRegs() const
         {
+            Registers result(1, dstReg);
+
             if (srcRep.kind == BinaryUnion::Kind::Reg)
-                return Registers(1, srcRep.u.reg);
-            else
-                return {};
+                result.push_back(srcRep.u.reg);
+            
+            return result;//    todo: test
         }
 
         /////////////////////////////////////////////////////////////////////////
