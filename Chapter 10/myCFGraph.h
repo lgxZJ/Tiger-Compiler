@@ -28,6 +28,7 @@ namespace lgxZJ
                 bool IsMoveIns(Node node) const;
                 IS::Registers GetUses(Node node) const;
                 IS::Registers GetDefs(Node node) const;
+                std::shared_ptr<IS::AAI> GetNodeIns(Node node) const;
 
             private:
                 int GetLabelIndex(myLabel label);

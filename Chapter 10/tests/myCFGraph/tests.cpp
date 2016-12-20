@@ -32,6 +32,7 @@ class CFGraphTest : public CppUnit::TestFixture
         CPPUNIT_TEST(testCtor_ByDefault_ConstructGraph);
         CPPUNIT_TEST(testCtor_ByDefault_ConstructUses);
         CPPUNIT_TEST(testCtor_ByDefault_ConstructDefs);
+        CPPUNIT_TEST(testGetNodeIns_ByDefault_GetIns);
         CPPUNIT_TEST(testIsMoveIns_PassMove_ReturnTrue);
         CPPUNIT_TEST(testIsMoveIns_PassNonMove_ReturnTrue);
 
@@ -133,6 +134,19 @@ class CFGraphTest : public CppUnit::TestFixture
             CPPUNIT_ASSERT_EQUAL((size_t)1, cfGraph.GetDefs(5).size());
             CPPUNIT_ASSERT_EQUAL((size_t)0, cfGraph.GetDefs(6).size());
             CPPUNIT_ASSERT_EQUAL((size_t)1, cfGraph.GetDefs(7).size());
+        }
+
+        void testGetNodeIns_ByDefault_GetIns()
+        {
+            shared_ptr<AAI> aaiOne = make_shared<Label>(Temp_newLabel());
+            shared_ptr<AAI> aaiTwo = make_shared<Cmp>(Temp_newTemp(), Temp_newTemp());
+            Instructions ins;
+            ins.push_back(aaiOne);
+            ins.push_back(aaiTwo);
+            CFGraph cfGraph(ins);
+
+            CPPUNIT_ASSERT_EQUAL(aaiOne, cfGraph.GetNodeIns(0));
+            CPPUNIT_ASSERT_EQUAL(aaiTwo, cfGraph.GetNodeIns(1));
         }
 
         void testIsMoveIns_PassMove_ReturnTrue()

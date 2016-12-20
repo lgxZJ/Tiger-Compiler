@@ -101,7 +101,15 @@ namespace lgxZJ
             return defs.at(node);
         }
 
-        /////////////////////////////////////////////////////
+        //////////////////////////////////////////////////////
+
+        shared_ptr<IS::AAI> CFGraph::GetNodeIns(Node node) const
+        {
+            assert (node >= 0 && node < uses.size());
+            return ins.at(node);
+        }
+
+        //////////////////////////////////////////////////////
 
         bool CFGraph::IsMoveIns(Node node) const
         {
