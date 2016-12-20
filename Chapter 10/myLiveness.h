@@ -7,6 +7,10 @@ namespace lgxZJ
 {
     namespace LA
     {
+        //  REMARK:
+        //      Indeed, interference graph is an undirected graph. But here,
+        //      i just reuse the directed graph desinged earlier because
+        //      directed graph is subset of undirected graph.
         class InterferenceGraph
         {
             protected:
@@ -15,16 +19,36 @@ namespace lgxZJ
             
             public:
                 explicit InterferenceGraph();
-                explicit InterferenceGraph(unsigned n);
+                explicit InterferenceGraph(unsigned nodeSize);
 
+                //  DO:
+                //      Get inner directed graph reference.
                 DirectedGraph& GetDGRef();
 
+                //  DO:
+                //      Add an edge into a pretended undirected graph.
+                //  REMARK:
+                //      Self-edge and same edge is not added.
+                void AddEdge(Node lhs, Node rhs);
+
+                //  DO:
+                //      Get the node size of this interference graph which is also
+                //  the register count.
+                int GetNodeSize() const;
+
+                //  DO:
+                //      Get the register represented the given node.
+                //  REMARK:
+                //      If the given node is not valid, it throws a runtime error.
                 myTemp GetNodeReg(Node node) const;
+
+                //  DO:
+                //      Set the given node's value to the given register.
+                //  REMARK:
+                //      If the given node is not a valid one or the register given is null,
+                //      it throws a runtime error.
                 void SetNodeReg(Node node, myTemp reg);
         };
-
-        typedef std::pair<Node, Node>   MoveRep;
-        typedef std::vector<MoveRep>    Moves;
 
         class Liveness
         {
@@ -37,11 +61,13 @@ namespace lgxZJ
             public:
                 explicit Liveness(const CFGraph& cfGraph);
 
+                //  DO:
+                //      Get the constructed interference graph.
                 InterferenceGraph   GetInterferenceGraph() const;
-                Moves               GetMoves() const;
 
             private:
-                void CalculateInOut();
+                void DoLiveness();
+                void InitInAndOut();
                 void CalculateOneOut(Node node);
                 void CalculateOneIn(Node node);
                 void SortOneRegisters(IS::Registers& regs);
@@ -52,6 +78,8 @@ namespace lgxZJ
                     RegistersSet& oldOut, RegistersSet& newOut) const;
                 
                 void GenerateInterferenceGraph();
+                Node GetRegisterNode(myTemp temp) const;
+                bool SrcRegisterIs(const IS::Registers& regs, const myTemp reg) const;
         };
     }
 }
