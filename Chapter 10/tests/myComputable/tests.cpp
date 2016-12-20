@@ -21,11 +21,11 @@ class TwoComputeTest : public CppUnit::TestFixture
             suite->addTest(new CppUnit::TestCaller<TwoComputeTest>(
                 "testCtor", &TwoComputeTest::testAddCtor_LeftRegRightConstValue_SetWhatPassed));
             suite->addTest(new CppUnit::TestCaller<TwoComputeTest>(
-                "testCtor", &TwoComputeTest::testAddGetDstRegs_ByDefault_ReturnDstRegs));
+                "testCtor", &TwoComputeTest::testAddGetDstRegs_ByDefault_ReturnLeftReg));
             suite->addTest(new CppUnit::TestCaller<TwoComputeTest>(
-                "testCtor", &TwoComputeTest::testAddGetSrcRegs_ConstSrc_ReturnDstReg));
+                "testCtor", &TwoComputeTest::testAddGetSrcRegs_ConstSrc_ReturnLeftReg));
             suite->addTest(new CppUnit::TestCaller<TwoComputeTest>(
-                "testCtor", &TwoComputeTest::testAddGetSrcRegs_ReigsterSrc_ReturnRegisters));
+                "testCtor", &TwoComputeTest::testAddGetSrcRegs_ReigsterSrc_ReturnLeftAndRightRegs));
             suite->addTest(new CppUnit::TestCaller<TwoComputeTest>(
                 "testCtor", &TwoComputeTest::testAddGetDstLabel_ByDefault_ReturnNull));
 
@@ -34,11 +34,11 @@ class TwoComputeTest : public CppUnit::TestFixture
             suite->addTest(new CppUnit::TestCaller<TwoComputeTest>(
                 "testCtor", &TwoComputeTest::testSubCtor_LeftRegRightConstValue_SetWhatPassed));
             suite->addTest(new CppUnit::TestCaller<TwoComputeTest>(
-                "testCtor", &TwoComputeTest::testSubGetDstRegs_ByDefault_ReturnDstRegs));
+                "testCtor", &TwoComputeTest::testSubGetDstRegs_ByDefault_ReturnLeftReg));
             suite->addTest(new CppUnit::TestCaller<TwoComputeTest>(
-                "testCtor", &TwoComputeTest::testSubGetSrcRegs_ConstSrc_ReturnDstReg));
+                "testCtor", &TwoComputeTest::testSubGetSrcRegs_ConstSrc_ReturnLeftReg));
             suite->addTest(new CppUnit::TestCaller<TwoComputeTest>(
-                "testCtor", &TwoComputeTest::testSubGetSrcRegs_ReigsterSrc_ReturnRegisters));
+                "testCtor", &TwoComputeTest::testSubGetSrcRegs_ReigsterSrc_ReturnLeftAndRightRegs));
             suite->addTest(new CppUnit::TestCaller<TwoComputeTest>(
                 "testCtor", &TwoComputeTest::testSubGetDstLabel_ByDefault_ReturnNull));
 
@@ -47,11 +47,11 @@ class TwoComputeTest : public CppUnit::TestFixture
             suite->addTest(new CppUnit::TestCaller<TwoComputeTest>(
                 "testCtor", &TwoComputeTest::testIMulCtor_ValueSource_SetWhatPassed));
             suite->addTest(new CppUnit::TestCaller<TwoComputeTest>(
-                "testCtor", &TwoComputeTest::testIMulGetDstRegs_ByDefault_ReturnDstRegs));
+                "testCtor", &TwoComputeTest::testIMulGetDstRegs_ByDefault_ReturnLeftReg));
             suite->addTest(new CppUnit::TestCaller<TwoComputeTest>(
-                "testCtor", &TwoComputeTest::testIMulGetSrcRegs_ConstSrc_ReturnDstReg));
+                "testCtor", &TwoComputeTest::testIMulGetSrcRegs_ConstSrc_ReturnLeftReg));
             suite->addTest(new CppUnit::TestCaller<TwoComputeTest>(
-                "testCtor", &TwoComputeTest::testIMulGetSrcRegs_ReigsterSrc_ReturnRegisters));
+                "testCtor", &TwoComputeTest::testIMulGetSrcRegs_ReigsterSrc_ReturnLeftAndRightRegs));
             suite->addTest(new CppUnit::TestCaller<TwoComputeTest>(
                 "testCtor", &TwoComputeTest::testIMulGetDstLabel_ByDefault_ReturnNull));
 
@@ -60,11 +60,11 @@ class TwoComputeTest : public CppUnit::TestFixture
             suite->addTest(new CppUnit::TestCaller<TwoComputeTest>(
                 "testCtor", &TwoComputeTest::testIDivCtor_ValueSource_SetWhatPassed));
             suite->addTest(new CppUnit::TestCaller<TwoComputeTest>(
-                "testCtor", &TwoComputeTest::testIDivGetDstRegs_ByDefault_ReturnDstRegs));
+                "testCtor", &TwoComputeTest::testIDivGetDstRegs_ByDefault_ReturnLeftReg));
             suite->addTest(new CppUnit::TestCaller<TwoComputeTest>(
-                "testCtor", &TwoComputeTest::testIDivGetSrcRegs_ConstSrc_ReturnDstReg));
+                "testCtor", &TwoComputeTest::testIDivGetSrcRegs_ConstSrc_ReturnLeftReg));
             suite->addTest(new CppUnit::TestCaller<TwoComputeTest>(
-                "testCtor", &TwoComputeTest::testIDivGetSrcRegs_ReigsterSrc_ReturnRegisters));
+                "testCtor", &TwoComputeTest::testIDivGetSrcRegs_ReigsterSrc_ReturnLeftAndRightRegs));
             suite->addTest(new CppUnit::TestCaller<TwoComputeTest>(
                 "testCtor", &TwoComputeTest::testIDivGetDstLabel_ByDefault_ReturnNull));       
                 
@@ -73,11 +73,11 @@ class TwoComputeTest : public CppUnit::TestFixture
             suite->addTest(new CppUnit::TestCaller<TwoComputeTest>(
                 "testCtor", &TwoComputeTest::testXorCtor_LeftRegRightConstValue_SetWhatPassed));
             suite->addTest(new CppUnit::TestCaller<TwoComputeTest>(
-                "testCtor", &TwoComputeTest::testXorGetDstRegs_ByDefault_ReturnDstRegs));
+                "testCtor", &TwoComputeTest::testXorGetDstRegs_ByDefault_ReturnLeftReg));
             suite->addTest(new CppUnit::TestCaller<TwoComputeTest>(
-                "testCtor", &TwoComputeTest::testXorGetSrcRegs_ConstSrc_ReturnDstReg));
+                "testCtor", &TwoComputeTest::testXorGetSrcRegs_ConstSrc_ReturnLeftReg));
             suite->addTest(new CppUnit::TestCaller<TwoComputeTest>(
-                "testCtor", &TwoComputeTest::testXorGetSrcRegs_ReigsterSrc_ReturnRegisters));
+                "testCtor", &TwoComputeTest::testXorGetSrcRegs_ReigsterSrc_ReturnLeftAndRightRegs));
             suite->addTest(new CppUnit::TestCaller<TwoComputeTest>(
                 "testCtor", &TwoComputeTest::testXorGetDstLabel_ByDefault_ReturnNull));
                 
@@ -233,17 +233,17 @@ class TwoComputeTest : public CppUnit::TestFixture
             testTwoOperandCtor_LeftRegRightConstValue_SetWhatPassed<Xor>();
         }
 
-        void testXorGetDstRegs_ByDefault_ReturnDstRegs()
+        void testXorGetDstRegs_ByDefault_ReturnLeftReg()
         {
             testTwoOperandGetDstRegs_ByDefault_ReturnDstRegs<Xor>();
         }
 
-        void testXorGetSrcRegs_ConstSrc_ReturnDstReg()
+        void testXorGetSrcRegs_ConstSrc_ReturnLeftReg()
         {
             testTwoOperandGetSrcRegs_ConstSrc_ReturnDstReg<Xor>();
         }
 
-        void testXorGetSrcRegs_ReigsterSrc_ReturnRegisters()
+        void testXorGetSrcRegs_ReigsterSrc_ReturnLeftAndRightRegs()
         {
             testTwoOperandGetSrcRegs_RegisterSrc_ReturnRegisters<Xor>();
         }

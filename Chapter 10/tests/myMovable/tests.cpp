@@ -40,9 +40,9 @@ class MoveTest : public CppUnit::TestFixture
             suite->addTest(new CppUnit::TestCaller<MoveTest>(
                 "testCtor", &MoveTest::testToString_LeftContentRightValue_NoSquareBrackets));
             suite->addTest(new CppUnit::TestCaller<MoveTest>(
-                "testCtor", &MoveTest::testGetDstRegs_ByDefault_ReturnDstReg));
+                "testCtor", &MoveTest::testGetDstRegs_ByDefault_ReturnLeftReg));
             suite->addTest(new CppUnit::TestCaller<MoveTest>(
-                "testCtor", &MoveTest::testGetSrcRegs_RightOperandRegister_ReturnSrcReg));
+                "testCtor", &MoveTest::testGetSrcRegs_RightOperandRegister_ReturnRightReg));
             suite->addTest(new CppUnit::TestCaller<MoveTest>(
                 "testCtor", &MoveTest::testGetSrcRegs_RightOperandConst_ReturnEmpty));
             suite->addTest(new CppUnit::TestCaller<MoveTest>(
@@ -118,7 +118,7 @@ class MoveTest : public CppUnit::TestFixture
             CPPUNIT_ASSERT_EQUAL(0, (int)count(result.begin(), result.end(), ']'));
         }
 
-        void testGetDstRegs_ByDefault_ReturnDstReg()
+        void testGetDstRegs_ByDefault_ReturnLeftReg()
         {
             myTemp dstReg = Temp_newTemp();
             Move one(dstReg, Move::OperandType::Content, 1);
@@ -129,7 +129,7 @@ class MoveTest : public CppUnit::TestFixture
             CPPUNIT_ASSERT_EQUAL(dstReg, result.at(0));
         }
 
-        void testGetSrcRegs_RightOperandRegister_ReturnSrcReg()
+        void testGetSrcRegs_RightOperandRegister_ReturnRightReg()
         {
             myTemp dstReg = Temp_newTemp();
             myTemp srcReg = Temp_newTemp();
