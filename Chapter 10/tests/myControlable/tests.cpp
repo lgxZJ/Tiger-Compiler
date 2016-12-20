@@ -64,7 +64,9 @@ class myControlableTest : public CppUnit::TestFixture
             suite->addTest(new CppUnit::TestCaller<myControlableTest>(
                 "testCtor", &myControlableTest::testJleGetSrcRegsAndGetDstRegs_ByDefault_BothReturnEmpty));
             suite->addTest(new CppUnit::TestCaller<myControlableTest>(
-                "testCtor", &myControlableTest::testCallGetSrcRegsAndGetDstRegs_ByDefault_BothReturnEmpty));
+                "testCtor", &myControlableTest::testCallGetDstReg_ByDefault_ReturnEAX));
+            suite->addTest(new CppUnit::TestCaller<myControlableTest>(
+                "testCtor", &myControlableTest::testCallGetSrcRegs_ByDefault_ReturnEmpty));
             
             suite->addTest(new CppUnit::TestCaller<myControlableTest>(
                 "testCtor", &myControlableTest::testLabelGetDstLabel_ByDefault_ReturnEmpty));
@@ -253,11 +255,18 @@ class myControlableTest : public CppUnit::TestFixture
 
         //////////////////////////////
 
-        void testCallGetSrcRegsAndGetDstRegs_ByDefault_BothReturnEmpty()
+        void testCallGetDstReg_ByDefault_ReturnEAX()
         {
             Call call(Temp_newLabel(), Temp_makeTempList(Temp_newTemp(), nullptr));
 
-            CPPUNIT_ASSERT_EQUAL((size_t)0, call.GetDstRegs().size());
+            CPPUNIT_ASSERT_EQUAL((size_t)1, call.GetDstRegs().size());
+            CPPUNIT_ASSERT_EQUAL(Frame_EAX(), call.GetDstRegs().at(0));
+        }
+
+        void testCallGetSrcRegs_ByDefault_ReturnEmpty()
+        {
+            Call call(Temp_newLabel(), Temp_makeTempList(Temp_newTemp(), nullptr));
+
             CPPUNIT_ASSERT_EQUAL((size_t)0, call.GetSrcRegs().size());
         }
 

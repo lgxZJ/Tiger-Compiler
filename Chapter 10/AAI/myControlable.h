@@ -2,6 +2,7 @@
 #define MY_CONTROLABLE_H
 
 #include "myAaiBase.h"
+#include "../CXX_myFrame.h"
 
 namespace lgxZJ
 {
@@ -142,7 +143,7 @@ namespace lgxZJ
             public:
                 explicit Call (myLabel oneFuncLabel, myTempList oneRegList);
 
-                virtual Registers GetDstRegs() const { return {}; }
+                virtual Registers GetDstRegs() const { return Registers (1, Frame_EAX()); }
                 virtual Registers GetSrcRegs() const { return {}; }
 
                 std::string ToString() const;
