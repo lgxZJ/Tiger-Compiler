@@ -89,7 +89,8 @@ class LivenessTest : public CppUnit::TestFixture
 
             CPPUNIT_TEST(testCtor_FirstCFGraph_CalculateIn);
             CPPUNIT_TEST(testCtor_FirstCFGraph_CalculateOut);
-            //CPPUNIT_TEST(testGetNodeReg_ByDefault_GetWhatSetted);
+            CPPUNIT_TEST(testCtor_SecondCFGraph_CalculateIn);
+            CPPUNIT_TEST(testCtor_SecondCFGraph_CalculateOut);
 
             CPPUNIT_TEST_SUITE_END();
 
@@ -133,6 +134,38 @@ class LivenessTest : public CppUnit::TestFixture
             ins.push_back(make_shared<Move>(regA, regB));
             ins.push_back(make_shared<Cmp>(regA, 12));
             ins.push_back(make_shared<Jl>(label));
+            return CFGraph(ins);
+        }
+
+        //
+        //  Make a control flow graph with following instructions:
+        //      1.eax = 0
+        //      2.eax = eax * 2
+        //      3.jmp label
+        //      4.call malloc
+        //      5.eax = eax / ebx
+        //      6.label:
+        //
+        //  Results should be the following:
+        //  |   line num    |    use/defs    |   out / in    |
+        //  |       1       |       /eax     |    eax/       | 
+        //  |       2       |    eax/eax     |       /eax    |
+        //  |       3       |       /        |       /       |
+        //  |       4       |       /eax     |eax,ebx/ebx    |
+        //  |       5       |eax,ebx/eax     |       /eax,ebx|
+        //  |       6       |       /        |       /       |
+        //
+        CFGraph makeSecondCFGraph(myTemp regA, myTemp regB)
+        {
+            Instructions ins;
+            myLabel label = Temp_newLabel();
+
+            ins.push_back(make_shared<Move>(regA, Move::OperandType::Content, 0));
+            ins.push_back(make_shared<IMul>(2));
+            ins.push_back(make_shared<Jmp>(label));
+            ins.push_back(make_shared<Call>(Temp_newLabel(), nullptr));
+            ins.push_back(make_shared<IDiv>(regB));
+            ins.push_back(make_shared<Label>(label));
             return CFGraph(ins);
         }
 
@@ -193,6 +226,38 @@ class LivenessTest : public CppUnit::TestFixture
             AssertOneRegisters_Two(mock.GetOut().at(6), regA, regC);
             AssertOneRegisters_Two(mock.GetOut().at(7), regA, regC);
             AssertOneRegisters_Two(mock.GetOut().at(8), regA, regC);
+        }
+
+        void testCtor_SecondCFGraph_CalculateIn()
+        {
+            myTemp regA = Frame_EAX(), regB = Frame_EBX();
+            Liveness liveness(makeSecondCFGraph(regA, regB));
+
+            LivenessMock mock(liveness);
+            CPPUNIT_ASSERT_EQUAL((size_t)6, mock.GetIn().size());
+
+            CPPUNIT_ASSERT_EQUAL((size_t)0, mock.GetIn().at(0).size());
+            AssertOneRegisters_One(mock.GetIn().at(1), regA);
+            CPPUNIT_ASSERT_EQUAL((size_t)0, mock.GetIn().at(2).size());
+            AssertOneRegisters_One(mock.GetIn().at(3), regB);
+            AssertOneRegisters_Two(mock.GetIn().at(4), regA, regB);
+            CPPUNIT_ASSERT_EQUAL((size_t)0,  mock.GetIn().at(5).size());
+        }
+
+        void testCtor_SecondCFGraph_CalculateOut()
+        {
+            myTemp regA = Frame_EAX(), regB = Frame_EBX();
+            Liveness liveness(makeSecondCFGraph(regA, regB));
+
+            LivenessMock mock(liveness);
+            CPPUNIT_ASSERT_EQUAL((size_t)6, mock.GetOut().size());
+
+            AssertOneRegisters_One(mock.GetOut().at(0), regA);
+            CPPUNIT_ASSERT_EQUAL((size_t)0, mock.GetOut().at(1).size());
+            CPPUNIT_ASSERT_EQUAL((size_t)0, mock.GetOut().at(2).size());
+            AssertOneRegisters_Two(mock.GetOut().at(3), regA, regB);
+            CPPUNIT_ASSERT_EQUAL((size_t)0, mock.GetOut().at(4).size());
+            CPPUNIT_ASSERT_EQUAL((size_t)0,  mock.GetOut().at(5).size());
         }
 };
 

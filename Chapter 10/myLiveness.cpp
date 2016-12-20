@@ -49,7 +49,7 @@ namespace lgxZJ
         //                              Liveness
         /////////////////////////////////////////////////////////////////////////
 
-        Liveness::Liveness(CFGraph oneCFGraph) : cfGraph(oneCFGraph)
+        Liveness::Liveness(const CFGraph& oneCFGraph) : cfGraph(oneCFGraph)
         {
             int size = cfGraph.GetDirectedGraph().GetNodes().size();
             in.resize(size);
@@ -89,29 +89,21 @@ namespace lgxZJ
                 SortOneRegisters(inOfOneSuccessor);
                 out.at(node) = GetSetUnion(oneOut, inOfOneSuccessor);
             }
-
-            int bb = out.at(node).size();
-                int cc = bb + 1;
         }
 
         void Liveness::CalculateOneIn(Node node)
         {
-            int aa = out.at(node).size();
-
             IS::Registers& oneOut = out.at(node);
             IS::Registers oneDef = cfGraph.GetDefs(node);
 
             SortOneRegisters(oneOut);
-            SortOneRegisters(oneDef);
+            SortOneRegisters(oneDef);int defSize = oneDef.size();
             IS::Registers outMinusDef = GetSetDiff(oneOut, oneDef);int minusSize = outMinusDef.size();
             
             IS::Registers oneUse = cfGraph.GetUses(node);int useSize = oneUse.size();
             SortOneRegisters(oneUse);
             SortOneRegisters(outMinusDef);
             in.at(node) = GetSetUnion(oneUse, outMinusDef);
-
-            int bb = in.at(node).size();
-                int cc = bb + 1;
         }
 
         void Liveness::SortOneRegisters(IS::Registers& regs)

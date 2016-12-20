@@ -31,11 +31,11 @@ namespace lgxZJ
             protected:
                 RegistersSet        in;
                 RegistersSet        out;
-                CFGraph             cfGraph;
+                const CFGraph&      cfGraph;
                 InterferenceGraph   interferenceGraph;
 
             public:
-                explicit Liveness(CFGraph cfGraph);
+                explicit Liveness(const CFGraph& cfGraph);
 
                 InterferenceGraph   GetInterferenceGraph() const;
                 Moves               GetMoves() const;
