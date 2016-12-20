@@ -133,10 +133,14 @@ namespace lgxZJ
         {
             assert (IsNodeInside(from) && IsNodeInside(to));
             assert (from != to && "can not add self-edge!");
-            edges.push_back(Edge(from, to));
 
-            nodes.at(from).AddSuccessor(to);
-            nodes.at(to).AddPredecessor(from);
+            if (!IsEdgeInside(from, to))
+            {
+                edges.push_back(Edge(from, to));
+
+                nodes.at(from).AddSuccessor(to);
+                nodes.at(to).AddPredecessor(from);
+            }
         }
 
         ////////////////////////////////////////////////////////////////////

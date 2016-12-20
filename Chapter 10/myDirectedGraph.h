@@ -118,6 +118,8 @@ namespace lgxZJ
                 //      After this call, 'm' will be found in the successor set of node 'n' and
                 //      node 'n' will be found in the predecessor set of node 'm'.
                 //
+                //      If the same edge is already been added, it ignores this call.
+                //      
                 //      It is a checked runtime error if trying to add a self-edge or the given
                 //      nodes not exists.
                 void AddEdge(Node from, Node to);

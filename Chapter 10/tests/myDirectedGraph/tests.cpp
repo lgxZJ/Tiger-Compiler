@@ -21,6 +21,7 @@ class DirectedGraphTest : public CppUnit::TestFixture
         CPPUNIT_TEST(testGetPredecessors_ByDefault_GetItsPredecessors);
         CPPUNIT_TEST(testAddEdge_ByDefault_AddOneEdge);
         CPPUNIT_TEST(testAddEdge_ByDefault_AddSuccessorAndPredecessor);
+        CPPUNIT_TEST(testAddEdge_SameEdge_NotAdd);
         CPPUNIT_TEST(testIsEdgeInside_PassEdgeNotInside_ReturnFalse);
         CPPUNIT_TEST(testIsEdgeInside_PassEdgeInside_ReturnTrue);
         CPPUNIT_TEST(testGetNodeDegree_ByDefault_ReturnSuccessorCountPlusPredecessorCount);
@@ -155,6 +156,18 @@ class DirectedGraphTest : public CppUnit::TestFixture
             CPPUNIT_ASSERT_EQUAL((size_t)1, graph.GetPredecessors(firstNode).size());
             CPPUNIT_ASSERT_EQUAL(secondNode, graph.GetPredecessors(firstNode).at(0));
             CPPUNIT_ASSERT_EQUAL((size_t)0, graph.GetPredecessors(secondNode).size());
+        }
+
+        void testAddEdge_SameEdge_NotAdd()
+        {
+            DirectedGraph graph(3);
+            Node firstNode = 0, secondNode = 1, thirdNode = 2;
+
+            graph.AddEdge(secondNode, firstNode);
+            graph.AddEdge(secondNode, thirdNode);
+            graph.AddEdge(secondNode, firstNode);
+
+            CPPUNIT_ASSERT_EQUAL((size_t)2, graph.GetEdges().size());
         }
 
         void testIsEdgeInside_PassEdgeNotInside_ReturnFalse()
