@@ -41,6 +41,9 @@ class InterferenceGraphTest : public CppUnit::TestFixture
             CPPUNIT_TEST(testAddEdge_ByDefault_AddOneEdge);
             CPPUNIT_TEST(testAddEdge_ReverseEdge_NotAdd);
             CPPUNIT_TEST(testAddEdge_SameEdge_NotAdd);
+            CPPUNIT_TEST(testAddEdgeRegisters_ByDefault_AlsoSetNode);
+            CPPUNIT_TEST(testEdgesContains_PassNotContainedEdge_ReturnFalse);
+            CPPUNIT_TEST(testEdgesContains_PassContainedEdge_ReturnTrue);
 
             CPPUNIT_TEST_SUITE_END();
 
@@ -133,6 +136,38 @@ class InterferenceGraphTest : public CppUnit::TestFixture
 
             CPPUNIT_ASSERT_EQUAL((size_t)1, graph.GetDGRef().GetEdges().size());
         }
+
+        void testAddEdgeRegisters_ByDefault_AlsoSetNode()
+        {
+            myTemp regOne = Temp_newTemp(), regTwo = Temp_newTemp();
+            InterferenceGraph graph(Temp_getTempNum(regTwo));
+
+            graph.AddEdge(regOne, regTwo);
+
+            CPPUNIT_ASSERT_EQUAL(regOne, graph.GetNodeReg(graph.GetRegNode(regOne)));
+            CPPUNIT_ASSERT_EQUAL(regTwo, graph.GetNodeReg(graph.GetRegNode(regTwo)));
+        }
+
+        void testEdgesContains_PassNotContainedEdge_ReturnFalse()
+        {
+            myTemp regOne = Temp_newTemp(), regTwo = Temp_newTemp();
+            InterferenceGraph graph(Temp_getTempNum(regTwo) + 10);
+
+            graph.AddEdge(0,1);
+
+            CPPUNIT_ASSERT_EQUAL(false, graph.EdgesContains(regOne, regTwo));
+        }
+
+        void testEdgesContains_PassContainedEdge_ReturnTrue()
+        {
+            myTemp regOne = Temp_newTemp(), regTwo = Temp_newTemp();
+            InterferenceGraph graph(Temp_getTempNum(regTwo));
+
+            graph.AddEdge(regOne,regTwo);
+
+            CPPUNIT_ASSERT_EQUAL(true, graph.EdgesContains(regOne, regTwo));
+            CPPUNIT_ASSERT_EQUAL(true, graph.EdgesContains(regTwo, regOne));
+        }
 };
 
 class LivenessMock : public Liveness
@@ -155,6 +190,8 @@ class LivenessTest : public CppUnit::TestFixture
             CPPUNIT_TEST(testCtor_FirstCFGraph_GenerateInterferenceGraph);
             CPPUNIT_TEST(testCtor_SecondCFGraph_GenerateInterferenceGraph);
             CPPUNIT_TEST(testCtor_ThirdCFGraph_GenerateInterferenceGraph);
+            CPPUNIT_TEST(testCtor_FourthCFGraph_CalculateIn);
+            CPPUNIT_TEST(testCtor_FourthCFGraph_CalculateOut);
 
             CPPUNIT_TEST_SUITE_END();
 
@@ -257,6 +294,39 @@ class LivenessTest : public CppUnit::TestFixture
             return CFGraph(ins);
         }
 
+        //  Make a control flow graph with following instructions:
+        //      1.  eax = 0
+        //      2.label:
+        //      3.  edx = 2
+        //      4.  eax = eax * edx
+        //      5.  call malloc
+        //      6.  je label
+        //      7.  ecx = eax
+        //
+        //  Liveness results should be the following:
+        //  |   line num    |    use/defs    |   out / in    |
+        //  |       1       |       /eax     |       /       | 
+        //  |       2       |       /        |    eax/       |
+        //  |       3       |       /edx     |eax,edx/eax,edx|
+        //  |       4       |eax,edx/eax,edx |       /ebx    |
+        //  |       5       |       /a,c,d   |    eax/       |
+        //  |       6       |       /        |    eax/eax    |   
+        //  |       7       |    eax/ ecx    |       /eax    |   
+        CFGraph makeFourthCFGraph(myTemp eax, myTemp ecx, myTemp edx)
+        {
+            Instructions ins;
+            myLabel label = Temp_newLabel();
+
+            ins.push_back( make_shared<Move>(eax, Move::OperandType::Content, 0) );
+            ins.push_back( make_shared<Label>(label) );
+            ins.push_back( make_shared<Move>(edx, Move::OperandType::Content, 2) );
+            ins.push_back( make_shared<IMul>(edx) );
+            ins.push_back( make_shared<Call>(Temp_newLabel(), nullptr) );
+            ins.push_back( make_shared<Je>(label) );
+            ins.push_back( make_shared<Move>(ecx, eax) );
+            return CFGraph(ins);
+        }
+
         bool registersContainsThis(const Registers& regs, myTemp reg)
         {
             return find(regs.begin(), regs.end(), reg) != regs.end();
@@ -273,24 +343,6 @@ class LivenessTest : public CppUnit::TestFixture
             CPPUNIT_ASSERT_EQUAL((size_t)2, regs.size());
             CPPUNIT_ASSERT(registersContainsThis(regs, regOne));
             CPPUNIT_ASSERT(registersContainsThis(regs, regTwo));
-        }
-
-        bool EdgesContains(const EdgeSet& edgeSet, myTemp lhs, myTemp rhs)
-        {
-            assert (lhs != nullptr && rhs != nullptr);
-
-            Node lhsNode = Temp_getTempNum(lhs) - 1;
-            Node rhsNode = Temp_getTempNum(rhs) - 1;
-
-            for (auto edge : edgeSet)
-            {
-                int from = edge.GetFrom();
-                int to = edge.GetTo();
-                if ((edge.GetFrom() == lhsNode && edge.GetTo() == rhsNode)  ||
-                    (edge.GetFrom() == rhsNode && edge.GetTo() == lhsNode))
-                    return true;
-            }
-            return false;
         }
 
         ////////////////////////////////////////////////////////////////////
@@ -337,12 +389,13 @@ class LivenessTest : public CppUnit::TestFixture
         void testCtor_FirstCFGraph_GenerateInterferenceGraph()
         {
             myTemp regA = Temp_newTemp(), regB = Temp_newTemp(), regC = Temp_newTemp();
-            Liveness liveness(makeFirstCFGraph(regA, regB, regC));
+            InterferenceGraph ifGraph = 
+                Liveness(makeFirstCFGraph(regA, regB, regC)).GetInterferenceGraph();
 
-            const DirectedGraph graph = liveness.GetInterferenceGraph().GetDGRef();
+            const DirectedGraph graph = ifGraph.GetDGRef();
             CPPUNIT_ASSERT_EQUAL((size_t)2, graph.GetEdges().size());
-            CPPUNIT_ASSERT_EQUAL(true, EdgesContains(graph.GetEdges(), regA, regC));
-            CPPUNIT_ASSERT_EQUAL(true, EdgesContains(graph.GetEdges(), regB, regC));
+            CPPUNIT_ASSERT_EQUAL(true, ifGraph.EdgesContains(regA, regC));
+            CPPUNIT_ASSERT_EQUAL(true, ifGraph.EdgesContains(regB, regC));
         }
 
         void testCtor_SecondCFGraph_CalculateIn()
@@ -380,26 +433,64 @@ class LivenessTest : public CppUnit::TestFixture
         void testCtor_SecondCFGraph_GenerateInterferenceGraph()
         {
             myTemp regA = Frame_EAX(), regB = Frame_EBX();
-            Liveness liveness(makeSecondCFGraph(regA, regB));
+            InterferenceGraph ifGraph =
+                Liveness(makeSecondCFGraph(regA, regB)).GetInterferenceGraph();
 
-            const DirectedGraph graph = liveness.GetInterferenceGraph().GetDGRef();
-            CPPUNIT_ASSERT_EQUAL((size_t)1, graph.GetEdges().size());
-            CPPUNIT_ASSERT_EQUAL(
-                true,
-                EdgesContains(graph.GetEdges(), regA, regB));
+            const DirectedGraph graph = ifGraph.GetDGRef();
+            CPPUNIT_ASSERT_EQUAL((size_t)5, graph.GetEdges().size());
+            CPPUNIT_ASSERT_EQUAL( true, ifGraph.EdgesContains(regA, regB) );
+            CPPUNIT_ASSERT_EQUAL( true, ifGraph.EdgesContains(regA, Frame_ECX()) );
+            CPPUNIT_ASSERT_EQUAL( true, ifGraph.EdgesContains(regB, Frame_ECX()) );
+            CPPUNIT_ASSERT_EQUAL( true, ifGraph.EdgesContains(regA, Frame_EDX()) );
+            CPPUNIT_ASSERT_EQUAL( true, ifGraph.EdgesContains(regB, Frame_EDX()) );
         }
 
         void testCtor_ThirdCFGraph_GenerateInterferenceGraph()
         {
             myTemp regA = Frame_EAX(), regB = Frame_EBX(), regC = Frame_ECX(), regD = Frame_EDX();
-            Liveness liveness(makeThirdCFGraph(regA, regB, regC, regD));
+            InterferenceGraph ifGraph =
+                Liveness(makeThirdCFGraph(regA, regB, regC, regD)).GetInterferenceGraph();
 
-            const DirectedGraph graph = liveness.GetInterferenceGraph().GetDGRef();
+            const DirectedGraph graph = ifGraph.GetDGRef();
             CPPUNIT_ASSERT_EQUAL((size_t)4, graph.GetEdges().size());
-            CPPUNIT_ASSERT_EQUAL(true, EdgesContains(graph.GetEdges(), regA, regC));
-            CPPUNIT_ASSERT_EQUAL(true, EdgesContains(graph.GetEdges(), regA, regD));
-            CPPUNIT_ASSERT_EQUAL(true, EdgesContains(graph.GetEdges(), regC, regB));
-            CPPUNIT_ASSERT_EQUAL(true, EdgesContains(graph.GetEdges(), regC, regD));
+            CPPUNIT_ASSERT_EQUAL(true, ifGraph.EdgesContains(regA, regC));
+            CPPUNIT_ASSERT_EQUAL(true, ifGraph.EdgesContains(regA, regD));
+            CPPUNIT_ASSERT_EQUAL(true, ifGraph.EdgesContains(regC, regB));
+            CPPUNIT_ASSERT_EQUAL(true, ifGraph.EdgesContains(regC, regD));
+        }
+
+        void testCtor_FourthCFGraph_CalculateIn()
+        {
+            myTemp regA = Frame_EAX(), regC = Frame_ECX(), regD = Frame_EDX();
+            Liveness liveness(makeFourthCFGraph(regA, regC, regD));
+
+            LivenessMock mock(liveness);
+            CPPUNIT_ASSERT_EQUAL((size_t)7, mock.GetIn().size());
+
+            CPPUNIT_ASSERT_EQUAL((size_t)0, mock.GetIn().at(0).size());
+            CPPUNIT_ASSERT_EQUAL((size_t)1, mock.GetIn().at(1).size());
+            AssertOneRegisters_One(mock.GetIn().at(2), regA);
+            AssertOneRegisters_Two(mock.GetIn().at(3), regA, regD);
+            CPPUNIT_ASSERT_EQUAL((size_t)0, mock.GetIn().at(4).size());
+            AssertOneRegisters_One(mock.GetIn().at(5), regA);
+            AssertOneRegisters_One(mock.GetIn().at(6), regA);
+        }
+
+        void testCtor_FourthCFGraph_CalculateOut()
+        {
+            myTemp regA = Frame_EAX(), regC = Frame_ECX(), regD = Frame_EDX();
+            Liveness liveness(makeFourthCFGraph(regA, regC, regD));
+
+            LivenessMock mock(liveness);
+            CPPUNIT_ASSERT_EQUAL((size_t)7, mock.GetOut().size());
+
+            AssertOneRegisters_One(mock.GetOut().at(0), regA);
+            AssertOneRegisters_One(mock.GetOut().at(1), regA);
+            AssertOneRegisters_Two(mock.GetOut().at(2), regA, regD);
+            CPPUNIT_ASSERT_EQUAL((size_t)0, mock.GetOut().at(3).size());
+            AssertOneRegisters_One(mock.GetOut().at(4), regA);
+            AssertOneRegisters_One(mock.GetOut().at(5), regA);
+            CPPUNIT_ASSERT_EQUAL((size_t)0, mock.GetOut().at(6).size());
         }
 };
 

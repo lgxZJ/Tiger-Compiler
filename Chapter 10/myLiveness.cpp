@@ -45,6 +45,32 @@ namespace lgxZJ
             graph.AddEdge(lhs, rhs);
         }
 
+        ///////////////////////////////////////////////////////////////////////////
+
+        void InterferenceGraph::AddEdge(myTemp lhs, myTemp rhs)
+        {
+            assert (lhs != nullptr && rhs != nullptr);
+
+            Node lhsNode = GetRegNode(lhs);
+            Node rhsNode = GetRegNode(rhs);
+
+            SetNodeReg(lhsNode, lhs);
+            SetNodeReg(rhsNode, rhs);
+
+            AddEdge(lhsNode, rhsNode);
+        }
+
+        //////////////////////////////////////////////////////////////////////////
+
+        int InterferenceGraph::GetRegNode(myTemp reg) const
+        {
+            assert (reg != nullptr);
+            Node node = Temp_getTempNum(reg) - 1;
+
+            assert (node >= 0 && node < registers.size());
+            return node;
+        }
+
         //////////////////////////////////////////////////////////////////////////
 
         int InterferenceGraph::GetNodeSize() const
@@ -68,6 +94,31 @@ namespace lgxZJ
             assert (node >= 0 && node < registers.size());
             assert (reg != nullptr);
             registers.at(node) = reg;
+        }
+
+        /////////////////////////////////////////////////////////////////////////
+
+        bool InterferenceGraph::EdgesContains(Node lhs, Node rhs) const
+        {
+            assert (graph.IsNodeInside(lhs) && graph.IsNodeInside(rhs));
+
+            if (graph.IsEdgeInside(lhs, rhs) || graph.IsEdgeInside(rhs, lhs))
+                return true;
+            else
+                return false;
+        }
+
+        /////////////////////////////////////////////////////////////////////////
+
+        bool InterferenceGraph::EdgesContains(myTemp lhs, myTemp rhs) const
+        {
+            assert (lhs != nullptr && rhs != nullptr);
+
+            Node lhsNode = Temp_getTempNum(lhs) - 1;
+            Node rhsNode = Temp_getTempNum(rhs) - 1;
+            assert (graph.IsNodeInside(lhsNode) && graph.IsNodeInside(rhsNode));
+
+            return EdgesContains(lhsNode, rhsNode);
         }
 
         /////////////////////////////////////////////////////////////////////////
@@ -123,14 +174,14 @@ namespace lgxZJ
 
         void Liveness::CalculateOneIn(Node node)
         {
-            Registers& oneOut = out.at(node);
+            Registers oneOut = out.at(node);
             Registers oneDef = cfGraph.GetDefs(node);
 
             SortOneRegisters(oneOut);
-            SortOneRegisters(oneDef);int defSize = oneDef.size();
-            Registers outMinusDef = GetSetDiff(oneOut, oneDef);int minusSize = outMinusDef.size();
+            SortOneRegisters(oneDef);
+            Registers outMinusDef = GetSetDiff(oneOut, oneDef);
             
-            Registers oneUse = cfGraph.GetUses(node);int useSize = oneUse.size();
+            Registers oneUse = cfGraph.GetUses(node);
             SortOneRegisters(oneUse);
             SortOneRegisters(outMinusDef);
             in.at(node) = GetSetUnion(oneUse, outMinusDef);
@@ -149,19 +200,33 @@ namespace lgxZJ
 
         Registers Liveness::GetSetUnion(Registers& lhs, Registers& rhs)
         {
+            struct myTempComp
+            {
+                bool operator () (myTemp lhs, myTemp rhs)
+                { return Temp_getTempNum(lhs) < Temp_getTempNum(rhs); }
+            } tempComparator;
+
             Registers result;
             set_union(
                 lhs.begin(), lhs.end(), rhs.begin(), rhs.end(),
-                back_inserter(result));
+                back_inserter(result),
+                tempComparator);
             return result;
         }
 
         Registers Liveness::GetSetDiff(Registers& lhs, Registers& rhs)
         {
+            struct myTempComp
+            {
+                bool operator () (myTemp lhs, myTemp rhs)
+                { return Temp_getTempNum(lhs) < Temp_getTempNum(rhs); }
+            } tempComparator;
+
             Registers result;
             set_difference(
                 lhs.begin(), lhs.end(), rhs.begin(), rhs.end(),
-                back_inserter(result));
+                back_inserter(result),
+                tempComparator);
             return result;
         }
 

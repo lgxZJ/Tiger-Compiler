@@ -11,6 +11,9 @@ namespace lgxZJ
         //      Indeed, interference graph is an undirected graph. But here,
         //      i just reuse the directed graph desinged earlier because
         //      directed graph is subset of undirected graph.
+        //
+        //      Every node represent one register, which position is decided
+        //      by register number(can be got via Temp_getTempNum() function).
         class InterferenceGraph
         {
             protected:
@@ -26,10 +29,26 @@ namespace lgxZJ
                 DirectedGraph& GetDGRef();
 
                 //  DO:
-                //      Add an edge into a pretended undirected graph.
+                //      Add an edge(specified by nodes) into a pretended undirected graph.
                 //  REMARK:
                 //      Self-edge and same edge is not added.
                 void AddEdge(Node lhs, Node rhs);
+
+                //  DO:
+                //      Add an edge(specified by registers) into a pretended undirected graph.
+                //  REMARK:
+                //      This function also set node values to registers.
+                //
+                //      If passed registers are nulls or not included in the graph, it throws
+                //      a runtime error.
+                void AddEdge(myTemp lhs, myTemp rhs);
+
+                //  DO:
+                //      Get the node in graph corresponding to the given register.
+                //  REMARK:
+                //      If passed registers are nulls or not included in the graph, it throws
+                //      a runtime error.
+                int GetRegNode(myTemp reg) const;
 
                 //  DO:
                 //      Get the node size of this interference graph which is also
@@ -48,6 +67,19 @@ namespace lgxZJ
                 //      If the given node is not a valid one or the register given is null,
                 //      it throws a runtime error.
                 void SetNodeReg(Node node, myTemp reg);
+
+                //  DO:
+                //      Check if the given edge is included in the graph.
+                //  REMARK:
+                //      If the node passed in is not valid, it throws a runtime error.
+                bool EdgesContains(Node lhs, Node rhs) const;
+
+                //  DO:
+                //      Check if the given edge is included in the graph.
+                //  REMARK:
+                //      If the given registers are nulls or not included in the graph, it throws
+                //      a runtime error.
+                bool EdgesContains(myTemp lhs, myTemp rhs) const;
         };
 
         class Liveness
