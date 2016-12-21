@@ -122,9 +122,17 @@ namespace lgxZJ
             return result;
         }
 
-        myTempList Call::TrashedRegs() const
+        Registers Call::GetDstRegs() const
         {
-            return Temp_makeTempList(Frame_RV(), nullptr);
+            Registers result;
+        
+            //  caller-save contains eax register which is also the result value register.
+            myTempList temps = Frame_callerSaveRegs();
+            while (temps)
+                result.push_back(temps->head),
+                temps = temps->tail;
+
+            return result;
         }
 
         ////////////////////////////////////////////////////////////////////////////////

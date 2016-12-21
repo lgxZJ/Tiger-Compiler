@@ -143,11 +143,10 @@ namespace lgxZJ
             public:
                 explicit Call (myLabel oneFuncLabel, myTempList oneRegList);
 
-                virtual Registers GetDstRegs() const { return Registers (1, Frame_EAX()); }
+                virtual Registers GetDstRegs() const;
                 virtual Registers GetSrcRegs() const { return {}; }
 
                 std::string ToString() const;
-                myTempList TrashedRegs() const;
 
                 private:
                     myLabel funcLabel;

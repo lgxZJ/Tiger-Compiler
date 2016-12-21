@@ -39,9 +39,6 @@ class myControlableTest : public CppUnit::TestFixture
                 "testCtor", &myControlableTest::testCmpCtor_LeftRegRightValue_SetWhatPassed));
 
             suite->addTest(new CppUnit::TestCaller<myControlableTest>(
-                "testCtor", &myControlableTest::testCallTrashedRegs_ByDefault_EAX));
-
-            suite->addTest(new CppUnit::TestCaller<myControlableTest>(
                 "testCtor", &myControlableTest::testLabelGetDstRegsAndGetSrcRegs_ByDefault_BothReturnEmpty));
             suite->addTest(new CppUnit::TestCaller<myControlableTest>(
                 "testCtor", &myControlableTest::testCmpGetDstRegs_ByDefault_ReturnEmpty));
@@ -64,7 +61,7 @@ class myControlableTest : public CppUnit::TestFixture
             suite->addTest(new CppUnit::TestCaller<myControlableTest>(
                 "testCtor", &myControlableTest::testJleGetSrcRegsAndGetDstRegs_ByDefault_BothReturnEmpty));
             suite->addTest(new CppUnit::TestCaller<myControlableTest>(
-                "testCtor", &myControlableTest::testCallGetDstReg_ByDefault_ReturnEAX));
+                "testCtor", &myControlableTest::testCallGetDstReg_ByDefault_ReturnCallerSaveRegs));
             suite->addTest(new CppUnit::TestCaller<myControlableTest>(
                 "testCtor", &myControlableTest::testCallGetSrcRegs_ByDefault_ReturnEmpty));
             
@@ -130,14 +127,6 @@ class myControlableTest : public CppUnit::TestFixture
         }
 
         ///////////////////////////////
-
-        void testCallTrashedRegs_ByDefault_EAX()
-        {
-            Call call(Temp_newLabel(), nullptr);
-
-            CPPUNIT_ASSERT_EQUAL(Frame_RV(), call.TrashedRegs()->head);
-            CPPUNIT_ASSERT_EQUAL((myTempList)nullptr, call.TrashedRegs()->tail);
-        }
 
         void testCallGetDstLabel_ByDefault_ReturnEmpty()
         {
@@ -255,12 +244,14 @@ class myControlableTest : public CppUnit::TestFixture
 
         //////////////////////////////
 
-        void testCallGetDstReg_ByDefault_ReturnEAX()
+        void testCallGetDstReg_ByDefault_ReturnCallerSaveRegs()
         {
             Call call(Temp_newLabel(), Temp_makeTempList(Temp_newTemp(), nullptr));
 
-            CPPUNIT_ASSERT_EQUAL((size_t)1, call.GetDstRegs().size());
+            CPPUNIT_ASSERT_EQUAL((size_t)3, call.GetDstRegs().size());
             CPPUNIT_ASSERT_EQUAL(Frame_EAX(), call.GetDstRegs().at(0));
+            CPPUNIT_ASSERT_EQUAL(Frame_ECX(), call.GetDstRegs().at(1));
+            CPPUNIT_ASSERT_EQUAL(Frame_EDX(), call.GetDstRegs().at(2));
         }
 
         void testCallGetSrcRegs_ByDefault_ReturnEmpty()
