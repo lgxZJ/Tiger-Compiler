@@ -41,14 +41,25 @@ class CFGraphTest : public CppUnit::TestFixture
         ////////////////////////////////////////////////////////////////////////
         //                              fixture
 
-        //      je label2  
-        //      a = 0
-        //  label1:
-        //      c = c + b
-        //  label2:
-        //      a = a / c
-        //      jmp label1
-        //      a = a * c
+        //  Instructions:
+        //          je label2  
+        //          a = 0
+        //      label1:
+        //          c = c + b
+        //      label2:
+        //          a = a / c
+        //          jmp label1
+        //          a = a * c
+        //
+        //  Defs:           Uses:
+        //          null            null
+        //          a               null
+        //          null            null
+        //          c               b, c
+        //          null            null
+        //          a, d            a, c
+        //          null            null
+        //          a, d            a, c
         Instructions makeExampleIns()
         {
             Instructions ins;
@@ -131,9 +142,9 @@ class CFGraphTest : public CppUnit::TestFixture
             CPPUNIT_ASSERT_EQUAL((size_t)0, cfGraph.GetDefs(2).size());
             CPPUNIT_ASSERT_EQUAL((size_t)1, cfGraph.GetDefs(3).size());
             CPPUNIT_ASSERT_EQUAL((size_t)0, cfGraph.GetDefs(4).size());
-            CPPUNIT_ASSERT_EQUAL((size_t)1, cfGraph.GetDefs(5).size());
+            CPPUNIT_ASSERT_EQUAL((size_t)2, cfGraph.GetDefs(5).size());
             CPPUNIT_ASSERT_EQUAL((size_t)0, cfGraph.GetDefs(6).size());
-            CPPUNIT_ASSERT_EQUAL((size_t)1, cfGraph.GetDefs(7).size());
+            CPPUNIT_ASSERT_EQUAL((size_t)2, cfGraph.GetDefs(7).size());
         }
 
         void testGetNodeIns_ByDefault_GetIns()

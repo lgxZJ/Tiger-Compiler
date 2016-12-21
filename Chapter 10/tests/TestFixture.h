@@ -131,9 +131,8 @@ void testOneOperandGetSrcRegs_ConstSrc_ReturnEaxAndEdxReg()
 
     lgxZJ::IS::Registers result = one.GetSrcRegs();
 
-    CPPUNIT_ASSERT_EQUAL((size_t)2, result.size());
+    CPPUNIT_ASSERT_EQUAL((size_t)1, result.size());
     CPPUNIT_ASSERT_EQUAL(Frame_EAX(), result.at(0));
-    CPPUNIT_ASSERT_EQUAL(Frame_EDX(), result.at(1));
 }
 
 template <typename T>
@@ -144,8 +143,7 @@ void testOneOperandGetSrcRegs_RegisterSrc_ReturnRegisters()
 
     lgxZJ::IS::Registers result = one.GetSrcRegs();
 
-    CPPUNIT_ASSERT_EQUAL((size_t)3, result.size());
+    CPPUNIT_ASSERT_EQUAL((size_t)2, result.size());
     CPPUNIT_ASSERT_EQUAL(Frame_EAX(), result.at(0));
-    CPPUNIT_ASSERT_EQUAL(Frame_EDX(), result.at(1));
-    CPPUNIT_ASSERT_EQUAL(srcReg, result.at(2));
+    CPPUNIT_ASSERT_EQUAL(srcReg, result.at(1));
 }

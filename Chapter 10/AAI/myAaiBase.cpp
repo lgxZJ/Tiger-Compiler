@@ -60,7 +60,7 @@ namespace lgxZJ
 
         Registers OneOperandOperate::GetSrcRegs() const
         {
-            Registers result = GetDstRegs();
+            Registers result(1, Frame_EAX());
 
             if (srcRep.kind == BinaryUnion::Kind::Reg)
                 result.push_back(srcRep.u.reg);
