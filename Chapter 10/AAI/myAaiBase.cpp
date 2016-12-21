@@ -52,7 +52,10 @@ namespace lgxZJ
         Registers OneOperandOperate::GetDstRegs() const
         {
             //  default destination register
-            return Registers(1, Frame_EAX());
+            Registers result(1, Frame_EAX());
+            result.push_back(Frame_EDX());
+
+            return result;
         }
 
         Registers OneOperandOperate::GetSrcRegs() const

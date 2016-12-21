@@ -38,7 +38,6 @@ namespace lgxZJ
                 explicit IMul(int constValue);
 
                 virtual std::string ToString() const;
-                virtual myTempList TrashedRegs() const;
         };
 
         //  Default destination registers : edx, eax
@@ -50,7 +49,6 @@ namespace lgxZJ
                 explicit IDiv(int constValue);
 
                 virtual std::string ToString() const;
-                virtual myTempList TrashedRegs() const;
         };
 
         ///////////////////////////////////////////////////////////////////////

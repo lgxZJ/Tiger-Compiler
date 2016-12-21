@@ -47,7 +47,7 @@ class TwoComputeTest : public CppUnit::TestFixture
             suite->addTest(new CppUnit::TestCaller<TwoComputeTest>(
                 "testCtor", &TwoComputeTest::testIMulCtor_ValueSource_SetWhatPassed));
             suite->addTest(new CppUnit::TestCaller<TwoComputeTest>(
-                "testCtor", &TwoComputeTest::testIMulGetDstRegs_ByDefault_ReturnLeftReg));
+                "testCtor", &TwoComputeTest::testIMulGetDstRegs_ByDefault_ReturnEaxAndEdxReg));
             suite->addTest(new CppUnit::TestCaller<TwoComputeTest>(
                 "testCtor", &TwoComputeTest::testIMulGetSrcRegs_ConstSrc_ReturnLeftReg));
             suite->addTest(new CppUnit::TestCaller<TwoComputeTest>(
@@ -165,14 +165,14 @@ class TwoComputeTest : public CppUnit::TestFixture
             testOneOperandCtor_ValueSource_SetWhatPassed<IMul>();
         }
 
-        void testIMulGetDstRegs_ByDefault_ReturnLeftReg()
+        void testIMulGetDstRegs_ByDefault_ReturnEaxAndEdxReg()
         {
-            testOneOperandGetDstRegs_ByDefault_ReturnDstRegs<IMul>();
+            testOneOperandGetDstRegs_ByDefault_ReturnEaxAndEdxRegs<IMul>();
         }
 
         void testIMulGetSrcRegs_ConstSrc_ReturnLeftReg()
         {
-            testOneOperandGetSrcRegs_ConstSrc_ReturnDstReg<IMul>();
+            testOneOperandGetSrcRegs_ConstSrc_ReturnEaxAndEdxReg<IMul>();
         }
 
         void testIMulGetSrcRegs_ReigsterSrc_ReturnLeftAndRightRegs()
@@ -201,12 +201,12 @@ class TwoComputeTest : public CppUnit::TestFixture
 
         void testIDivGetDstRegs_ByDefault_ReturnLeftReg()
         {
-            testOneOperandGetDstRegs_ByDefault_ReturnDstRegs<IDiv>();
+            testOneOperandGetDstRegs_ByDefault_ReturnEaxAndEdxRegs<IDiv>();
         }
 
         void testIDivGetSrcRegs_ConstSrc_ReturnLeftReg()
         {
-            testOneOperandGetSrcRegs_ConstSrc_ReturnDstReg<IDiv>();
+            testOneOperandGetSrcRegs_ConstSrc_ReturnEaxAndEdxReg<IDiv>();
         }
 
         void testIDivGetSrcRegs_ReigsterSrc_ReturnLeftAndRightRegs()

@@ -50,7 +50,6 @@ namespace lgxZJ
                  
                 virtual myLabel GetDstLabel() const { return nullptr; }
                 virtual myLabel GetDefLabel() const { return nullptr; }
-                virtual myTempList TrashedRegs() const { return nullptr; }
 		};
 
         ////////////////////////////////////////////////////////////////////
@@ -92,9 +91,10 @@ namespace lgxZJ
                 //  One operand operate has the following instruction syntax:
                 //      ins srcReg(if register)
                 //  which has the following arithmetic semantic:
-                //      eax = eax op srcReg
+                //      eax = eax op srcReg,
+                //      edx = eax op srcReg 
                 //  So,
-                //      the Dst registers are----eax
+                //      the Dst registers are----eax, edx
                 //      the Src registers are----eax, srcReg.
                 virtual Registers GetDstRegs() const;
                 virtual Registers GetSrcRegs() const;
