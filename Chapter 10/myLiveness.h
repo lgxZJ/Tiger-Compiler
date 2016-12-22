@@ -7,6 +7,9 @@ namespace lgxZJ
 {
     namespace LA
     {
+        typedef std::pair<Node, Node>   MovePair;
+        typedef std::vector<MovePair>   MovePairs;
+
         //  REMARK:
         //      Indeed, interference graph is an undirected graph. But here,
         //      i just reuse the directed graph desinged earlier because
@@ -96,6 +99,12 @@ namespace lgxZJ
                 //  DO:
                 //      Get the constructed interference graph.
                 InterferenceGraph   GetInterferenceGraph() const;
+
+                //  DO:
+                //      Get the move pairs aloong with the interference graph that
+                //      should be assigned the same register if possible (so that
+                //      Move can be deleted).
+                MovePairs GetMovePairs() const;#error "here, implement it"
 
             private:
                 void DoLiveness();

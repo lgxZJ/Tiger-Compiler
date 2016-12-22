@@ -192,6 +192,7 @@ class LivenessTest : public CppUnit::TestFixture
             CPPUNIT_TEST(testCtor_ThirdCFGraph_GenerateInterferenceGraph);
             CPPUNIT_TEST(testCtor_FourthCFGraph_CalculateIn);
             CPPUNIT_TEST(testCtor_FourthCFGraph_CalculateOut);
+            CPPUNIT_TEST(testCtor_FourthCFGraph_GenerateInterferenceGraph);
 
             CPPUNIT_TEST_SUITE_END();
 
@@ -311,7 +312,11 @@ class LivenessTest : public CppUnit::TestFixture
         //  |       4       |eax,edx/eax,edx |       /ebx    |
         //  |       5       |       /a,c,d   |    eax/       |
         //  |       6       |       /        |    eax/eax    |   
-        //  |       7       |    eax/ ecx    |       /eax    |   
+        //  |       7       |    eax/ ecx    |       /eax    |
+        //
+        //  Interference graph should be:
+        //      eax --- ecx
+        //      eax --- edx
         CFGraph makeFourthCFGraph(myTemp eax, myTemp ecx, myTemp edx)
         {
             Instructions ins;
@@ -491,6 +496,18 @@ class LivenessTest : public CppUnit::TestFixture
             AssertOneRegisters_One(mock.GetOut().at(4), regA);
             AssertOneRegisters_One(mock.GetOut().at(5), regA);
             CPPUNIT_ASSERT_EQUAL((size_t)0, mock.GetOut().at(6).size());
+        }
+
+        void testCtor_FourthCFGraph_GenerateInterferenceGraph()
+        {
+            myTemp regA = Frame_EAX(), regC = Frame_ECX(), regD = Frame_EDX();
+            InterferenceGraph ifGraph =
+                Liveness(makeFourthCFGraph(regA, regC, regD)).GetInterferenceGraph();
+
+            const DirectedGraph graph = ifGraph.GetDGRef();
+            CPPUNIT_ASSERT_EQUAL((size_t)2, graph.GetEdges().size());
+            CPPUNIT_ASSERT_EQUAL(true, ifGraph.EdgesContains(regA, regC));
+            CPPUNIT_ASSERT_EQUAL(true, ifGraph.EdgesContains(regA, regD));
         }
 };
 
