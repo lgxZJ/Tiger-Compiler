@@ -127,10 +127,12 @@ namespace lgxZJ
 
         Liveness::Liveness(const CFGraph& oneCFGraph)
             :   cfGraph(oneCFGraph),
+                movePairs(),
                 interferenceGraph(Temp_getTempNum(Temp_newTemp()) - 1)
         {
             DoLiveness();
             GenerateInterferenceGraph();
+            GenerateMovePairs();
         }
 
         //////////////////////////////////////////////////////////////////////////
@@ -261,12 +263,13 @@ namespace lgxZJ
                     Registers srcRegs = cfGraph.GetNodeIns(node)->GetSrcRegs();
                     for (auto oneLiveOutReg : out.at(node))
                     {
+                        Node oneLiveOutNode = GetRegisterNode(oneLiveOutReg);
+                        interferenceGraph.SetNodeReg(oneLiveOutNode, oneLiveOutReg);
+
                         //  there is only one source register in move instruction
                         if (isMoveIns && SrcRegisterIs(srcRegs, oneLiveOutReg))
                             continue;
 
-                        Node oneLiveOutNode = GetRegisterNode(oneLiveOutReg);
-                        interferenceGraph.SetNodeReg(oneLiveOutNode, oneLiveOutReg);
                         interferenceGraph.AddEdge(defNode, oneLiveOutNode);
                     }
                 }
@@ -290,9 +293,64 @@ namespace lgxZJ
 
         ////////////////////////////////////////////////////////////////////////////
 
+        void Liveness::GenerateMovePairs()
+        {
+            for (auto oneNode : cfGraph.GetDirectedGraph().GetNodes())
+            {
+                Registers leftOperand = cfGraph.GetNodeIns(oneNode)->GetDstRegs();
+                Registers rightOperand = cfGraph.GetNodeIns(oneNode)->GetSrcRegs();
+
+                if (IsTwoRegisterOperandMove(oneNode, leftOperand, rightOperand) &&
+                    !IsSelfMove(leftOperand, rightOperand))
+                {
+                    assert (leftOperand.at(0) != nullptr && rightOperand.at(0) != nullptr);
+
+                    Node leftNode = interferenceGraph.GetRegNode(leftOperand.at(0));
+                    Node rightNode = interferenceGraph.GetRegNode(rightOperand.at(0));
+
+                    if(!MovePairContains(leftNode, rightNode))
+                        movePairs.push_back(Edge(leftNode, rightNode));
+                }
+            }
+        }
+
+        bool Liveness::IsTwoRegisterOperandMove(
+            Node node, Registers& leftOperand, Registers& rightOperand) const
+        {
+            return  cfGraph.IsMoveIns(node) &&
+                    leftOperand.size() == 1 &&
+                    rightOperand.size() == 1;
+        }
+
+        bool Liveness::IsSelfMove(Registers& leftOperand, Registers& rightOperand) const
+        {
+            assert (leftOperand.size() == 1 && rightOperand.size() == 1);
+            return leftOperand.at(0) == rightOperand.at(0);
+        }
+
+        bool Liveness::MovePairContains(Node lhsNode, Node rhsNode) const
+        {
+            for (int i = 0; i < movePairs.size(); ++i)
+                if ((movePairs.at(i).GetFrom() == lhsNode && movePairs.at(i).GetTo() == rhsNode) ||
+                    (movePairs.at(i).GetFrom() == rhsNode && movePairs.at(i).GetTo() == lhsNode))
+                    return true;
+
+            return false;
+        }
+
+        ////////////////////////////////////////////////////////////////////////////
+
         InterferenceGraph Liveness::GetInterferenceGraph() const
         {
             return interferenceGraph;
         }
+
+        ////////////////////////////////////////////////////////////////////////////
+
+        MovePairs Liveness::GetMovePairs() const
+        {
+            return movePairs;
+        }
+
     }
 }

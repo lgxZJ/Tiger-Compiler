@@ -7,8 +7,7 @@ namespace lgxZJ
 {
     namespace LA
     {
-        typedef std::pair<Node, Node>   MovePair;
-        typedef std::vector<MovePair>   MovePairs;
+        typedef EdgeSet   MovePairs;
 
         //  REMARK:
         //      Indeed, interference graph is an undirected graph. But here,
@@ -91,6 +90,8 @@ namespace lgxZJ
                 RegistersSet        in;
                 RegistersSet        out;
                 const CFGraph&      cfGraph;
+
+                MovePairs           movePairs;
                 InterferenceGraph   interferenceGraph;
 
             public:
@@ -104,7 +105,10 @@ namespace lgxZJ
                 //      Get the move pairs aloong with the interference graph that
                 //      should be assigned the same register if possible (so that
                 //      Move can be deleted).
-                MovePairs GetMovePairs() const;#error "here, implement it"
+                //  REAMRK:
+                //      The move pairs are instructions that have both register operands
+                //      and may or may not be an real interference edge. 
+                MovePairs GetMovePairs() const;
 
             private:
                 void DoLiveness();
@@ -121,6 +125,11 @@ namespace lgxZJ
                 void GenerateInterferenceGraph();
                 Node GetRegisterNode(myTemp temp) const;
                 bool SrcRegisterIs(const IS::Registers& regs, const myTemp reg) const;
+
+                void GenerateMovePairs();
+                bool MovePairContains(Node lhs, Node rhs) const;
+                bool IsTwoRegisterOperandMove(Node node, IS::Registers& leftOperand, IS::Registers& rightOperand) const;
+                bool IsSelfMove(IS::Registers& leftOperand, IS::Registers& rightOperand) const;
         };
     }
 }

@@ -185,14 +185,21 @@ class LivenessTest : public CppUnit::TestFixture
 
             CPPUNIT_TEST(testCtor_FirstCFGraph_CalculateIn);
             CPPUNIT_TEST(testCtor_FirstCFGraph_CalculateOut);
+            CPPUNIT_TEST(testCtor_FirstCFGraph_GenerateInterferenceGraph);
+            CPPUNIT_TEST(testCtor_FirstCFGraph_GenerateMovePairs);
+
             CPPUNIT_TEST(testCtor_SecondCFGraph_CalculateIn);
             CPPUNIT_TEST(testCtor_SecondCFGraph_CalculateOut);
-            CPPUNIT_TEST(testCtor_FirstCFGraph_GenerateInterferenceGraph);
             CPPUNIT_TEST(testCtor_SecondCFGraph_GenerateInterferenceGraph);
+            CPPUNIT_TEST(testCtor_SecondCFGraph_GenerateMovePairs);
+
             CPPUNIT_TEST(testCtor_ThirdCFGraph_GenerateInterferenceGraph);
+            CPPUNIT_TEST(testCtor_ThirdCFGraph_GenerateMovePairs);
+
             CPPUNIT_TEST(testCtor_FourthCFGraph_CalculateIn);
             CPPUNIT_TEST(testCtor_FourthCFGraph_CalculateOut);
             CPPUNIT_TEST(testCtor_FourthCFGraph_GenerateInterferenceGraph);
+            CPPUNIT_TEST(testCtor_FourthCFGraph_GenerateMovePairs);
 
             CPPUNIT_TEST_SUITE_END();
 
@@ -225,6 +232,8 @@ class LivenessTest : public CppUnit::TestFixture
         //  Interference graph should be:
         //      eax --- ecx
         //      ebx --- ecx
+        //  The move pairs should be:
+        //      ebx ---- eax
         CFGraph makeFirstCFGraph(myTemp regA, myTemp regB, myTemp regC)
         {
             Instructions ins;
@@ -262,6 +271,8 @@ class LivenessTest : public CppUnit::TestFixture
         //
         //  Interference graph should be:
         //      eax --- ebx
+        //  The move pairs should be:
+        //      null
         CFGraph makeSecondCFGraph(myTemp regA, myTemp regB)
         {
             Instructions ins;
@@ -285,6 +296,8 @@ class LivenessTest : public CppUnit::TestFixture
         //  Interference graph should be:
         //      eax --- ecx
         //      edx --- ebx
+        //  The move pairs should be:
+        //      eax --- ebx
         CFGraph makeThirdCFGraph(myTemp regA, myTemp regB, myTemp regC, myTemp regD)
         {
             Instructions ins;
@@ -317,6 +330,8 @@ class LivenessTest : public CppUnit::TestFixture
         //  Interference graph should be:
         //      eax --- ecx
         //      eax --- edx
+        //  The move pairs should be:
+        //      ecx --- eax
         CFGraph makeFourthCFGraph(myTemp eax, myTemp ecx, myTemp edx)
         {
             Instructions ins;
@@ -403,6 +418,20 @@ class LivenessTest : public CppUnit::TestFixture
             CPPUNIT_ASSERT_EQUAL(true, ifGraph.EdgesContains(regB, regC));
         }
 
+        void testCtor_FirstCFGraph_GenerateMovePairs()
+        {
+            myTemp regA = Temp_newTemp(), regB = Temp_newTemp(), regC = Temp_newTemp();
+            Liveness liveness = Liveness(makeFirstCFGraph(regA, regB, regC));
+
+            MovePairs movePairs = liveness.GetMovePairs();
+            InterferenceGraph ifGraph = liveness.GetInterferenceGraph();
+            CPPUNIT_ASSERT_EQUAL((size_t)1, movePairs.size());
+            CPPUNIT_ASSERT_EQUAL(ifGraph.GetRegNode(regB), movePairs.at(0).GetFrom());
+            CPPUNIT_ASSERT_EQUAL(ifGraph.GetRegNode(regA), movePairs.at(0).GetTo());
+        }
+
+        ///////////////////////////////////////////
+
         void testCtor_SecondCFGraph_CalculateIn()
         {
             myTemp regA = Frame_EAX(), regB = Frame_EBX();
@@ -450,6 +479,17 @@ class LivenessTest : public CppUnit::TestFixture
             CPPUNIT_ASSERT_EQUAL( true, ifGraph.EdgesContains(regB, Frame_EDX()) );
         }
 
+        void testCtor_SecondCFGraph_GenerateMovePairs()
+        {
+            myTemp regA = Frame_EAX(), regB = Frame_EBX();
+            Liveness liveness = Liveness(makeSecondCFGraph(regA, regB));
+
+            MovePairs movePairs = liveness.GetMovePairs();
+            CPPUNIT_ASSERT_EQUAL((size_t)0, movePairs.size());
+        }
+
+        /////////////////////////////////////////////////////
+
         void testCtor_ThirdCFGraph_GenerateInterferenceGraph()
         {
             myTemp regA = Frame_EAX(), regB = Frame_EBX(), regC = Frame_ECX(), regD = Frame_EDX();
@@ -463,6 +503,20 @@ class LivenessTest : public CppUnit::TestFixture
             CPPUNIT_ASSERT_EQUAL(true, ifGraph.EdgesContains(regC, regB));
             CPPUNIT_ASSERT_EQUAL(true, ifGraph.EdgesContains(regC, regD));
         }
+
+        void testCtor_ThirdCFGraph_GenerateMovePairs()
+        {
+            myTemp regA = Frame_EAX(), regB = Frame_EBX(), regC = Frame_ECX(), regD = Frame_EDX();
+            Liveness liveness = Liveness(makeThirdCFGraph(regA, regB, regC, regD));
+
+            MovePairs movePairs = liveness.GetMovePairs();
+            InterferenceGraph ifGraph = liveness.GetInterferenceGraph();
+            CPPUNIT_ASSERT_EQUAL((size_t)1, movePairs.size());
+            CPPUNIT_ASSERT_EQUAL(ifGraph.GetRegNode(regA), movePairs.at(0).GetFrom());
+            CPPUNIT_ASSERT_EQUAL(ifGraph.GetRegNode(regB), movePairs.at(0).GetTo());
+        }
+
+        /////////////////////////////////////////////////////
 
         void testCtor_FourthCFGraph_CalculateIn()
         {
@@ -508,6 +562,18 @@ class LivenessTest : public CppUnit::TestFixture
             CPPUNIT_ASSERT_EQUAL((size_t)2, graph.GetEdges().size());
             CPPUNIT_ASSERT_EQUAL(true, ifGraph.EdgesContains(regA, regC));
             CPPUNIT_ASSERT_EQUAL(true, ifGraph.EdgesContains(regA, regD));
+        }
+
+        void testCtor_FourthCFGraph_GenerateMovePairs()
+        {
+            myTemp regA = Frame_EAX(), regC = Frame_ECX(), regD = Frame_EDX();
+            Liveness liveness = Liveness(makeFourthCFGraph(regA, regC, regD));
+
+            MovePairs movePairs = liveness.GetMovePairs();
+            InterferenceGraph ifGraph = liveness.GetInterferenceGraph();
+            CPPUNIT_ASSERT_EQUAL((size_t)1, movePairs.size());
+            CPPUNIT_ASSERT_EQUAL(ifGraph.GetRegNode(regC), movePairs.at(0).GetFrom());
+            CPPUNIT_ASSERT_EQUAL(ifGraph.GetRegNode(regA), movePairs.at(0).GetTo());
         }
 };
 
