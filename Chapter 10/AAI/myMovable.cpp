@@ -27,15 +27,22 @@ namespace lgxZJ
 
         Registers Move::GetDstRegs() const
         {
-            return Registers(1, dstReg);
+            if (dstType == OperandType::Content)
+                return Registers(1, dstReg);
+            else
+                return {};
         }
 
         Registers Move::GetSrcRegs() const
         {
+            Registers result;
+
+            if (dstType == OperandType::Memory)
+                result.push_back(dstReg);
             if (srcRep.kind == BinaryUnion::Kind::Reg)
-                return Registers(1, srcRep.u.reg);
-            else
-                return {};
+                result.push_back(srcRep.u.reg);
+
+            return result;
         }
 
         string Move::ToString() const

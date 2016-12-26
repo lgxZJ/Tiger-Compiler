@@ -40,15 +40,22 @@ class MoveTest : public CppUnit::TestFixture
             suite->addTest(new CppUnit::TestCaller<MoveTest>(
                 "testCtor", &MoveTest::testToString_LeftContentRightValue_NoSquareBrackets));
             suite->addTest(new CppUnit::TestCaller<MoveTest>(
-                "testCtor", &MoveTest::testGetDstRegs_ByDefault_ReturnLeftReg));
+                "testCtor", &MoveTest::testGetDstRegs_DstRegsAsContent_ReturnLeftReg));
             suite->addTest(new CppUnit::TestCaller<MoveTest>(
-                "testCtor", &MoveTest::testGetSrcRegs_RightOperandRegister_ReturnRightReg));
+                "testCtor", &MoveTest::testGetDstRegs_DstRegsAsMemory_ReturnEmpty));
             suite->addTest(new CppUnit::TestCaller<MoveTest>(
-                "testCtor", &MoveTest::testGetSrcRegs_RightOperandConst_ReturnEmpty));
+                "testCtor", &MoveTest::testGetSrcRegs_LeftRegRightRegBothAsContent_ReturnRightReg));
+            suite->addTest(new CppUnit::TestCaller<MoveTest>(
+                "testCtor", &MoveTest::testGetSrcRegs_LeftRegAsMemoryRightRegAsContent_ReturnLeftAndRightReg));
+            suite->addTest(new CppUnit::TestCaller<MoveTest>(
+                "testCtor", &MoveTest::testGetSrcRegs_LeftRegAsContentRightRegAsMemory_ReturnRightReg));
+            suite->addTest(new CppUnit::TestCaller<MoveTest>(
+                "testCtor", &MoveTest::testGetSrcRegs_LeftRegAsMemoryRightRegAsMemory_ReturnLeftAndRightReg));
+            suite->addTest(new CppUnit::TestCaller<MoveTest>(
+                "testCtor", &MoveTest::testGetSrcRegs_RightOperandConst_ReturnLeftWhenRegAsMemoryElseEmpty));
             suite->addTest(new CppUnit::TestCaller<MoveTest>(
                 "testCtor", &MoveTest::testGetDstLabel_BeDefault_ReturnNull));
             
-
             return suite;
         }
 
@@ -118,7 +125,7 @@ class MoveTest : public CppUnit::TestFixture
             CPPUNIT_ASSERT_EQUAL(0, (int)count(result.begin(), result.end(), ']'));
         }
 
-        void testGetDstRegs_ByDefault_ReturnLeftReg()
+        void testGetDstRegs_DstRegsAsContent_ReturnLeftReg()
         {
             myTemp dstReg = Temp_newTemp();
             Move one(dstReg, Move::OperandType::Content, 1);
@@ -129,7 +136,17 @@ class MoveTest : public CppUnit::TestFixture
             CPPUNIT_ASSERT_EQUAL(dstReg, result.at(0));
         }
 
-        void testGetSrcRegs_RightOperandRegister_ReturnRightReg()
+        void testGetDstRegs_DstRegsAsMemory_ReturnEmpty()
+        {
+            myTemp dstReg = Temp_newTemp();
+            Move one(dstReg, Move::OperandType::Memory, 1);
+
+            Registers result = one.GetDstRegs();
+
+            CPPUNIT_ASSERT_EQUAL((size_t)0, result.size());
+        }
+
+        void testGetSrcRegs_LeftRegRightRegBothAsContent_ReturnRightReg()
         {
             myTemp dstReg = Temp_newTemp();
             myTemp srcReg = Temp_newTemp();
@@ -141,14 +158,56 @@ class MoveTest : public CppUnit::TestFixture
             CPPUNIT_ASSERT_EQUAL(srcReg, result.at(0));
         }
 
-        void testGetSrcRegs_RightOperandConst_ReturnEmpty()
+        void testGetSrcRegs_LeftRegAsMemoryRightRegAsContent_ReturnLeftAndRightReg()
         {
             myTemp dstReg = Temp_newTemp();
-            Move one(dstReg, Move::OperandType::Content, 1);
+            myTemp srcReg = Temp_newTemp();
+            Move one(dstReg, srcReg, Move::OperandType::Memory);
 
             Registers result = one.GetSrcRegs();
 
-            CPPUNIT_ASSERT_EQUAL((size_t)0, result.size());
+            CPPUNIT_ASSERT_EQUAL((size_t)2, result.size());
+            CPPUNIT_ASSERT_EQUAL(dstReg, result.at(0));
+            CPPUNIT_ASSERT_EQUAL(srcReg, result.at(1));
+        }
+
+        void testGetSrcRegs_LeftRegAsContentRightRegAsMemory_ReturnRightReg()
+        {
+            myTemp dstReg = Temp_newTemp();
+            myTemp srcReg = Temp_newTemp();
+            Move one(dstReg, srcReg, Move::OperandType::Content, Move::OperandType::Memory);
+
+            Registers result = one.GetSrcRegs();
+
+            CPPUNIT_ASSERT_EQUAL((size_t)1, result.size());
+            CPPUNIT_ASSERT_EQUAL(srcReg, result.at(0));
+        }
+
+        void testGetSrcRegs_LeftRegAsMemoryRightRegAsMemory_ReturnLeftAndRightReg()
+        {
+            myTemp dstReg = Temp_newTemp();
+            myTemp srcReg = Temp_newTemp();
+            Move one(dstReg, srcReg, Move::OperandType::Memory, Move::OperandType::Memory);
+
+            Registers result = one.GetSrcRegs();
+
+            CPPUNIT_ASSERT_EQUAL((size_t)2, result.size());
+            CPPUNIT_ASSERT_EQUAL(dstReg, result.at(0));
+            CPPUNIT_ASSERT_EQUAL(srcReg, result.at(1));
+        }
+
+        void testGetSrcRegs_RightOperandConst_ReturnLeftWhenRegAsMemoryElseEmpty()
+        {
+            myTemp dstReg = Temp_newTemp();
+            Move one(dstReg, Move::OperandType::Content, 1);
+            Move two(dstReg, Move::OperandType::Memory, 1);
+
+            Registers oneResult = one.GetSrcRegs();
+            Registers twoResult = two.GetSrcRegs();
+
+            CPPUNIT_ASSERT_EQUAL((size_t)0, oneResult.size());
+            CPPUNIT_ASSERT_EQUAL((size_t)1, twoResult.size());
+            CPPUNIT_ASSERT_EQUAL(dstReg, twoResult.at(0));
         }
 
         void testGetDstLabel_BeDefault_ReturnNull()

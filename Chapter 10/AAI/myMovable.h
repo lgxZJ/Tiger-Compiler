@@ -24,6 +24,14 @@ namespace lgxZJ
                             OperandType oneSrcType = Content);
                 explicit Move(myTemp oneDstReg, OperandType oneDstType, int constValue);
 
+                //  The Move AAI have the following special syntax:
+                //      1.mov reg, reg
+                //      2.mov [reg], reg
+                //      3.mov reg, [reg]
+                //      4.mov [reg], reg
+                //  So, the arithmetic semantics are also special:
+                //      when registers represent memory location, they are source registers
+                //      but not destination registers.
                 virtual Registers GetDstRegs() const;
                 virtual Registers GetSrcRegs() const;
 

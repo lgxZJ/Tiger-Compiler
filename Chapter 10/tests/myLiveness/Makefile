@@ -11,7 +11,7 @@ COVERAGE_FOLDER := ./coverage
 VPATH := ../../:../../AAI
 
 all.out : $(COVERAGE_FOLDER) $(OBJECTS)
-> g++ -g -coverage -o $(OUT_DIR)/all.out $(OBJECTS) -lcppunit -ldl ../Libraries/frontend.a
+> g++ -g -coverage -o $(OUT_DIR)/all.out $(OBJECTS) -static -lcppunit -ldl ../Libraries/frontend.a
 
 $(OBJECTS) : | $(OUT_DIR)
 
