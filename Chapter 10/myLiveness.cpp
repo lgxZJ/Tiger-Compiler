@@ -300,7 +300,7 @@ namespace lgxZJ
                 Registers leftOperand = cfGraph.GetNodeIns(oneNode)->GetDstRegs();
                 Registers rightOperand = cfGraph.GetNodeIns(oneNode)->GetSrcRegs();
 
-                if (IsTwoRegisterOperandMove(oneNode, leftOperand, rightOperand) &&
+                if (IsTwoContentRegOperandMove(oneNode, leftOperand, rightOperand) &&
                     !IsSelfMove(leftOperand, rightOperand))
                 {
                     assert (leftOperand.at(0) != nullptr && rightOperand.at(0) != nullptr);
@@ -314,12 +314,21 @@ namespace lgxZJ
             }
         }
 
-        bool Liveness::IsTwoRegisterOperandMove(
+        //  NOTE:
+        //      This function also recognize conditions when either of the destination
+        //      register or the source register is used as a memory location:
+        //          mov [reg], reg | mov [reg], [reg] | mov reg, [reg]
+        //      On these conditions, the move instructions are not treated as move pairs.
+        bool Liveness::IsTwoContentRegOperandMove(
             Node node, Registers& leftOperand, Registers& rightOperand) const
         {
-            return  cfGraph.IsMoveIns(node) &&
-                    leftOperand.size() == 1 &&
-                    rightOperand.size() == 1;
+            if (!cfGraph.IsMoveIns(node) ||
+                leftOperand.size() != 1 || rightOperand.size() != 1)
+                return false;
+
+            //  check memory operand type from "[]" characters
+            string insStr = cfGraph.GetNodeIns(node)->ToString();
+            return insStr.find('[') == string::npos;
         }
 
         bool Liveness::IsSelfMove(Registers& leftOperand, Registers& rightOperand) const

@@ -107,7 +107,9 @@ namespace lgxZJ
                 //      Move can be deleted).
                 //  REAMRK:
                 //      The move pairs are instructions that have both register operands
-                //      and may or may not be an real interference edge. 
+                //      which cannot be used as memory locations(because these registers
+                //      can never be assigned the same real register) and may or may not
+                //      be an real interference edge. 
                 MovePairs GetMovePairs() const;
 
             private:
@@ -128,7 +130,7 @@ namespace lgxZJ
 
                 void GenerateMovePairs();
                 bool MovePairContains(Node lhs, Node rhs) const;
-                bool IsTwoRegisterOperandMove(Node node, IS::Registers& leftOperand, IS::Registers& rightOperand) const;
+                bool IsTwoContentRegOperandMove(Node node, IS::Registers& leftOperand, IS::Registers& rightOperand) const;
                 bool IsSelfMove(IS::Registers& leftOperand, IS::Registers& rightOperand) const;
         };
     }

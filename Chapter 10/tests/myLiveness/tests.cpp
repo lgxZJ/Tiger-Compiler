@@ -170,6 +170,9 @@ class InterferenceGraphTest : public CppUnit::TestFixture
         }
 };
 
+/////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////
+
 class LivenessMock : public Liveness
 {
     public:
@@ -200,6 +203,11 @@ class LivenessTest : public CppUnit::TestFixture
             CPPUNIT_TEST(testCtor_FourthCFGraph_CalculateOut);
             CPPUNIT_TEST(testCtor_FourthCFGraph_GenerateInterferenceGraph);
             CPPUNIT_TEST(testCtor_FourthCFGraph_GenerateMovePairs);
+
+            CPPUNIT_TEST(testCtor_FifthCFGraph_CalculateOut);
+            CPPUNIT_TEST(testCtor_FifthCFGraph_CalculateIn);
+            CPPUNIT_TEST(testCtor_FifthCFGraph_GenerateInterferenceGraph);
+            CPPUNIT_TEST(testCtor_FifthCFGraph_GenerateMovePairs);
 
             CPPUNIT_TEST_SUITE_END();
 
@@ -347,6 +355,37 @@ class LivenessTest : public CppUnit::TestFixture
             return CFGraph(ins);
         }
 
+        //
+        //  Make a control flow graph with following instructions:
+        //      1.[eax] = ebx
+        //      2.ecx = ecx + eax
+        //      3.[ecx] = [ebx]
+        //      4.ecx = [ebx]
+        //
+        //  Liveness results should be the following:
+        //  |   line num    |    use/defs    |   out / in    |
+        //  |       1       |    ebx/        |       /ebx    | 
+        //  |       2       |ebx,ecx/        |    ebx/ebx,ecx|
+        //  |       3       |eax,ecx/ecx     |    b,c/a,b,c  |
+        //  |       4       |eax,ebx/        |  a,b,c/a,b,c  |
+        //
+        //  Interference graph should be:
+        //      ebx --- ecx
+        //  The move pairs should be:
+        //      null
+        CFGraph makeFifthCFGraph(myTemp regA, myTemp regB, myTemp regC)
+        {
+            Instructions ins;
+
+            ins.push_back( make_shared<Move>(regA, regB, Move::OperandType::Memory) );
+            ins.push_back( make_shared<Add>(regC, regA) );
+            ins.push_back( make_shared<Move>(
+                regC, regB, Move::OperandType::Memory, Move::OperandType::Memory) );
+            ins.push_back( make_shared<Move>(
+                regC, regB, Move::OperandType::Content, Move::OperandType::Memory) );
+            return CFGraph(ins);
+        }
+
         bool registersContainsThis(const Registers& regs, myTemp reg)
         {
             return find(regs.begin(), regs.end(), reg) != regs.end();
@@ -363,6 +402,14 @@ class LivenessTest : public CppUnit::TestFixture
             CPPUNIT_ASSERT_EQUAL((size_t)2, regs.size());
             CPPUNIT_ASSERT(registersContainsThis(regs, regOne));
             CPPUNIT_ASSERT(registersContainsThis(regs, regTwo));
+        }
+
+        void AssertOneRegisters_Three(const Registers& regs, myTemp regOne, myTemp regTwo, myTemp regThree)
+        {
+            CPPUNIT_ASSERT_EQUAL((size_t)3, regs.size());
+            CPPUNIT_ASSERT(registersContainsThis(regs, regOne));
+            CPPUNIT_ASSERT(registersContainsThis(regs, regTwo));
+            CPPUNIT_ASSERT(registersContainsThis(regs, regThree));
         }
 
         ////////////////////////////////////////////////////////////////////
@@ -575,6 +622,55 @@ class LivenessTest : public CppUnit::TestFixture
             CPPUNIT_ASSERT_EQUAL(ifGraph.GetRegNode(regC), movePairs.at(0).GetFrom());
             CPPUNIT_ASSERT_EQUAL(ifGraph.GetRegNode(regA), movePairs.at(0).GetTo());
         }
+
+        ////////////////////////////////////////////////////////////////
+
+        void testCtor_FifthCFGraph_CalculateOut()
+        {
+            myTemp regA = Frame_EAX(), regB = Frame_EBX(), regC = Frame_ECX();
+            Liveness liveness(makeFifthCFGraph(regA, regB, regC));
+
+            LivenessMock mock(liveness);
+
+            CPPUNIT_ASSERT_EQUAL((size_t)0, mock.GetOut().at(3).size());
+            AssertOneRegisters_One(mock.GetOut().at(2), regB);
+            AssertOneRegisters_Two(mock.GetOut().at(1), regB, regC);
+            AssertOneRegisters_Three(mock.GetOut().at(0), regA, regB, regC);
+        }
+
+        void testCtor_FifthCFGraph_CalculateIn()
+        {
+            myTemp regA = Frame_EAX(), regB = Frame_EBX(), regC = Frame_ECX();
+            Liveness liveness(makeFifthCFGraph(regA, regB, regC));
+
+            LivenessMock mock(liveness);
+
+            AssertOneRegisters_One(mock.GetIn().at(3), regB);
+            AssertOneRegisters_Two(mock.GetIn().at(2), regB, regC);
+            AssertOneRegisters_Three(mock.GetIn().at(1), regA, regB, regC);
+            AssertOneRegisters_Three(mock.GetIn().at(0), regA, regB, regC);
+        }
+
+        void testCtor_FifthCFGraph_GenerateInterferenceGraph()
+        {
+            myTemp regA = Frame_EAX(), regB = Frame_EBX(), regC = Frame_ECX();
+            InterferenceGraph ifGraph =
+                Liveness(makeFifthCFGraph(regA, regB, regC)).GetInterferenceGraph();
+
+            const DirectedGraph graph = ifGraph.GetDGRef();
+
+            CPPUNIT_ASSERT_EQUAL((size_t)1, graph.GetEdges().size());
+            CPPUNIT_ASSERT_EQUAL(true, ifGraph.EdgesContains(regB, regC));
+        }
+
+        void testCtor_FifthCFGraph_GenerateMovePairs()
+        {
+            myTemp regA = Frame_EAX(), regB = Frame_EBX(), regC = Frame_ECX();
+            Liveness liveness(makeFifthCFGraph(regA, regB, regC));
+
+            CPPUNIT_ASSERT_EQUAL(true, liveness.GetMovePairs().empty());
+        }
+
 };
 
 int main()
