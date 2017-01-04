@@ -412,8 +412,8 @@ void Escape_findEscape_FuncDec(int depth, myFuncDec funcDec)
         default:        assert (false);
     }
 
-    treatFormalsAsNotEscapedVars(depth + 1, formalFields);
-    Escape_findEscape_Exp(depth + 1, body);
+    treatFormalsAsNotEscapedVars(depth, formalFields);
+    Escape_findEscape_Exp(depth, body);
 }
 
 /////////////////////////
@@ -427,7 +427,10 @@ void Escape_findEscape_Dec(int depth, myDec dec)
         case TypeDec:
             return Escape_findEscape_TypeDec(depth, dec->u.tyDec);
         case FuncDec:
-            return Escape_findEscape_FuncDec(depth, dec->u.funcDec);
+            MySymbol_BeginScope(Escape_getEscapeEnvironment());
+            Escape_findEscape_FuncDec(depth + 1, dec->u.funcDec);
+            MySymbol_EndScope(Escape_getEscapeEnvironment());
+            return;
         default:        assert (false);
     }
 }
