@@ -1,12 +1,11 @@
-AM_CFLAGS = 	-I/home/lgxZJ/Libraries/CUnit/include \
-		-L/home/lgxZJ/Libraries/CUnit/lib \
-		-std=c99
+AM_CFLAGS = 	-std=c99
 
 noinst_PROGRAMS = all.out
 all_out_SOURCES = test_lValueTreater.c \
 		../testHelper.c ../testHelper.h \
-		../../makeMemory.c ../../makeMemory.h
-all_out_LDADD = libLValueTreater.a
+		../../makeMemory.c ../../makeMemory.h\
+		../../myTable.c	../../mySymbol.c
+all_out_LDADD = libLValueTreater.a -lcunit
 all_out_LDFLAGS = -coverage -lcunit
 
 noinst_LIBRARIES = libLValueTreater.a

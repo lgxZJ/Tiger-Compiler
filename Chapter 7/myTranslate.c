@@ -490,6 +490,7 @@ static void Trans_string(IR_myExp labelExp, myString str)
     Trans_addOneStringFrag(strFrag);
 }
 
+//  todo: translate string literals to real value
 IR_myExp Trans_stringLiteralExp(myString str)
 {
     IR_myExp strLabelExp = IR_makeName(Temp_newLabel());
@@ -987,7 +988,7 @@ static IR_myExp defineClause(
         (*stateReturnPtr), clauseState);
 
     //  may have value(IR_TEMP) or not(NULL)
-    assert (clauseValue == NULL || clauseValue->kind == IR_Temp);
+    assert (clauseValue == NULL || clauseValue->kind == IR_Temp || clauseValue == clauseTrans);
     return clauseValue;
 }
 
@@ -995,7 +996,8 @@ static void defineValueSaving(
     IR_myStatement* stateReturnPtr, IR_myExp* valueReturnPtr, IR_myExp valueRep)
 {
     assert ((*valueReturnPtr)->kind == IR_Temp);
-    assert (valueRep->kind == IR_Temp);
+    //  todo: remove right expression when the whole compiler is done
+    assert (valueRep->kind == IR_Temp || valueRep->kind == IR_Const || valueRep->kind == IR_Name);
 
     (*stateReturnPtr) = IR_makeSeq(
             (*stateReturnPtr),
