@@ -1226,6 +1226,16 @@ static IR_myExp prepareStringRegForConvert(
 static IR_myExp prepareOthersRegForConvert(
     IR_myExp leftValue, IR_myExp rightValue, IR_myStatement* stateReturnPtr)
 {
+    if (leftValue->kind == IR_Const)
+    {
+        IR_myExp newRegRep = IR_makeTemp(Temp_newTemp());
+
+        (*stateReturnPtr) = IR_makeSeq(
+            (*stateReturnPtr),
+            IR_makeMove(newRegRep, IR_makeConst(leftValue->u.constValue)));
+        leftValue = newRegRep;
+    }
+
     //  array and record variables are actually pointers, treat them equally
     (*stateReturnPtr) = IR_makeSeq(
             (*stateReturnPtr),
