@@ -6,6 +6,9 @@
 void treatLValueAsAddress(void);
 void treatLValueAsContent(void);
 
+void cancelTreatAsAddress(void);
+void cancelTreatAsContent(void);
+
 bool isLValueAsAddress(void);
 bool isLValueAsContent(void);
 
