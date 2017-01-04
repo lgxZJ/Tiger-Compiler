@@ -37,7 +37,7 @@ class IntegrationTest: public CppUnit::TestFixture
         ///////////////////////     test helpers    ///////////////////////
 
         //  test all phases completed so far.
-        bool testOneFile(char* filename)
+        bool testOneFile(const char* filename)
         {
             IR_myStatement resultState = frontTester(filename);
 
@@ -56,6 +56,9 @@ class IntegrationTest: public CppUnit::TestFixture
                 sprintf(buffer, "../testcases/correct/test%d.tig", i);
                 testOneFile(buffer);
             }
+
+            testOneFile("../testcases/correct/queens.tig");
+            testOneFile("../testcases/correct/merge.tig");
         }
 
 };

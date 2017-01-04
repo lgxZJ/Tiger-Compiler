@@ -860,6 +860,7 @@ IR_myExp calculateFirstSubscriptAddress(
 {
 	IR_myStatement subscriptState;
 	IR_myExp subscriptValue;
+    treatLValueAsContent();
 	IR_divideExp(currentSubscriptResult, &subscriptState, &subscriptValue);
 
 	//  calculate offset
@@ -892,13 +893,13 @@ myTranslationAndType analyzeRecursiveArraySubscripts(
 {
     assert (lValueExp);
 
+    treatLValueAsContent();
     myTranslationAndType result =
         make_MyTranslationAndType(NULL, NULL);
     
     //  caller make sures its a variable entry!
     myVarAndFuncEntry arrayEntry = getVarOrFuncFromName(lValueExp->id);
     assert (arrayEntry != NULL);
-
 
     //  return this array type
     result->type = MyEnvironment_getVarType(arrayEntry)
@@ -926,6 +927,8 @@ myTranslationAndType analyzeRecursiveArraySubscripts(
         }
         else          result->type = typeReturn;
     }
+    
+    cancelTreatAsContent();
     
     //  fetch content with Mem(addr) format
     assert (result->translation->kind == IR_ESeq);
@@ -2190,7 +2193,7 @@ myTranslationAndType MySemantic_AssignmentExp(myAssignmentExp assignmentExp)
     myTranslationAndType leftResult = NULL;
     bool isLeftOperandLegal =
         isLValueExpLegalWithResult(assignmentExp->lValueExp, &leftResult);
-    treatLValueAsContent();
+    cancelTreatAsAddress();
 
     myTranslationAndType rightResult = NULL;
     bool isRightOperandLegal =
