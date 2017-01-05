@@ -1,0 +1,22 @@
+/*	legal break	*/
+let
+in
+	while (1)
+	do break;
+
+	while (1)
+	do 
+	   if (1) then break else break;
+
+	while (1)
+	do if (1) then break;
+
+	while (1)
+	do (break;break;break);
+
+	for id := 1 to 2
+	do break;
+
+	for id := 1 to 3
+	do (break;break)
+end

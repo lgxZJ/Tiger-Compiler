@@ -137,7 +137,9 @@ namespace lgxZJ
             }
             else
             {
-                assert (rightOper->kind == IR_myExp_::IR_Temp);
+                //  todo: remove right operand when compiler is done
+                assert (rightOper->kind == IR_myExp_::IR_Temp ||
+                        rightOper->kind == IR_myExp_::IR_Name);
                 //  mov [reg], reg
                 return PutIns(shared_ptr<Move>(
                     new Move(leftOper->u.mem->u.temp,
@@ -149,7 +151,18 @@ namespace lgxZJ
         void Munch::LeftRegisterMoveState(IR_myExp leftOper, IR_myExp rightOper)
         {
             assert (leftOper->kind == IR_myExp_::IR_Temp);
-            if (rightOper->kind == IR_myExp_::IR_Const)
+
+            if (rightOper->kind == IR_myExp_::IR_Mem &&
+                rightOper->u.mem->kind == IR_myExp_::IR_Temp)
+            {
+                //  mov reg, [reg]
+                return PutIns(shared_ptr<Move>(
+                    new Move(leftOper->u.temp,
+                            rightOper->u.mem->u.temp,
+                            Move::OperandType::Content,
+                            Move::OperandType::Memory)));
+            }
+            else if (rightOper->kind == IR_myExp_::IR_Const)
             {
                 //  mov reg, contValue
                 return PutIns(shared_ptr<Move>(
@@ -219,7 +232,7 @@ namespace lgxZJ
             //  only these arithmetic operations are needed in tiger.
             switch(exp->u.binOperation.op)
             {
-                case IR_BinOperator::IR_And:        return BinAddExp(exp);
+                case IR_BinOperator::IR_Plus:        return BinAddExp(exp);
                 case IR_BinOperator::IR_Minus:      return BinSubExp(exp);
                 case IR_BinOperator::IR_Multiply:   return BinMulExp(exp);
                 case IR_BinOperator::IR_Divide:     return BinDivExp(exp);
@@ -363,7 +376,9 @@ namespace lgxZJ
             myTempList* listPtr = &argRegs;
             while (argExps)
             {
-                assert (argExps->head->kind == IR_myExp_::IR_Temp);
+                //  todo: remove right assert when the compiler is done
+                assert (argExps->head->kind == IR_myExp_::IR_Temp ||
+                        argExps->head->kind == IR_myExp_::IR_Name);
 
                 *listPtr = Temp_makeTempList(argExps->head->u.temp, nullptr),
                 listPtr = &(*listPtr)->tail;

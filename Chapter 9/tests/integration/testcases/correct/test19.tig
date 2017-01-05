@@ -1,0 +1,12 @@
+/*	legal nil tests	*/
+let
+	type myrecord = {  }
+	var a : myrecord := nil
+	function foo(a : myrecord) : myrecord = a
+in
+	a := nil;
+	a :=	foo(nil);
+	if a <> nil then ();
+	if nil <> a then ();
+ 	if a = nil then ()
+end
