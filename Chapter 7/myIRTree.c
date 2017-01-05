@@ -263,6 +263,15 @@ static void IR_divideExp_Mem(
     }
 }
 
+static void IR_divideExp_Const(
+    IR_myExp one, IR_myStatement* stateParts, IR_myExp* valueParts)
+{
+    IR_myExp newRegRep = IR_makeTemp(Temp_newTemp());
+
+    *stateParts = IR_makeMove(newRegRep, IR_makeConst(one->u.constValue));
+    *valueParts = newRegRep;
+}
+
 void IR_divideExp(IR_myExp one, IR_myStatement* stateParts, IR_myExp* valueParts)
 {
     if (one == NULL)
@@ -286,7 +295,9 @@ void IR_divideExp(IR_myExp one, IR_myStatement* stateParts, IR_myExp* valueParts
         case IR_Mem:
             IR_divideExp_Mem(one, stateParts, valueParts);
             break;
-        case IR_Const:  //  fall through
+        case IR_Const:
+            IR_divideExp_Const(one, stateParts, valueParts);
+            break;
         case IR_Name:   //  fall through
         case IR_Temp:   //  fall through
             *stateParts = NULL, *valueParts = one;  break;

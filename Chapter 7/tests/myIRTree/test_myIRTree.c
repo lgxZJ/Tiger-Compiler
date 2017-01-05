@@ -240,13 +240,6 @@ void test_IRDivideExp_NameExp_ReturnNullStateAndSameExp(void)
     testOneIRExp_ReturnNullStateSameExp(exp);
 }
 
-void test_IRDivideExp_ConstExp_ReturnNullStateAndSameExp(void)
-{
-    IR_myExp exp = IR_makeConst(1);
-
-    testOneIRExp_ReturnNullStateSameExp(exp);
-}
-
 void test_IRDivideExp_TreatLValueAsAddress_DoNotConvertToRegister(void)
 {
     treatLValueAsAddress();
@@ -289,8 +282,7 @@ void test_IRDivideExp_ESeqExp_ReturnInnerExpAsItsExp(void)
     IR_divideExp(exp, &state, &value);
 
     CU_ASSERT_EQUAL(value->kind, IR_Mem);
-    CU_ASSERT_EQUAL(value->u.mem->kind, IR_Const)
-    CU_ASSERT_EQUAL(value->u.mem->u.constValue, 0);
+    CU_ASSERT_EQUAL(value->u.mem->kind, IR_Temp)
 }
 
 void test_IRDivideExp_BinOperationExp_DivideRightAndRecombineWithLeft(void)
@@ -326,6 +318,21 @@ void test_IRDivideExp_CallExp_ExtractArgs(void)
     CU_ASSERT_EQUAL(state->u.seq.right->kind, IR_Move);
     CU_ASSERT_EQUAL(state->u.seq.right->u.move.src->kind, IR_Temp);
     CU_ASSERT_EQUAL(value->kind, IR_Temp);
+}
+
+void test_IRDivideExp_Const_ConvertToRegister()
+{
+    int constValue = 0;
+    IR_myExp exp = IR_makeConst(constValue);
+
+    IR_myStatement state;
+    IR_myExp value;
+    IR_divideExp(exp, &state, &value);
+
+    CU_ASSERT_EQUAL(state->kind, IR_Move);
+    CU_ASSERT_EQUAL(state->u.move.dst->kind, IR_Temp);
+    CU_ASSERT_EQUAL(state->u.move.src->kind, IR_Const);
+    CU_ASSERT_EQUAL(state->u.move.src->u.constValue, constValue);
 }
 
 /////////////////////////////////////////////////////////////////
@@ -397,19 +404,19 @@ int main()
 
         { "", test_IRDivideExp_TempExp_ReturnNullStateAndSameExp },
         { "", test_IRDivideExp_NameExp_ReturnNullStateAndSameExp },
-        { "", test_IRDivideExp_ConstExp_ReturnNullStateAndSameExp },
         { "", test_IRDivideExp_TreatLValueAsAddress_DoNotConvertToRegister },
         { "", test_IRDivideExp_TreatLValueAsContent_DoConvertToRegister },
         { "", test_IRDivideExp_ESeqExp_ReturnInnerExpAsItsExp },
         { "", test_IRDivideExp_BinOperationExp_DivideRightAndRecombineWithLeft },
         { "", test_IRDivideExp_CallExp_ExtractArgs },
+        { "", test_IRDivideExp_Const_ConvertToRegister },
 
         { "", test_RevertRelOperator_Equal_ReturnNotEqual },
         { "", test_RevertRelOperator_Equal_ReturnNotEqual },
-	{ "", test_RevertRelOperator_LessThan_ReturnGreaterEqual},
-	{ "", test_RevertRelOperator_LessEqual_ReturnGreaterThan },
-	{ "", test_RevertRelOperator_GreaterThan_ReturnLessEqual },
-	{ "", test_RevertRelOperator_GreaterEqual_ReturnLessThan },
+	    { "", test_RevertRelOperator_LessThan_ReturnGreaterEqual},
+	    { "", test_RevertRelOperator_LessEqual_ReturnGreaterThan },
+	    { "", test_RevertRelOperator_GreaterThan_ReturnLessEqual },
+	    { "", test_RevertRelOperator_GreaterEqual_ReturnLessThan },
     };
     if (!addTests(&suite, tests, sizeof(tests) / sizeof(tests[0])))
         return EXIT_FAILURE;
