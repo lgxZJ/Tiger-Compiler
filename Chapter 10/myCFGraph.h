@@ -14,6 +14,9 @@ namespace lgxZJ
         class CFGraph
         {
             protected:
+                //  to check only one epilogue each subroutine
+                int epilogueCount;
+
                 //  Every instruction corresponds to one node in graph in order.
                 IS::Instructions    ins;
                 DirectedGraph       graph;

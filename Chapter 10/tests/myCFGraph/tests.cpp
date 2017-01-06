@@ -21,6 +21,7 @@ class CFGraphMocker : public CFGraph
 
         RegistersSet GetAllUses() const { return uses; }
         RegistersSet GetAllDefs() const { return defs; }
+        int GetEpilogueCount() const { return epilogueCount; }
 };
 
 class CFGraphTest : public CppUnit::TestFixture
@@ -97,6 +98,7 @@ class CFGraphTest : public CppUnit::TestFixture
             ins.push_back(shared_ptr<Cmp>(new Cmp(Temp_newTemp(), Temp_newTemp())));
             CFGraphMocker mock((CFGraph(ins)));
 
+            CPPUNIT_ASSERT_EQUAL(0, mock.GetEpilogueCount());
             CPPUNIT_ASSERT_EQUAL((size_t)2, mock.GetDirectedGraph().GetNodes().size());
             CPPUNIT_ASSERT_EQUAL((size_t)2, mock.GetAllUses().size());
             CPPUNIT_ASSERT_EQUAL((size_t)2, mock.GetAllDefs().size());

@@ -21,30 +21,11 @@ namespace lgxZJ
             public:
                 explicit Munch() = delete;
 
-                //  DO:
-                //      Do instruction selection in the given statement set.
                 static void All(Canonical::Statements statements);
-
-                //  DO:
-                //      Do instruction selection in the given statement.
-                //  REMARK:
-                //      If the given statement is null, it do nothing.
                 static void State(IR_myStatement statement);
-
-                //  DO:
-                //      Do instruction selection in the given expression.
-                //  REMARK:
-                //      If the given expression is null, it do nothing.
                 static myTemp Exp(IR_myExp exp);
 
-                //  DO:
-                //      Get the selected abstract instructions.
-                //  REMARK:
-                //      Should be called after All(), State() or Exp().
                 static Instructions GetIns();
-
-                //  DO:
-                //      Reset the selection result.
                 static void Reset();
 
             private:

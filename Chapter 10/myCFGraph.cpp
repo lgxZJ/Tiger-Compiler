@@ -14,7 +14,8 @@ namespace lgxZJ
         ////////////////////////////////////////////////////////////////////////
 
         CFGraph::CFGraph(Instructions oneIns)
-            : ins(oneIns), graph(ins.size()), uses(ins.size()), defs(ins.size())
+            :   epilogueCount(0),
+                ins(oneIns), graph(ins.size()), uses(ins.size()), defs(ins.size())
         {
             for (int i = 0; i < ins.size(); ++i)
                 {
@@ -22,6 +23,8 @@ namespace lgxZJ
                     SetNodeDef(i, ins.at(i)->GetDstRegs());
                     SetOneEdge(i, ins.at(i)->GetDstLabel());
                 }
+
+            assert (epilogueCount <= 1);
         }
 
         //////////////////////////////////////////////////////
@@ -47,8 +50,12 @@ namespace lgxZJ
             if (label != nullptr)   //  a jumpable
             {
                 int labelIndex = GetLabelIndex(label);
-                assert (labelIndex != -1);
-                graph.AddEdge(node, labelIndex);
+
+                //  epilogue `jmp` has no coressponding label definition
+                if (labelIndex != -1)
+                    graph.AddEdge(node, labelIndex);
+                else
+                    ++epilogueCount;
             }
 
             //  uncondition jump cannot fall through

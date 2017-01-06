@@ -1,0 +1,6 @@
+/* legal variable scope  */
+let
+	var a: int := 1
+	function foo():int = a
+in
+end
