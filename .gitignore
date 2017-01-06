@@ -43,4 +43,5 @@
 **/compile
 
 #	build directory
-**/build
+**/build/
+**/bin/
