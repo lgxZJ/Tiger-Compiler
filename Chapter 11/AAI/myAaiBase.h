@@ -79,6 +79,8 @@ namespace lgxZJ
                 virtual Registers GetDstRegs() const;
                 virtual Registers GetSrcRegs() const;
 
+                virtual void ReplaceReg(Register oldReg, Register newReg);
+
             private:
                 std::string OneRegToString(myTemp reg) const;
         };
@@ -101,6 +103,8 @@ namespace lgxZJ
                 //      the Src registers are----eax, srcReg.
                 virtual Registers GetDstRegs() const;
                 virtual Registers GetSrcRegs() const;
+
+                virtual void ReplaceReg(Register oldReg, Register newReg);
         };
 
 #define DEFINE_TWOCOMPUTE_CTOR(CLS)                     \

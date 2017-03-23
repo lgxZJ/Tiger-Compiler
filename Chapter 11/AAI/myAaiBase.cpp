@@ -26,6 +26,16 @@ namespace lgxZJ
             return result;
         }
 
+        void TwoOperandOperate::ReplaceReg(Register oldReg, Register newReg)
+        {
+            if ( dstReg == oldReg )
+                dstReg = newReg;
+            if ( srcRep.kind == BinaryUnion::Kind::Reg &&
+                 srcRep.u.reg == oldReg )
+
+                srcRep.u.reg = newReg;
+        }
+
         string TwoOperandOperate::ToCommonString(string insStr) const
         {
             string result(insStr + " ");
@@ -66,6 +76,14 @@ namespace lgxZJ
                 result.push_back(srcRep.u.reg);
             
             return result;
+        }
+
+        void OneOperandOperate::ReplaceReg(Register oldReg, Register newReg)
+        {
+            if ( srcRep.kind == BinaryUnion::Kind::Reg &&
+                 srcRep.u.reg == oldReg )
+
+                 srcRep.u.reg = newReg;
         }
 
         string OneOperandOperate::ToCommonString(string insStr) const
