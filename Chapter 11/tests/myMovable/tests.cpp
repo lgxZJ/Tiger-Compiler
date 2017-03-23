@@ -31,14 +31,15 @@ class MoveTest : public CppUnit::TestFixture
 
         void testReplaceReg_MemoryReg_ReplaceIt()
         {
-            myTemp regDst = Temp_newTemp(), regSrc = Temp_newTemp();
-            Move move(regDst, regSrc, Move::OperandType::Memory);
+            myTemp regDst = Temp_newTemp(), regSrc = Temp_newTemp(), regOther = Temp_newTemp();
+            Move move(regDst, regSrc, Move::OperandType::Memory, Move::OperandType::Memory);
 
+            move.ReplaceReg(regSrc, regOther);
             move.ReplaceReg(regDst, regSrc);
 
             CPPUNIT_ASSERT_EQUAL( 2, (int)move.GetSrcRegs().size() );
             CPPUNIT_ASSERT_EQUAL( regSrc, move.GetSrcRegs().at(0) );
-            CPPUNIT_ASSERT_EQUAL( regSrc, move.GetSrcRegs().at(1) );
+            CPPUNIT_ASSERT_EQUAL( regOther, move.GetSrcRegs().at(1) );
         }
 
         void testReplaceReg_NoReg_DoNothing()
