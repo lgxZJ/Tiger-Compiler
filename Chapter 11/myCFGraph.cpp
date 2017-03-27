@@ -22,10 +22,8 @@ namespace lgxZJ
                     SetNodeUse(i, ins.at(i)->GetSrcRegs());
                     SetNodeDef(i, ins.at(i)->GetDstRegs());
                     SetOneEdge(i, ins.at(i)->GetDstLabel());
-
-                    SetOneMap(ins.at(i)->GetDstRegs());
-                    SetOneMap(ins.at(i)->GetSrcRegs());
                 }
+            SetRegNodeMaps();
 
             assert (epilogueCount <= 1);
         }
@@ -71,12 +69,18 @@ namespace lgxZJ
 
         //////////////////////////////////////////////////////
 
-        void CFGraph::SetOneMap(IS::Registers regs)
+        void CFGraph::SetRegNodeMaps()
         {
-            static int nodeNum = 0;
-            for (auto oneReg : regs)
-                if ( regNodeMaps.find( oneReg ) == regNodeMaps.end() )
-                    regNodeMaps[oneReg] = nodeNum++;
+            int nodeNum = 0;
+            for (int i = 0; i < ins.size(); ++i)
+            {
+                for (auto oneReg : ins.at(i)->GetDstRegs())
+                    if ( regNodeMaps.find( oneReg ) == regNodeMaps.end() )
+                        regNodeMaps[oneReg] = nodeNum++;
+                for (auto oneReg : ins.at(i)->GetSrcRegs())
+                    if ( regNodeMaps.find( oneReg ) == regNodeMaps.end() )
+                        regNodeMaps[oneReg] = nodeNum++;
+            }
         }
 
         //////////////////////////////////////////////////////

@@ -70,7 +70,7 @@ namespace lgxZJ
                 void SetNodeUse(Node node, IS::Registers regs);
                 void SetNodeDef(Node node, IS::Registers regs);
                 void SetOneEdge(Node node, myLabel label);
-                void SetOneMap(IS::Registers regs);
+                void SetRegNodeMaps();
 
                 bool IsAAIJmp(std::shared_ptr<IS::AAI> ptr) const;
         };
