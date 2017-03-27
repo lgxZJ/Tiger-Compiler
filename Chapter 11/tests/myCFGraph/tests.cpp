@@ -37,6 +37,9 @@ class CFGraphTest : public CppUnit::TestFixture
         CPPUNIT_TEST(testGetNodeIns_ByDefault_GetIns);
         CPPUNIT_TEST(testIsMoveIns_PassMove_ReturnTrue);
         CPPUNIT_TEST(testIsMoveIns_PassNonMove_ReturnTrue);
+        CPPUNIT_TEST(testGetRegisterNodeMapRef_ByDefault_DifferentRegDifferentNode);
+        CPPUNIT_TEST(testGetRegisterNodeMapRef_InternalRegUse_MapContainsTheseReg);
+        CPPUNIT_TEST(testGetRegisterNodeMapRef_EmptyInstruction_EmptyMap);
 
         CPPUNIT_TEST_SUITE_END();
 
@@ -213,6 +216,46 @@ class CFGraphTest : public CppUnit::TestFixture
 
             for (int i = 0; i < 5; ++i)
                 CPPUNIT_ASSERT_EQUAL(false, graph.IsMoveIns(i));
+        }
+
+        void testGetRegisterNodeMapRef_ByDefault_DifferentRegDifferentNode()
+        {
+            myTemp regA = Temp_newTemp(), regB = Temp_newTemp(), regC = regB;
+            CFGraph graph (Instructions{
+                make_shared<Add>(regA, regB),
+                make_shared<Cmp>(regB, regC),
+            });
+
+            const RegisterNodeMap& map = graph.GetRegisterNodeMapRef();
+
+            CPPUNIT_ASSERT_EQUAL( 2, (int)map.size() );
+            CPPUNIT_ASSERT( map.at(regA) != map.at(regB) );
+            CPPUNIT_ASSERT( map.at(regC) == map.at(regB) );
+        }
+
+        void testGetRegisterNodeMapRef_InternalRegUse_MapContainsTheseReg()
+        {
+            myTemp regA = Temp_newTemp(), regB = Temp_newTemp();
+            CFGraph graph (Instructions{
+                make_shared<IMul>(regA),
+                make_shared<IDiv>(regB),
+            });
+
+            const RegisterNodeMap& map = graph.GetRegisterNodeMapRef();
+
+            CPPUNIT_ASSERT_EQUAL( 4, (int)map.size() );
+            CPPUNIT_ASSERT( map.at(regA) != map.at(regB) );
+            CPPUNIT_ASSERT( map.at(Frame_EAX()) != map.at(Frame_EDX()) );
+        }
+
+        void testGetRegisterNodeMapRef_EmptyInstruction_EmptyMap()
+        {
+            myTemp regA = Temp_newTemp(), regB = Temp_newTemp();
+            CFGraph graph (Instructions{});
+
+            const RegisterNodeMap& map = graph.GetRegisterNodeMapRef();
+
+            CPPUNIT_ASSERT_EQUAL( 0, (int)map.size() );
         }
 };
 
