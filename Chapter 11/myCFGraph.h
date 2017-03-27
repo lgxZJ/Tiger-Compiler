@@ -37,6 +37,7 @@ namespace lgxZJ
 
                 //  DO:
                 //      Get Register-Node maps.
+
                 const RegisterNodeMap& GetRegisterNodeMapRef() const;
 
                 //  DO:
@@ -70,6 +71,7 @@ namespace lgxZJ
                 void SetNodeUse(Node node, IS::Registers regs);
                 void SetNodeDef(Node node, IS::Registers regs);
                 void SetOneEdge(Node node, myLabel label);
+
                 void SetRegNodeMaps();
 
                 bool IsAAIJmp(std::shared_ptr<IS::AAI> ptr) const;
