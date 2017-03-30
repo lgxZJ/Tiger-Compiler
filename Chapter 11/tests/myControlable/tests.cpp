@@ -28,14 +28,21 @@ class OneTest : public CppUnit::TestFixture
         }
 };
 
+class CallMock : public Call
+{
+    public:
+        CallMock(Call call) : Call(call)    {}
+        myTempList GetTemps()   { return regList;  }
+};
+
 class CallTest : public CppUnit::TestFixture
 {
     CPPUNIT_TEST_SUITE( CallTest );
-    CPPUNIT_TEST( testReplaceReg_ByDefault_DoNothing );
+    CPPUNIT_TEST( testReplaceReg_ByDefault_ReplaceOldReg );
     CPPUNIT_TEST_SUITE_END();
 
     public:
-        void testReplaceReg_ByDefault_DoNothing()
+        void testReplaceReg_ByDefault_ReplaceOldReg()
         {
             myTemp firstReg = Temp_newTemp(),
                     secondReg = Temp_newTemp(),
@@ -47,10 +54,12 @@ class CallTest : public CppUnit::TestFixture
             call.ReplaceReg(firstReg, otherReg);
             call.ReplaceReg(secondReg, otherReg);
 
-            CPPUNIT_ASSERT_EQUAL( true, call.GetSrcRegs().empty() );
-            auto dstReg = call.GetDstRegs();
-            for (auto oneReg : dstReg)
-                CPPUNIT_ASSERT( otherReg != oneReg );
+            myTempList temps = CallMock(call).GetTemps();
+            while (temps != nullptr)
+            {
+                CPPUNIT_ASSERT_EQUAL( temps->head, otherReg );
+                temps = temps->tail;
+            }
         }
 };
 

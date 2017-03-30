@@ -146,9 +146,10 @@ namespace lgxZJ
                 virtual Registers GetDstRegs() const;
                 virtual Registers GetSrcRegs() const { return {}; }
 
+                virtual void ReplaceReg(Register oldReg, Register newReg);
                 std::string ToString() const;
 
-                private:
+                protected:
                     myLabel funcLabel;
                     myTempList regList;
         };

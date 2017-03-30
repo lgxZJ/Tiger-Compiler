@@ -135,6 +135,16 @@ namespace lgxZJ
             return result;
         }
 
+        void Call::ReplaceReg(Register oldReg, Register newReg)
+        {
+            while (regList != nullptr)
+            {
+                if (regList->head == oldReg)
+                    regList->head = newReg;
+                regList = regList->tail;
+            }
+        }
+
         ////////////////////////////////////////////////////////////////////////////////
 
         #undef DEFINE_JUMP_LIKE
