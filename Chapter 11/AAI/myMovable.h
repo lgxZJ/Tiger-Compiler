@@ -35,7 +35,7 @@ namespace lgxZJ
                 virtual Registers GetDstRegs() const;
                 virtual Registers GetSrcRegs() const;
 
-                virtual void ReplaceReg(Register oldReg, Register newReg);
+                void ReplaceReg(Register oldReg, Register newReg);
 
                 virtual std::string ToString() const;
 

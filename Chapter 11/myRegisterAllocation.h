@@ -18,19 +18,21 @@ namespace lgxZJ
         class RegisterAllocation
         {
             public:
-                explicit RegisterAllocation(IS::Instructions instructions, Trans_myLevel level);
+                explicit RegisterAllocation(
+                    IS::Instructions instructions, Trans_myLevel level, unsigned regNum);
 
                 RegisterMaps GetRegisterMaps();
+                void SetRegNum(unsigned num)    {   regNum = num;    }
 
             private:
                 void RealWork(IS::Instructions instructions);
                 void InitInformation(IS::Instructions instructions);
 
                 void Build();
-                bool Simplify();
+                bool Simplify();//  todo: do not simplify precolored nodes
                 bool Coalesce();
                 bool Freeze();
-                void Spill();
+                void Spill();   //  todo: do not spill precolored nodes
                 void AssignColors();
                 void Rewrite();
 
@@ -47,6 +49,9 @@ namespace lgxZJ
                     LA::Edge edge, LA::NodeSet* commomNodes, unsigned* newNeighborCount, bool* isNeighborEachOther);
                 void DoCoalesce(
                     LA::Edge edge, LA::NodeSet& commomNodes, unsigned newNeighborCount, bool isNeighborEachOther);
+                void AnalyzeAlias(LA::Node* newNode, LA::Node* removeNode, LA::Edge edge);
+                LA::Node GetNodeAlias(LA::Node node);
+                void AddAlias(LA::Node newNode, LA::Node removeNode);
                 void GetNodeNeighbors(LA::Node node, LA::NodeSet* nodes);
                 bool IsSimplified(LA::Node node);
                 void AdjustAdjacentDegrees(
@@ -54,6 +59,7 @@ namespace lgxZJ
                 void AdjustNodeCategoryInCoalesce(LA::Node from, LA::Edge edge);
                 void AdjustNodeCategoryNotCoalesced(LA::Node node);
                 void RemoveNodeFromSet(LA::NodeSet& nodes, LA::Node node);
+                void RemoveNonAliasNodeFromSet(LA::NodeSet& ndoes, LA::Node node);
 
                 void MoveFreezedNodeIntoLowDegreeNonMoveSet(LA::Node node);
                 void UpdateMoveRelatedNodes(LA::Node freezedNode);
@@ -69,15 +75,29 @@ namespace lgxZJ
                 IS::Registers GetAvailableColors();
                 bool IsPrecoloredNode(LA::Node node);
                 void RemoveColorFromColors(IS::Registers& colors, IS::Register color);
-                void AssignColorsOnCoalescedNodes();
+                void AssignColorsOnCoalescedNodes(LA::Node node);
                 
                 void AllocateMemoryForSpilledRegs();
-                void RewriteDefs(
-                    IS::Registers& defRegs, std::shared_ptr<IS::AAI> oneIns, IS::Instructions* newIns);
+                void RewriteOneIns(std::shared_ptr<IS::AAI> oneIns, IS::Instructions* newIns);
+
+                void RewriteOneAdd(std::shared_ptr<IS::AAI> oneAdd, IS::Instructions* newIns);
+                void RewriteOneSub(std::shared_ptr<IS::AAI> oneSub, IS::Instructions* newIns);
+                void RewriteOneXor(std::shared_ptr<IS::AAI> oneXor, IS::Instructions* newIns);
+                void RewriteOneMul(std::shared_ptr<IS::AAI> oneMul, IS::Instructions* newIns);
+                void RewriteOneDiv(std::shared_ptr<IS::AAI> oneDiv, IS::Instructions* newIns);
+                void RewriteOneCmp(std::shared_ptr<IS::AAI> oneCmp, IS::Instructions* newIns);
+                void RewriteOneCall(std::shared_ptr<IS::AAI> oneCall, IS::Instructions* newIns);
+                void RewriteOneMov(std::shared_ptr<IS::AAI> oneMov, IS::Instructions* newIns);
+
+                void RewriteBothRegs(IS::Instructions* newIns, std::shared_ptr<IS::AAI> one, IS::Register leftReg, IS::Register rightReg);
+                void RewriteLeftReg(IS::Instructions* newIns, std::shared_ptr<IS::AAI> one, IS::Register leftReg);
+                void RewriteRightReg(IS::Instructions* newIns, std::shared_ptr<IS::AAI> one, IS::Register leftReg);
+
+                void RewriteOneRegToMemory(IS::Instructions* newIns, IS::Register* reg);
+                void RewriteRegsToMemoryAndReplace(IS::Instructions* newIns, std::shared_ptr<IS::AAI> one, IS::Registers& reg);
+
                 bool RegSpilled(IS::Register reg);
                 IS::Register CalculateNodeMemoryAddr(IS::Instructions* newIns, IS::Register reg);
-                void RewriteUses(
-                    IS::Registers& useRegs, std::shared_ptr<IS::AAI> oneIns, IS::Instructions* newIns);
 
             private:
                 LA::NodeSet   lowDegreeNonMoveNodes;
@@ -102,6 +122,7 @@ namespace lgxZJ
                 std::map<LA::Node, LA::NodeSet>     nodeAlias;
 
                 Trans_myLevel                       level;
+                unsigned                            regNum;
         };
     }
 }

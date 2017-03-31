@@ -3,6 +3,7 @@
 
 #include "AAI/myMovable.h"
 #include "AAI/myComputable.h"
+#include "AAI/myControlable.h"
 
 #include <algorithm>
 #include <cassert>
@@ -18,8 +19,9 @@ namespace lgxZJ
         /////////////////////////////////////////////////////////////////////////
         //                         Register Allocation
 
-        RegisterAllocation::RegisterAllocation(Instructions instructions, Trans_myLevel level)
-         : cfGraph(instructions), interferenceGraph(&cfGraph)
+        RegisterAllocation::RegisterAllocation(
+            Instructions instructions, Trans_myLevel level, unsigned regNum)
+         : cfGraph(instructions), interferenceGraph(&cfGraph), regNum(regNum)
         {
             this->level = level;
             RealWork(instructions);
@@ -135,7 +137,7 @@ namespace lgxZJ
             DirectedGraph& directedGraph = interferenceGraph.GetDGRef();
             for (auto oneNode : nodes)
             {
-                if (directedGraph.GetNodeDegree(oneNode) >= Frame_registerNumber)
+                if (directedGraph.GetNodeDegree(oneNode) >= regNum)
                 {
                     if (InMovePairs(oneNode))
                         highDegreeMoveNodes.push_back(oneNode);
@@ -195,7 +197,7 @@ namespace lgxZJ
         void RegisterAllocation::AdjustNodeCategoryInSimplify(Node node)
         {
             //  high-degree become low-degree
-            if (nodeDegrees[node] == Frame_registerNumber)
+            if (nodeDegrees[node] == regNum)
             {
                 if (InMovePairs(node))
                     RemoveNodeFromSet( highDegreeMoveNodes, node );
@@ -232,28 +234,7 @@ namespace lgxZJ
                 }
                 else
                     constrainedMovePairs.push_back(edge);
-                /*else
-                    //  if no longer "moved", move it to non-move
-                    AdjustNodeCategoryNotCoalesced(edge.GetFrom()),
-                    AdjustNodeCategoryNotCoalesced(edge.GetTo());*/
             }
-            /*
-            for (auto moveIter = movePairs.begin(); moveIter != movePairs.end(); ++moveIter)
-            {
-                NodeSet commomNeighbors;
-                unsigned newNeighborCount = 0;
-                bool isNeighborEachOther = false;
-
-                if (IsCoalescable(
-                    *moveIter, &commomNeighbors, &newNeighborCount, &isNeighborEachOther))
-                {
-                    movePairs.erase(moveIter);
-                    DoCoalesce(
-                        *moveIter, commomNeighbors, newNeighborCount, isNeighborEachOther);
-                    return true;
-                }
-            }*/
-
             return false;
         }
 
@@ -293,22 +274,59 @@ namespace lgxZJ
             }
 
             *newNeighborCount = *newNeighborCount - commomNodes->size();
-            return *newNeighborCount < Frame_registerNumber;
+            return *newNeighborCount < regNum;
         }
 
         void RegisterAllocation::DoCoalesce(
             Edge edge, NodeSet& commomNodes, unsigned newNeighborCount, bool isNeighborEachOther)
         {
             auto nodeFrom = edge.GetFrom(), nodeTo = edge.GetTo();
-
             deletedMovePairs.push_back(edge);
 
-            nodeAlias[nodeFrom].push_back(nodeTo);
-            nodeAlias[nodeTo].push_back(nodeFrom);
+            Node newNode = nodeFrom, removeNode = nodeTo;
+            AnalyzeAlias(&newNode, &removeNode, edge);
 
-            AdjustNodeCategoryInCoalesce(edge.GetFrom(), edge);
-            AdjustNodeCategoryInCoalesce(edge.GetTo(), edge);
+            RemoveNodeFromSet(lowDegreeMoveNodes, removeNode);
+            RemoveNodeFromSet(highDegreeMoveNodes, removeNode);
+            AddAlias(newNode, removeNode);
+
+            AdjustNodeCategoryInCoalesce(nodeFrom, edge);
+            /*AdjustNodeCategoryInCoalesce(edge.GetTo(), edge);*/
             AdjustAdjacentDegrees(edge, commomNodes, newNeighborCount, isNeighborEachOther);
+        }
+
+        void RegisterAllocation::AnalyzeAlias(Node* newNode, Node* removeNode, Edge edge)
+        {
+            *newNode = edge.GetFrom();
+            *removeNode = edge.GetTo();
+
+            Node fromAlias = GetNodeAlias(edge.GetFrom());
+            Node toAlias = GetNodeAlias(edge.GetTo());
+
+            if (fromAlias != -1)
+                *newNode = fromAlias;
+            else if (toAlias != -1)
+                *removeNode = *newNode, *newNode = toAlias;
+        }
+
+        Node RegisterAllocation::GetNodeAlias(Node node)
+        {
+            for (auto oneAlias : nodeAlias)
+            {
+                if (oneAlias.first == node)
+                    return oneAlias.first;
+
+                for (auto oneAliasNode : oneAlias.second)
+                    if (oneAliasNode == node)
+                        return oneAlias.first;
+            }
+            return -1;
+        }
+
+        void RegisterAllocation::AddAlias(Node newNode, Node removeNode)
+        {
+            //  try to gather same alias into one set
+            nodeAlias[newNode].push_back(removeNode);
         }
 
         void RegisterAllocation::GetNodeNeighbors(Node node, NodeSet* nodes)
@@ -339,7 +357,7 @@ namespace lgxZJ
             Edge edge, NodeSet& commomNodes, unsigned newNeighborCount, bool isNeighborEachOther)
         {
             nodeDegrees[edge.GetFrom()] = newNeighborCount;
-            nodeDegrees[edge.GetTo()] = newNeighborCount;
+            //  the to-node is removed, no need to change this degree
 
             for (auto oneNode : commomNodes)
                 --nodeDegrees[oneNode];
@@ -349,7 +367,7 @@ namespace lgxZJ
         {
             unsigned oldDegree = nodeDegrees[node];
 
-            if (oldDegree >= Frame_registerNumber)
+            if (oldDegree >= regNum)
             {
                 RemoveNodeFromSet( highDegreeMoveNodes, node );
 
@@ -370,9 +388,25 @@ namespace lgxZJ
 
         void RegisterAllocation::RemoveNodeFromSet(NodeSet& nodes, Node node)
         {
-            auto nodePos = find( nodes.begin(), nodes.end(), node );
+            RemoveNonAliasNodeFromSet(nodes, node);
 
-            if ( nodePos != nodes.end() );
+            for (auto oneAlias : nodeAlias)
+            {
+                if (oneAlias.first == node)
+                    for (auto oneNode : oneAlias.second)
+                        RemoveNonAliasNodeFromSet(nodes, oneNode);
+                if (find(oneAlias.second.begin(), oneAlias.second.end(), node)
+                        != 
+                    oneAlias.second.end())
+
+                    RemoveNonAliasNodeFromSet(nodes, oneAlias.first);
+            }
+        }
+
+        void RegisterAllocation::RemoveNonAliasNodeFromSet(NodeSet& nodes, Node node)
+        {
+            auto nodePos = find( nodes.begin(), nodes.end(), node );
+            if ( nodePos != nodes.end() )
                 nodes.erase ( nodePos );
         }
 
@@ -381,7 +415,7 @@ namespace lgxZJ
             //  after this move-pair removed
             unsigned oldDegree = nodeDegrees[node];
 
-            if (oldDegree >= Frame_registerNumber)
+            if (oldDegree >= regNum)
             {
                 //   high-move -> high-non-move
                 if (!InMovePairs(node))
@@ -508,13 +542,13 @@ namespace lgxZJ
             float lowestSpillPriority = 
                     (   cfGraph.GetUses(result).size() +
                         cfGraph.GetDefs(result).size() ) /
-                        interferenceGraph.GetDGRef().GetNodeDegree(result);
+                        (float)interferenceGraph.GetDGRef().GetNodeDegree(result);
 
             for (auto oneNode : nodes)
             {
                 float priority = (  cfGraph.GetUses(oneNode).size() +
                                     cfGraph.GetDefs(oneNode).size() ) /
-                                    interferenceGraph.GetDGRef().GetNodeDegree(oneNode);
+                                    (float)interferenceGraph.GetDGRef().GetNodeDegree(oneNode);
                 if (priority < lowestSpillPriority)
                     lowestSpillPriority = priority,
                     result = oneNode;
@@ -535,9 +569,9 @@ namespace lgxZJ
                     AssignColorToPrecolored(node);
                 else
                     AssignColorToNonPrecolored(node); 
-            }
 
-            AssignColorsOnCoalescedNodes();
+                AssignColorsOnCoalescedNodes(node);
+            }
         }
 
         void RegisterAllocation::AssignColorToPrecolored(Node node)
@@ -552,7 +586,11 @@ namespace lgxZJ
             for (auto oneNode : adjacentNodes[node])
             {
                 if (InNodeSet(oneNode, coloredNodes) || IsPrecoloredNode(oneNode))
-                    RemoveColorFromColors(colors, nodeColors[oneNode]);
+                    RemoveColorFromColors(
+                        colors,
+                        IsPrecoloredNode(oneNode) ?
+                            interferenceGraph.GetNodeReg(oneNode) :
+                            nodeColors[oneNode]);
             }
 
             if (colors.empty())
@@ -567,10 +605,13 @@ namespace lgxZJ
         Registers RegisterAllocation::GetAvailableColors()
         {
             //  no include stack pointer
-            return Registers {
+            Registers regs =  {
                 Frame_EAX(), Frame_EBX(), Frame_ECX(), Frame_EDX(),
                 Frame_ESI(), Frame_EDI(), Frame_EBP(),
             };
+
+            assert (regNum >= 0 && regNum <= 7);
+            return Registers(regs.begin(), regs.begin() + regNum);
         }
 
         bool RegisterAllocation::IsPrecoloredNode(Node node)
@@ -600,14 +641,22 @@ namespace lgxZJ
                 colors.erase( colorPos );
         }
 
-        void RegisterAllocation::AssignColorsOnCoalescedNodes()
+        void RegisterAllocation::AssignColorsOnCoalescedNodes(Node node)
         {
-            for (auto onePair : deletedMovePairs)
+            Node aliasNode = GetNodeAlias(node);
+            
+            if (aliasNode != -1)
             {
-                if (InNodeSet(onePair.GetFrom(), coloredNodes))
-                    nodeColors[onePair.GetTo()] = nodeColors[onePair.GetFrom()];
-                else
-                    nodeColors[onePair.GetFrom()] = nodeColors[onePair.GetTo()];
+                if (IsPrecoloredNode(aliasNode))
+                    nodeColors[aliasNode] = interferenceGraph.GetNodeReg(aliasNode);
+                else if ( aliasNode != node)
+                    nodeColors[aliasNode] = nodeColors[node];
+
+                for (auto oneAlias : nodeAlias[aliasNode])
+                    if (IsPrecoloredNode(oneAlias))
+                        nodeColors[oneAlias] = interferenceGraph.GetNodeReg(oneAlias);
+                    else if (oneAlias != node)
+                        nodeColors[oneAlias] = nodeColors[node];
             }
         }
 
@@ -619,20 +668,9 @@ namespace lgxZJ
             
             Instructions newIns;
             for (auto it = ins.begin(); it != ins.end(); ++it)
-            {
-                Registers useRegs = (*it)->GetDstRegs();
-                Registers defRegs = (*it)->GetSrcRegs();
+                RewriteOneIns(*it, &newIns);
 
-                if (useRegs.empty() && defRegs.empty())
-                {
-                    newIns.push_back(*it);
-                    continue;
-                }
-                if ( !defRegs.empty() )
-                    RewriteDefs(defRegs, *it, &newIns);
-                if ( !useRegs.empty() )
-                    RewriteUses(useRegs, *it, &newIns);
-            }
+            ins.swap(newIns);
         }
 
         void RegisterAllocation::AllocateMemoryForSpilledRegs()
@@ -642,23 +680,260 @@ namespace lgxZJ
                     Trans_getFrame(level), true);
         }
 
-        void RegisterAllocation::RewriteDefs(Registers& defRegs, shared_ptr<AAI> oneIns, Instructions* newIns)
+        void RegisterAllocation::RewriteOneIns(shared_ptr<AAI> oneIns, Instructions* newIns)
         {
-            for (auto oneReg : defRegs)
+            if (oneIns->ToString().find("add") != string::npos)
+                RewriteOneAdd(oneIns, newIns);
+            else if (oneIns->ToString().find("sub") != string::npos)
+                RewriteOneSub(oneIns, newIns);
+            else if (oneIns->ToString().find("imul") != string::npos)
+                RewriteOneMul(oneIns, newIns);
+            else if (oneIns->ToString().find("idiv") != string::npos)
+                RewriteOneDiv(oneIns, newIns);
+            else if (oneIns->ToString().find("xor") != string::npos)
+                RewriteOneXor(oneIns, newIns);
+            else if (oneIns->ToString().find("cmp") != string::npos)
+                RewriteOneCmp(oneIns, newIns);
+            else if (oneIns->ToString().find("call") != string::npos)
+                RewriteOneCall(oneIns, newIns);
+            else if (oneIns->ToString().find("mov") != string::npos)
+                RewriteOneMov(oneIns, newIns);
+            //  else do nothing
+        }
+
+        void RegisterAllocation::RewriteOneAdd(shared_ptr<AAI> oneAdd, Instructions* newIns)
+        {
+            //  in instruction
+            //      `add(sub) regA, regB(or constValue)`
+            //
+            //  spill regA into
+            //      `mov regNew [memA]`
+            //      `add(sub) newNew regB(or constValue)`
+            //      `mov [memA] regNew`
+            //  
+            //  spill regB(not constValue) sinto
+            //      `mov regNew [memB]`
+            //      `add(sub) regA, regNew`
+            //
+            //  spill both(no constValue) into
+            //      `mov regNewB [memB]`
+            //      `mov regNewA [memA]`
+            //      `add(sub) newNewA regNewB`
+            //      `mov [memA] regNewA`
+            Registers dstRegs = oneAdd->GetDstRegs();
+            assert (dstRegs.size() == 1);
+            assert ( !IsPrecoloredNode(interferenceGraph.GetRegNode(dstRegs[0])) );
+
+            Registers srcRegs = oneAdd->GetSrcRegs();
+            assert (srcRegs.size() >= 1 && srcRegs[0] == dstRegs[0]);
+
+            bool leftSpilled = RegSpilled(dstRegs[0]),
+                rightSpilled = srcRegs.size() == 2 ?
+                                     RegSpilled(srcRegs[1]) :
+                                     false;
+
+            if (leftSpilled && rightSpilled)
+                RewriteBothRegs(newIns, oneAdd, dstRegs[0], srcRegs[1]);
+            else if (leftSpilled)
+                RewriteLeftReg(newIns, oneAdd, dstRegs[0]);
+            else if (rightSpilled)
+                RewriteRightReg(newIns, oneAdd, srcRegs[1]);
+            else
+                newIns->push_back(oneAdd);
+        }
+
+        void RegisterAllocation::RewriteBothRegs(
+            Instructions* newIns, shared_ptr<AAI> one, Register leftReg, Register rightReg)
+        {
+            myTemp newRightReg = Temp_newTemp();
+            myTemp rightMemoryAddr = CalculateNodeMemoryAddr(newIns, rightReg);
+            newIns->push_back(make_shared<Move>(
+                newRightReg, rightMemoryAddr,
+                Move::OperandType::Content, Move::OperandType::Memory));
+
+            Register newLeftReg = Temp_newTemp();
+            Register leftMemoryAddr = CalculateNodeMemoryAddr(newIns, leftReg);
+            newIns->push_back(make_shared<Move>(
+                newLeftReg, leftMemoryAddr,
+                Move::OperandType::Content, Move::OperandType::Memory));
+
+            one->ReplaceReg(leftReg, newLeftReg);
+            one->ReplaceReg(rightReg, newRightReg);
+            newIns->push_back(one);
+
+            newIns->push_back(make_shared<Move>(
+                leftMemoryAddr, newLeftReg, Move::OperandType::Memory, Move::OperandType::Content));
+        }
+
+        void RegisterAllocation::RewriteLeftReg(
+            Instructions* newIns, shared_ptr<AAI> one, Register leftReg)
+        {
+            Register newReg = Temp_newTemp();
+            Register memoryAddr = CalculateNodeMemoryAddr(newIns, leftReg);
+
+            newIns->push_back(make_shared<Move>(
+                newReg, memoryAddr,
+                Move::OperandType::Content, Move::OperandType::Memory));
+
+            one->ReplaceReg(leftReg, newReg);
+            newIns->push_back(one);
+            
+            newIns->push_back(make_shared<Move>(
+                memoryAddr, newReg, Move::OperandType::Memory, Move::OperandType::Content));
+        }
+
+        void RegisterAllocation::RewriteRightReg(
+            Instructions* newIns, shared_ptr<AAI> one, Register rightReg)
+        {
+            myTemp newReg = Temp_newTemp();
+            myTemp memoryAddr = CalculateNodeMemoryAddr(newIns, rightReg);
+
+            newIns->push_back(make_shared<Move>(
+                newReg, memoryAddr,
+                Move::OperandType::Content, Move::OperandType::Memory));
+            
+            one->ReplaceReg(rightReg, newReg);
+            newIns->push_back(one);
+        }
+
+        void RegisterAllocation::RewriteOneSub(shared_ptr<AAI> oneSub, Instructions* newIns)
+        {
+            RewriteOneAdd(oneSub, newIns);
+        }
+
+        void RegisterAllocation::RewriteOneXor(shared_ptr<AAI> oneXor, Instructions* newIns)
+        {
+            RewriteOneAdd(oneXor, newIns);
+        }
+
+        void RegisterAllocation::RewriteOneMul(shared_ptr<AAI> oneMul, Instructions* newIns)
+        {
+            //  in instruction
+            //      `imul(idiv) regA`
+            //  spill regA into
+            //      `mov regNew [memA]`
+            //      `imul(idiv) regNew`
+            //
+            //  in instruction
+            //      `imul(idiv) constValue`
+            //  spill do nothing
+            //
+            //  cannot spill EAX,EDX because they are default destinations
+            Registers srcRegs = oneMul->GetSrcRegs();
+            assert (srcRegs.size() >= 1);
+            assert ( !IsPrecoloredNode(interferenceGraph.GetRegNode(srcRegs[1])) );
+
+            if (srcRegs.size() == 2 && RegSpilled(srcRegs[1]))
             {
-                if ( RegSpilled(oneReg) )
+                Register newReg = Temp_newTemp();
+                Register memoryAddr = CalculateNodeMemoryAddr(newIns, srcRegs[1]);
+
+                newIns->push_back(make_shared<Move>(
+                    newReg, memoryAddr,
+                    Move::OperandType::Content, Move::OperandType::Memory));
+
+                oneMul->ReplaceReg(srcRegs[1], newReg);
+                newIns->push_back(oneMul);
+            }
+            else
+                newIns->push_back(oneMul);
+        }
+
+        void RegisterAllocation::RewriteOneDiv(shared_ptr<AAI> oneDiv, Instructions* newIns)
+        {
+            RewriteOneMul(oneDiv, newIns);
+        }
+
+        void RegisterAllocation::RewriteOneCmp(shared_ptr<AAI> oneCmp, Instructions* newIns)
+        {
+            //  in instruction
+            //      `cmp regA regB`
+            //
+            //  spill regA or regB into
+            //      `mov regNew [memA]`
+            //      `cmp regNew regB`
+            Registers srcRegs = oneCmp->GetSrcRegs();
+            assert (srcRegs.size() >= 1);
+            assert ( !IsPrecoloredNode(interferenceGraph.GetRegNode(srcRegs[0])) );
+            assert ( srcRegs.size() == 2 &&
+                     !IsPrecoloredNode(interferenceGraph.GetRegNode(srcRegs[1])) );
+
+            for (auto& reg : srcRegs)
+            {
+                myTemp oldReg = reg;
+
+                RewriteOneRegToMemory(newIns, &reg);
+                oneCmp->ReplaceReg(oldReg, reg);
+            }
+            newIns->push_back(oneCmp);
+        }
+
+        void RegisterAllocation::RewriteOneRegToMemory(IS::Instructions* newIns, IS::Register* reg)
+        {
+            myTemp newReg = Temp_newTemp();
+            myTemp memoryReg = CalculateNodeMemoryAddr(newIns, *reg);
+
+            newIns->push_back(make_shared<Move>(
+                newReg, memoryReg,
+                Move::OperandType::Content, Move::OperandType::Memory));
+
+            *reg = newReg;
+        }
+
+        void RegisterAllocation::RewriteOneCall(shared_ptr<AAI> oneCall, Instructions* newIns)
+        {
+            Registers regs = oneCall->GetSrcRegs();
+            /*for (auto& reg : regs)
+            {
+                if (RegSpilled(reg))
                 {
-                    //  replace spilled register
-                    Register newReg = Temp_newTemp();
-
-                    oneIns->ReplaceReg(oneReg, newReg);
-                    newIns->push_back(oneIns);
-
-                    Register memoryAddr = CalculateNodeMemoryAddr(newIns, oneReg);
-                    //  store new register value to memory
-                    newIns->push_back(make_shared<Move>(
-                        memoryAddr, newReg, Move::OperandType::Memory, Move::OperandType::Content));
+                    Register oldReg =  reg;
+                    assert ( !IsPrecoloredNode(interferenceGraph.GetRegNode(reg)) );
+                
+                    //  we cannot get the function label from an AAI* ptr,
+                    //  but we can replace the registers since they are all
+                    //  source-registers(only fetched, not stored).
+                    RewriteOneRegToMemory(newIns, &reg),
+                    oneCall->ReplaceReg(oldReg, reg);
                 }
+            }*/
+            RewriteRegsToMemoryAndReplace(newIns, oneCall, regs);
+            newIns->push_back(oneCall);
+        }
+
+        void RegisterAllocation::RewriteOneMov(shared_ptr<AAI> oneMov, Instructions* newIns)
+        {
+            //  in instruction
+            //      `mov [regA] regB`
+            //
+            //  spill regA(or regB) into
+            //      `mov regNewA [memA]`
+            //      `mov [regNewA] regB`
+            //
+            //  in instruction
+            //      `mov regA regB`
+            //
+            //  spill regA into
+            //      `mov regNewA [memA]`
+            //      `mov regNewA regB`
+            Registers srcRegs = oneMov->GetSrcRegs();
+            Registers dstRegs = oneMov->GetDstRegs();
+            assert (dstRegs.size() <= 1);
+
+            RewriteRegsToMemoryAndReplace(newIns, oneMov, dstRegs);
+            RewriteRegsToMemoryAndReplace(newIns, oneMov, srcRegs);
+            newIns->push_back(oneMov);
+        }
+
+        void RegisterAllocation::RewriteRegsToMemoryAndReplace(
+            Instructions* newIns, shared_ptr<IS::AAI> one, Registers& regs)
+        {
+            for (auto& reg : regs)
+            {
+                myTemp oldReg = reg;
+                if (RegSpilled(reg))
+                    RewriteOneRegToMemory(newIns, &reg),
+                    one->ReplaceReg(oldReg, reg);
             }
         }
 
@@ -679,27 +954,6 @@ namespace lgxZJ
         {
             assert (reg != nullptr);
             return InNodeSet(interferenceGraph.GetRegNode(reg), spilledNodes);
-        }
-
-        void RegisterAllocation::RewriteUses(
-            Registers& useRegs, shared_ptr<AAI> oneIns, Instructions* newIns)
-        {
-            for (auto oneReg : useRegs)
-            {
-                if ( RegSpilled(oneReg) )
-                {
-                    Register newReg = Temp_newTemp();
-                    Register memoryAddr = CalculateNodeMemoryAddr(newIns, oneReg);
-
-                    //  fetch memory value to new register
-                    newIns->push_back(make_shared<Move>(
-                        newReg, memoryAddr,
-                        Move::OperandType::Content, Move::OperandType::Memory));
-
-                    oneIns->ReplaceReg(oneReg, newReg);
-                    newIns->push_back(oneIns);
-                }
-            }
         }
 
         /////////////////////////////////////////////////////////////////////////////

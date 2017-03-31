@@ -4,6 +4,7 @@
 #include "../CXX_myTemp.h"
 #include <string>
 #include <vector>
+#include <memory>
 
 namespace lgxZJ
 {
@@ -21,8 +22,11 @@ namespace lgxZJ
         //      not all of them are needed in tiger.
         ///////////////////////////////////////////////////////////////////////
 
-        typedef std::vector<myTemp>     Registers;
-        typedef myTemp                  Register;
+        class AAI;
+
+        typedef std::vector<std::shared_ptr<IS::AAI>>   Instructions;
+        typedef std::vector<myTemp>                     Registers;
+        typedef myTemp                                  Register;
 
         struct BinaryUnion
         {
@@ -52,7 +56,7 @@ namespace lgxZJ
                 virtual myLabel GetDstLabel() const { return nullptr; }
                 virtual myLabel GetDefLabel() const { return nullptr; }
 
-                virtual void ReplaceReg(Register oldReg, Register newReg)   {}
+                virtual void ReplaceReg(Register oldReg, Register newReg) {}
 		};
 
         ////////////////////////////////////////////////////////////////////
@@ -79,7 +83,7 @@ namespace lgxZJ
                 virtual Registers GetDstRegs() const;
                 virtual Registers GetSrcRegs() const;
 
-                virtual void ReplaceReg(Register oldReg, Register newReg);
+                void ReplaceReg(Register oldReg, Register newReg);
 
             private:
                 std::string OneRegToString(myTemp reg) const;
@@ -104,7 +108,7 @@ namespace lgxZJ
                 virtual Registers GetDstRegs() const;
                 virtual Registers GetSrcRegs() const;
 
-                virtual void ReplaceReg(Register oldReg, Register newReg);
+                void ReplaceReg(Register oldReg, Register newReg);
         };
 
 #define DEFINE_TWOCOMPUTE_CTOR(CLS)                     \
