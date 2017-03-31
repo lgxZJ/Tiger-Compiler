@@ -314,6 +314,10 @@ class LivenessTest : public CppUnit::TestFixture
         //
         //  Interference graph should be:
         //      eax --- ebx
+        //      eax --- ecx
+        //      eax --- edx
+        //      ebx --- ecx
+        //      ebx --- edx
         //  The move pairs should be:
         //      null
         CFGraph makeSecondCFGraph(myTemp regA, myTemp regB)
