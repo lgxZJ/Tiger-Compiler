@@ -40,7 +40,7 @@ namespace lgxZJ
 		{
 		    public:
 		        virtual std::string ToString() const = 0;
-                virtual std::wstring ToCode(RegisterMap map) const = 0;
+                virtual std::string ToCode(RegisterMap& map) const = 0;
 
                 //  NOTE:
                 //      Dst means the destination in arithmetic manner, not in assembly manner.
@@ -93,6 +93,7 @@ namespace lgxZJ
                 //  public for reuse in OneOperandOperate class
                 static std::string OneRegToString(myTemp reg);
                 static std::string OneRegToCode(myTemp reg, RegisterMap& maps);
+                static std::string OneValueToCode(int value);
         };
 
         class OneOperandOperate : public AAI

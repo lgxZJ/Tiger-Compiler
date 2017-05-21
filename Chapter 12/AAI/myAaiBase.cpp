@@ -52,7 +52,7 @@ namespace lgxZJ
             return result;
         }
 
-        string TwoOperandOperate::ToCommonCode(string insStr, RegisterMaps map) const
+        string TwoOperandOperate::ToCommonCode(string insStr, RegisterMap& map) const
         {
             string result(insStr + " ");
             result += OneRegToCode(dstReg, map);
@@ -61,7 +61,7 @@ namespace lgxZJ
             if (srcRep.kind == BinaryUnion::Kind::Reg)
                 result += OneRegToCode(srcRep.u.reg, map);
             else
-                result += to_string(srcRep.u.value);
+                result += OneValueToCode(srcRep.u.value);
 
             return result;
         }
@@ -73,17 +73,32 @@ namespace lgxZJ
             return "register" + to_string(Temp_getTempNum(reg));
         }
 
-        string TwoOperandOPerate::OneRegToCode(myTemp reg, RegisterMap& map)
+        string TwoOperandOperate::OneValueToCode(int value)
         {
-            myTemp realReg = map.at(reg);
+            return "$" + to_string(value);
+        }
 
-            if (realReg == Frame_EAX())         return string("eax");
-            else if (realReg == Frame_EBX())    return string("ebx");
-            else if (realReg == Frame_ECX())    return string("ecx");
-            else if (realReg == Frame_EDX())    return string("edx");
-            else if (realReg == Frame_ESI())    return string("esi");
-            else if (realReg == Frame_EDI())    return string("edi");
-            else if (realReg == Frame_EBP())    return string("ebp");
+        string TwoOperandOperate::OneRegToCode(myTemp reg, RegisterMap& map)
+        {
+            myTemp realReg = reg;
+            
+            try
+            {
+                realReg = map.at(reg);
+            }
+            catch (out_of_range exception)
+            {
+                //  possibly pre-colored registers
+            }
+
+            if (realReg == Frame_EAX())         return string("%eax");
+            else if (realReg == Frame_EBX())    return string("%ebx");
+            else if (realReg == Frame_ECX())    return string("%ecx");
+            else if (realReg == Frame_EDX())    return string("%edx");
+            else if (realReg == Frame_ESI())    return string("%esi");
+            else if (realReg == Frame_EDI())    return string("%edi");
+            else if (realReg == Frame_EBP())    return string("%ebp");
+            else if (realReg == Frame_ESP())    return string("%esp");
             else                                assert (false);
         }
 
@@ -135,9 +150,9 @@ namespace lgxZJ
             string result(insStr + " ");
             
             if (srcRep.kind == BinaryUnion::Kind::Reg)
-                result += "register" + TwoOperandOperate::OneRegToCode(srcRep.u.reg, map));
+                result += TwoOperandOperate::OneRegToCode(srcRep.u.reg, map);
             else
-                result += to_string(srcRep.u.value);
+                result += TwoOperandOperate::OneValueToCode(srcRep.u.value);
 
             return result;
         }

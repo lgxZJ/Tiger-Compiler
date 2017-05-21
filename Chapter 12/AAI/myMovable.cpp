@@ -57,7 +57,7 @@ namespace lgxZJ
 
         string Move::ToString() const
         {
-            string result("mov ");
+            string result("\tmovl ");
 
             result += OneOperandToString(dstReg, dstType);
 
@@ -72,7 +72,7 @@ namespace lgxZJ
 
         string Move::ToCode(RegisterMap& map) const
         {
-            string result("mov ");
+            string result("\tmovl ");
 
             result += OneOperandToCode(dstReg, dstType, map);
 
@@ -80,7 +80,7 @@ namespace lgxZJ
             if (srcRep.kind == BinaryUnion::Kind::Reg)
                 result += OneOperandToCode(srcRep.u.reg, srcType, map);
             else
-                result += to_string(srcRep.u.value);
+                result += TwoOperandOperate::OneValueToCode(srcRep.u.value);
 
             return result;
         }
@@ -101,7 +101,7 @@ namespace lgxZJ
             if (type == OperandType::Content)
                 return operandRegStr;
             else
-                return "[" + operandRegStr + "]";
+                return "(" + operandRegStr + ")";
         }
     }
 }

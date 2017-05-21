@@ -19,7 +19,7 @@ namespace lgxZJ
                                                 \
         string CLSNAME::ToString() const        \
         {                                       \
-            return ToCommonString(#CLSSTR);     \
+            return ToCommonString("\t"#CLSSTR); \
         }                                       \
                                                 \
         string CLSNAME::ToCode(RegisterMap& map) const\
@@ -51,12 +51,12 @@ namespace lgxZJ
 
         string Cmp::ToString() const
         {
-            return ToCommonString("cmp");
+            return ToCommonString("\tcmpl");
         }
 
         string Cmp::ToCode(RegisterMap& map) const
         {
-            return ToString();
+            return ToCommonCode("\tcmpl", map);
         }
 
         Registers Cmp::GetDstRegs() const

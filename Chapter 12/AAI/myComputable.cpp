@@ -15,12 +15,12 @@ namespace lgxZJ
 
         string Add::ToString() const
         {
-            return ToCommonString("add");
+            return ToCommonString("\taddl");
         }
 
         string Add::ToCode(RegisterMap& map) const
         {
-            return ToCommonCode("add", map);
+            return ToCommonCode("\taddl", map);
         }
 
         //////////////////////////////////////////////////////////////////
@@ -31,12 +31,12 @@ namespace lgxZJ
 
         string Sub::ToString() const
         {
-            return ToCommonString("sub");
+            return ToCommonString("\tsubl");
         }
 
         string Sub::ToCode(RegisterMap& map) const
         {
-            return ToCommonCode("sub", map);
+            return ToCommonCode("\tsubl", map);
         }
 
         //////////////////////////////////////////////////////////////////
@@ -47,12 +47,12 @@ namespace lgxZJ
 
         string IMul::ToString() const
         {
-            return ToCommonString("imul");
+            return ToCommonString("\timull");
         }
 
         string IMul::ToCode(RegisterMap& map) const
         {
-            return ToCommonCode("imul", map);
+            return ToCommonCode("\timull", map);
         }
 
         ////////////////////////////////////////////////////////////////////
@@ -63,12 +63,12 @@ namespace lgxZJ
 
         string IDiv::ToString() const
         {
-            return ToCommonString("idiv");
+            return ToCommonString("\tidivl");
         }
 
         string IDiv::ToCode(RegisterMap& map) const
         {
-            return ToCommonCode("idiv", map);
+            return ToCommonCode("\tidivl", map);
         }
 
         ////////////////////////////////////////////////////////////////////
@@ -79,12 +79,12 @@ namespace lgxZJ
 
         string Xor::ToString() const
         {
-            return ToCommonString("xor");
+            return ToCommonString("\txorl");
         }
 
         string Xor::ToCode(RegisterMap& map) const
         {
-            return ToCommonCode("xor", map);
+            return ToCommonCode("\txorl", map);
         }
     }
 }
