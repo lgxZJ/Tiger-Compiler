@@ -1,5 +1,10 @@
 #include "myControlable.h"
 #include "../CXX_myFrame.h"
+#include "../CXX_myTranslate.h"
+#include "../CXX_myEnvironment.h"
+#include "../CXX_mySemantic.h"
+
+#include <cassert>
 
 using namespace std;
 
@@ -139,10 +144,34 @@ namespace lgxZJ
 
         string Call::ToCode(RegisterMap& map) const
         {
-            //  todo:
-            return "";
-        }
+            string resultStr;
 
+            myTempList temps = regList;
+            while (temps)
+            {
+                resultStr += ("\tpushl " + TwoOperandOperate::OneRegToCode(temps->head, map) + "\n");
+                temps = temps->tail;
+            }
+            resultStr += (string("\tcall ") + FindFuncNameOfLabel(funcLabel));
+            return resultStr;
+        }
+//  todo: epilogue block
+
+        string Call::FindFuncNameOfLabel(myLabel label) const
+        {
+            Frame_myFragList procFrags = Trans_getProcFrags();
+            while (procFrags)
+            {
+                myLabel funcLabel = MyEnvironment_getFuncLabel(
+                                MyEnvironment_getVarOrFuncFromName(
+                                    MySemantic_getVarAndFuncEnvironment(), 
+                                    procFrags->head->u.procFrag.funcName));
+                assert (funcLabel != NULL);
+                if (funcLabel == label)
+                    return string(MySymbol_GetName(procFrags->head->u.procFrag.funcName));
+            }
+            assert (false && "never got here");
+        }
 
         Registers Call::GetDstRegs() const
         {

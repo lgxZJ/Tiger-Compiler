@@ -74,14 +74,13 @@ namespace lgxZJ
         {
             string result("\tmovl ");
 
-            result += OneOperandToCode(dstReg, dstType, map);
-
-            result += ", ";
             if (srcRep.kind == BinaryUnion::Kind::Reg)
                 result += OneOperandToCode(srcRep.u.reg, srcType, map);
             else
                 result += TwoOperandOperate::OneValueToCode(srcRep.u.value);
 
+            result += ", ";
+            result += OneOperandToCode(dstReg, dstType, map);
             return result;
         }
 

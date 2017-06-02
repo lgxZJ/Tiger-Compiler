@@ -10,6 +10,10 @@ namespace lgxZJ
     namespace Canonical
     {
         
+        myLabel Canonical::epilogueLabel = nullptr;
+
+        ///////////////////////////////////////////////////////////////////////
+
         Statements Canonical::Linearize(IR_myStatement statements)
         {
             Statements result;
@@ -130,7 +134,8 @@ namespace lgxZJ
         {
             if (block.empty())
                 DefineALabelForBlock(block); 
-            myLabel epilogueLabel = Temp_newLabel();
+
+            Canonical::epilogueLabel = Temp_newLabel();
             AddJumpableAndAddBlockToResult(blocks, block, epilogueLabel);
         }
 
@@ -276,6 +281,11 @@ namespace lgxZJ
                     default:        assert (false);
                 }
             }
+        }
+
+        myLabel Canonical::GetEpilogueLabel()
+        {
+            return Canonical::epilogueLabel;
         }
     }
 }

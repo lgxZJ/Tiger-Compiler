@@ -17,11 +17,12 @@ namespace lgxZJ
 
     private:
         void WriteMainProc(std::ofstream& outFile, IR_myStatement statements);
+        void WriteMainExit(std::ofstream& outFile);
         void WriteSubProcs(std::ofstream& outFile);
         void WriteProcBody(std::ofstream& outFile, IR_myStatement statements);
-        void SaveCalleeRegs(std::ofstream& outFile, RA::RegisterMap& map);
-        void UnsaveCalleeRegs(std::ofstream& outFile, RA::RegisterMap& map);
-        void WriteCalleeRegs(std::string instruction, std::ofstream& outFile, RA::RegisterMap& map);
+        void WritePrologue(std::ofstream& outFile, RA::RegisterMap& map);
+        void WriteEpilogue(std::ofstream& outFile, RA::RegisterMap& map);
+        void WriteCalleeRegs(std::ofstream& outFile, std::string instruction, bool reverse, RA::RegisterMap& map);
         void GenOneProcIns(
             IR_myStatement statements, RA::RegisterMap* map, IS::Instructions* ins);
 

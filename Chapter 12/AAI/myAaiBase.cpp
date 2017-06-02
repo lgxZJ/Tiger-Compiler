@@ -55,14 +55,14 @@ namespace lgxZJ
         string TwoOperandOperate::ToCommonCode(string insStr, RegisterMap& map) const
         {
             string result(insStr + " ");
-            result += OneRegToCode(dstReg, map);
 
-            result += ", ";
             if (srcRep.kind == BinaryUnion::Kind::Reg)
                 result += OneRegToCode(srcRep.u.reg, map);
             else
                 result += OneValueToCode(srcRep.u.value);
+            result += ", ";
 
+            result += OneRegToCode(dstReg, map);
             return result;
         }
 

@@ -43,6 +43,7 @@ namespace lgxZJ
                 << ".globl _start\n"
                 << "_start:\n";
         WriteProcBody(outFile, statements);
+        WriteMainExit(outFile);
     }
 
     void CodeGenerator::WriteProcBody(ofstream& outFile, IR_myStatement statements)
@@ -51,37 +52,65 @@ namespace lgxZJ
         RegisterMap map;
         GenOneProcIns(statements, &map, &ins);
 
-        SaveCalleeRegs(outFile, map);
+        WritePrologue(outFile, map);
         for (auto oneIns : ins)
             outFile << oneIns->ToCode(map) << endl;
-        UnsaveCalleeRegs(outFile, map);
+        WriteEpilogue(outFile, map);
 
         outFile << endl;
     }
-    
-    void CodeGenerator::SaveCalleeRegs(ofstream& outFile, RegisterMap& map)
+ 
+    void CodeGenerator::WritePrologue(ofstream& outFile, RegisterMap& map)
     {
-        WriteCalleeRegs("push", outFile, map);
+        outFile << "\tpushl %ebp\n"
+                << "\tmovl %esp, %ebp\n";
+        WriteCalleeRegs(outFile, "pushl", false, map);
     }
 
-    void CodeGenerator::UnsaveCalleeRegs(ofstream& outFile, RegisterMap& map)
+    void CodeGenerator::WriteEpilogue(ofstream& outFile, RegisterMap& map)
     {
-        WriteCalleeRegs("pop", outFile, map);
+        //  write an epilogue label definition
+        outFile << Temp_getLabelString(Canonical::Canonical::GetEpilogueLabel()) << ":"
+                << "\t;the epilogue label\n";
+
+        //  the `popl` instructions inside epilogue block should in reverse order
+        //  compared to prologue block
+        WriteCalleeRegs(outFile, "popl", true, map);
+
+        outFile << "\tmovl %ebp, %esp\n"
+                << "\tpopl %ebp\n";
     }
 
-    void CodeGenerator::WriteCalleeRegs(std::string instruction, std::ofstream& outFile, RA::RegisterMap& map)
+    void CodeGenerator::WriteCalleeRegs(ofstream& outFile, std::string instruction, bool reverse, RA::RegisterMap& map)
     {
+        string content;
+
         myTempList regs = Frame_calleeSaveRegs();
         while (regs)
         {
             //  stack-pointer is also callee-save, but we do not use push/pop
             //  to save it
-            if (regs->head != Frame_ESP())
-                outFile << "\t" << instruction << " "
-                        << TwoOperandOperate::OneRegToCode(regs->head, map)
-                        << endl;
+            if (regs->head != Frame_ESP()) {
+                string str;
+                str = "\t" + instruction + " ";
+                str += TwoOperandOperate::OneRegToCode(regs->head, map) + "\n";
+
+                if (reverse)
+                    content = str + content;
+                else
+                    content = content + str;
+            }
             regs = regs->tail;
         }
+
+        outFile << content;
+    }
+
+    void CodeGenerator::WriteMainExit(ofstream& outFile)
+    {
+        outFile << "\tmovl $0, %ebx\n"
+                << "\tmovl $1, %eax\n"
+                << "\tint $0x80\n\n";
     }
 
     void CodeGenerator::WriteSubProcs(ofstream& outFile)

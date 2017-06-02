@@ -55,6 +55,8 @@ namespace lgxZJ
                 //      remain them where they are.
                 static Statements Flatten(Blocks blocks);
 
+                static myLabel GetEpilogueLabel();
+
             private:
                 typedef std::vector<unsigned> IndexSet;
 
@@ -80,6 +82,8 @@ namespace lgxZJ
                 static void RemoveMarkedBlocks(Blocks& blocks, IndexSet& indices);
 
                 static void RemoveRedundantJumps(Blocks& blocks);
+
+                static myLabel epilogueLabel;
         };
     }
 }

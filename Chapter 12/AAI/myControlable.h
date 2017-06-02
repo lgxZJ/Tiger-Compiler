@@ -159,7 +159,10 @@ namespace lgxZJ
                 std::string ToString() const;
                 std::string ToCode(RegisterMap& map) const;
 
-                protected:
+            private:
+                std::string FindFuncNameOfLabel(myLabel label) const;
+
+            protected:
                     myLabel funcLabel;
                     myTempList regList;
         };
