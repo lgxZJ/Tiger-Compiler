@@ -20,11 +20,11 @@ namespace lgxZJ
         void WriteMainExit(std::ofstream& outFile);
         void WriteSubProcs(std::ofstream& outFile);
         void WriteProcBody(std::ofstream& outFile, IR_myStatement statements);
-        void WritePrologue(std::ofstream& outFile, RA::RegisterMap& map);
+        void WritePrologue(std::ofstream& outFile, RA::RegisterMap& map, int localCount);
         void WriteEpilogue(std::ofstream& outFile, RA::RegisterMap& map);
         void WriteCalleeRegs(std::ofstream& outFile, std::string instruction, bool reverse, RA::RegisterMap& map);
         void GenOneProcIns(
-            IR_myStatement statements, RA::RegisterMap* map, IS::Instructions* ins);
+            IR_myStatement statements, RA::RegisterMap* map, IS::Instructions* ins, int* localCount);
 
     private:
         IR_myStatement statements;

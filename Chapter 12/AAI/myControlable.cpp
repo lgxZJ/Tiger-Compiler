@@ -146,16 +146,23 @@ namespace lgxZJ
         {
             string resultStr;
 
-            myTempList temps = regList;
+            //  skip the static link(we pass a static link as a parameter, 
+            //  but indeed it is not needed)
+            assert (regList &&  (regList->head == Frame_EBP()));
+            myTempList temps = regList->tail;
+
+            int varCount = 0;
             while (temps)
             {
+                ++varCount;
                 resultStr += ("\tpushl " + TwoOperandOperate::OneRegToCode(temps->head, map) + "\n");
                 temps = temps->tail;
             }
-            resultStr += (string("\tcall ") + FindFuncNameOfLabel(funcLabel));
+
+            resultStr += (string("\tcall ") + FindFuncNameOfLabel(funcLabel) + "\n");
+            resultStr += string("\taddl $") + to_string(varCount * Frame_wordSize) + ", %esp\n";
             return resultStr;
         }
-//  todo: epilogue block
 
         string Call::FindFuncNameOfLabel(myLabel label) const
         {

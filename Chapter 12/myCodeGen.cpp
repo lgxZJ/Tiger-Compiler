@@ -50,9 +50,10 @@ namespace lgxZJ
     {
         Instructions ins;
         RegisterMap map;
-        GenOneProcIns(statements, &map, &ins);
+        int localCount;
+        GenOneProcIns(statements, &map, &ins, &localCount);
 
-        WritePrologue(outFile, map);
+        WritePrologue(outFile, map, localCount);
         for (auto oneIns : ins)
             outFile << oneIns->ToCode(map) << endl;
         WriteEpilogue(outFile, map);
@@ -60,10 +61,14 @@ namespace lgxZJ
         outFile << endl;
     }
  
-    void CodeGenerator::WritePrologue(ofstream& outFile, RegisterMap& map)
+    void CodeGenerator::WritePrologue(ofstream& outFile, RegisterMap& map, int localCount)
     {
         outFile << "\tpushl %ebp\n"
                 << "\tmovl %esp, %ebp\n";
+
+        outFile << "\tsubl $" << localCount * Frame_wordSize
+                << ", %esp\n";
+        
         WriteCalleeRegs(outFile, "pushl", false, map);
     }
 
@@ -71,12 +76,13 @@ namespace lgxZJ
     {
         //  write an epilogue label definition
         outFile << Temp_getLabelString(Canonical::Canonical::GetEpilogueLabel()) << ":"
-                << "\t;the epilogue label\n";
+                << "\t#the epilogue label\n";
 
         //  the `popl` instructions inside epilogue block should in reverse order
         //  compared to prologue block
         WriteCalleeRegs(outFile, "popl", true, map);
 
+        //  no need to add esp back because it is assigned to the former stack pointer
         outFile << "\tmovl %ebp, %esp\n"
                 << "\tpopl %ebp\n";
     }
@@ -126,14 +132,14 @@ namespace lgxZJ
             outFile << procName << ":\n";
             
             WriteProcBody(outFile, frag->u.procFrag.body);
-            outFile << "\tret";
+            outFile << "\tret\n";
 
             procFrags = procFrags->tail;
         }
     }
 
     void CodeGenerator::GenOneProcIns(
-        IR_myStatement statements, RegisterMap* map, Instructions* ins)
+        IR_myStatement statements, RegisterMap* map, Instructions* ins, int* localCount)
     {
         //  canonical phase
         Statements states = Canonical::Canonical::Linearize(statements);
@@ -151,5 +157,6 @@ namespace lgxZJ
 
         *map = ra.GetRegisterMap();
         *ins = ra.GetIns();
+        *localCount = Frame_getLocalCount(Trans_getFrame(Trans_outermostLevel()));
     }
 }
