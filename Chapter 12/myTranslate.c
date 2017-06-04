@@ -209,15 +209,24 @@ myFrame Trans_getFrame(Trans_myLevel level)
 static void addOneFrag(Frame_myFragList* fragHolder, Frame_myFrag frag)
 {
     Frame_myFragList* iter = fragHolder;
+    while (*iter)
+    {
+        if ((*iter)->head != NULL && 
+            (*iter)->tail != NULL)
+
+            iter = &(*iter)->tail;
+        else
+            break;
+    }
+
     if (*iter == NULL)
         *iter = Frame_makeFragList(NULL, NULL);
 
     if ((*iter)->head == NULL)
-        (*iter)->head = frag, iter = &(*iter)->tail;
+        (*iter)->head = frag;
     else
         (*iter)->tail = Frame_makeFragList(NULL, NULL),
-        (*iter)->tail->head = frag,
-        iter = &((*iter)->tail->tail);
+        (*iter)->tail->head = frag;
 }
 
 static Frame_myFragList g_procFrags = NULL;
@@ -490,12 +499,16 @@ static void Trans_string(IR_myExp labelExp, myString str)
     Trans_addOneStringFrag(strFrag);
 }
 
-//  todo: translate string literals to real value
 IR_myExp Trans_stringLiteralExp(myString str)
 {
     IR_myExp strLabelExp = IR_makeName(Temp_newLabel());
     Trans_string(strLabelExp, str);
-    return strLabelExp;
+
+    //  load string address into a register
+    myTemp newReg = Temp_newTemp();
+    return IR_makeESeq(
+        IR_makeMove(IR_makeTemp(newReg), strLabelExp),
+        IR_makeTemp(newReg));
 }
 
 ////////////////////////////////////////////////////////////////////////////

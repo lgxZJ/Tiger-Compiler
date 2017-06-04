@@ -19,6 +19,7 @@ namespace lgxZJ
         void WriteMainProc(std::ofstream& outFile, IR_myStatement statements);
         void WriteMainExit(std::ofstream& outFile);
         void WriteSubProcs(std::ofstream& outFile);
+        void WriteStringData(std::ofstream& outFile);
         void WriteProcBody(std::ofstream& outFile, IR_myStatement statements);
         void WritePrologue(std::ofstream& outFile, RA::RegisterMap& map, int localCount);
         void WriteEpilogue(std::ofstream& outFile, RA::RegisterMap& map);

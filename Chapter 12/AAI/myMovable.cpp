@@ -8,7 +8,7 @@ namespace lgxZJ
     {
         Move::Move( myTemp oneDstReg, myTemp oneSrcReg,
                     OperandType oneDstType, OperandType oneSrcType)
-            :   dstReg(oneDstReg), dstType(oneDstType)
+            :   dstReg(oneDstReg), dstType(oneDstType), isLabel(false)
         {
             srcType = oneSrcType;
 
@@ -17,12 +17,18 @@ namespace lgxZJ
         }
 
         Move::Move(myTemp oneDstReg, OperandType oneDstType, int constValue)
-            :   dstReg(oneDstReg), dstType(oneDstType)
+            :   dstReg(oneDstReg), dstType(oneDstType), isLabel(false)
         {
             srcType = OperandType::None;
 
             srcRep.kind = BinaryUnion::Kind::Value;
             srcRep.u.value = constValue;
+        }
+
+        Move::Move(myTemp oneDstReg, myLabel strLabel)
+            :   dstReg(oneDstReg), dstType(OperandType::Content)
+            ,   stringLabel(strLabel), isLabel(true)
+        {
         }
 
         Registers Move::GetDstRegs() const
@@ -39,7 +45,7 @@ namespace lgxZJ
 
             if (dstType == OperandType::Memory)
                 result.push_back(dstReg);
-            if (srcRep.kind == BinaryUnion::Kind::Reg)
+            if (!isLabel && srcRep.kind == BinaryUnion::Kind::Reg)
                 result.push_back(srcRep.u.reg);
 
             return result;
@@ -49,7 +55,8 @@ namespace lgxZJ
         {
             if ( dstReg == oldReg )
                 dstReg = newReg;
-            if ( srcRep.kind == BinaryUnion::Kind::Reg && 
+            if ( !isLabel &&
+                 srcRep.kind == BinaryUnion::Kind::Reg && 
                  srcRep.u.reg == oldReg )
 
                 srcRep.u.reg = newReg;
@@ -62,10 +69,17 @@ namespace lgxZJ
             result += OneOperandToString(dstReg, dstType);
 
             result += ", ";
-            if (srcRep.kind == BinaryUnion::Kind::Reg)
-                result += OneOperandToString(srcRep.u.reg, srcType);
+            if (isLabel)
+            {
+                result += (string("$") + Temp_getLabelString(stringLabel));
+            }
             else
-                result += to_string(srcRep.u.value);
+            {
+                if (srcRep.kind == BinaryUnion::Kind::Reg)
+                    result += OneOperandToString(srcRep.u.reg, srcType);
+                else
+                    result += to_string(srcRep.u.value);
+            }
 
             return result;
         }
@@ -74,11 +88,18 @@ namespace lgxZJ
         {
             string result("\tmovl ");
 
-            if (srcRep.kind == BinaryUnion::Kind::Reg)
-                result += OneOperandToCode(srcRep.u.reg, srcType, map);
+            if (isLabel)
+            {
+                result += (string("$") + Temp_getLabelString(stringLabel));
+            }
             else
-                result += TwoOperandOperate::OneValueToCode(srcRep.u.value);
-
+            {
+                if (srcRep.kind == BinaryUnion::Kind::Reg)
+                    result += OneOperandToCode(srcRep.u.reg, srcType, map);
+                else
+                    result += TwoOperandOperate::OneValueToCode(srcRep.u.value);
+            }
+            
             result += ", ";
             result += OneOperandToCode(dstReg, dstType, map);
             return result;

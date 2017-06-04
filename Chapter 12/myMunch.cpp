@@ -120,6 +120,7 @@ namespace lgxZJ
 
             if (leftOper->kind == IR_myExp_::IR_Mem &&
                 leftOper->u.mem->kind == IR_myExp_::IR_Temp)
+                
                 return LeftMemoryMoveState(leftOper, rightOper);
             else
                 return LeftRegisterMoveState(leftOper, rightOper);
@@ -146,6 +147,8 @@ namespace lgxZJ
             else
             {
                 assert (rightOper->kind == IR_myExp_::IR_Name);
+                
+                assert (false && "should not got here");
                 //  todo:string represent
                 return PutIns(shared_ptr<Move>(
                     new Move(leftOper->u.mem->u.temp,
@@ -176,13 +179,23 @@ namespace lgxZJ
                             Move::OperandType::Content,
                             rightOper->u.constValue)));
             }
-            else
+            else if (rightOper->kind == IR_myExp_::IR_Temp)
             {
-                assert (rightOper->kind == IR_myExp_::IR_Temp);
                 //  mov reg, reg
                 return PutIns(shared_ptr<Move>(
                     new Move(leftOper->u.temp,
                             rightOper->u.temp)));
+            }
+            else if (rightOper->kind == IR_myExp_::IR_Name)
+            {
+                //  mov reg, label
+                return PutIns(shared_ptr<Move>(
+                    new Move(leftOper->u.temp,
+                            rightOper->u.name)));
+            }
+            else
+            {
+                assert (false && "never got here");
             }
         }
 

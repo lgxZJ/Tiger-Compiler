@@ -23,6 +23,7 @@ namespace lgxZJ
                             OperandType oneDstType = Content,
                             OperandType oneSrcType = Content);
                 explicit Move(myTemp oneDstReg, OperandType oneDstType, int constValue);
+                explicit Move(myTemp oneDstReg, myLabel stringLabel);
 
                 //  The Move AAI have the following special syntax:
                 //      1.mov reg, reg
@@ -48,6 +49,12 @@ namespace lgxZJ
             protected:
                 myTemp      dstReg;
                 OperandType dstType;
+
+                //  source operand can only be one of the two things: label or srcRep
+                //  since BinaryUnion is common to all TwoOperandOperate bug label is
+                //  unique to Move, we simply add a label member here.
+                bool        isLabel;
+                myLabel     stringLabel;
 
                 BinaryUnion srcRep;
                 OperandType srcType;

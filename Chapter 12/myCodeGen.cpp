@@ -29,6 +29,7 @@ namespace lgxZJ
             //  in WriteMainProc() function
             WriteMainProc(outFile, statements);
             WriteSubProcs(outFile);
+            WriteStringData(outFile);
             outFile.close();
         }
         else
@@ -158,5 +159,22 @@ namespace lgxZJ
         *map = ra.GetRegisterMap();
         *ins = ra.GetIns();
         *localCount = Frame_getLocalCount(Trans_getFrame(Trans_outermostLevel()));
+    }
+
+    void CodeGenerator::WriteStringData(ofstream& outFile)
+    {
+        outFile << "\n.section .data\n";
+
+        Frame_myFragList strFrags = Trans_getStringFrags();
+        while (strFrags)
+        {
+            Frame_myFrag strFrag = strFrags->head;
+            assert (strFrag->kind == Frame_myFrag_::Frame_StringFrag);
+
+            outFile << Temp_getLabelString(strFrag->u.strFrag.label) << ":\n"
+                    << "\t.asciz " << strFrag->u.strFrag.str << "\n";
+            
+            strFrags = strFrags->tail;
+        }
     }
 }

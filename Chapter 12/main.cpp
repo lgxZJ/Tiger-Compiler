@@ -16,7 +16,7 @@ int main(int argc, char* argv[])
     if (argc != 2)  return -1;
     
     CodeGenerator cg(argv[1]);
-    cg.ToFile("./result.txt");
+    cg.ToFile("./bin/result.s");
 
     return 0;
 }
