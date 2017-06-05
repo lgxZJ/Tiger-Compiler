@@ -717,9 +717,12 @@ static void calcArraySubscriptAddr(
     IR_divideExp(subscriptResult, &subscriptState, &subscriptValue);
 
     //  combine offset statement
-    IR_myStatement subscriptOffsetState = IR_makeExp(
-        IR_makeBinOperation(IR_Multiply,
-            subscriptValue, IR_makeConst(Frame_wordSize)));
+    IR_myExp constReg = IR_makeTemp(Temp_newTemp());
+    IR_myStatement subscriptOffsetState = IR_makeSeq(
+        IR_makeMove(constReg, IR_makeConst(Frame_wordSize)),
+        IR_makeExp(
+            IR_makeBinOperation(IR_Multiply,
+                subscriptValue, constReg)));
     (*addressResult)->u.eseq.statement = IR_makeSeq(
         (*addressResult)->u.eseq.statement,
         IR_makeSeq(subscriptState, subscriptOffsetState));
@@ -864,10 +867,12 @@ IR_myExp calculateFirstSubscriptAddress(
 	IR_divideExp(currentSubscriptResult, &subscriptState, &subscriptValue);
 
 	//  calculate offset
+    IR_myExp constReg = IR_makeTemp(Temp_newTemp());
 	subscriptState = IR_makeSeq(
         subscriptState,
-        IR_makeExp(IR_makeBinOperation(IR_Multiply,
-            subscriptValue, IR_makeConst(-Frame_wordSize))));
+        IR_makeSeq(
+            IR_makeMove(constReg, IR_makeConst(-Frame_wordSize)),
+            IR_makeExp(IR_makeBinOperation(IR_Multiply, subscriptValue, constReg))));
 
 	IR_myExp arrayPtrExp = Trans_LValueExp_GetArrayPtr(lValueExp);
 	assert (arrayPtrExp->kind == IR_ESeq);

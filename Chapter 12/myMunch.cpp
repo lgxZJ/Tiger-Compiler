@@ -298,11 +298,6 @@ namespace lgxZJ
                     PutIns(shared_ptr<CLSNAME>(new CLSNAME(rightOper->u.temp)));    \
                     return Frame_EAX();                                             \
                 }                                                                   \
-                else if (rightOper->kind == IR_myExp_::IR_Const)                    \
-                {                                                                   \
-                    PutIns(shared_ptr<CLSNAME>(new CLSNAME(rightOper->u.constValue)));\
-                    return Frame_EAX();                                             \
-                }                                                                   \
                 else                                                                \
                 {                                                                   \
                     assert (false);                                                 \

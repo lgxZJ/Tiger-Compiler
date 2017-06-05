@@ -190,7 +190,13 @@ static void IR_divideExp_BinOperation(
     IR_myStatement realBinOperation = IR_makeExp(IR_makeBinOperation(
         one->u.binOperation.op, one->u.binOperation.left, rightValue)); 
     *stateParts = IR_makeSeq(rightState, realBinOperation);
-    *valueParts = one->u.binOperation.left;//  return value is always a temp
+
+    if (one->u.binOperation.op == IR_Multiply ||
+        one->u.binOperation.op == IR_Divide)
+        //  the return value is in register eax, not the left operand
+        *valueParts = IR_makeTemp(Frame_EAX());
+    else
+        *valueParts = one->u.binOperation.left;//  return value is always a temp
 }
 
 static void IR_divideExp_Call(

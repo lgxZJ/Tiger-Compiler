@@ -319,7 +319,7 @@ IR_myExp calculateVarAddr(Trans_myAccess access)
     ALLOCATE_AND_SET_ITERATOR();
     IR_myStatement state = IR_makeExp(IR_makeBinOperation(IR_Plus,
                 tempExp,
-                IR_makeConst(-Frame_getAccessOffset(access->access))));
+                IR_makeConst(Frame_getAccessOffset(access->access))));
     SET_VALUE(state);
 
     return IR_makeESeq(sum, tempExp);
@@ -586,7 +586,7 @@ static void continueIfCondition(
             IR_makeMove(newReg, IR_makeConst(ERROR__ARRAYSIZE__NOTPOSITIVE)),
             IR_makeExp(IR_makeCall(
                 IR_makeName(Temp_newNamedLabel("exit")),
-                IR_makeExpList(newReg, NULL)))));
+                IR_makeExpList(IR_makeTemp(Frame_EBP()), IR_makeExpList(newReg, NULL))))));
     defineLabel(stateReturnPtr, nextLabel);
 }
 
@@ -641,17 +641,22 @@ static IR_myStatement translateSpaceAllocation(
         tempReg, subscriptValue);
     checkArrayBoundsInDefinition(tempReg, &tempRegMoveState);///////////////
 
+    myTemp valueReg = Temp_newTemp();
+    IR_myStatement constState = IR_makeSeq(
+        IR_makeMove(IR_makeTemp(valueReg), IR_makeConst(Frame_wordSize)),
+        NULL);
+
     IR_myExp allocateResult = Frame_externalCall("malloc",
+        IR_makeExpList(IR_makeTemp(Frame_EBP()),//  a static link although not needed
         IR_makeExpList(
-            IR_makeBinOperation(IR_Multiply, tempReg, IR_makeConst(Frame_wordSize)),
-            NULL));
+            IR_makeBinOperation(IR_Multiply, tempReg, IR_makeTemp(valueReg)), NULL)));
     assert (allocateResult->kind == IR_ESeq);
 
     //  save results
     *subscriptValuePtr = subscriptValue;
     *memoryAddrResultPtr = allocateResult->u.eseq.exp;
     return IR_makeSeq(
-        IR_makeSeq(subscriptState, tempRegMoveState), 
+        IR_makeSeq(IR_makeSeq(subscriptState, tempRegMoveState), constState),
         allocateResult->u.eseq.statement);
 }
 
@@ -798,7 +803,8 @@ IR_myExp Trans_noFieldRecordCreation()
     //  we must allocate some space for it.
     IR_myExp constOne = IR_makeConst(1);
     return Frame_externalCall(
-        "malloc", IR_makeExpList(constOne, NULL));
+        "malloc",
+        IR_makeExpList(IR_makeTemp(Frame_EBP()), IR_makeExpList(constOne, NULL)));
 }
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -813,6 +819,18 @@ static IR_myStatement calcAndletTempRegHoldResult(
     //  hold the result, namely a temporary variable representation.
     IR_myExp tempReg = IR_makeTemp(Temp_newTemp());
     *tempRegPtr = tempReg;
+
+    if (rightValueReg->kind == IR_Const &&
+        (op == IR_Multiply || op == IR_Divide))
+    {
+        IR_myExp constReg = IR_makeTemp(Temp_newTemp());
+        IR_myStatement constState = NULL;
+        return IR_makeSeq(
+                IR_makeSeq(IR_makeSeq(leftState, rightState),
+                            IR_makeMove(tempReg, leftValueReg)),
+                IR_makeSeq(IR_makeMove(constReg, rightValueReg),
+                            IR_makeExp(IR_makeBinOperation(op, tempReg, constReg))));
+    }
 
     return IR_makeSeq(
         IR_makeSeq(

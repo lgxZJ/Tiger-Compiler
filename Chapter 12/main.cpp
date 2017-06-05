@@ -12,11 +12,17 @@ using namespace lgxZJ::RA;
 using namespace std;
 
 int main(int argc, char* argv[])
-{
-    if (argc != 2)  return -1;
-    
-    CodeGenerator cg(argv[1]);
-    cg.ToFile("./bin/result.s");
+{   
+    for (int i = 1; i <= 2; ++i)
+    {
+        char filename[256];
+        sprintf(filename, "./testcases/test%d.tig", i);
+
+        CodeGenerator cg(filename);
+
+        sprintf(filename, "./bin/output/result%d.s", i);
+        cg.ToFile(filename);
+    }
 
     return 0;
 }

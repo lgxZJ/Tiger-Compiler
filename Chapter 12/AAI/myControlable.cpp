@@ -166,18 +166,20 @@ namespace lgxZJ
 
         string Call::FindFuncNameOfLabel(myLabel label) const
         {
-            Frame_myFragList procFrags = Trans_getProcFrags();
-            while (procFrags)
-            {
-                myLabel funcLabel = MyEnvironment_getFuncLabel(
-                                MyEnvironment_getVarOrFuncFromName(
-                                    MySemantic_getVarAndFuncEnvironment(), 
-                                    procFrags->head->u.procFrag.funcName));
-                assert (funcLabel != NULL);
-                if (funcLabel == label)
-                    return string(MySymbol_GetName(procFrags->head->u.procFrag.funcName));
-            }
-            assert (false && "never got here");
+            // Frame_myFragList procFrags = Trans_getProcFrags();
+            // while (procFrags)
+            // {
+            //     myLabel funcLabel = MyEnvironment_getFuncLabel(
+            //                     MyEnvironment_getVarOrFuncFromName(
+            //                         MySemantic_getVarAndFuncEnvironment(), 
+            //                         procFrags->head->u.procFrag.funcName));
+            //     assert (funcLabel != NULL);
+            //     if (funcLabel == label)
+            //         return string(MySymbol_GetName(procFrags->head->u.procFrag.funcName));
+            // }
+            // assert (false && "never got here");
+            assert (label != NULL);
+            return Temp_getLabelString(label);
         }
 
         Registers Call::GetDstRegs() const

@@ -37,7 +37,6 @@ namespace lgxZJ
         {
             public:
                 explicit IMul(myTemp oneSrcReg); 
-                explicit IMul(int constValue);
 
                 virtual std::string ToString() const;
                 virtual std::string ToCode(RegisterMap& map) const;
@@ -49,7 +48,6 @@ namespace lgxZJ
         {
             public:
                 explicit IDiv(myTemp oneSrcReg); 
-                explicit IDiv(int constValue);
 
                 virtual std::string ToString() const;
                 virtual std::string ToCode(RegisterMap& map) const;

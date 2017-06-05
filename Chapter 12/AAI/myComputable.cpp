@@ -43,7 +43,11 @@ namespace lgxZJ
         //                          IMul class
         //////////////////////////////////////////////////////////////////
 
-        DEFINE_ONECOMPUTE_CTOR(IMul);
+        IMul::IMul(myTemp oneSrcReg)
+        {
+            srcRep.kind = BinaryUnion::Kind::Reg;
+            srcRep.u.reg = oneSrcReg;
+        } 
 
         string IMul::ToString() const
         {
@@ -59,7 +63,11 @@ namespace lgxZJ
         //                          IDiv class
         ////////////////////////////////////////////////////////////////////
 
-        DEFINE_ONECOMPUTE_CTOR(IDiv);
+        IDiv::IDiv(myTemp oneSrcReg)
+        {
+            srcRep.kind = BinaryUnion::Kind::Reg;
+            srcRep.u.reg = oneSrcReg;
+        } 
 
         string IDiv::ToString() const
         {
