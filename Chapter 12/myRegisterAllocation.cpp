@@ -604,13 +604,13 @@ namespace lgxZJ
 
         Registers RegisterAllocation::GetAvailableColors()
         {
-            //  no include stack pointer
+            //  no include stack pointer and base pointer
             Registers regs =  {
                 Frame_EAX(), Frame_EBX(), Frame_ECX(), Frame_EDX(),
-                Frame_ESI(), Frame_EDI(), Frame_EBP(),
+                Frame_ESI(), Frame_EDI()
             };
 
-            assert (regNum >= 0 && regNum <= 7);
+            assert (regNum >= 0 && regNum <= 6);
             return Registers(regs.begin(), regs.begin() + regNum);
         }
 
