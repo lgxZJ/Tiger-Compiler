@@ -153,8 +153,9 @@ namespace lgxZJ
         Munch::All(statesFlattened);
 
         //  liveness analysis and register allocation phases
+        int availableRegNum = Frame_registerNumber - 1;
         RegisterAllocation ra(
-            Munch::GetIns(), Trans_outermostLevel(), Frame_registerNumber);
+            Munch::GetIns(), Trans_outermostLevel(), availableRegNum);
 
         *map = ra.GetRegisterMap();
         *ins = ra.GetIns();

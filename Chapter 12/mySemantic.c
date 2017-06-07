@@ -866,12 +866,14 @@ IR_myExp calculateFirstSubscriptAddress(
     treatLValueAsContent();
 	IR_divideExp(currentSubscriptResult, &subscriptState, &subscriptValue);
 
-	//  calculate offset
+	//  calculate offset,
+    //
+    //  !!!NOTE EAX IS THE RESULT REG NOT subscriptValue!!!
     IR_myExp constReg = IR_makeTemp(Temp_newTemp());
 	subscriptState = IR_makeSeq(
         subscriptState,
         IR_makeSeq(
-            IR_makeMove(constReg, IR_makeConst(-Frame_wordSize)),
+            IR_makeMove(constReg, IR_makeConst(Frame_wordSize)),
             IR_makeExp(IR_makeBinOperation(IR_Multiply, subscriptValue, constReg))));
 
 	IR_myExp arrayPtrExp = Trans_LValueExp_GetArrayPtr(lValueExp);
@@ -881,7 +883,7 @@ IR_myExp calculateFirstSubscriptAddress(
 	IR_myStatement combinedState = IR_makeSeq(
         arrayPtrExp->u.eseq.statement, subscriptState);
 	IR_myStatement addrCalc = IR_makeExp(IR_makeBinOperation(IR_Plus,
-        arrayPtrExp->u.eseq.exp, subscriptValue)); 
+        arrayPtrExp->u.eseq.exp, IR_makeTemp(Frame_EAX()))); 
 	combinedState = IR_makeSeq(combinedState, addrCalc);
     //  do not change reuslt register representations.
 

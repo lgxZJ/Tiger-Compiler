@@ -323,9 +323,9 @@ namespace lgxZJ
                 leftOperand.size() != 1 || rightOperand.size() != 1)
                 return false;
 
-            //  check memory operand type from "[]" characters
+            //  check memory operand type from "()" characters
             string insStr = cfGraph.GetNodeIns(node)->ToString();
-            return insStr.find('[') == string::npos;
+            return insStr.find('(') == string::npos;
         }
 
         bool Liveness::IsSelfMove(Registers& leftOperand, Registers& rightOperand) const
