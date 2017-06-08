@@ -23,49 +23,52 @@ static int g_translate_memory_type = MEMORY_TYPE_NONE;
 
 /*	return escape string length, NOT_ESCAPED for not escaped   */
 static unsigned translateNormalEscape(char* str, int* i_ptr, int string_length,
-		  char* result, int result_pos)
+		  char* result, int* result_pos)
 {
     //	have enough stirng length
     if ((*i_ptr + 2) <= string_length )
     {
-	char* ch[] = { "\\n", "\\t", "\\\"", "\\\\" };
-	char c[] = { '\n', '\t', '"', '\\' };
+		char* ch[] = { "\\n", "\\t", "\\\"", "\\\\" };
+		char c[] = { 'n', 't', '"', '\\' };
 
-	for (unsigned j = 0; j < (sizeof(ch) / sizeof(ch[0])); ++j)
-	{
-	    if (strncmp(&str[*i_ptr], ch[j], 2) == 0)
-	    {
-		sprintf(result + result_pos, "%c", c[j]);
-	        return NORMAL_ESCAPE_LENGTH;
-	    }
+		for (unsigned j = 0; j < (sizeof(ch) / sizeof(ch[0])); ++j)
+		{
+	    	if (strncmp(&str[*i_ptr], ch[j], 2) == 0)
+	    	{
+				sprintf(result + *result_pos, "\\%c", c[j]);
+				*result_pos += 2;
+	        	return NORMAL_ESCAPE_LENGTH;
+	    	}
+		}
 	}
-    }
 
-    return NOT_ESCAPED;
+	return NOT_ESCAPED;
 }
 
 static unsigned translateControlEscape(char* str, int* i_ptr, int string_length,
-		    char* result, int result_pos)
+		    char* result, int* result_pos)
 {
     char* ch[] = { "\\^@", "\\^[", "\\^\\",
 		   "\\^]", "\\^^", "\\^_" };
-    char c[] = { '\x0', '\x1B', '\x1C', '\x1D',
+    char c[] = { '\x00', '\x1B', '\x1C', '\x1D',
 		 '\x1E', '\x1F' };
 	    
     if (strncmp(&str[*i_ptr], "\\^", 2) == 0 &&
-	(str[*i_ptr + 2] >= 'A' && str[*i_ptr + 2] <= 'Z'))
+		(str[*i_ptr + 2] >= 'A' && str[*i_ptr + 2] <= 'Z'))
     {
-	sprintf(result + result_pos, "%c", '\x01' + str[*i_ptr + 2] - 'A');
-	return CONTROL_ESCAPE_LENGTH;
+		sprintf(result + *result_pos, "%c", '\x01' + str[*i_ptr + 2] - 'A');
+		*result_pos += 1;
+		return CONTROL_ESCAPE_LENGTH;
     }
     else
     {
-	for (unsigned j = 0; j < (sizeof(ch) / sizeof(ch[0])); ++j)
-	    if (strncmp(&str[*i_ptr], ch[j], 3) == 0)
-	    {
-		sprintf(result + result_pos, "%c", c[j]);
-		return CONTROL_ESCAPE_LENGTH;
-	    }
+		for (unsigned j = 0; j < (sizeof(ch) / sizeof(ch[0])); ++j)
+	    	if (strncmp(&str[*i_ptr], ch[j], 3) == 0)
+	    	{
+				sprintf(result + *result_pos, "%c", c[j]);
+				*result_pos += 1;
+				return CONTROL_ESCAPE_LENGTH;
+	    	}
     }
 	    
     return NOT_ESCAPED;
@@ -81,7 +84,7 @@ bool containThreeOctalNumber(char* str)
 
 static unsigned translateOctalEscape(
     char* str, int* i_ptr, int string_length,
-    char* result, int result_pos)
+    char* result, int* result_pos)
 {
     if ((*i_ptr + 4) <= string_length &&
 		str[*i_ptr] == '\\' &&
@@ -91,15 +94,20 @@ static unsigned translateOctalEscape(
 
 		if (strncmp(&str[(*i_ptr) + 1], "000", 3) == 0)
 	    	value = 0;
-        	else
+        else
 		{
 	    	value = strtol(&str[(*i_ptr) + 1], NULL, 8);
 	    	//	no valid conversion (include valid 0)
 	    	if (value == 0)
-			return NOT_ESCAPED;
+				return NOT_ESCAPED;
 		}
-		//	if can not convert
-		sprintf(result + result_pos,"%c", '\x0' + value);
+
+		if (value == 10)	//	new line char
+			sprintf(result + *result_pos,"%s", "\\n"),
+			*result_pos += 2;
+		else
+			sprintf(result + *result_pos,"%c", '\x0' + value),
+			*result_pos += 1;
 		return OCTAL_ESCAPE_LENGTH;
     }
 
@@ -116,7 +124,7 @@ static unsigned translateOctalEscape(
  */
 static unsigned translateMultiline(
     char* str, int* i_ptr, int string_length,
-    char* result, int result_pos)
+    char* result, int* result_pos)
 {
     if (str[*i_ptr] == '\\')
     {
@@ -171,24 +179,22 @@ char* translateEscape(char* str)
 				   	g_translate_memory_type);
 
     //	`pos` of result string
-    for (unsigned i = 0, pos = 0; i < string_length; ++pos)
+    for (unsigned i = 0, pos = 0; i < string_length; )
     {
 		unsigned escaped_num = 0;
-		if (escaped_num = translateNormalEscape(str, &i, string_length, result, pos))
+		if (escaped_num = translateNormalEscape(str, &i, string_length, result, &pos))
 	    	i += escaped_num;
-		else if (escaped_num = translateControlEscape(str, &i, string_length, result, pos))
+		else if (escaped_num = translateControlEscape(str, &i, string_length, result, &pos))
 	    	i += escaped_num;
-		else if (escaped_num = translateOctalEscape(str, &i, string_length, result, pos))
+		else if (escaped_num = translateOctalEscape(str, &i, string_length, result, &pos))
 	    	i += escaped_num;
-		else if (escaped_num = translateMultiline(str, &i, string_length, result, pos))
-		{
+		else if (escaped_num = translateMultiline(str, &i, string_length, result, &pos))
 	    	i += escaped_num;
-	    	--pos;
-		}
 		else
 		{
 	    	sprintf(result + pos, "%c", str[i]);
 	    	++i;
+			++pos;
 		}
     }
 

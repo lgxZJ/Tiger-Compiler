@@ -16,6 +16,8 @@ namespace lgxZJ
     CodeGenerator::CodeGenerator(string srcFile)
     {
         //  front end work
+        Trans_resetStringFrags();
+        Trans_resetProcFrags();
         this->statements = frontTester(srcFile.c_str());
     }
 
