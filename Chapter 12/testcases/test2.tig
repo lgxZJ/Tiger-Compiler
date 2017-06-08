@@ -1,6 +1,6 @@
 let
-	type varArray = array of int
-	var var1 := varArray [10] of 1
+	type varArray = array of string
+	var var1 := varArray [10] of "ab"
 in
 	var1[1]
 end

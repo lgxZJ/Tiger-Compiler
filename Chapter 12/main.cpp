@@ -13,7 +13,7 @@ using namespace std;
 
 int main(int argc, char* argv[])
 {   
-    for (int i = 1; i <= 2; ++i)
+    for (int i = 1; i <= 4; ++i)
     {
         char buf[256];
         sprintf(buf, "./testcases/test%d.tig", i);

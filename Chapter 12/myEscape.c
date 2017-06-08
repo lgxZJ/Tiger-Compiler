@@ -72,7 +72,7 @@ EscapeEntry makeEscapeEntry(int depth, bool* escapePtr)
     entry->depth = depth;
     /*entry->used = false;*/
     entry->escapePtr = escapePtr;
-    *escapePtr = false;
+    *escapePtr = true;  //  escaped default, store variables in frame
     return entry;
 }
 

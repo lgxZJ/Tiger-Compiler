@@ -1,0 +1,6 @@
+let
+	type recordType = { a:int, b:string }
+	var var1 := recordType { a = 2, b = "abc" }
+in
+	var1.b
+end

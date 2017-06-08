@@ -1,0 +1,8 @@
+let
+	var var1 := 1
+	var var2 := 2
+	var var3 := "aaaa"
+in
+	(var1 := 3; var2 := 4; var3 := "bbbb");
+	var3
+end

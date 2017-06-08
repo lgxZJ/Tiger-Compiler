@@ -1421,8 +1421,8 @@ static void allocateRecordSpaceTran(myTypeFieldList typeFields,
 {
     IR_myExp result = Frame_externalCall("malloc",
         IR_makeExpList(
-            IR_makeConst(getTypeFieldCount(typeFields) * 4),
-            NULL));
+            IR_makeTemp(Frame_EBP()),
+            IR_makeExpList(IR_makeConst(getTypeFieldCount(typeFields) * 4), NULL)));
     *stateResult = result->u.eseq.statement;
     *addressRegResult = result->u.eseq.exp;
 }
