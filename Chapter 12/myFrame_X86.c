@@ -198,6 +198,14 @@ void fillViewShiftFromFlags(myFrame frame)
     frame->viewShift = "movl %esp, %ebp\n\t";
 }
 
+void Frame_resetFrame(myFrame frame)
+{
+    assert (frame);
+    frame->formals = NULL;
+    frame->localCount = 0;
+    frame->formalLocalCount = 0;
+}
+
 /////////////////////////////////////
 
 bool Frame_isFrameEqual(myFrame lhs, myFrame rhs)

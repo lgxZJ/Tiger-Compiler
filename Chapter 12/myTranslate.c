@@ -105,6 +105,24 @@ Trans_myLevel Trans_getAccessLevel(Trans_myAccess access)
 
 ////////////////////////////////
 
+bool Trans_accessIsFormal(Trans_myLevel level, Trans_myAccess access)
+{
+    assert (access != NULL);
+
+    Trans_myAccessList formals = Trans_getFormals(level);
+    while (formals)
+    {
+        if (access == formals->head)
+            return true;
+        
+        formals = formals->tail;
+    }
+
+    return false;
+}
+
+////////////////////////////////
+
 bool Trans_isLevelEqual(Trans_myLevel lhs, Trans_myLevel rhs)
 {
     return lhs == rhs;
@@ -144,6 +162,15 @@ bool Trans_isOutermostLevel(Trans_myLevel level)
     assert (g_outermostLevel != NULL);
     assert (level != NULL);
     return g_outermostLevel == level; 
+}
+
+void Trans_resetOutermostLevel()
+{
+    if (g_outermostLevel)
+    {
+        Frame_resetFrame(g_outermostLevel->frame);
+        g_outermostLevel->formals = NULL;
+    }
 }
 
 ////////////////////////////////
@@ -317,10 +344,14 @@ IR_myExp calculateVarAddr(Trans_myAccess access)
         MOVE_TO_NEXT_ITERATOR();
     }
 
+    //  offset of local variables and formal parameters are in different direction
+    int varOffset = Frame_getAccessOffset(access->access);
+    if (Trans_accessIsFormal(levelUsed, access))
+        varOffset = -varOffset;
+
     ALLOCATE_AND_SET_ITERATOR();
     IR_myStatement state = IR_makeExp(IR_makeBinOperation(IR_Plus,
-                tempExp,
-                IR_makeConst(-Frame_getAccessOffset(access->access))));
+                tempExp, IR_makeConst(varOffset)));
     SET_VALUE(state);
 
     return IR_makeESeq(sum, tempExp);

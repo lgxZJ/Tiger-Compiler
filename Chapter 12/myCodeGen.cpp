@@ -1,5 +1,6 @@
 #include "myCodeGen.h"
 #include "CXX_myEnvironment.h"
+#include "CXX_myTranslate.h"
 #include "CXX_mySemantic.h"
 #include "CXX_frontTester.h"
 
@@ -20,6 +21,7 @@ namespace lgxZJ
         //  front end work
         Trans_resetStringFrags();
         Trans_resetProcFrags();
+        Trans_resetOutermostLevel();
         this->statements = frontTester(srcFile.c_str());
     }
 

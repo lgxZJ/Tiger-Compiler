@@ -1051,7 +1051,7 @@ myTranslationAndType analyzeParamsOfFunction(
 {
     assert (functioName);
 
-    //  include static link as param
+    //  include static link as param(indeed not needed)
     IR_myExpList exps = IR_makeExpList(IR_makeTemp(Frame_FP()), NULL);
     IR_myExpList* expsPtr = &exps->tails;
     while (formalVariables && formalTypes)

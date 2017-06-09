@@ -52,6 +52,8 @@ int Trans_getAccessListCount(Trans_myAccessList list);
 //      the level within which this access lives in.
 Trans_myLevel Trans_getAccessLevel(Trans_myAccess access);
 
+bool Trans_accessIsFormal(Trans_myLevel level, Trans_myAccess access);
+
 //  DO:
 //      compare if two level equals.
 //  PARAMS:
@@ -84,6 +86,8 @@ Trans_myLevel Trans_outermostLevel(void);
 //      it's a checked runtime error to compare when no Trans_outermostLevel()
 //      not called once yet or to pass a NULL level!
 bool Trans_isOutermostLevel(Trans_myLevel level);
+
+void Trans_resetOutermostLevel();
 
 //  DO:
 //      make a new nested level.

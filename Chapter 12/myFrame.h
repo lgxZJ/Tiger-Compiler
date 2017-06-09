@@ -146,6 +146,8 @@ Frame_myFragList Frame_makeFragList(Frame_myFrag head, Frame_myFragList tail);
 //      some machine-depedent instructions to make it work.
 myFrame Frame_newFrame(myLabel frameLabel, myBoolList formalFlags);
 
+void Frame_resetFrame(myFrame frame);
+
 //  DO:
 //      compare if two frame equals.
 //  PARAMS:
