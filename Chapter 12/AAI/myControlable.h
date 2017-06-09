@@ -153,7 +153,7 @@ namespace lgxZJ
                 explicit Call (myLabel oneFuncLabel, myTempList oneRegList);
 
                 virtual Registers GetDstRegs() const;
-                virtual Registers GetSrcRegs() const { return {}; }
+                virtual Registers GetSrcRegs() const;
 
                 virtual void ReplaceReg(Register oldReg, Register newReg);
                 std::string ToString() const;

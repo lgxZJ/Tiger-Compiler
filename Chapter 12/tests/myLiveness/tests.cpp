@@ -249,6 +249,11 @@ class LivenessTest : public CppUnit::TestFixture
             CPPUNIT_TEST(testCtor_SixthCFGraph_GenerateInterferenceGraph);
             CPPUNIT_TEST(testCtor_SixthCFGraph_GenerateMovePairs);
 
+            CPPUNIT_TEST(testCtor_SeventhCGraph_CalculateOut);
+            CPPUNIT_TEST(testCtor_SeventhCGraph_CalculateIn);
+            CPPUNIT_TEST(testCtor_SeventhCFGraph_GenerateInterferenceGraph);
+            CPPUNIT_TEST(testCtor_SeventhCFGraph_GenerateMovePairs);
+
             CPPUNIT_TEST_SUITE_END();
 
         
@@ -445,6 +450,32 @@ class LivenessTest : public CppUnit::TestFixture
                 make_shared<IMul>(reg35),
                 make_shared<Add>(reg37, Frame_EAX()),
                 make_shared<Move>(reg38, reg37, Move::OperandType::Content, Move::OperandType::Memory)
+            });
+        }
+
+        //
+        //  Make a control flow graph with following instructions:
+        //      1.regA = 1
+        //      2.regB = 2
+        //      3.call label(regA, regB)
+        //
+        //  Liveness results should be the following:
+        //  |   line num    |    use/defs    |   out / in    |
+        //  |       1       |       /regA    |   regA/       | 
+        //  |       2       |       /regB    |regA,regB/regA |
+        //  |       3       |regA,regB/eax,ecx,edx|  /regA,regB|
+        //
+        //  Interference graph should be:
+        //      regA --- regB
+        //  The move pairs should be:
+        //      null
+        CFGraph makeSeventhCFGraph(myTemp regA, myTemp regB)
+        {
+            return CFGraph(Instructions {
+                make_shared<Move>(regA, Move::OperandType::Content, 1),
+                make_shared<Move>(regB, Move::OperandType::Content, 2),
+                make_shared<Call>(Temp_newLabel(),
+                    Temp_makeTempList(regA, Temp_makeTempList(regB, NULL)))
             });
         }
 
@@ -811,6 +842,58 @@ class LivenessTest : public CppUnit::TestFixture
             Liveness liveness(makeSixthCFGraph(reg32, reg20, reg33, reg36, reg11, reg37, reg34, reg35, reg38));
 
             CPPUNIT_ASSERT_EQUAL((size_t)2, liveness.GetMovePairs().size());
+        }
+
+        //////////////////////////////////////////////////////////////////
+
+        void testCtor_SeventhCGraph_CalculateOut()
+        {
+            myTemp regA = Temp_newTemp();
+            myTemp regB = Temp_newTemp();
+
+            Liveness liveness(makeSeventhCFGraph(regA, regB));
+
+            LivenessMock mock(liveness);
+            CPPUNIT_ASSERT_EQUAL((size_t)0, mock.GetOut().at(2).size());
+            AssertOneRegisters_Two(mock.GetOut().at(1), regA, regB);
+            AssertOneRegisters_One(mock.GetOut().at(0), regA);
+        }
+
+        void testCtor_SeventhCGraph_CalculateIn()
+        {
+            myTemp regA = Temp_newTemp();
+            myTemp regB = Temp_newTemp();
+
+            Liveness liveness(makeSeventhCFGraph(regA, regB));
+
+            LivenessMock mock(liveness);
+            AssertOneRegisters_Two(mock.GetIn().at(2), regA, regB);
+            AssertOneRegisters_One(mock.GetIn().at(1), regA);
+            CPPUNIT_ASSERT_EQUAL((size_t)0, mock.GetIn().at(0).size());
+        }
+
+        void testCtor_SeventhCFGraph_GenerateInterferenceGraph()
+        {
+            myTemp regA = Temp_newTemp();
+            myTemp regB = Temp_newTemp();
+
+            InterferenceGraph ifGraph =
+                Liveness(makeSeventhCFGraph(regA, regB)).GetInterferenceGraph();
+
+            const DirectedGraph graph = ifGraph.GetDGRef();
+            CPPUNIT_ASSERT_EQUAL(5, ifGraph.GetNodeSize());
+            CPPUNIT_ASSERT_EQUAL((size_t)1, graph.GetEdges().size());
+            CPPUNIT_ASSERT_EQUAL(true, ifGraph.EdgesContains(regA, regB));
+        }
+
+        void testCtor_SeventhCFGraph_GenerateMovePairs()
+        {
+            myTemp regA = Temp_newTemp();
+            myTemp regB = Temp_newTemp();
+
+            Liveness liveness(makeSeventhCFGraph(regA, regB));
+
+            CPPUNIT_ASSERT_EQUAL((size_t)0, liveness.GetMovePairs().size());
         }
 };
 

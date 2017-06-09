@@ -151,11 +151,13 @@ namespace lgxZJ
             assert (regList &&  (regList->head == Frame_EBP()));
             myTempList temps = regList->tail;
 
+            //  push parameter registers in reverse order
             int varCount = 0;
             while (temps)
             {
                 ++varCount;
-                resultStr += ("\tpushl " + TwoOperandOperate::OneRegToCode(temps->head, map) + "\n");
+                resultStr = ("\tpushl " + TwoOperandOperate::OneRegToCode(temps->head, map) + "\n")
+                            + resultStr;
                 temps = temps->tail;
             }
 
@@ -166,19 +168,25 @@ namespace lgxZJ
 
         string Call::FindFuncNameOfLabel(myLabel label) const
         {
-            // Frame_myFragList procFrags = Trans_getProcFrags();
-            // while (procFrags)
-            // {
-            //     myLabel funcLabel = MyEnvironment_getFuncLabel(
-            //                     MyEnvironment_getVarOrFuncFromName(
-            //                         MySemantic_getVarAndFuncEnvironment(), 
-            //                         procFrags->head->u.procFrag.funcName));
-            //     assert (funcLabel != NULL);
-            //     if (funcLabel == label)
-            //         return string(MySymbol_GetName(procFrags->head->u.procFrag.funcName));
-            // }
-            // assert (false && "never got here");
-            assert (label != NULL);
+            //  because we saved a mistake information of function call,
+            //  here we have to traverse the function environment to get
+            //  the function name.
+            Frame_myFragList procFrags = Trans_getProcFrags();
+            while (procFrags)
+            {
+                myLabel funcLabel = MyEnvironment_getFuncLabel(
+                                MyEnvironment_getVarOrFuncFromName(
+                                    MySemantic_getVarAndFuncEnvironment(), 
+                                    procFrags->head->u.procFrag.funcName));
+                assert (funcLabel != NULL);
+                if (funcLabel == label)
+                    return string(MySymbol_GetName(procFrags->head->u.procFrag.funcName));
+                
+                procFrags = procFrags->tail;
+            }
+
+            //  if user defined function name not find, this is a internal or predefine
+            //  function`
             return Temp_getLabelString(label);
         }
 
@@ -186,8 +194,21 @@ namespace lgxZJ
         {
             Registers result;
         
+            //  todo: ad caller-reg save insuctions
             //  caller-save contains eax register which is also the result value register.
             myTempList temps = Frame_callerSaveRegs();
+            while (temps)
+                result.push_back(temps->head),
+                temps = temps->tail;
+
+            return result;
+        }
+
+        Registers Call::GetSrcRegs() const
+        {
+            Registers result;
+        
+            myTempList temps = regList;
             while (temps)
                 result.push_back(temps->head),
                 temps = temps->tail;
