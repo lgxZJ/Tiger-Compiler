@@ -1,0 +1,6 @@
+let
+	var varName := 0
+	function foo() : int = varName
+in
+	varName
+end

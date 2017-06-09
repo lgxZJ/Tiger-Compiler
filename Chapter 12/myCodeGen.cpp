@@ -1,4 +1,6 @@
 #include "myCodeGen.h"
+#include "CXX_myEnvironment.h"
+#include "CXX_mySemantic.h"
 #include "CXX_frontTester.h"
 
 #include <fstream>
@@ -40,21 +42,22 @@ namespace lgxZJ
         }
     }
 
+    extern "C" mySymbol makeSymbol_(myString, mySymbol);
     void CodeGenerator::WriteMainProc(ofstream& outFile, IR_myStatement statements)
     {
         outFile << ".section .text\n"
                 << ".globl _start\n"
                 << "_start:\n";
-        WriteProcBody(outFile, statements);
+        WriteProcBody(outFile, makeSymbol_((myString)"_start", nullptr), statements);
         WriteMainExit(outFile);
     }
 
-    void CodeGenerator::WriteProcBody(ofstream& outFile, IR_myStatement statements)
+    void CodeGenerator::WriteProcBody(ofstream& outFile, mySymbol procName, IR_myStatement statements)
     {
         Instructions ins;
         RegisterMap map;
         int localCount;
-        GenOneProcIns(statements, &map, &ins, &localCount);
+        GenOneProcIns(procName, statements, &map, &ins, &localCount);
 
         WritePrologue(outFile, map, localCount);
         for (auto oneIns : ins)
@@ -134,15 +137,16 @@ namespace lgxZJ
             outFile << ".type " << procName << ", @function\n";
             outFile << procName << ":\n";
             
-            WriteProcBody(outFile, frag->u.procFrag.body);
-            outFile << "\tret\n";
+            WriteProcBody(outFile, frag->u.procFrag.funcName, frag->u.procFrag.body);
+            outFile << "\tret\n\n";
 
             procFrags = procFrags->tail;
         }
     }
 
     void CodeGenerator::GenOneProcIns(
-        IR_myStatement statements, RegisterMap* map, Instructions* ins, int* localCount)
+        mySymbol procName, IR_myStatement statements,
+        RegisterMap* map, Instructions* ins, int* localCount)
     {
         //  canonical phase
         Statements states = Canonical::Canonical::Linearize(statements);
@@ -155,13 +159,20 @@ namespace lgxZJ
         Munch::All(statesFlattened);
 
         //  liveness analysis and register allocation phases
+        //  todo: remove the level param in RA
         int availableRegNum = Frame_registerNumber - 1;
         RegisterAllocation ra(
             Munch::GetIns(), Trans_outermostLevel(), availableRegNum);
 
         *map = ra.GetRegisterMap();
         *ins = ra.GetIns();
-        *localCount = Frame_getLocalCount(Trans_getFrame(Trans_outermostLevel()));
+        //  todo: check if it is
+        myVarAndFuncEntry funcEntry = MyEnvironment_getVarOrFuncFromName(
+                MySemantic_getVarAndFuncEnvironment(), procName);
+        if (funcEntry == NULL)  //  external functions
+            *localCount = Frame_getLocalCount(Trans_getFrame(MySemantic_getCurrentLevel()));
+        else
+            *localCount = Frame_getLocalCount(Trans_getFrame(MyEnvironment_getFuncLevel(funcEntry)));
     }
 
     void CodeGenerator::WriteStringData(ofstream& outFile)

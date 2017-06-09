@@ -1,0 +1,48 @@
+
+Eseq(
+  Seq(
+    Seq(
+      null    , 
+      null    )
+  , 
+    Seq(
+      Seq(
+        Seq(
+          Seq(
+            Seq(
+              Seq(
+                null              , 
+                Move(
+                  Temp(392)
+                , 
+                  Const(1)
+                )
+              )
+            , 
+              null            )
+          , 
+            Exp(
+              Call(
+                Name(malloc)
+              , 
+                Temp(frame pointer)
+              , 
+                Temp(392)
+              )
+            )
+          )
+        , 
+          Move(
+            Temp(393)
+          , 
+            Temp(return register)
+          )
+        )
+      , 
+        null      )
+    , 
+      null    )
+  )
+, 
+  Temp(393)
+)

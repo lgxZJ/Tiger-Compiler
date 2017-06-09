@@ -1,0 +1,226 @@
+
+Eseq(
+  Seq(
+    Seq(
+      null    , 
+      null    )
+  , 
+    Seq(
+      Seq(
+        Seq(
+          Seq(
+            Seq(
+              Seq(
+                Seq(
+                  Seq(
+                    Seq(
+                      Seq(
+                        Seq(
+                          Seq(
+                            Move(
+                              Temp(372)
+                            , 
+                              Const(10)
+                            )
+                          , 
+                            null                          )
+                        , 
+                          Seq(
+                            Seq(
+                              Seq(
+                                Seq(
+                                  Seq(
+                                    Seq(
+                                      Move(
+                                        Temp(375)
+                                      , 
+                                        Temp(372)
+                                      )
+                                    , 
+                                      CJump(GreaterThan, 
+                                        Temp(375)
+                                      , 
+                                        Const(0)
+                                      , Label93, empty,                                       )
+                                    )
+                                  , 
+                                    Seq(
+                                      Move(
+                                        Temp(376)
+                                      , 
+                                        Const(53)
+                                      )
+                                    , 
+                                      Exp(
+                                        Call(
+                                          Name(exit)
+                                        , 
+                                          Temp(frame pointer)
+                                        , 
+                                          Temp(376)
+                                        )
+                                      )
+                                    )
+                                  )
+                                , 
+                                  Label(Label93)
+                                )
+                              , 
+                                CJump(LessEqual, 
+                                  Temp(375)
+                                , 
+                                  Const(1024)
+                                , Label94, empty,                                 )
+                              )
+                            , 
+                              Seq(
+                                Move(
+                                  Temp(377)
+                                , 
+                                  Const(53)
+                                )
+                              , 
+                                Exp(
+                                  Call(
+                                    Name(exit)
+                                  , 
+                                    Temp(frame pointer)
+                                  , 
+                                    Temp(377)
+                                  )
+                                )
+                              )
+                            )
+                          , 
+                            Label(Label94)
+                          )
+                        )
+                      , 
+                        Seq(
+                          Move(
+                            Temp(378)
+                          , 
+                            Const(4)
+                          )
+                        , 
+                          null                        )
+                      )
+                    , 
+                      Seq(
+                        Seq(
+                          Seq(
+                            Seq(
+                              null                            , 
+                              Seq(
+                                null                              , 
+                                Exp(
+                                  BinOperation(Multiply, 
+                                    Temp(375)
+                                  , 
+                                    Temp(378)
+                                  )
+                                )
+                              )
+                            )
+                          , 
+                            null                          )
+                        , 
+                          Exp(
+                            Call(
+                              Name(malloc)
+                            , 
+                              Temp(frame pointer)
+                            , 
+                              Temp(return register)
+                            )
+                          )
+                        )
+                      , 
+                        Move(
+                          Temp(379)
+                        , 
+                          Temp(return register)
+                        )
+                      )
+                    )
+                  , 
+                    Move(
+                      Temp(380)
+                    , 
+                      Temp(379)
+                    )
+                  )
+                , 
+                  Seq(
+                    Move(
+                      Temp(373)
+                    , 
+                      Const(5)
+                    )
+                  , 
+                    null                  )
+                )
+              , 
+                Move(
+                  Temp(381)
+                , 
+                  Const(0)
+                )
+              )
+            , 
+              Label(Label95)
+            )
+          , 
+            CJump(GreaterEqual, 
+              Temp(381)
+            , 
+              Temp(372)
+            , Label96, empty,             )
+          )
+        , 
+          Seq(
+            Seq(
+              Seq(
+                Seq(
+                  Move(
+                    Mem(
+                      Temp(379)
+                    )
+                  , 
+                    Temp(373)
+                  )
+                , 
+                  Exp(
+                    BinOperation(Plus, 
+                      Temp(379)
+                    , 
+                      Const(4)
+                    )
+                  )
+                )
+              , 
+                Exp(
+                  BinOperation(Plus, 
+                    Temp(381)
+                  , 
+                    Const(1)
+                  )
+                )
+              )
+            , 
+              Jump(
+                Name(Label95)
+              )
+            )
+          , 
+            Label(Label96)
+          )
+        )
+      , 
+        null      )
+    , 
+      null    )
+  )
+, 
+  Temp(380)
+)

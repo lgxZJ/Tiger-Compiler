@@ -1,0 +1,6 @@
+let
+	var varName := 0
+	var varTwo : int := 12
+in
+end
+

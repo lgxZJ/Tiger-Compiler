@@ -1,0 +1,137 @@
+
+Eseq(
+  Seq(
+    Seq(
+      Seq(
+        Seq(
+          Seq(
+            Seq(
+              Seq(
+                Seq(
+                  Move(
+                    Temp(621)
+                  , 
+                    Const(1)
+                  )
+                , 
+                  null                )
+              , 
+                Seq(
+                  Move(
+                    Temp(622)
+                  , 
+                    Const(1)
+                  )
+                , 
+                  null                )
+              )
+            , 
+              Move(
+                Temp(623)
+              , 
+                Temp(621)
+              )
+            )
+          , 
+            Exp(
+              BinOperation(Minus, 
+                Temp(623)
+              , 
+                Temp(622)
+              )
+            )
+          )
+        , 
+          null        )
+      , 
+        CJump(Equal, 
+          Temp(623)
+        , 
+          Const(0)
+        , Label123, empty,         )
+      )
+    , 
+      Seq(
+        Seq(
+          Seq(
+            Seq(
+              Seq(
+                Seq(
+                  Seq(
+                    Move(
+                      Temp(624)
+                    , 
+                      Const(2)
+                    )
+                  , 
+                    null                  )
+                , 
+                  Seq(
+                    Seq(
+                      Seq(
+                        Seq(
+                          Seq(
+                            Move(
+                              Temp(625)
+                            , 
+                              Const(3)
+                            )
+                          , 
+                            null                          )
+                        , 
+                          Seq(
+                            Move(
+                              Temp(626)
+                            , 
+                              Const(3)
+                            )
+                          , 
+                            null                          )
+                        )
+                      , 
+                        Move(
+                          Temp(627)
+                        , 
+                          Temp(625)
+                        )
+                      )
+                    , 
+                      Exp(
+                        BinOperation(Divide, 
+                          Temp(627)
+                        , 
+                          Temp(626)
+                        )
+                      )
+                    )
+                  , 
+                    null                  )
+                )
+              , 
+                Move(
+                  Temp(628)
+                , 
+                  Temp(624)
+                )
+              )
+            , 
+              Exp(
+                BinOperation(Plus, 
+                  Temp(628)
+                , 
+                  Temp(627)
+                )
+              )
+            )
+          , 
+            null          )
+        , 
+          null        )
+      , 
+        null      )
+    )
+  , 
+    Label(Label123)
+  )
+, 
+  null)

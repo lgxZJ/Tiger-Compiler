@@ -187,6 +187,7 @@ namespace lgxZJ
 
             //  if user defined function name not find, this is a internal or predefine
             //  function`
+            //  todo: check if it is
             return Temp_getLabelString(label);
         }
 

@@ -1,0 +1,48 @@
+
+Eseq(
+  Seq(
+    Seq(
+      null    , 
+      null    )
+  , 
+    Seq(
+      Seq(
+        Seq(
+          Seq(
+            Seq(
+              null            , 
+              Seq(
+                Move(
+                  Temp(330)
+                , 
+                  Const(1)
+                )
+              , 
+                null              )
+            )
+          , 
+            null          )
+        , 
+          Exp(
+            Call(
+              Name(Label77)
+            , 
+              Temp(frame pointer)
+            , 
+              Temp(330)
+            )
+          )
+        )
+      , 
+        Move(
+          Temp(331)
+        , 
+          Temp(return register)
+        )
+      )
+    , 
+      null    )
+  )
+, 
+  Temp(331)
+)

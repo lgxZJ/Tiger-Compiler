@@ -1,0 +1,17 @@
+foo:
+
+  Seq(
+    Move(
+      Temp(349)
+    , 
+      Const(0)
+    )
+  , 
+    Move(
+      Temp(return register)
+    , 
+      Temp(349)
+    )
+  )
+
+

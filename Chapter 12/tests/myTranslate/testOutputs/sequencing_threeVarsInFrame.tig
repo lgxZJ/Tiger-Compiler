@@ -1,0 +1,284 @@
+
+Eseq(
+  Seq(
+    Seq(
+      Seq(
+        Seq(
+          Seq(
+            Seq(
+              Seq(
+                Seq(
+                  Move(
+                    Temp(556)
+                  , 
+                    Temp(frame pointer)
+                  )
+                , 
+                  Seq(
+                    Exp(
+                      BinOperation(Plus, 
+                        Temp(556)
+                      , 
+                        Const(168)
+                      )
+                    )
+                  , 
+                    null                  )
+                )
+              , 
+                null              )
+            , 
+              Seq(
+                Move(
+                  Temp(554)
+                , 
+                  Const(1)
+                )
+              , 
+                null              )
+            )
+          , 
+            Move(
+              Mem(
+                Temp(556)
+              )
+            , 
+              Temp(554)
+            )
+          )
+        , 
+          Move(
+            Temp(557)
+          , 
+            Mem(
+              Temp(556)
+            )
+          )
+        )
+      , 
+        Seq(
+          Seq(
+            Seq(
+              Seq(
+                Seq(
+                  Seq(
+                    Move(
+                      Temp(560)
+                    , 
+                      Temp(frame pointer)
+                    )
+                  , 
+                    Seq(
+                      Exp(
+                        BinOperation(Plus, 
+                          Temp(560)
+                        , 
+                          Const(172)
+                        )
+                      )
+                    , 
+                      null                    )
+                  )
+                , 
+                  null                )
+              , 
+                Seq(
+                  Move(
+                    Temp(558)
+                  , 
+                    Const(2)
+                  )
+                , 
+                  null                )
+              )
+            , 
+              Move(
+                Mem(
+                  Temp(560)
+                )
+              , 
+                Temp(558)
+              )
+            )
+          , 
+            Move(
+              Temp(561)
+            , 
+              Mem(
+                Temp(560)
+              )
+            )
+          )
+        , 
+          Seq(
+            Seq(
+              Seq(
+                Seq(
+                  Seq(
+                    Seq(
+                      Move(
+                        Temp(564)
+                      , 
+                        Temp(frame pointer)
+                      )
+                    , 
+                      Seq(
+                        Exp(
+                          BinOperation(Plus, 
+                            Temp(564)
+                          , 
+                            Const(176)
+                          )
+                        )
+                      , 
+                        null                      )
+                    )
+                  , 
+                    null                  )
+                , 
+                  Seq(
+                    Move(
+                      Temp(562)
+                    , 
+                      Const(3)
+                    )
+                  , 
+                    null                  )
+                )
+              , 
+                Move(
+                  Mem(
+                    Temp(564)
+                  )
+                , 
+                  Temp(562)
+                )
+              )
+            , 
+              Move(
+                Temp(565)
+              , 
+                Mem(
+                  Temp(564)
+                )
+              )
+            )
+          , 
+            null          )
+        )
+      )
+    , 
+      Seq(
+        null      , 
+        null      )
+    )
+  , 
+    Seq(
+      Seq(
+        Seq(
+          Seq(
+            Seq(
+              Seq(
+                Move(
+                  Temp(578)
+                , 
+                  Temp(frame pointer)
+                )
+              , 
+                Seq(
+                  Exp(
+                    BinOperation(Plus, 
+                      Temp(578)
+                    , 
+                      Const(168)
+                    )
+                  )
+                , 
+                  null                )
+              )
+            , 
+              Seq(
+                null              , 
+                Move(
+                  Temp(580)
+                , 
+                  Mem(
+                    Temp(578)
+                  )
+                )
+              )
+            )
+          , 
+            Seq(
+              Seq(
+                Move(
+                  Temp(579)
+                , 
+                  Temp(frame pointer)
+                )
+              , 
+                Seq(
+                  Exp(
+                    BinOperation(Plus, 
+                      Temp(579)
+                    , 
+                      Const(172)
+                    )
+                  )
+                , 
+                  null                )
+              )
+            , 
+              Seq(
+                null              , 
+                Move(
+                  Temp(581)
+                , 
+                  Mem(
+                    Temp(579)
+                  )
+                )
+              )
+            )
+          )
+        , 
+          Seq(
+            Seq(
+              Move(
+                Temp(582)
+              , 
+                Temp(frame pointer)
+              )
+            , 
+              Seq(
+                Exp(
+                  BinOperation(Plus, 
+                    Temp(582)
+                  , 
+                    Const(176)
+                  )
+                )
+              , 
+                null              )
+            )
+          , 
+            Seq(
+              null            , 
+              Move(
+                Temp(583)
+              , 
+                Mem(
+                  Temp(582)
+                )
+              )
+            )
+          )
+        )
+      , 
+        null      )
+    , 
+      null    )
+  )
+, 
+  Temp(583)
+)

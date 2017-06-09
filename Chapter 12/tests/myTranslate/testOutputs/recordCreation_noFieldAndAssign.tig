@@ -1,0 +1,94 @@
+
+Eseq(
+  Seq(
+    Seq(
+      null    , 
+      Seq(
+        Seq(
+          Seq(
+            Seq(
+              Seq(
+                Seq(
+                  Seq(
+                    Move(
+                      Temp(400)
+                    , 
+                      Temp(frame pointer)
+                    )
+                  , 
+                    Seq(
+                      Exp(
+                        BinOperation(Plus, 
+                          Temp(400)
+                        , 
+                          Const(108)
+                        )
+                      )
+                    , 
+                      null                    )
+                  )
+                , 
+                  null                )
+              , 
+                Seq(
+                  Seq(
+                    Seq(
+                      Seq(
+                        Seq(
+                          null                        , 
+                          Move(
+                            Temp(396)
+                          , 
+                            Const(1)
+                          )
+                        )
+                      , 
+                        null                      )
+                    , 
+                      Exp(
+                        Call(
+                          Name(malloc)
+                        , 
+                          Temp(frame pointer)
+                        , 
+                          Temp(396)
+                        )
+                      )
+                    )
+                  , 
+                    Move(
+                      Temp(397)
+                    , 
+                      Temp(return register)
+                    )
+                  )
+                , 
+                  null                )
+              )
+            , 
+              Move(
+                Mem(
+                  Temp(400)
+                )
+              , 
+                Temp(397)
+              )
+            )
+          , 
+            Move(
+              Temp(401)
+            , 
+              Mem(
+                Temp(400)
+              )
+            )
+          )
+        , 
+          null        )
+      , 
+        null      )
+    )
+  , 
+    null  )
+, 
+  null)

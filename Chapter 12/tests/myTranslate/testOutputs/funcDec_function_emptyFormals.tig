@@ -1,0 +1,40 @@
+foo:
+
+  Seq(
+    Seq(
+      Move(
+        Temp(45)
+      , 
+        Const(0)
+      )
+    , 
+      null    )
+  , 
+    Move(
+      Temp(return register)
+    , 
+      Temp(45)
+    )
+  )
+
+
+poo:
+
+  Seq(
+    Seq(
+      Move(
+        Temp(47)
+      , 
+        Const(1)
+      )
+    , 
+      null    )
+  , 
+    Move(
+      Temp(return register)
+    , 
+      Temp(47)
+    )
+  )
+
+

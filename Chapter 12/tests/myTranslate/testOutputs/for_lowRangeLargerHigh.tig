@@ -1,0 +1,66 @@
+
+Eseq(
+  Seq(
+    Seq(
+      Seq(
+        Seq(
+          Move(
+            Temp(600)
+          , 
+            Const(6)
+          )
+        , 
+          null        )
+      , 
+        Move(
+          Temp(602)
+        , 
+          Temp(600)
+        )
+      )
+    , 
+      Seq(
+        Move(
+          Temp(601)
+        , 
+          Const(1)
+        )
+      , 
+        null      )
+    )
+  , 
+    Seq(
+      Seq(
+        Seq(
+          Seq(
+            Label(Label117)
+          , 
+            CJump(GreaterThan, 
+              Temp(602)
+            , 
+              Temp(601)
+            , Label116, empty,             )
+          )
+        , 
+          Seq(
+            null          , 
+            Exp(
+              BinOperation(Plus, 
+                Temp(602)
+              , 
+                Const(1)
+              )
+            )
+          )
+        )
+      , 
+        Jump(
+          Name(Label117)
+        )
+      )
+    , 
+      Label(Label116)
+    )
+  )
+, 
+  null)

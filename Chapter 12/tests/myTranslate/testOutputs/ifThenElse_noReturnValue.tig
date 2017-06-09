@@ -1,0 +1,111 @@
+
+Eseq(
+  Seq(
+    Seq(
+      Seq(
+        Seq(
+          Seq(
+            Seq(
+              Seq(
+                Move(
+                  Temp(603)
+                , 
+                  Const(1)
+                )
+              , 
+                null              )
+            , 
+              CJump(Equal, 
+                Temp(603)
+              , 
+                Const(0)
+              , Label118, empty,               )
+            )
+          , 
+            Seq(
+              Seq(
+                Seq(
+                  Move(
+                    Temp(604)
+                  , 
+                    Const(1)
+                  )
+                , 
+                  null                )
+              , 
+                null              )
+            , 
+              null            )
+          )
+        , 
+          Jump(
+            Name(Label119)
+          )
+        )
+      , 
+        Label(Label118)
+      )
+    , 
+      Seq(
+        Seq(
+          Seq(
+            Seq(
+              Move(
+                Temp(605)
+              , 
+                Const(2)
+              )
+            , 
+              null            )
+          , 
+            Seq(
+              Seq(
+                Seq(
+                  Seq(
+                    Seq(
+                      Move(
+                        Temp(606)
+                      , 
+                        Const(3)
+                      )
+                    , 
+                      null                    )
+                  , 
+                    Seq(
+                      Move(
+                        Temp(607)
+                      , 
+                        Const(3)
+                      )
+                    , 
+                      null                    )
+                  )
+                , 
+                  Move(
+                    Temp(608)
+                  , 
+                    Temp(606)
+                  )
+                )
+              , 
+                Exp(
+                  BinOperation(Plus, 
+                    Temp(608)
+                  , 
+                    Temp(607)
+                  )
+                )
+              )
+            , 
+              null            )
+          )
+        , 
+          null        )
+      , 
+        null      )
+    )
+  , 
+    Label(Label119)
+  )
+, 
+  null)

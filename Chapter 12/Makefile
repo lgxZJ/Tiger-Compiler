@@ -22,7 +22,7 @@ VPATH := ./AAI
 
 all.out : $(COVERAGE_FOLDER) $(OBJECTS)
 > g++ -g -coverage -o $(OUT_DIR)/all.out $(OBJECTS) -static -lcppunit
-> rm -f bin/*.o bin/*~ bin/output/*.o
+> rm -f ./bin/*.o ./bin/*~ ./bin/output/*.o
 
 $(OBJECTS) : | $(OUT_DIR)
 

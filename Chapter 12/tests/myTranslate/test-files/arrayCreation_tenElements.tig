@@ -1,0 +1,5 @@
+let
+	type arrayType = array of int
+in
+	arrayType[10] of 5
+end

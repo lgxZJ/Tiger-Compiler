@@ -1,0 +1,8 @@
+let
+	type arrayType = array of int
+	var varOne := arrayType[11] of 1
+	var varTwo := arrayType[22] of 2
+in
+	1111111 + 111111111; /* use used to locate line below in translation file */
+	varOne = varTwo & 12
+end

@@ -2769,6 +2769,7 @@ myTranslationAndType MySemantic_Exp(myExp exp)
 
     MySemantic_enterNewLevel(Trans_outermostLevel());
     myTranslationAndType result = MySemantic_Exp_(exp);
-    MySemantic_leaveNewLevel();
+    //  no call to MySemantic_leaveNewLevel(), we will need
+    //  this level information on later phases
     return result;
 }

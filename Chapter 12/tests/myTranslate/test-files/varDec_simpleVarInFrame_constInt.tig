@@ -1,0 +1,5 @@
+let
+	var varName := 0
+	function vpp() : int = varName
+in
+end

@@ -1,0 +1,11 @@
+let
+	var varName := 1
+	function foo(a:int, b:string) : int = 
+		let 
+			var varOne := 2
+			function poo() : int = varName
+		in
+			varName
+		end
+in
+end

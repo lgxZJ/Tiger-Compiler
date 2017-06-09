@@ -1,0 +1,5 @@
+let
+	var varOne := "string one"
+	var varTwo := "string two"
+in
+end

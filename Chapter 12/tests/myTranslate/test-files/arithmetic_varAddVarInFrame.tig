@@ -1,0 +1,7 @@
+let
+	var varOne := 11
+	var varTwo := 22
+	function foo() : int = (varOne; varTwo)
+in
+	varOne + varTwo
+end

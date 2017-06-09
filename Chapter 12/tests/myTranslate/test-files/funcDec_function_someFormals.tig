@@ -1,0 +1,4 @@
+let
+	function foo(a:int, b:int) : int = a
+in
+end

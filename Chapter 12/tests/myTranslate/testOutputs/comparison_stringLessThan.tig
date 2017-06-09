@@ -1,0 +1,97 @@
+
+Eseq(
+  Seq(
+    Seq(
+      Seq(
+        Seq(
+          null        , 
+          Seq(
+            Move(
+              Temp(641)
+            , 
+              Name(Label136)
+            )
+          , 
+            null          )
+        )
+      , 
+        Seq(
+          Move(
+            Temp(642)
+          , 
+            Name(Label137)
+          )
+        , 
+          null        )
+      )
+    , 
+      Seq(
+        Seq(
+          Seq(
+            Seq(
+              null            , 
+              null            )
+          , 
+            null          )
+        , 
+          Exp(
+            Call(
+              Name(strCompare)
+            , 
+              Temp(641)
+            , 
+              Temp(642)
+            )
+          )
+        )
+      , 
+        Move(
+          Temp(643)
+        , 
+          Temp(return register)
+        )
+      )
+    )
+  , 
+    Seq(
+      Seq(
+        Seq(
+          Seq(
+            Seq(
+              Seq(
+                null              , 
+                CJump(LessThan, 
+                  Temp(643)
+                , 
+                  Const(0)
+                , Label138, empty,                 )
+              )
+            , 
+              Move(
+                Temp(644)
+              , 
+                Const(0)
+              )
+            )
+          , 
+            Jump(
+              Name(Label139)
+            )
+          )
+        , 
+          Label(Label138)
+        )
+      , 
+        Move(
+          Temp(644)
+        , 
+          Const(1)
+        )
+      )
+    , 
+      Label(Label139)
+    )
+  )
+, 
+  Temp(644)
+)

@@ -129,12 +129,13 @@ Trans_myLevel Trans_outermostLevel(void)
         g_outermostLevel =
             makeMemoryBlock(sizeof(g_outermostLevel), MEMORY_TYPE_NONE);
         assert (g_outermostLevel);
+
+        myLabel outermostLabel = Temp_newNamedLabel("outmost");
+        myBoolList noFormalFlags = NULL;
+        g_outermostLevel->frame = Frame_newFrame(outermostLabel, noFormalFlags);
+        g_outermostLevel->formals = NULL;
     }
 
-    myLabel outermostLabel = Temp_newNamedLabel("outmost");
-    myBoolList noFormalFlags = NULL;
-    g_outermostLevel->frame = Frame_newFrame(outermostLabel, noFormalFlags);
-    g_outermostLevel->formals = NULL;
     return g_outermostLevel;
 }
 
