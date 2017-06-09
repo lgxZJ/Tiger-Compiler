@@ -319,7 +319,7 @@ IR_myExp calculateVarAddr(Trans_myAccess access)
     ALLOCATE_AND_SET_ITERATOR();
     IR_myStatement state = IR_makeExp(IR_makeBinOperation(IR_Plus,
                 tempExp,
-                IR_makeConst(Frame_getAccessOffset(access->access))));
+                IR_makeConst(-Frame_getAccessOffset(access->access))));
     SET_VALUE(state);
 
     return IR_makeESeq(sum, tempExp);
