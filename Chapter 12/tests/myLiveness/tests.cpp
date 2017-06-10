@@ -254,6 +254,16 @@ class LivenessTest : public CppUnit::TestFixture
             CPPUNIT_TEST(testCtor_SeventhCFGraph_GenerateInterferenceGraph);
             CPPUNIT_TEST(testCtor_SeventhCFGraph_GenerateMovePairs);
 
+            CPPUNIT_TEST(testCtor_EighthCGraph_CalculateOut);
+            CPPUNIT_TEST(testCtor_EighthCGraph_CalculateIn);
+            CPPUNIT_TEST(testCtor_EighthCFGraph_GenerateInterferenceGraph);
+            CPPUNIT_TEST(testCtor_EightCFGraph_GenerateMovePairs);
+
+            CPPUNIT_TEST(testCtor_NinthCGraph_CalculateOut);
+            CPPUNIT_TEST(testCtor_NinthCGraph_CalculateIn);
+            CPPUNIT_TEST(testCtor_NinthCGraph_CalculateInterferenceGraph);
+            CPPUNIT_TEST(testCtor_NinthCFGraph_GenerateMovePairs);
+
             CPPUNIT_TEST_SUITE_END();
 
         
@@ -476,6 +486,54 @@ class LivenessTest : public CppUnit::TestFixture
                 make_shared<Move>(regB, Move::OperandType::Content, 2),
                 make_shared<Call>(Temp_newLabel(),
                     Temp_makeTempList(regA, Temp_makeTempList(regB, NULL)))
+            });
+        }
+
+
+        CFGraph makeEighthIns(
+            myTemp reg142, myTemp reg144, myTemp reg143, myTemp reg145, myTemp reg146)
+        {
+            return CFGraph(Instructions {
+                make_shared<Move>(reg142, Frame_EBP(), Move::OperandType::Content, Move::OperandType::Content),
+                make_shared<Add>(reg142, -4),
+                make_shared<Move>(reg144, reg142, Move::OperandType::Content, Move::OperandType::Memory),
+                make_shared<Move>(reg143, Frame_EBP(), Move::OperandType::Content,Move::OperandType::Content),
+                make_shared<Add>(reg143, -8),
+                make_shared<Move>(reg145, reg143, Move::OperandType::Content,Move::OperandType::Memory),
+                make_shared<Move>(reg146, reg144, Move::OperandType::Content,Move::OperandType::Content),
+                make_shared<Add>(reg146, reg145),
+            });
+        }
+
+        CFGraph makeNinthIns(
+            myTemp reg131, myTemp reg133, myTemp reg134, myTemp reg137, myTemp reg135,
+            myTemp reg138, myTemp reg139, myTemp reg140, myTemp reg141,
+            myTemp reg142, myTemp reg144, myTemp reg143, myTemp reg145, myTemp reg146)
+        {
+            return CFGraph(Instructions {
+                make_shared<Move>(reg133, Frame_EBP(), Move::OperandType::Content, Move::OperandType::Content),
+                make_shared<Add>(reg133, -4),
+                make_shared<Move>(reg131, Move::OperandType::Content, 1),
+                make_shared<Move>(reg133, reg131, Move::OperandType::Memory, Move::OperandType::Content),
+                make_shared<Move>(reg134, reg133, Move::OperandType::Content, Move::OperandType::Memory),
+                make_shared<Move>(reg137, Frame_EBP(), Move::OperandType::Content, Move::OperandType::Content),
+                make_shared<Add>(reg137, -8),
+                make_shared<Move>(reg135, Move::OperandType::Content, 2),
+                make_shared<Move>(reg137, reg135, Move::OperandType::Memory, Move::OperandType::Content),
+                make_shared<Move>(reg138, reg137, Move::OperandType::Content, Move::OperandType::Memory),
+                make_shared<Move>(reg139, Move::OperandType::Content, 1),
+                make_shared<Move>(reg140, Move::OperandType::Content, 3),
+                make_shared<Move>(reg141, reg139, Move::OperandType::Content, Move::OperandType::Content),
+                make_shared<Add>(reg141, reg140),
+
+                make_shared<Move>(reg142, Frame_EBP(), Move::OperandType::Content, Move::OperandType::Content),
+                make_shared<Add>(reg142, -4),
+                make_shared<Move>(reg144, reg142, Move::OperandType::Content, Move::OperandType::Memory),
+                make_shared<Move>(reg143, Frame_EBP(), Move::OperandType::Content,Move::OperandType::Content),
+                make_shared<Add>(reg143, -8),
+                make_shared<Move>(reg145, reg143, Move::OperandType::Content,Move::OperandType::Memory),
+                make_shared<Move>(reg146, reg144, Move::OperandType::Content,Move::OperandType::Content),
+                make_shared<Add>(reg146, reg145),
             });
         }
 
@@ -894,6 +952,257 @@ class LivenessTest : public CppUnit::TestFixture
             Liveness liveness(makeSeventhCFGraph(regA, regB));
 
             CPPUNIT_ASSERT_EQUAL((size_t)0, liveness.GetMovePairs().size());
+        }
+
+        //////////////////////////////////////////////////////////////////
+
+        void testCtor_EighthCGraph_CalculateOut()
+        {
+            myTemp reg142 = Temp_newTemp();
+            myTemp reg144 = Temp_newTemp();
+            myTemp reg143 = Temp_newTemp();
+            myTemp reg145 = Temp_newTemp();
+            myTemp reg146 = Temp_newTemp();
+
+            Liveness liveness(makeEighthIns(reg142, reg144, reg143, reg145, reg146));
+
+            LivenessMock mock(liveness);
+            CPPUNIT_ASSERT_EQUAL((size_t)0, mock.GetOut().at(7).size());
+            AssertOneRegisters_Two(mock.GetOut().at(6), reg145, reg146);
+            AssertOneRegisters_Two(mock.GetOut().at(5), reg144, reg145);
+            AssertOneRegisters_Two(mock.GetOut().at(4), reg143, reg144);
+            AssertOneRegisters_Two(mock.GetOut().at(3), reg143, reg144);
+            AssertOneRegisters_Two(mock.GetOut().at(2), Frame_EBP(), reg144);
+            AssertOneRegisters_Two(mock.GetOut().at(1), Frame_EBP(), reg142);
+            AssertOneRegisters_Two(mock.GetOut().at(0), Frame_EBP(), reg142);
+        }
+
+        void testCtor_EighthCGraph_CalculateIn()
+        {
+            myTemp reg142 = Temp_newTemp();
+            myTemp reg144 = Temp_newTemp();
+            myTemp reg143 = Temp_newTemp();
+            myTemp reg145 = Temp_newTemp();
+            myTemp reg146 = Temp_newTemp();
+
+            Liveness liveness(makeEighthIns(reg142, reg144, reg143, reg145, reg146));
+
+            LivenessMock mock(liveness);
+            AssertOneRegisters_Two(mock.GetIn().at(7), reg145, reg146);
+            AssertOneRegisters_Two(mock.GetIn().at(6), reg145, reg144);
+            AssertOneRegisters_Two(mock.GetIn().at(5), reg144, reg143);
+            AssertOneRegisters_Two(mock.GetIn().at(4), reg143, reg144);
+            AssertOneRegisters_Two(mock.GetIn().at(3), Frame_EBP(), reg144);
+            AssertOneRegisters_Two(mock.GetIn().at(2), Frame_EBP(), reg142);
+            AssertOneRegisters_Two(mock.GetIn().at(1), Frame_EBP(), reg142);
+            AssertOneRegisters_One(mock.GetIn().at(0), Frame_EBP());
+        }
+
+        void testCtor_EighthCFGraph_GenerateInterferenceGraph()
+        {
+            myTemp reg142 = Temp_newTemp();
+            myTemp reg144 = Temp_newTemp();
+            myTemp reg143 = Temp_newTemp();
+            myTemp reg145 = Temp_newTemp();
+            myTemp reg146 = Temp_newTemp();
+
+            InterferenceGraph ifGraph =
+                Liveness(makeEighthIns(reg142, reg144, reg143, reg145, reg146))
+                    .GetInterferenceGraph();
+
+            const DirectedGraph graph = ifGraph.GetDGRef();
+            CPPUNIT_ASSERT_EQUAL(6, ifGraph.GetNodeSize());
+            CPPUNIT_ASSERT_EQUAL((size_t)5, graph.GetEdges().size());
+            CPPUNIT_ASSERT_EQUAL(true, ifGraph.EdgesContains(reg142, Frame_EBP()));
+            CPPUNIT_ASSERT_EQUAL(true, ifGraph.EdgesContains(Frame_EBP(), reg144));
+            CPPUNIT_ASSERT_EQUAL(true, ifGraph.EdgesContains(reg143, reg144));
+            CPPUNIT_ASSERT_EQUAL(true, ifGraph.EdgesContains(reg144, reg145));
+            CPPUNIT_ASSERT_EQUAL(true, ifGraph.EdgesContains(reg145, reg146));
+        }
+
+        void testCtor_EightCFGraph_GenerateMovePairs()
+        {
+            myTemp reg142 = Temp_newTemp();
+            myTemp reg144 = Temp_newTemp();
+            myTemp reg143 = Temp_newTemp();
+            myTemp reg145 = Temp_newTemp();
+            myTemp reg146 = Temp_newTemp();
+
+            Liveness liveness(makeEighthIns(reg142, reg144, reg143, reg145, reg146));
+
+            CPPUNIT_ASSERT_EQUAL((size_t)3, liveness.GetMovePairs().size());
+        }
+
+        /////////////////////////////////////////////////
+
+        void testCtor_NinthCGraph_CalculateOut()
+        {
+            myTemp reg131 = Temp_newTemp();
+            myTemp reg133 = Temp_newTemp();
+            myTemp reg134 = Temp_newTemp();
+            myTemp reg135 = Temp_newTemp(); 
+            myTemp reg137 = Temp_newTemp();
+            myTemp reg138 = Temp_newTemp();
+            myTemp reg139 = Temp_newTemp();
+            myTemp reg140 = Temp_newTemp();
+            myTemp reg141 = Temp_newTemp();
+
+            myTemp reg142 = Temp_newTemp();
+            myTemp reg144 = Temp_newTemp();
+            myTemp reg143 = Temp_newTemp();
+            myTemp reg145 = Temp_newTemp();
+            myTemp reg146 = Temp_newTemp();
+
+            Liveness liveness(makeNinthIns( reg131, reg133, reg134, reg137,
+                                            reg135, reg138, reg139, reg140,
+                                            reg141, reg142, reg144, reg143, 
+                                            reg145, reg146));
+
+            LivenessMock mock(liveness);
+            CPPUNIT_ASSERT_EQUAL((size_t)0, mock.GetOut().at(21).size());
+            AssertOneRegisters_Two(mock.GetOut().at(20), reg145, reg146);
+            AssertOneRegisters_Two(mock.GetOut().at(19), reg144, reg145);
+            AssertOneRegisters_Two(mock.GetOut().at(18), reg143, reg144);
+            AssertOneRegisters_Two(mock.GetOut().at(17), reg143, reg144);
+            AssertOneRegisters_Two(mock.GetOut().at(16), Frame_EBP(), reg144);
+            AssertOneRegisters_Two(mock.GetOut().at(15), Frame_EBP(), reg142);
+            AssertOneRegisters_Two(mock.GetOut().at(14), Frame_EBP(), reg142);
+            AssertOneRegisters_One(mock.GetOut().at(13), Frame_EBP());
+            AssertOneRegisters_Three(mock.GetOut().at(12), Frame_EBP(), reg140, reg141);
+            AssertOneRegisters_Three(mock.GetOut().at(11), Frame_EBP(), reg139, reg140);
+            AssertOneRegisters_Two(mock.GetOut().at(10), Frame_EBP(), reg139);
+            AssertOneRegisters_One(mock.GetOut().at(9), Frame_EBP());
+            AssertOneRegisters_Two(mock.GetOut().at(8), Frame_EBP(), reg137);
+            AssertOneRegisters_Three(mock.GetOut().at(7), Frame_EBP(), reg135, reg137);
+            AssertOneRegisters_Two(mock.GetOut().at(6), Frame_EBP(), reg137);
+            AssertOneRegisters_Two(mock.GetOut().at(5), Frame_EBP(), reg137);
+            AssertOneRegisters_One(mock.GetOut().at(4), Frame_EBP());
+            AssertOneRegisters_Two(mock.GetOut().at(3), Frame_EBP(), reg133);
+            AssertOneRegisters_Three(mock.GetOut().at(2), Frame_EBP(), reg131, reg133);
+            AssertOneRegisters_Two(mock.GetOut().at(1), Frame_EBP(), reg133);
+            AssertOneRegisters_Two(mock.GetOut().at(0), Frame_EBP(), reg133);
+        }
+
+        void testCtor_NinthCGraph_CalculateIn()
+        {
+            myTemp reg131 = Temp_newTemp();
+            myTemp reg133 = Temp_newTemp();
+            myTemp reg134 = Temp_newTemp();
+            myTemp reg135 = Temp_newTemp(); 
+            myTemp reg137 = Temp_newTemp();
+            myTemp reg138 = Temp_newTemp();
+            myTemp reg139 = Temp_newTemp();
+            myTemp reg140 = Temp_newTemp();
+            myTemp reg141 = Temp_newTemp();
+
+            myTemp reg142 = Temp_newTemp();
+            myTemp reg144 = Temp_newTemp();
+            myTemp reg143 = Temp_newTemp();
+            myTemp reg145 = Temp_newTemp();
+            myTemp reg146 = Temp_newTemp();
+
+            Liveness liveness(makeNinthIns( reg131, reg133, reg134, reg137,
+                                            reg135, reg138, reg139, reg140,
+                                            reg141, reg142, reg144, reg143, 
+                                            reg145, reg146));
+
+            LivenessMock mock(liveness);
+            AssertOneRegisters_Two(mock.GetIn().at(21), reg145, reg146);
+            AssertOneRegisters_Two(mock.GetIn().at(20), reg144, reg145);
+            AssertOneRegisters_Two(mock.GetIn().at(19), reg143, reg144);
+            AssertOneRegisters_Two(mock.GetIn().at(18), reg143, reg144);
+            AssertOneRegisters_Two(mock.GetIn().at(17), Frame_EBP(), reg144);
+            AssertOneRegisters_Two(mock.GetIn().at(16), Frame_EBP(), reg142);
+            AssertOneRegisters_Two(mock.GetIn().at(15), Frame_EBP(), reg142);
+            AssertOneRegisters_One(mock.GetIn().at(14), Frame_EBP());
+            AssertOneRegisters_Three(mock.GetIn().at(13), Frame_EBP(), reg140, reg141);
+            AssertOneRegisters_Three(mock.GetIn().at(12), Frame_EBP(), reg140, reg139);
+            AssertOneRegisters_Two(mock.GetIn().at(11), Frame_EBP(), reg139);
+            AssertOneRegisters_One(mock.GetIn().at(10), Frame_EBP());
+            AssertOneRegisters_Two(mock.GetIn().at(9), Frame_EBP(), reg137);
+            AssertOneRegisters_Three(mock.GetIn().at(8), Frame_EBP(), reg137, reg135);
+            AssertOneRegisters_Two(mock.GetIn().at(7), Frame_EBP(), reg137);
+            AssertOneRegisters_Two(mock.GetIn().at(6), Frame_EBP(), reg137);
+            AssertOneRegisters_One(mock.GetIn().at(5), Frame_EBP());
+            AssertOneRegisters_Two(mock.GetIn().at(4), Frame_EBP(), reg133);
+            AssertOneRegisters_Three(mock.GetIn().at(3), Frame_EBP(), reg133, reg131);
+            AssertOneRegisters_Two(mock.GetIn().at(2), Frame_EBP(), reg133);
+            AssertOneRegisters_Two(mock.GetIn().at(1), Frame_EBP(), reg133);
+            AssertOneRegisters_One(mock.GetIn().at(0), Frame_EBP());
+        }
+
+        void testCtor_NinthCGraph_CalculateInterferenceGraph()
+        {
+            myTemp reg131 = Temp_newTemp();
+            myTemp reg133 = Temp_newTemp();
+            myTemp reg134 = Temp_newTemp();
+            myTemp reg135 = Temp_newTemp(); 
+            myTemp reg137 = Temp_newTemp();
+            myTemp reg138 = Temp_newTemp();
+            myTemp reg139 = Temp_newTemp();
+            myTemp reg140 = Temp_newTemp();
+            myTemp reg141 = Temp_newTemp();
+
+            myTemp reg142 = Temp_newTemp();
+            myTemp reg144 = Temp_newTemp();
+            myTemp reg143 = Temp_newTemp();
+            myTemp reg145 = Temp_newTemp();
+            myTemp reg146 = Temp_newTemp();
+
+            InterferenceGraph ifGraph =
+                Liveness(makeNinthIns(  reg131, reg133, reg134, reg137,
+                                        reg135, reg138, reg139, reg140,
+                                        reg141, reg142, reg144, reg143, 
+                                        reg145, reg146))
+                    .GetInterferenceGraph();
+
+            const DirectedGraph graph = ifGraph.GetDGRef();
+            CPPUNIT_ASSERT_EQUAL(15, ifGraph.GetNodeSize());
+            CPPUNIT_ASSERT_EQUAL((size_t)18, graph.GetEdges().size());
+            CPPUNIT_ASSERT_EQUAL(true, ifGraph.EdgesContains(reg133, reg131));
+            CPPUNIT_ASSERT_EQUAL(true, ifGraph.EdgesContains(reg137, reg135));
+            CPPUNIT_ASSERT_EQUAL(true, ifGraph.EdgesContains(reg144, reg145));
+            CPPUNIT_ASSERT_EQUAL(true, ifGraph.EdgesContains(reg145, reg146));
+            CPPUNIT_ASSERT_EQUAL(true, ifGraph.EdgesContains(reg143, reg144));
+            CPPUNIT_ASSERT_EQUAL(true, ifGraph.EdgesContains(reg140, reg141));
+            CPPUNIT_ASSERT_EQUAL(true, ifGraph.EdgesContains(reg139, reg140));
+            
+            CPPUNIT_ASSERT_EQUAL(true, ifGraph.EdgesContains(reg133, Frame_EBP()));
+            CPPUNIT_ASSERT_EQUAL(true, ifGraph.EdgesContains(reg137, Frame_EBP()));
+            CPPUNIT_ASSERT_EQUAL(true, ifGraph.EdgesContains(reg131, Frame_EBP()));
+            CPPUNIT_ASSERT_EQUAL(true, ifGraph.EdgesContains(reg135, Frame_EBP()));
+            CPPUNIT_ASSERT_EQUAL(true, ifGraph.EdgesContains(reg144, Frame_EBP()));
+            CPPUNIT_ASSERT_EQUAL(true, ifGraph.EdgesContains(reg142, Frame_EBP()));
+            CPPUNIT_ASSERT_EQUAL(true, ifGraph.EdgesContains(reg141, Frame_EBP()));
+            CPPUNIT_ASSERT_EQUAL(true, ifGraph.EdgesContains(reg139, Frame_EBP()));
+            CPPUNIT_ASSERT_EQUAL(true, ifGraph.EdgesContains(reg134, Frame_EBP()));
+            CPPUNIT_ASSERT_EQUAL(true, ifGraph.EdgesContains(reg138, Frame_EBP()));
+        }
+
+        void testCtor_NinthCFGraph_GenerateMovePairs()
+        {
+            myTemp reg131 = Temp_newTemp();
+            myTemp reg133 = Temp_newTemp();
+            myTemp reg134 = Temp_newTemp();
+            myTemp reg135 = Temp_newTemp(); 
+            myTemp reg137 = Temp_newTemp();
+            myTemp reg138 = Temp_newTemp();
+            myTemp reg139 = Temp_newTemp();
+            myTemp reg140 = Temp_newTemp();
+            myTemp reg141 = Temp_newTemp();
+
+            myTemp reg142 = Temp_newTemp();
+            myTemp reg144 = Temp_newTemp();
+            myTemp reg143 = Temp_newTemp();
+            myTemp reg145 = Temp_newTemp();
+            myTemp reg146 = Temp_newTemp();
+
+            Liveness liveness(makeNinthIns( reg131, reg133, reg134, reg137,
+                                            reg135, reg138, reg139, reg140,
+                                            reg141, reg142, reg144, reg143, 
+                                            reg145, reg146));
+
+            CPPUNIT_ASSERT_EQUAL((size_t)6, liveness.GetMovePairs().size());
         }
 };
 

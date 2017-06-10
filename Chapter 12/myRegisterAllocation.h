@@ -73,6 +73,9 @@ namespace lgxZJ
 
                 void AssignColorToPrecolored(LA::Node node);
                 void AssignColorToNonPrecolored(LA::Node node);
+                void RemoveAdjacentNodeColors(IS::Registers* colors, LA::NodeSet adjacentNodes);
+                void RemoveAliasAdjacentNodeColors(IS::Registers* colors, LA::Node node);
+                void RemoveOneNodeColorFromColors(IS::Registers* colors, LA::Node node);
                 IS::Registers GetAvailableColors();
                 bool IsPrecoloredNode(LA::Node node);
                 void RemoveColorFromColors(IS::Registers& colors, IS::Register color);

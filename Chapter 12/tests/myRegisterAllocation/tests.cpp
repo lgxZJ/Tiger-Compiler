@@ -23,6 +23,8 @@ class RegisterAllocationTest : public CppUnit::TestFixture
     CPPUNIT_TEST( testCtor_ThridIns_GetCorrectResult );
     CPPUNIT_TEST( testCtor_FourthIns_GetCorrectResult );
     CPPUNIT_TEST( testCtor_FifthIns_GetCorrectResult );
+    CPPUNIT_TEST( testCtor_SixthIns_GetCorrectResult );
+    CPPUNIT_TEST( testCtor_SeventhIns_GetCorrectResult );
     CPPUNIT_TEST( testCtor_InsWithPrecoloredRegs_GetCorrectResult );
     CPPUNIT_TEST( testCtor_OnlyNeedCoalesce_DoCorrectCoalesce );
     CPPUNIT_TEST( testCtor_CoalesceButConstrained_DoCorrectCoalesce );
@@ -130,6 +132,53 @@ class RegisterAllocationTest : public CppUnit::TestFixture
                 make_shared<Move>(reg38, reg37, Move::OperandType::Content, Move::OperandType::Memory)
             };
 	    }
+
+        //  reg144 != reg143
+        Instructions makeSixthIns(
+            myTemp reg142, myTemp reg144, myTemp reg143, myTemp reg145, myTemp reg146)
+        {
+            return Instructions {
+                make_shared<Move>(reg142, Frame_EBP(), Move::OperandType::Content, Move::OperandType::Content),
+                make_shared<Add>(reg142, -4),
+                make_shared<Move>(reg144, reg142, Move::OperandType::Content, Move::OperandType::Memory),
+                make_shared<Add>(reg143, -8),
+                make_shared<Move>(reg145, reg143, Move::OperandType::Content,Move::OperandType::Memory),
+                make_shared<Move>(reg146, reg144, Move::OperandType::Content,Move::OperandType::Content),
+                make_shared<Add>(reg146, reg145),
+            };
+        }
+
+        Instructions makeSeventhIns(
+            myTemp reg131, myTemp reg133, myTemp reg134, myTemp reg137, myTemp reg135,
+            myTemp reg138, myTemp reg139, myTemp reg140, myTemp reg141,
+            myTemp reg142, myTemp reg144, myTemp reg143, myTemp reg145, myTemp reg146)
+        {
+            return Instructions {
+                make_shared<Move>(reg133, Frame_EBP(), Move::OperandType::Content, Move::OperandType::Content),
+                make_shared<Add>(reg133, -4),
+                make_shared<Move>(reg131, Move::OperandType::Content, 1),
+                make_shared<Move>(reg133, reg131, Move::OperandType::Memory, Move::OperandType::Content),
+                make_shared<Move>(reg134, reg133, Move::OperandType::Content, Move::OperandType::Memory),
+                make_shared<Move>(reg137, Frame_EBP(), Move::OperandType::Content, Move::OperandType::Content),
+                make_shared<Add>(reg137, -8),
+                make_shared<Move>(reg135, Move::OperandType::Content, 2),
+                make_shared<Move>(reg137, reg135, Move::OperandType::Memory, Move::OperandType::Content),
+                make_shared<Move>(reg138, reg137, Move::OperandType::Content, Move::OperandType::Memory),
+                make_shared<Move>(reg139, Move::OperandType::Content, 1),
+                make_shared<Move>(reg140, Move::OperandType::Content, 3),
+                make_shared<Move>(reg141, reg139, Move::OperandType::Content, Move::OperandType::Content),
+                make_shared<Add>(reg141, reg140),
+
+                make_shared<Move>(reg142, Frame_EBP(), Move::OperandType::Content, Move::OperandType::Content),
+                make_shared<Add>(reg142, -4),
+                make_shared<Move>(reg144, reg142, Move::OperandType::Content, Move::OperandType::Memory),
+                make_shared<Move>(reg143, Frame_EBP(), Move::OperandType::Content,Move::OperandType::Content),
+                make_shared<Add>(reg143, -8),
+                make_shared<Move>(reg145, reg143, Move::OperandType::Content,Move::OperandType::Memory),
+                make_shared<Move>(reg146, reg144, Move::OperandType::Content,Move::OperandType::Content),
+                make_shared<Add>(reg146, reg145),
+            };
+        }
 
         Instructions makeInsWithPrecoloredRegs(myTemp regA, myTemp regB, myTemp regC)
         {
@@ -340,6 +389,70 @@ class RegisterAllocationTest : public CppUnit::TestFixture
 
             RegisterMap maps = ra.GetRegisterMap();
             CPPUNIT_ASSERT( maps[reg37] != Frame_EAX() );
+        }
+
+        void testCtor_SixthIns_GetCorrectResult()
+        {
+            myTemp reg142 = Temp_newTemp();
+            myTemp reg144 = Temp_newTemp();
+            myTemp reg143 = Temp_newTemp();
+            myTemp reg145 = Temp_newTemp();
+            myTemp reg146 = Temp_newTemp();
+
+            RegisterAllocation ra(  makeSixthIns(reg142, reg144, reg143, reg145, reg146),
+                                    Trans_outermostLevel(), 6);
+            
+            RegisterMap maps = ra.GetRegisterMap();
+            CPPUNIT_ASSERT( maps[reg143] != maps[reg144] );
+            CPPUNIT_ASSERT( maps[reg142] != maps[Frame_EBP()] );
+            CPPUNIT_ASSERT( maps[reg144] != maps[Frame_EBP()] );
+            CPPUNIT_ASSERT( maps[reg144] != maps[reg145] );
+            CPPUNIT_ASSERT( maps[reg145] != maps[reg146] );
+        }
+
+        void testCtor_SeventhIns_GetCorrectResult()
+        {
+            myTemp reg131 = Temp_newTemp();
+            myTemp reg133 = Temp_newTemp();
+            myTemp reg134 = Temp_newTemp();
+            myTemp reg135 = Temp_newTemp(); 
+            myTemp reg137 = Temp_newTemp();
+            myTemp reg138 = Temp_newTemp();
+            myTemp reg139 = Temp_newTemp();
+            myTemp reg140 = Temp_newTemp();
+            myTemp reg141 = Temp_newTemp();
+
+            myTemp reg142 = Temp_newTemp();
+            myTemp reg144 = Temp_newTemp();
+            myTemp reg143 = Temp_newTemp();
+            myTemp reg145 = Temp_newTemp();
+            myTemp reg146 = Temp_newTemp();
+
+            RegisterAllocation ra( makeSeventhIns( reg131, reg133, reg134, reg137,
+                                            reg135, reg138, reg139, reg140,
+                                            reg141, reg142, reg144, reg143, 
+                                            reg145, reg146),
+                                    Trans_outermostLevel(), 6);
+            
+            RegisterMap maps = ra.GetRegisterMap();
+            CPPUNIT_ASSERT( maps[reg133] != maps[reg131] );
+            CPPUNIT_ASSERT( maps[reg137] != maps[reg135] );
+            CPPUNIT_ASSERT( maps[reg144] != maps[reg145] );
+            CPPUNIT_ASSERT( maps[reg145] != maps[reg146] );
+            CPPUNIT_ASSERT( maps[reg143] != maps[reg144] );
+            CPPUNIT_ASSERT( maps[reg141] != maps[reg140] );
+            CPPUNIT_ASSERT( maps[reg139] != maps[reg140] );
+            CPPUNIT_ASSERT( maps[reg133] != maps[Frame_EBP()] );
+            CPPUNIT_ASSERT( maps[reg137] != maps[Frame_EBP()] );
+            CPPUNIT_ASSERT( maps[reg131] != maps[Frame_EBP()] );
+            CPPUNIT_ASSERT( maps[reg135] != maps[Frame_EBP()] );
+            CPPUNIT_ASSERT( maps[reg144] != maps[Frame_EBP()] );
+            CPPUNIT_ASSERT( maps[reg142] != maps[Frame_EBP()] );
+            CPPUNIT_ASSERT( maps[reg141] != maps[Frame_EBP()] );
+            CPPUNIT_ASSERT( maps[reg139] != maps[Frame_EBP()] );
+            CPPUNIT_ASSERT( maps[reg134] != maps[Frame_EBP()] );
+            CPPUNIT_ASSERT( maps[reg138] != maps[Frame_EBP()] );
+            CPPUNIT_ASSERT( maps[reg140] != maps[Frame_EBP()] );
         }
 
         void testCtor_InsWithPrecoloredRegs_GetCorrectResult()

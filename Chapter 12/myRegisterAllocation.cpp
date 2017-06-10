@@ -583,15 +583,8 @@ namespace lgxZJ
         void RegisterAllocation::AssignColorToNonPrecolored(Node node)
         {
             Registers colors = GetAvailableColors();
-            for (auto oneNode : adjacentNodes[node])
-            {
-                if (InNodeSet(oneNode, coloredNodes) || IsPrecoloredNode(oneNode))
-                    RemoveColorFromColors(
-                        colors,
-                        IsPrecoloredNode(oneNode) ?
-                            interferenceGraph.GetNodeReg(oneNode) :
-                            nodeColors[oneNode]);
-            }
+            RemoveAdjacentNodeColors(&colors, adjacentNodes[node]);
+            RemoveAliasAdjacentNodeColors(&colors, node);
 
             if (colors.empty())
                 spilledNodes.push_back(node);
@@ -600,6 +593,37 @@ namespace lgxZJ
                 coloredNodes.push_back(node);
                 nodeColors[node] = colors.front();
             }
+        }
+
+        void RegisterAllocation::RemoveAdjacentNodeColors(Registers* colors, NodeSet adjacentNodes)
+        {
+            for (auto oneNode : adjacentNodes) 
+                RemoveOneNodeColorFromColors(colors, oneNode);
+        }
+
+        void RegisterAllocation::RemoveAliasAdjacentNodeColors(Registers* colors, Node node)
+        {
+            Node aliasNode = GetNodeAlias(node);
+
+            if (aliasNode != -1)
+            {
+                if ( aliasNode != node )
+                    RemoveAdjacentNodeColors(colors, adjacentNodes[aliasNode]);
+
+                for (auto oneAlias : nodeAlias[aliasNode])
+                    if ( oneAlias != node)
+                        RemoveAdjacentNodeColors(colors, adjacentNodes[oneAlias]);
+            }
+        }
+
+        void RegisterAllocation::RemoveOneNodeColorFromColors(Registers* colors, Node node)
+        {
+            if (InNodeSet(node, coloredNodes) || IsPrecoloredNode(node))
+                RemoveColorFromColors(
+                    *colors,
+                    IsPrecoloredNode(node) ?
+                        interferenceGraph.GetNodeReg(node) :
+                        nodeColors[node]);
         }
 
         Registers RegisterAllocation::GetAvailableColors()
@@ -855,8 +879,8 @@ namespace lgxZJ
             Registers srcRegs = oneCmp->GetSrcRegs();
             assert (srcRegs.size() >= 1);
             assert ( !IsPrecoloredNode(interferenceGraph.GetRegNode(srcRegs[0])) );
-            assert ( srcRegs.size() == 2 &&
-                     !IsPrecoloredNode(interferenceGraph.GetRegNode(srcRegs[1])) );
+            if (srcRegs.size() == 2)
+                     assert(!IsPrecoloredNode(interferenceGraph.GetRegNode(srcRegs[1])));
 
             for (auto& reg : srcRegs)
             {
