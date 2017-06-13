@@ -1338,6 +1338,7 @@ static void combineOperandAndSaveResultToNewReg(
     IR_myExp leftTrans, IR_myExp newReg, IR_myStatement* stateReturnPtr)
 {
     IR_myExp leftValue = combineOneTrans(leftTrans, stateReturnPtr);
+
     (*stateReturnPtr) = IR_makeSeq((*stateReturnPtr), IR_makeMove(newReg, leftValue));
 }
 
@@ -1375,6 +1376,12 @@ IR_myExp Trans_booleanOperate(
         skipToEndIfLeftResultIsFalse(resultReg, endLabel, &stateReturn);
 
     combineOperandAndSaveResultToNewReg(rightTrans, resultReg, &stateReturn);
+
+    //  comparison result is 0 or 1, no other values
+    stateReturn = IR_makeSeq(stateReturn,
+        IR_makeSeq(
+            IR_makeCJump(IR_Equal, resultReg, IR_makeConst(0), endLabel, NULL),
+            IR_makeMove(resultReg, IR_makeConst(1))));
     defineLabel(&stateReturn, endLabel);
 
     return IR_makeESeq(stateReturn, resultReg);
