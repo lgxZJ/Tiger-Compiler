@@ -1280,11 +1280,10 @@ static IR_myExp regToCompareResult(
 static IR_myExp prepareStringRegForConvert(
     IR_myExp leftValue, IR_myExp rightValue, IR_myStatement* stateReturnPtr)
 {
-    //  todo:   a runtime call function---strCompare(,)
-    //        return -1, 0, 1 if less, equal or greater
     IR_myExp callExp = IR_makeCall(
-            IR_makeName(Temp_newNamedLabel("strCompare")),
-            IR_makeExpList(leftValue, IR_makeExpList(rightValue, NULL)));
+            IR_makeName(Temp_newNamedLabel("strcmp")),
+            IR_makeExpList(IR_makeTemp(Frame_EBP()),
+                IR_makeExpList(leftValue, IR_makeExpList(rightValue, NULL))));
     return combineOneTrans(callExp, stateReturnPtr);
 }
 

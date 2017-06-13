@@ -1,0 +1,11 @@
+let
+	var var1 := 1
+	var var2 := 2
+	var str1 := "aaa"
+	var str2 := "aaaa"
+in
+	1 >= 0;
+	1 >= 2;
+	var1 := (var1 < var2);
+	str1 < str2
+end
