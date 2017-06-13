@@ -1,0 +1,6 @@
+let
+	type arrayType = array of int
+	var var1 := arrayType[11] of 2
+in
+	var1[0]
+end
