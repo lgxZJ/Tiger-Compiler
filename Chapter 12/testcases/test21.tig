@@ -1,0 +1,13 @@
+let
+	var var1 := 1
+in
+	let
+		var var2 := 2
+	in
+		var1 + 1;
+		let
+		in
+			var2 + 2
+		end
+	end
+end
