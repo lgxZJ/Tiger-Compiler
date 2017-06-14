@@ -13,7 +13,7 @@ using namespace std;
 
 int main(int argc, char* argv[])
 {   
-    for (int i = 1; i <= 14; ++i)
+    for (int i = 1; i <= 15; ++i)
     {
         if (i == 2 || i == 12) continue;   //  todo:test2.tig and test12.tig needs rewrite
 
