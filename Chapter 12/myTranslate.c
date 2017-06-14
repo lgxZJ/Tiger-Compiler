@@ -1430,8 +1430,9 @@ IR_myExp Trans_let(IR_myStatement decsTrans, IR_myExp expsTrans)
 static void jumpToEndIfNotTrue(
     IR_myExp condiValueReg, myLabel endLabel, IR_myStatement* stateReturnPtr)
 {
+    //  non-zero is true, thus zero is not-true
     IR_myStatement jumpToEndIfNotTrue = IR_makeCJump(
-        IR_NotEqual, condiValueReg, IR_makeConst(1), endLabel, NULL);
+        IR_Equal, condiValueReg, IR_makeConst(0), endLabel, NULL);
     (*stateReturnPtr) = IR_makeSeq((*stateReturnPtr), jumpToEndIfNotTrue);
 }
 
