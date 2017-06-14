@@ -1,0 +1,9 @@
+let
+	function func1 (a:int, b:int) : int = a + 1
+	function func2 (a:int, b:int) : int = func1(a - 1, b + 1)
+	function factor (a:int) :int = if a = 1 then 1 else a * factor(a - 1)
+in
+	func1(1, 2);
+	func2(3, 4);
+	factor(10)
+end
