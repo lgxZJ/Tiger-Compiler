@@ -850,8 +850,14 @@ static IR_myStatement calcAndletTempRegHoldResult(
     //  will cause the original variable changed. So, we make a new register
     //  hold the result, namely a temporary variable representation.
     IR_myExp tempReg = IR_makeTemp(Temp_newTemp());
-    *tempRegPtr = tempReg;
+    //  for multiply and divide, eax holds the result value
+    if (op == IR_Multiply || op == IR_Divide)
+        *tempRegPtr = IR_makeTemp(Frame_EAX());
+    else
+        *tempRegPtr = tempReg;
 
+    //  mul and div do not support "mul(div) constValue" format,
+    //  change constValue to registers.
     if (rightValueReg->kind == IR_Const &&
         (op == IR_Multiply || op == IR_Divide))
     {

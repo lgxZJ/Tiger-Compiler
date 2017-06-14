@@ -13,9 +13,9 @@ using namespace std;
 
 int main(int argc, char* argv[])
 {   
-    for (int i = 1; i <= 10; ++i)
+    for (int i = 1; i <= 14; ++i)
     {
-        if (i == 2) continue;   //  todo:test2.tig needs rewrite
+        if (i == 2 || i == 12) continue;   //  todo:test2.tig and test12.tig needs rewrite
 
         char buf[256];
         sprintf(buf, "./testcases/test%d.tig", i);
