@@ -979,6 +979,13 @@ myTranslationAndType MySemantic_FunctionCallExp(
             break;
     }
 
+    //  to process the condition when the whole program is a function call,
+    //  we divide the result express here
+    IR_myStatement state;
+    IR_myExp value;
+    IR_divideExp(result->translation, &state, &value);
+    
+    result->translation = IR_makeESeq(state, value);
     return result;
 }
 
@@ -1089,6 +1096,7 @@ myTranslationAndType analyzeParamsOfFunction(
         MyEnvironment_getVarOrFuncFromName(
             MySemantic_getVarAndFuncEnvironment(),
             functioName));
+        
         IR_myExp funcCallExp = IR_makeCall(IR_makeName(funcLabel), exps);
         return make_MyTranslationAndType(
             funcCallExp, getFunctionReturnType(functioName));

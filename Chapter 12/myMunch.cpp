@@ -391,8 +391,7 @@ namespace lgxZJ
             while (argExps)
             {
                 //  todo: remove right assert when the compiler is done
-                assert (argExps->head->kind == IR_myExp_::IR_Temp ||
-                        argExps->head->kind == IR_myExp_::IR_Name);
+                assert (argExps->head->kind == IR_myExp_::IR_Temp);
 
                 *listPtr = Temp_makeTempList(argExps->head->u.temp, nullptr),
                 listPtr = &(*listPtr)->tail;

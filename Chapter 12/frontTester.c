@@ -22,6 +22,7 @@ IR_myStatement frontTester(char* filename)
     myTranslationAndType result = MySemantic_Exp(exp);
     assert (result != SEMANTIC_ERROR);
 
+    //  the whole program is a function call, no other statements
     assert (result->translation->kind == IR_ESeq);
     return result->translation->u.eseq.statement;
 }
