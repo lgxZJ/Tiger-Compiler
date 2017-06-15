@@ -13,6 +13,16 @@ using namespace std;
 
 int main(int argc, char* argv[])
 {   
+    char buf[256];
+    sprintf(buf, "as -g -o ./bin/output/tiger_rt.o ./tiger_rt.s --32");
+    if (system(buf) == -1)
+        return -1;
+    sprintf(buf, "gcc -g -o ./tiger_rt_o.s ./tiger_rt_o.c -S -m32");
+    if (system(buf) == -1)
+        return -1;
+    sprintf(buf, "as -g -o ./bin/output/tiger_rt_o.o ./tiger_rt_o.s --32");
+    if (system(buf) == -1)
+        return -1;
     for (int i = 1; i <= 22; ++i)
     {
         if (i == 2 || i == 12) continue;   //  todo:test2.tig and test12.tig needs rewrite
@@ -28,13 +38,10 @@ int main(int argc, char* argv[])
         sprintf(buf, "as -g -o ./bin/output/result%d.o ./bin/output/result%d.s --32", i, i);
         if (system(buf) == -1)
             return -1;
-
-        sprintf(buf, "as -g -o ./bin/output/tiger_rt.o ./tiger_rt.s --32");
-        if (system(buf) == -1)
-            return -1;
         
         sprintf(buf, 
-                "ld -g -o ./bin/output/result%d ./bin/output/result%d.o ./bin/output/tiger_rt.o"
+                "ld -g -o ./bin/output/result%d ./bin/output/result%d.o" 
+                " ./bin/output/tiger_rt.o ./bin/output/tiger_rt_o.o"
                 " -dynamic-linker /lib/ld-linux.so.2 -lc -m elf_i386",
                 i, i);
         if (system(buf) == -1)

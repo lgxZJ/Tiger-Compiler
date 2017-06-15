@@ -1,8 +1,8 @@
 .section .text
 
-.type print, @function
-.globl print
-print:
+.type prints, @function
+.globl prints
+prints:
     pushl %ebp
 	movl %esp, %ebp
 	subl $0, %esp

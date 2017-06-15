@@ -76,7 +76,7 @@ namespace lgxZJ
 
         string IDiv::ToCode(RegisterMap& map) const
         {
-            return  string("\tmovl $0, %edx\n") + ToCommonCode("\tidivl", map);
+            return ToCommonCode("\tidivl", map);
         }
 
         ////////////////////////////////////////////////////////////////////

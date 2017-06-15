@@ -1,6 +1,7 @@
 #include "frontTester.h"
 #include "myParser.h"
 #include "mySemantic.h"
+#include "myError.h"
 #include "myEnvironment.h"
 
 #include <stdlib.h>
@@ -12,6 +13,7 @@ IR_myStatement frontTester(char* filename)
 {
     MySemantic_setVarAndFuncEnvironment(myEnvironment_BaseVarAndFunc());
     MySemantic_setTypeEnvironment(myEnvironment_BaseType());
+    MyError_clearErrors();
 
     //  lexical and syntax analysis
     myExp exp = parseOneFile(filename);
@@ -20,7 +22,8 @@ IR_myStatement frontTester(char* filename)
 
     //  semantic analysis and tranlation
     myTranslationAndType result = MySemantic_Exp(exp);
-    assert (result != SEMANTIC_ERROR);
+    if (MyError_isErrorSet())
+        MyError_printErrors();
 
     //  the whole program is a function call, no other statements
     assert (result->translation->kind == IR_ESeq);

@@ -856,6 +856,7 @@ static IR_myStatement calcAndletTempRegHoldResult(
     else
         *tempRegPtr = tempReg;
 
+    IR_myStatement stateBeforeOperation;
     //  mul and div do not support "mul(div) constValue" format,
     //  change constValue to registers.
     if (rightValueReg->kind == IR_Const &&
@@ -863,17 +864,26 @@ static IR_myStatement calcAndletTempRegHoldResult(
     {
         IR_myExp constReg = IR_makeTemp(Temp_newTemp());
         IR_myStatement constState = NULL;
-        return IR_makeSeq(
+        stateBeforeOperation = IR_makeSeq(
                 IR_makeSeq(IR_makeSeq(leftState, rightState),
                             IR_makeMove(tempReg, leftValueReg)),
-                IR_makeSeq(IR_makeMove(constReg, rightValueReg),
-                            IR_makeExp(IR_makeBinOperation(op, tempReg, constReg))));
+                IR_makeSeq(IR_makeMove(constReg, rightValueReg), NULL));
+
+        if (op == IR_Divide)
+            stateBeforeOperation = IR_makeSeq(stateBeforeOperation,
+                IR_makeMove(IR_makeTemp(Frame_EDX()), IR_makeConst(0)));
+        return IR_makeSeq(stateBeforeOperation,
+                IR_makeExp(IR_makeBinOperation(op, tempReg, constReg)));
     }
 
-    return IR_makeSeq(
+    stateBeforeOperation = IR_makeSeq(
         IR_makeSeq(
             IR_makeSeq(leftState, rightState),
-            IR_makeMove(tempReg, leftValueReg)),
+            IR_makeMove(tempReg, leftValueReg)), NULL);
+    if (op == IR_Divide)
+        stateBeforeOperation = IR_makeSeq(stateBeforeOperation,
+            IR_makeMove(IR_makeTemp(Frame_EDX()), IR_makeConst(0)));
+    return IR_makeSeq(stateBeforeOperation,
         IR_makeExp(IR_makeBinOperation(op, tempReg, rightValueReg)));
 }
 

@@ -979,6 +979,9 @@ myTranslationAndType MySemantic_FunctionCallExp(
             break;
     }
 
+    if (result == SEMANTIC_ERROR)
+        return SEMANTIC_ERROR;
+
     //  to process the condition when the whole program is a function call,
     //  we divide the result express here
     IR_myStatement state;

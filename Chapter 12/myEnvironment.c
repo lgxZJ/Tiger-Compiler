@@ -177,13 +177,27 @@ myTable myEnvironment_BaseVarAndFunc(void)
     myTable table = MySymbol_MakeNewTable();
     assert (table);
 
-    //  add `print` Func
+    //  add `print` family Func
     myVarAndFuncEntry entry = myEnvironment_makeFuncEntry(
         Trans_outermostLevel(),
-        Temp_newNamedLabel("print"),
+        Temp_newNamedLabel("prints"),
         makeType_TypeList(makeType_String(), NULL),
         makeType_NoReturn());
-    MySymbol_Enter(table, MySymbol_MakeSymbol("print"), entry);
+    MySymbol_Enter(table, MySymbol_MakeSymbol("prints"), entry);
+
+    entry = myEnvironment_makeFuncEntry(
+        Trans_outermostLevel(),
+        Temp_newNamedLabel("printn"),
+        makeType_TypeList(makeType_Int(), NULL),
+        makeType_NoReturn());
+    MySymbol_Enter(table, MySymbol_MakeSymbol("printn"), entry);
+
+    entry = myEnvironment_makeFuncEntry(
+        Trans_outermostLevel(),
+        Temp_newNamedLabel("printc"),
+        makeType_TypeList(makeType_Int(), NULL),
+        makeType_NoReturn());
+    MySymbol_Enter(table, MySymbol_MakeSymbol("printc"), entry);
 
     //  add `flush` Func
     entry = myEnvironment_makeFuncEntry(
@@ -197,10 +211,10 @@ myTable myEnvironment_BaseVarAndFunc(void)
     //  add `getchar` Func
     entry = myEnvironment_makeFuncEntry(
         Trans_outermostLevel(),
-        Temp_newNamedLabel("getchar"),
+        Temp_newNamedLabel("getcharr"),
         makeType_TypeList(NULL, NULL),
         makeType_String());
-    MySymbol_Enter(table, MySymbol_MakeSymbol("getchar"), entry);
+    MySymbol_Enter(table, MySymbol_MakeSymbol("getcharr"), entry);
 
     //  add `ord` Func
     entry = myEnvironment_makeFuncEntry(
@@ -261,11 +275,20 @@ myTable myEnvironment_BaseVarAndFunc(void)
     //  add `exit` Func
     entry = myEnvironment_makeFuncEntry(
         Trans_outermostLevel(),
-        Temp_newNamedLabel("exit"),
+        Temp_newNamedLabel("exitt"),
         makeType_TypeList(makeType_Int(), NULL),
         makeType_NoReturn());
-    MySymbol_Enter(table, MySymbol_MakeSymbol("exit"), entry);
+    MySymbol_Enter(table, MySymbol_MakeSymbol("exitt"), entry);
 
+    //  add `assertt` Func
+    entry = myEnvironment_makeFuncEntry(
+        Trans_outermostLevel(),
+        Temp_newNamedLabel("assertt"),
+        makeType_TypeList(makeType_Int(),
+            makeType_TypeList(makeType_String(),
+                makeType_TypeList(makeType_Int(), NULL))),
+        makeType_NoReturn());
+    MySymbol_Enter(table, MySymbol_MakeSymbol("assertt"), entry);
     return table;
 }
 
