@@ -2,6 +2,6 @@ let
 	function func1(a:int):int = a*func2(a-1)
 	function func2(a:int):int = if a=1 then 1 else a*func1(a-1)
 in
-	func1(10)
+	assertt (func1(10) = 3628800, "test20.tig", 5)
 end
 	

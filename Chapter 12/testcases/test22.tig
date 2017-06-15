@@ -1,28 +1,62 @@
-(prints("aaa");
+(prints("==Following is a output/input test==\n");
+
+ prints("aaa");
+ printc(10);
  flush();
+
  printc(ord("12"));
+ printc(10);
  printc(ord("21"));
+ printc(10);
  prints(chr(33));
+ printc(10);
  prints(chr(126));
+ printc(10);
+
  printn(size("a"));
+ printc(10);
  printn(size("aa"));
+ printc(10);
  printn(size("aaa"));
+ printc(10);
  printn(1211);
+ printc(10);
+
  prints(substring("123456", 0, 6));
+ printc(10);
  prints(substring("123456", 3, 3));
+ printc(10);
  prints(substring("123456", 5, 1));
+ printc(10);
  prints(substring("123456", 5, 0));
+ printc(10);
  prints(concat("12", "21"));
+ printc(10);
  prints(concat("12", "458"));
+ printc(10);
  prints(concat("12", ""));
+ printc(10);
+
  printn(not(1));
+ printc(10);
  printn(not(9));
+ printc(10);
  printn(not(-1));
+ printc(10);
  printn(not(0));
+ printc(10);
+
  assertt(1, "test22.tig", 22);	
  assertt(1*90, "test22.tig", 23);
  assertt(1+34, "test22.tig", 24);
  assertt(1/1, "test22.tig", 25);
- assertt(0, "test22.tig", 26);
- exitt(0);
- while 1 do prints(getcharr()))
+
+ /*assertt(0, "test22.tig", 26);*/
+ /*exitt(0);*/
+ let
+	var var1 := 10
+ in
+	 while var1 do (prints(getcharr()); var1 := var1 - 1)
+ end;
+
+ prints("==Tests successfully ends==\n"))

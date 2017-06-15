@@ -1,5 +1,5 @@
 let
 	var var1 := 1
 in
-	(var1 + 1)
+	assertt ((var1 + 1) = 2, "test18.tig", 4)
 end

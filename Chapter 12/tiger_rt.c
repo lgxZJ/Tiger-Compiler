@@ -3,6 +3,11 @@
 #include <string.h>
 #include <assert.h>
 
+void prints(const char* str)
+{
+    fputs(str, stdout);
+}
+
 void printc(char ch)
 {
     putchar(ch);
@@ -12,7 +17,7 @@ void printn(int num)
 {
     char buf[20];
     sprintf(buf, "%d", num);
-    puts(buf);
+    fputs(buf, stdout);
 }
 
 void flush(void)

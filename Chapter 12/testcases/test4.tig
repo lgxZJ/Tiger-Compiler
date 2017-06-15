@@ -4,5 +4,7 @@ let
 	var var3 := "aaaa"
 in
 	(var1 := 3; var2 := 4; var3 := "bbbb");
-	var3
+	assertt (var1 = 3, "test4.tig", 7);
+	assertt (var2 = 4, "test4.tig", 8);
+	assertt (var3 = "bbbb", "test4.tig", 9)
 end

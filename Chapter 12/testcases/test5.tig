@@ -1,1 +1,9 @@
-(-2147483648; 2147483647; 0)
+let
+	var var1 := -2147483648
+	var var2 := 2147483647
+	var var3 := 0
+in
+	assertt (var1 = -2147483648, "test5.tig", 6);
+	assertt (var2 = 2147483647, "test5.tig", 7);
+	assertt (var3 = 0, "test5.tig", 8)
+end

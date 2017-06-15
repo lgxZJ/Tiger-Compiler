@@ -7,7 +7,9 @@ let
 	var var4 := "1111"
 in
 	var1 := var2;
-	var1.b;
+	assertt ((var1.a = 2) & (var1.b = "cba") & (var1.c = 1), "test13.tig", 10);
 	var3 := 34;
-	var4 := "2222"
+	assertt (var3 = 34, "test13.tig", 12);
+	var4 := "2222";
+	assertt (var4 = "2222", "test13.tig", 14)
 end

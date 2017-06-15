@@ -3,8 +3,8 @@ let
 	function func2(a:string, b:string) : string = b
 	function func3(a:int, b:string)	 = (a := 5; b := "ccc"; ())
 in
-	func1(2);
-	func1(3);
-	func2("zzz", "aaa");
+	assertt (func1(2) = 2, "test7.tig", 6);
+	assertt (func1(3) = 3, "test7.tig", 7);
+	assertt (func2("zzz", "aaa") = "aaa", "test7.tig", 8);
 	func3(4, "bbb")
 end
