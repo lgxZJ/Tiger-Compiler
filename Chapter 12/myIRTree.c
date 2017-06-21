@@ -140,14 +140,14 @@ IR_myExp IR_makeConst(int constValue)
     return one;
 }
 
-IR_myExp IR_makeCall(IR_myExp func, IR_myExpList args)
+IR_myExp IR_makeCall(myString funcName, IR_myExpList args)
 {
-    assert (func->kind == IR_Name);
+    assert (funcName != NULL);
 
     MAKE_ONE_EXP();
 
     one->kind = IR_Call;
-    one->u.call.func = func;
+    one->u.call.funcName = funcName;
     one->u.call.args = args;
     return one;
 }
@@ -231,7 +231,7 @@ static void IR_divideExp_Call(
     *stateParts = IR_makeSeq(
         IR_makeSeq(
             resultState,
-            IR_makeExp(IR_makeCall(one->u.call.func, resultValueList))),
+            IR_makeExp(IR_makeCall(one->u.call.funcName, resultValueList))),
         IR_makeMove(newReg, IR_makeTemp(Frame_RV())));
     *valueParts = newReg;
 }

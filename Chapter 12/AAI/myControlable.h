@@ -150,7 +150,7 @@ namespace lgxZJ
         class Call : public AAI
         {
             public:
-                explicit Call (myLabel oneFuncLabel, myTempList oneRegList);
+                explicit Call (myString oneFuncName, myTempList oneRegList);
 
                 virtual Registers GetDstRegs() const;
                 virtual Registers GetSrcRegs() const;
@@ -159,11 +159,8 @@ namespace lgxZJ
                 std::string ToString() const;
                 std::string ToCode(RegisterMap& map) const;
 
-            private:
-                std::string FindFuncNameOfLabel(myLabel label) const;
-
             protected:
-                    myLabel funcLabel;
+                    myString funcName;
                     myTempList regList;
         };
     }

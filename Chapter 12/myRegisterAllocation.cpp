@@ -706,21 +706,21 @@ namespace lgxZJ
 
         void RegisterAllocation::RewriteOneIns(shared_ptr<AAI> oneIns, Instructions* newIns)
         {
-            if (oneIns->ToString().find("add") != string::npos)
+            if (oneIns->ToString().find("addl") != string::npos)
                 RewriteOneAdd(oneIns, newIns);
-            else if (oneIns->ToString().find("sub") != string::npos)
+            else if (oneIns->ToString().find("subl") != string::npos)
                 RewriteOneSub(oneIns, newIns);
-            else if (oneIns->ToString().find("imul") != string::npos)
+            else if (oneIns->ToString().find("imull") != string::npos)
                 RewriteOneMul(oneIns, newIns);
-            else if (oneIns->ToString().find("idiv") != string::npos)
+            else if (oneIns->ToString().find("idivl") != string::npos)
                 RewriteOneDiv(oneIns, newIns);
-            else if (oneIns->ToString().find("xor") != string::npos)
+            else if (oneIns->ToString().find("xorl") != string::npos)
                 RewriteOneXor(oneIns, newIns);
-            else if (oneIns->ToString().find("cmp") != string::npos)
+            else if (oneIns->ToString().find("cmpl") != string::npos)
                 RewriteOneCmp(oneIns, newIns);
             else if (oneIns->ToString().find("call") != string::npos)
                 RewriteOneCall(oneIns, newIns);
-            else if (oneIns->ToString().find("mov") != string::npos)
+            else if (oneIns->ToString().find("movl") != string::npos)
                 RewriteOneMov(oneIns, newIns);
             //  else do nothing
         }

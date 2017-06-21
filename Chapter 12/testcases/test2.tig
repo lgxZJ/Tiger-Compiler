@@ -1,10 +1,20 @@
 let
-	type varArray = array of string
-	var var1 := varArray [10] of "ab"
-	var var2 := varArray [10] of 9
+	type stringArray = array of string
+	type intArray = array of int
+	var var1 := stringArray [10] of "ab"
+	var var2 := intArray [10] of 9
 in
 	assertt (var1[0] = "ab", "test2.tig", 5);
 	assertt (var1[9] = "ab", "test2.tig", 6);
 	assertt (var2[0] = 9, "test2.tig", 7);
 	assertt (var2[9] = 9, "test2.tig", 8);
+	printn(var2[0]);
+	prints("-");
+	printn(var2[9]);
+	prints("-");
+	prints(var1[0]);
+	prints("-");
+	prints(var1[9]);
+	printc(10);
+	flush()
 end

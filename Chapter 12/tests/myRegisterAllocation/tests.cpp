@@ -19,7 +19,6 @@ class RegisterAllocationTest : public CppUnit::TestFixture
 {
     CPPUNIT_TEST_SUITE( RegisterAllocationTest );
     CPPUNIT_TEST( testCtor_FirstIns_GetCorrectResult );
-    //CPPUNIT_TEST( testCtor_SecondIns_GetCorrectResult );
     CPPUNIT_TEST( testCtor_ThridIns_GetCorrectResult );
     CPPUNIT_TEST( testCtor_FourthIns_GetCorrectResult );
     CPPUNIT_TEST( testCtor_FifthIns_GetCorrectResult );
@@ -60,28 +59,6 @@ class RegisterAllocationTest : public CppUnit::TestFixture
                 make_shared<Cmp>(regA, 12),
                 make_shared<Jl>(label),
             };
-        }
-
-        //  Interference graph should be:
-        //      eax --- ebx
-        //      eax --- ecx
-        //      eax --- edx
-        //      ebx --- ecx
-        //      ebx --- edx
-        //  The move pairs should be:
-        //      null
-        Instructions makeSecondIns(myTemp regEAX, myTemp regEBX)
-        {
-            // myLabel label = Temp_newLabel();
-
-            // return Instructions{
-            //     make_shared<Move>(regEAX, Move::OperandType::Content, 0),
-            //     make_shared<IMul>(2),
-            //     make_shared<Jmp>(label),
-            //     make_shared<Call>(Temp_newLabel(), nullptr),
-            //     make_shared<IDiv>(regEBX),
-            //     make_shared<Label>(label),
-            // };
         }
 
         //  Interference graph should be:
@@ -337,22 +314,6 @@ class RegisterAllocationTest : public CppUnit::TestFixture
             CPPUNIT_ASSERT ( maps[regA] != maps[regC] );
         }
 
-        void testCtor_SecondIns_GetCorrectResult()
-        {
-            // myTemp regEAX = Frame_EAX(), regEBX = Frame_EBX();
-
-            // RegisterAllocation ra(
-            //     makeSecondIns(regEAX, regEBX), Trans_outermostLevel(), 6);
-
-            // RegisterMap maps = ra.GetRegisterMap();
-            // CPPUNIT_ASSERT_EQUAL( 4, (int)maps.size() );
-            // CPPUNIT_ASSERT( maps[regEAX] != maps[regEBX] );
-            // CPPUNIT_ASSERT( maps[regEAX] != maps[Frame_ECX()] );
-            // CPPUNIT_ASSERT( maps[regEAX] != maps[Frame_EDX()] );
-            // CPPUNIT_ASSERT( maps[regEBX] != maps[Frame_ECX()] );
-            // CPPUNIT_ASSERT( maps[regEBX] != maps[Frame_EDX()] );
-        }
-
         void testCtor_ThridIns_GetCorrectResult()
         {
             myTemp regA = Temp_newTemp(), regB = Temp_newTemp();
@@ -534,17 +495,16 @@ class RegisterAllocationTest : public CppUnit::TestFixture
 
         void testCtor_NeedSpill_DoCorrectSpill()
         {
-            /*
-            myTemp  regA = Temp_newTemp(), regB = Temp_newTemp(),
-                    regC = Temp_newTemp(), regD = Temp_newTemp(),
-                    regE = Temp_newTemp(), regF = Temp_newTemp(),
-                    regG = Temp_newTemp(), regH = Temp_newTemp();
+            // myTemp  regA = Temp_newTemp(), regB = Temp_newTemp(),
+            //         regC = Temp_newTemp(), regD = Temp_newTemp(),
+            //         regE = Temp_newTemp(), regF = Temp_newTemp(),
+            //         regG = Temp_newTemp(), regH = Temp_newTemp();
 
-            RegisterAllocation ra(
-                makeInsActualSpill(regA, regB, regC), Trans_outermostLevel(), 2);
+            // RegisterAllocation ra(
+            //     makeInsActualSpill(regA, regB, regC), Trans_outermostLevel(), 2);
             
-            RegisterMap maps = ra.GetRegisterMap();
-            CPPUNIT_ASSERT_EQUAL( 3, (int)maps.size() );*/
+            // RegisterMap maps = ra.GetRegisterMap();
+            // CPPUNIT_ASSERT_EQUAL( 3, (int)maps.size() );
         }
 
         void testCtor_SimplifyWithPrecolored_DocorrectSimplify()

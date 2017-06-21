@@ -328,7 +328,7 @@ IR_myExp Frame_externalCall(myString str, IR_myExpList args)
 {
     //  todo:   maybe adjust static link
     //  todo:   push arguments, save registers and so on
-    IR_myExp callRet = IR_makeCall(IR_makeName(Temp_newNamedLabel(str)), args);
+    IR_myExp callRet = IR_makeCall(str, args);
 
     IR_myStatement callstate;
     IR_myExp callValue;

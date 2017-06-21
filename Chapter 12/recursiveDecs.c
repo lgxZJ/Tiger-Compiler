@@ -591,9 +591,11 @@ Trans_myLevel updateFunc_Procedure(myProcedureDec procedureDec)
 
 //  forwards
 bool isFunctionReturnTypeMatchesOrNil(
-    myFunctionDec functionDec);
+    myFunctionDec functionDec, myType bodyType);
 Trans_myLevel updateFunc_Function(
     myFunctionDec functionDec);
+bool isExpLegalWithTransAndType(
+    myExp exp, myTranslationAndType* expResult);
 
 //  FORM:
 //      function id (tyfields) : type-id = exp
@@ -614,20 +616,20 @@ bool MySemantic_Dec_Func_Function_TwoPass(
     MySymbol_BeginScope(MySemantic_getVarAndFuncEnvironment());
     addFormalsToScope(functionDec->name, functionDec->tyFieldList);
 
-    IR_myExp bodyResult = NULL;
-    bool isBodyLegal = isExpLegalWithTrans(functionDec->exp, &bodyResult);
+    myTranslationAndType bodyResult = NULL;
+    bool isBodyLegal = isExpLegalWithTransAndType(functionDec->exp, &bodyResult);
 
     bool isReturnTypeMatches = false;
     if (isBodyLegal)
         isReturnTypeMatches = isFunctionReturnTypeMatchesOrNil(
-            functionDec);
+            functionDec, bodyResult->type);
 
     MySymbol_EndScope(MySemantic_getVarAndFuncEnvironment());
     MySemantic_leaveNewLevel();
 
     if (isReturnTypeMatches)
     {
-        Trans_functionDec(bodyResult, functionDec->name);
+        Trans_functionDec(bodyResult->translation, functionDec->name);
         return true;
     }
     else
@@ -639,11 +641,25 @@ bool MySemantic_Dec_Func_Function_TwoPass(
     }
 }
 
-bool isFunctionReturnTypeMatchesOrNil(
-    myFunctionDec functionDec)
+extern myTranslationAndType MySemantic_Exp_(myExp exp);
+bool isExpLegalWithTransAndType(myExp exp, myTranslationAndType* expResult)
 {
-    myType bodyType =
-            getExpActualResultType(functionDec->exp);
+    assert (exp);
+
+    myTranslationAndType result = MySemantic_Exp_(exp);
+        
+    if (result == SEMANTIC_ERROR)
+        return false;
+    else
+    {
+        *expResult = result;
+        return true;
+    }
+}
+
+bool isFunctionReturnTypeMatchesOrNil(
+    myFunctionDec functionDec, myType bodyType)
+{
     myType functionReturnType =
             getActualTypeFromName(functionDec->returnType);
     return isTypeEqual(bodyType, functionReturnType) ||

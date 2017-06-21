@@ -1,4 +1,4 @@
-OUT_DIR := ./bin
+OUT_DIR := .
 OBJECTS := $(addprefix $(OUT_DIR)/, main.o myRegisterAllocation.o\
                                     myAaiBase.o myLiveness.o myCFGraph.o\
                                     myDirectedGraph.o myMovable.o myComputable.o\
@@ -22,7 +22,6 @@ VPATH := ./AAI
 
 all.out : $(COVERAGE_FOLDER) $(OBJECTS)
 > g++ -g -coverage -o $(OUT_DIR)/all.out $(OBJECTS) -static -lcppunit
-> rm -f ./bin/*.o ./bin/*~ ./bin/output/*.o
 
 $(OBJECTS) : | $(OUT_DIR)
 

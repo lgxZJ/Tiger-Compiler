@@ -125,15 +125,15 @@ namespace lgxZJ
         //                              Call
         /////////////////////////////////////////////////////////////////////////
 
-        Call::Call(myLabel oneFuncLabel, myTempList oneRegList)
-            : funcLabel(oneFuncLabel), regList(oneRegList)
+        Call::Call(myString oneFuncName, myTempList oneRegList)
+            : funcName(oneFuncName), regList(oneRegList)
         {}
 
         string Call::ToString() const
         {
             myTempList regs = regList;
 
-            string result = "call " + string(MySymbol_GetName(funcLabel)) + "(";
+            string result = "call " + string(funcName) + "(";
             while (regs)
                 result += " register" + to_string(Temp_getTempNum(regs->head)) + ",",
                 regs = regs->tail;
@@ -161,34 +161,9 @@ namespace lgxZJ
                 temps = temps->tail;
             }
 
-            resultStr += (string("\tcall ") + FindFuncNameOfLabel(funcLabel) + "\n");
+            resultStr += (string("\tcall ") + funcName + "\n");
             resultStr += string("\taddl $") + to_string(varCount * Frame_wordSize) + ", %esp\n";
             return resultStr;
-        }
-
-        string Call::FindFuncNameOfLabel(myLabel label) const
-        {
-            //  because we saved a mistake information of function call,
-            //  here we have to traverse the function environment to get
-            //  the function name.
-            Frame_myFragList procFrags = Trans_getProcFrags();
-            while (procFrags)
-            {
-                myLabel funcLabel = MyEnvironment_getFuncLabel(
-                                MyEnvironment_getVarOrFuncFromName(
-                                    MySemantic_getVarAndFuncEnvironment(), 
-                                    procFrags->head->u.procFrag.funcName));
-                assert (funcLabel != NULL);
-                if (funcLabel == label)
-                    return string(MySymbol_GetName(procFrags->head->u.procFrag.funcName));
-                
-                procFrags = procFrags->tail;
-            }
-
-            //  if user defined function name not find, this is a internal or predefine
-            //  function`
-            //  todo: check if it is
-            return Temp_getLabelString(label);
         }
 
         Registers Call::GetDstRegs() const

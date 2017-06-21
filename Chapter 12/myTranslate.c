@@ -238,23 +238,9 @@ static void addOneFrag(Frame_myFragList* fragHolder, Frame_myFrag frag)
 {
     Frame_myFragList* iter = fragHolder;
     while (*iter)
-    {
-        if ((*iter)->head != NULL && 
-            (*iter)->tail != NULL)
+        iter = &(*iter)->tail;
 
-            iter = &(*iter)->tail;
-        else
-            break;
-    }
-
-    if (*iter == NULL)
-        *iter = Frame_makeFragList(NULL, NULL);
-
-    if ((*iter)->head == NULL)
-        (*iter)->head = frag;
-    else
-        (*iter)->tail = Frame_makeFragList(NULL, NULL),
-        (*iter)->tail->head = frag;
+    *iter = Frame_makeFragList(frag, NULL);
 }
 
 static Frame_myFragList g_procFrags = NULL;
@@ -491,14 +477,9 @@ IR_myExp Trans_LValueExp_GetArrayPtr(myLValueExp lValueExp)
 
 IR_myExp Trans_noParamfunctionCall(mySymbol funcName)
 {
-    myLabel funcLabel = MyEnvironment_getFuncLabel(
-        MyEnvironment_getVarOrFuncFromName(
-            MySemantic_getVarAndFuncEnvironment(),
-            funcName));
-    assert (funcLabel != NULL);
     //  include static link as param
     return IR_makeCall(
-        IR_makeName(funcLabel),
+        MySymbol_GetName(funcName),
         IR_makeExpList(IR_makeTemp(Frame_FP()), NULL)); 
 }
 
@@ -617,7 +598,7 @@ static void continueIfCondition(
         IR_makeSeq(
             IR_makeMove(newReg, IR_makeConst(ERROR__ARRAYSIZE__NOTPOSITIVE)),
             IR_makeExp(IR_makeCall(
-                IR_makeName(Temp_newNamedLabel("exit")),
+                "exit",
                 IR_makeExpList(IR_makeTemp(Frame_EBP()), IR_makeExpList(newReg, NULL))))));
     defineLabel(stateReturnPtr, nextLabel);
 }
@@ -1297,7 +1278,7 @@ static IR_myExp prepareStringRegForConvert(
     IR_myExp leftValue, IR_myExp rightValue, IR_myStatement* stateReturnPtr)
 {
     IR_myExp callExp = IR_makeCall(
-            IR_makeName(Temp_newNamedLabel("strcmp")),
+            "strcmp",
             IR_makeExpList(IR_makeTemp(Frame_EBP()),
                 IR_makeExpList(leftValue, IR_makeExpList(rightValue, NULL))));
     return combineOneTrans(callExp, stateReturnPtr);

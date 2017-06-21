@@ -73,7 +73,7 @@ typedef struct IR_myExp_
         struct { IR_myStatement statement; struct IR_myExp_* exp; } eseq;
         myLabel name;
         int constValue;
-        struct { struct IR_myExp_* func; struct IR_myExpList_* args; } call;
+        struct { myString funcName; struct IR_myExpList_* args; } call;
     } u;
 }*  IR_myExp;
 
@@ -114,7 +114,7 @@ IR_myExp IR_makeTemp(myTemp temp);
 IR_myExp IR_makeESeq(IR_myStatement statement, IR_myExp exp);
 IR_myExp IR_makeName(myLabel label);
 IR_myExp IR_makeConst(int constValue);
-IR_myExp IR_makeCall(IR_myExp func, IR_myExpList args);
+IR_myExp IR_makeCall(myString funcName, IR_myExpList args);
 
 IR_myStatementList IR_makeStatementList(IR_myStatement head, IR_myStatementList tail);
 IR_myExpList IR_makeExpList(IR_myExp head, IR_myExpList tails);

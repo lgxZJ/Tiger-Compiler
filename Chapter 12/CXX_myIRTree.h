@@ -75,7 +75,7 @@ typedef struct IR_myExp_
         struct { IR_myStatement statement; struct IR_myExp_* exp; } eseq;
         myLabel name;
         int constValue;
-        struct { struct IR_myExp_* func; struct IR_myExpList_* args; } call;
+        struct { myString funcName; struct IR_myExpList_* args; } call;
     } u;
 }*  IR_myExp;
 

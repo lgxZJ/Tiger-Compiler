@@ -374,12 +374,12 @@ namespace lgxZJ
 
         myTemp Munch::CallExp(IR_myExp exp)
         {
-            assert(exp->u.call.func->kind == IR_myExp_::IR_Name);
+            assert(exp->u.call.funcName != NULL);
 
-            myLabel funcLabel = exp->u.call.func->u.name;
+            myString funcName = exp->u.call.funcName;
             myTempList argRegs = GetArgRegs(exp->u.call.args);
 
-            PutIns(shared_ptr<Call>(new Call(funcLabel, argRegs)));
+            PutIns(shared_ptr<Call>(new Call(funcName, argRegs)));
             return Frame_EAX();
         }
 

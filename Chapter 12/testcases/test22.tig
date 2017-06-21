@@ -2,7 +2,6 @@
 
  prints("aaa");
  printc(10);
- flush();
 
  printc(ord("12"));
  printc(10);

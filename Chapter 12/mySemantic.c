@@ -1095,12 +1095,7 @@ myTranslationAndType analyzeParamsOfFunction(
     }
     else
     {
-        myLabel funcLabel = MyEnvironment_getFuncLabel(
-        MyEnvironment_getVarOrFuncFromName(
-            MySemantic_getVarAndFuncEnvironment(),
-            functioName));
-        
-        IR_myExp funcCallExp = IR_makeCall(IR_makeName(funcLabel), exps);
+        IR_myExp funcCallExp = IR_makeCall(MySymbol_GetName(functioName), exps);
         return make_MyTranslationAndType(
             funcCallExp, getFunctionReturnType(functioName));
     }
