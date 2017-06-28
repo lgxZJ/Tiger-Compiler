@@ -7,24 +7,27 @@ Written by **Andrew W.Appel**, the author of [***Tiger Book***][tiger-book], the
 
 For more details, see the **Appendix** section of that book.
 
+## Basic Release
+There is a basic release of this compiler under `Compiler` folder. This is a basic release because only the basic functionalities of Tiger is guaranteed.
 
-## Intention
-The intention of this project is to write a compiler as a matter of interest. To solidate my own knownledge of both C and C++, i decide to use C to write the front end of this compiler and use C++ to finish the back end.
+### To build the compiler
 
-## Roadmap
-This compiler project simply works through steps in tiger book, so there are mainly 11 steps:
+1.  `cd Compiler`.
+2.  `make`.
 
-1.	Lexical Analysis
-2.	Parsing
-3.	Abstract Syntax
-4.	Semantic Analysis
-5.	Activation Records
-6.	Translation to Intermediate Code
-7.	Basic Blocks and Traces
-8.	Instruction Selection
-9.	Liveness Analysis
-10.	Register Allocation
-11.	Putting It All Together
+Then the generated **`./builds/tiger-compiler`** is just the final compiler you want.
+
+### To compile a test file
+1.  `./builds/tiger-compiler ./testcases/testXXX.tig`.
+
+The generated executable file will be under the `testcases` folder with name `testXXX`.
+
+### To see the unit-test coverage result
+First make sure that you have installed **firefox**, because the makefile uses it.
+
+1.  `cd Compiler/Coverage-Report`.
+2.  `make`.
+
 
 
 ## Folder Categories
@@ -45,19 +48,10 @@ This compiler project simply works through steps in tiger book, so there are mai
 *	**`LCOV`**,  a graphical front-end for GCC's coverage testing tool gcov.
 *	**`GCC`**, the GNU Compiler Collection.
 *	**`Doxygen`**, a documentation generator.
-
-
-## Project Guide
-If any, yun can use following guide to do some tasks:
-
-*	To **make**, type `make` in a terminal under the right directory.
-*	To **run**, type `make run` in a terminal under the right directory.
-*	To **clean**, type `make clean` in a terminal under the right directory.
-*	To **show coverage**, type `make show-coverage` in a terminal under the right directory.
-*	To **re-test**, type `make retest` in a terminal under the right directory.
-
-## Project Status
- Done with first four steps, currently in **Activation Records**.
+*   **`CppUnit`**.
+*   **`32bit and 64bit C libraries`**.
+*   **`GnuMake`**.
+*   **`G++`**.
 
 
 [tiger-book]:	http://www.amazon.com/Modern-Compiler-Implementation-Basic-Techniques/dp/0521583896
