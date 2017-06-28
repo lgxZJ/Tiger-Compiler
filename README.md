@@ -53,5 +53,8 @@ First make sure that you have installed **firefox**, because the makefile uses i
 *   **`GnuMake`**.
 *   **`G++`**.
 
+## Todo
+See `Compiler/TODO`.
+
 
 [tiger-book]:	http://www.amazon.com/Modern-Compiler-Implementation-Basic-Techniques/dp/0521583896
