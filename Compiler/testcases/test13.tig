@@ -1,0 +1,15 @@
+let
+	type recordType = { a : int, b : string, c : int }
+	var var1 := recordType { a=1, b="abc", c=2 }
+	var var2 := recordType { a=2, b="cba", c=1 }
+
+	var var3 := 12
+	var var4 := "1111"
+in
+	var1 := var2;
+	assertt ((var1.a = 2) & (var1.b = "cba") & (var1.c = 1), "test13.tig", 10);
+	var3 := 34;
+	assertt (var3 = 34, "test13.tig", 12);
+	var4 := "2222";
+	assertt (var4 = "2222", "test13.tig", 14)
+end

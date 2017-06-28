@@ -1,0 +1,7 @@
+for varName := 1 to 9
+do
+	let
+		function foo() : int = varName
+	in
+	end
+

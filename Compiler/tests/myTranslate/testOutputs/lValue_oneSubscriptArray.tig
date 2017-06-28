@@ -1,0 +1,350 @@
+
+Eseq(
+  Seq(
+    Seq(
+      null    , 
+      Seq(
+        Seq(
+          Seq(
+            Seq(
+              Seq(
+                Seq(
+                  Seq(
+                    Move(
+                      Temp(182)
+                    , 
+                      Temp(frame pointer)
+                    )
+                  , 
+                    Seq(
+                      Exp(
+                        BinOperation(Plus, 
+                          Temp(182)
+                        , 
+                          Const(-88)
+                        )
+                      )
+                    , 
+                      null                    )
+                  )
+                , 
+                  null                )
+              , 
+                Seq(
+                  Seq(
+                    Seq(
+                      Seq(
+                        Seq(
+                          Seq(
+                            Seq(
+                              Seq(
+                                Seq(
+                                  Seq(
+                                    Seq(
+                                      Move(
+                                        Temp(162)
+                                      , 
+                                        Const(10)
+                                      )
+                                    , 
+                                      null                                    )
+                                  , 
+                                    Seq(
+                                      Seq(
+                                        Seq(
+                                          Seq(
+                                            Seq(
+                                              Seq(
+                                                Move(
+                                                  Temp(165)
+                                                , 
+                                                  Temp(162)
+                                                )
+                                              , 
+                                                CJump(GreaterThan, 
+                                                  Temp(165)
+                                                , 
+                                                  Const(0)
+                                                , Label33, empty,                                                 )
+                                              )
+                                            , 
+                                              Seq(
+                                                Move(
+                                                  Temp(166)
+                                                , 
+                                                  Const(53)
+                                                )
+                                              , 
+                                                Exp(
+                                                  Call(exit,                                                   , 
+                                                    Temp(frame pointer)
+                                                  , 
+                                                    Temp(166)
+                                                  )
+                                                )
+                                              )
+                                            )
+                                          , 
+                                            Label(Label33)
+                                          )
+                                        , 
+                                          CJump(LessEqual, 
+                                            Temp(165)
+                                          , 
+                                            Const(1024)
+                                          , Label34, empty,                                           )
+                                        )
+                                      , 
+                                        Seq(
+                                          Move(
+                                            Temp(167)
+                                          , 
+                                            Const(53)
+                                          )
+                                        , 
+                                          Exp(
+                                            Call(exit,                                             , 
+                                              Temp(frame pointer)
+                                            , 
+                                              Temp(167)
+                                            )
+                                          )
+                                        )
+                                      )
+                                    , 
+                                      Label(Label34)
+                                    )
+                                  )
+                                , 
+                                  Seq(
+                                    Move(
+                                      Temp(168)
+                                    , 
+                                      Const(4)
+                                    )
+                                  , 
+                                    null                                  )
+                                )
+                              , 
+                                Seq(
+                                  Seq(
+                                    Seq(
+                                      Seq(
+                                        null                                      , 
+                                        Seq(
+                                          null                                        , 
+                                          Exp(
+                                            BinOperation(Multiply, 
+                                              Temp(165)
+                                            , 
+                                              Temp(168)
+                                            )
+                                          )
+                                        )
+                                      )
+                                    , 
+                                      null                                    )
+                                  , 
+                                    Exp(
+                                      Call(malloc,                                       , 
+                                        Temp(frame pointer)
+                                      , 
+                                        Temp(return register)
+                                      )
+                                    )
+                                  )
+                                , 
+                                  Move(
+                                    Temp(169)
+                                  , 
+                                    Temp(return register)
+                                  )
+                                )
+                              )
+                            , 
+                              Move(
+                                Temp(170)
+                              , 
+                                Temp(169)
+                              )
+                            )
+                          , 
+                            Seq(
+                              Move(
+                                Temp(163)
+                              , 
+                                Const(2)
+                              )
+                            , 
+                              null                            )
+                          )
+                        , 
+                          Move(
+                            Temp(171)
+                          , 
+                            Const(0)
+                          )
+                        )
+                      , 
+                        Label(Label35)
+                      )
+                    , 
+                      CJump(GreaterEqual, 
+                        Temp(171)
+                      , 
+                        Temp(162)
+                      , Label36, empty,                       )
+                    )
+                  , 
+                    Seq(
+                      Seq(
+                        Seq(
+                          Seq(
+                            Move(
+                              Mem(
+                                Temp(169)
+                              )
+                            , 
+                              Temp(163)
+                            )
+                          , 
+                            Exp(
+                              BinOperation(Plus, 
+                                Temp(169)
+                              , 
+                                Const(4)
+                              )
+                            )
+                          )
+                        , 
+                          Exp(
+                            BinOperation(Plus, 
+                              Temp(171)
+                            , 
+                              Const(1)
+                            )
+                          )
+                        )
+                      , 
+                        Jump(
+                          Name(Label35)
+                        )
+                      )
+                    , 
+                      Label(Label36)
+                    )
+                  )
+                , 
+                  null                )
+              )
+            , 
+              Move(
+                Mem(
+                  Temp(182)
+                )
+              , 
+                Temp(170)
+              )
+            )
+          , 
+            Move(
+              Temp(183)
+            , 
+              Mem(
+                Temp(182)
+              )
+            )
+          )
+        , 
+          null        )
+      , 
+        null      )
+    )
+  , 
+    Seq(
+      Seq(
+        Seq(
+          Seq(
+            Seq(
+              Seq(
+                Move(
+                  Temp(186)
+                , 
+                  Temp(frame pointer)
+                )
+              , 
+                Seq(
+                  Exp(
+                    BinOperation(Plus, 
+                      Temp(186)
+                    , 
+                      Const(-88)
+                    )
+                  )
+                , 
+                  null                )
+              )
+            , 
+              Move(
+                Temp(187)
+              , 
+                Mem(
+                  Temp(186)
+                )
+              )
+            )
+          , 
+            Seq(
+              Seq(
+                Move(
+                  Temp(184)
+                , 
+                  Const(1)
+                )
+              , 
+                null              )
+            , 
+              Seq(
+                Move(
+                  Temp(185)
+                , 
+                  Const(4)
+                )
+              , 
+                Exp(
+                  BinOperation(Multiply, 
+                    Temp(184)
+                  , 
+                    Temp(185)
+                  )
+                )
+              )
+            )
+          )
+        , 
+          Exp(
+            BinOperation(Plus, 
+              Temp(187)
+            , 
+              Temp(return register)
+            )
+          )
+        )
+      , 
+        Seq(
+          null        , 
+          Move(
+            Temp(188)
+          , 
+            Mem(
+              Temp(187)
+            )
+          )
+        )
+      )
+    , 
+      null    )
+  )
+, 
+  Temp(188)
+)

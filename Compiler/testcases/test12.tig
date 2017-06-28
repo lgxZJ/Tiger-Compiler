@@ -1,0 +1,9 @@
+let
+	type arrayType = array of int
+	var var1 := arrayType[11] of 2
+in
+	assertt (var1[0] = 2, "test12.tig", 5);
+	printn(var1[10]);
+	printc(10);
+	flush()
+end

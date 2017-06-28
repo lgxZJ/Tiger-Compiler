@@ -1,0 +1,39 @@
+
+Eseq(
+  Seq(
+    null  , 
+    Seq(
+      Seq(
+        Move(
+          Temp(47)
+        , 
+          Const(0)
+        )
+      , 
+        null      )
+    , 
+      Seq(
+        Seq(
+          Seq(
+            null          , 
+            Seq(
+              Seq(
+                Move(
+                  Temp(48)
+                , 
+                  Const(12)
+                )
+              , 
+                null              )
+            , 
+              null            )
+          )
+        , 
+          null        )
+      , 
+        null      )
+    )
+  )
+, 
+  Temp(48)
+)

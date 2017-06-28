@@ -1,0 +1,5 @@
+let
+	type recordType = {}
+	function foo(): recordType = nil
+in
+end

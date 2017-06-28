@@ -1,0 +1,7 @@
+let
+	type arrayType = array of int
+	type recordType = { name : int, time : arrayType }
+	var varName := recordType {name=1, time=arrayType[10] of 2}
+in
+	varName.time[3]
+end

@@ -1,0 +1,7 @@
+let
+	type innerArrayType = array of int
+	type outerArrayType = array of innerArrayType
+	var varName : outerArrayType := outerArrayType[10] of innerArrayType[20] of 9
+in
+	varName[1][2]
+end

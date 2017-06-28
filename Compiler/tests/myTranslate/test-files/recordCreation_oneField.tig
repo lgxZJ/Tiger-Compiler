@@ -1,0 +1,5 @@
+let
+	type recordType = { name : int }
+in
+	recordType{ name=1}
+end

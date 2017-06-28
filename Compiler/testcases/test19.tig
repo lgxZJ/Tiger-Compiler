@@ -1,0 +1,11 @@
+let
+	function proce1(a:int) = ()
+	function func1 (a:int, b:int) : int = a + 1
+	function func2 (a:int, b:int) : int = func1(a - 1, b + 1)
+	function factor (a:int) :int = if a = 1 then 1 else a * factor(a - 1)
+in
+	proce1();
+	assertt (func1(1, 2) = 2, "test19.tig", 8);
+	assertt (func2(3, 4) = 3, "test19.tig", 9);
+	assertt (factor(10) = 3628800, "test19.tig", 10)
+end

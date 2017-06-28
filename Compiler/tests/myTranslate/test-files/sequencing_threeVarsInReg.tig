@@ -1,0 +1,7 @@
+let
+	var varOne := 1
+	var varTwo := 2
+	var varThree := 3
+in
+	(varOne; varTwo; varThree)
+end

@@ -1,0 +1,68 @@
+
+Eseq(
+  Seq(
+    Seq(
+      Seq(
+        Seq(
+          Seq(
+            Seq(
+              Seq(
+                Seq(
+                  Move(
+                    Temp(19)
+                  , 
+                    Temp(frame pointer)
+                  )
+                , 
+                  Seq(
+                    Exp(
+                      BinOperation(Plus, 
+                        Temp(19)
+                      , 
+                        Const(-20)
+                      )
+                    )
+                  , 
+                    null                  )
+                )
+              , 
+                null              )
+            , 
+              Seq(
+                Move(
+                  Temp(17)
+                , 
+                  Const(0)
+                )
+              , 
+                null              )
+            )
+          , 
+            Move(
+              Mem(
+                Temp(19)
+              )
+            , 
+              Temp(17)
+            )
+          )
+        , 
+          Move(
+            Temp(20)
+          , 
+            Mem(
+              Temp(19)
+            )
+          )
+        )
+      , 
+        null      )
+    , 
+      Seq(
+        null      , 
+        null      )
+    )
+  , 
+    null  )
+, 
+  null)

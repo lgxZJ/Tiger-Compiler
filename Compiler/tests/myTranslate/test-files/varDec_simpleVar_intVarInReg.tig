@@ -1,0 +1,5 @@
+let
+	var varOne := 0
+	var varTwo := varOne
+in
+end

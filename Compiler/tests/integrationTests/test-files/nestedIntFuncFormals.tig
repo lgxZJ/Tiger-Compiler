@@ -1,0 +1,9 @@
+let
+	function foo(v:int) : int = 
+		let
+			function foo() : int = v
+		in
+			foo()
+		end
+in
+end

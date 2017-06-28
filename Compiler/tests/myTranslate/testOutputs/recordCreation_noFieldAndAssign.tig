@@ -1,0 +1,92 @@
+
+Eseq(
+  Seq(
+    Seq(
+      null    , 
+      Seq(
+        Seq(
+          Seq(
+            Seq(
+              Seq(
+                Seq(
+                  Seq(
+                    Move(
+                      Temp(384)
+                    , 
+                      Temp(frame pointer)
+                    )
+                  , 
+                    Seq(
+                      Exp(
+                        BinOperation(Plus, 
+                          Temp(384)
+                        , 
+                          Const(-108)
+                        )
+                      )
+                    , 
+                      null                    )
+                  )
+                , 
+                  null                )
+              , 
+                Seq(
+                  Seq(
+                    Seq(
+                      Seq(
+                        Seq(
+                          null                        , 
+                          Move(
+                            Temp(380)
+                          , 
+                            Const(1)
+                          )
+                        )
+                      , 
+                        null                      )
+                    , 
+                      Exp(
+                        Call(malloc,                         , 
+                          Temp(frame pointer)
+                        , 
+                          Temp(380)
+                        )
+                      )
+                    )
+                  , 
+                    Move(
+                      Temp(381)
+                    , 
+                      Temp(return register)
+                    )
+                  )
+                , 
+                  null                )
+              )
+            , 
+              Move(
+                Mem(
+                  Temp(384)
+                )
+              , 
+                Temp(381)
+              )
+            )
+          , 
+            Move(
+              Temp(385)
+            , 
+              Mem(
+                Temp(384)
+              )
+            )
+          )
+        , 
+          null        )
+      , 
+        null      )
+    )
+  , 
+    null  )
+, 
+  null)

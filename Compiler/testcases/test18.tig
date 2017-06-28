@@ -1,0 +1,5 @@
+let
+	var var1 := 1
+in
+	assertt ((var1 + 1) = 2, "test18.tig", 4)
+end

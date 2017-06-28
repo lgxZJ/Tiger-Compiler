@@ -1,0 +1,114 @@
+
+Eseq(
+  Seq(
+    Seq(
+      Seq(
+        Seq(
+          Seq(
+            Seq(
+              Seq(
+                Move(
+                  Temp(573)
+                , 
+                  Const(1)
+                )
+              , 
+                null              )
+            , 
+              CJump(Equal, 
+                Temp(573)
+              , 
+                Const(0)
+              , Label116, empty,               )
+            )
+          , 
+            Seq(
+              Seq(
+                Seq(
+                  Move(
+                    Temp(574)
+                  , 
+                    Const(1)
+                  )
+                , 
+                  null                )
+              , 
+                null              )
+            , 
+              null            )
+          )
+        , 
+          Jump(
+            Name(Label117)
+          )
+        )
+      , 
+        Label(Label116)
+      )
+    , 
+      Seq(
+        Seq(
+          Seq(
+            Seq(
+              Move(
+                Temp(575)
+              , 
+                Const(2)
+              )
+            , 
+              null            )
+          , 
+            Seq(
+              Seq(
+                Seq(
+                  Seq(
+                    Seq(
+                      Seq(
+                        Move(
+                          Temp(576)
+                        , 
+                          Const(3)
+                        )
+                      , 
+                        null                      )
+                    , 
+                      Seq(
+                        Move(
+                          Temp(577)
+                        , 
+                          Const(3)
+                        )
+                      , 
+                        null                      )
+                    )
+                  , 
+                    Move(
+                      Temp(578)
+                    , 
+                      Temp(576)
+                    )
+                  )
+                , 
+                  null                )
+              , 
+                Exp(
+                  BinOperation(Plus, 
+                    Temp(578)
+                  , 
+                    Temp(577)
+                  )
+                )
+              )
+            , 
+              null            )
+          )
+        , 
+          null        )
+      , 
+        null      )
+    )
+  , 
+    Label(Label117)
+  )
+, 
+  null)

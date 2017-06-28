@@ -1,0 +1,34 @@
+
+Eseq(
+  Seq(
+    Seq(
+      Seq(
+        null      , 
+        Seq(
+          Move(
+            Temp(834)
+          , 
+            Const(1)
+          )
+        , 
+          null        )
+      )
+    , 
+      Move(
+        Temp(835)
+      , 
+        Const(0)
+      )
+    )
+  , 
+    Exp(
+      BinOperation(Minus, 
+        Temp(835)
+      , 
+        Temp(834)
+      )
+    )
+  )
+, 
+  Temp(835)
+)

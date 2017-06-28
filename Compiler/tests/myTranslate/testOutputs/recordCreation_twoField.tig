@@ -1,0 +1,116 @@
+
+Eseq(
+  Seq(
+    Seq(
+      null    , 
+      null    )
+  , 
+    Seq(
+      Seq(
+        Seq(
+          Seq(
+            Seq(
+              Seq(
+                Seq(
+                  Seq(
+                    Seq(
+                      Seq(
+                        Seq(
+                          Seq(
+                            Seq(
+                              null                            , 
+                              Move(
+                                Temp(394)
+                              , 
+                                Const(8)
+                              )
+                            )
+                          , 
+                            null                          )
+                        , 
+                          Exp(
+                            Call(malloc,                             , 
+                              Temp(frame pointer)
+                            , 
+                              Temp(394)
+                            )
+                          )
+                        )
+                      , 
+                        Move(
+                          Temp(395)
+                        , 
+                          Temp(return register)
+                        )
+                      )
+                    , 
+                      Move(
+                        Temp(396)
+                      , 
+                        Temp(395)
+                      )
+                    )
+                  , 
+                    Seq(
+                      Move(
+                        Temp(397)
+                      , 
+                        Name(Label99)
+                      )
+                    , 
+                      null                    )
+                  )
+                , 
+                  Move(
+                    Mem(
+                      Temp(395)
+                    )
+                  , 
+                    Temp(397)
+                  )
+                )
+              , 
+                Exp(
+                  BinOperation(Plus, 
+                    Temp(395)
+                  , 
+                    Const(-4)
+                  )
+                )
+              )
+            , 
+              Seq(
+                Move(
+                  Temp(398)
+                , 
+                  Const(111)
+                )
+              , 
+                null              )
+            )
+          , 
+            Move(
+              Mem(
+                Temp(395)
+              )
+            , 
+              Temp(398)
+            )
+          )
+        , 
+          Exp(
+            BinOperation(Plus, 
+              Temp(395)
+            , 
+              Const(-4)
+            )
+          )
+        )
+      , 
+        null      )
+    , 
+      null    )
+  )
+, 
+  Temp(396)
+)

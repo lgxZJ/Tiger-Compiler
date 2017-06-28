@@ -1,0 +1,36 @@
+
+Eseq(
+  Seq(
+    Seq(
+      null    , 
+      null    )
+  , 
+    Seq(
+      Seq(
+        Seq(
+          Seq(
+            Seq(
+              null            , 
+              null            )
+          , 
+            Exp(
+              Call(foo,               , 
+                Temp(frame pointer)
+              )
+            )
+          )
+        , 
+          Move(
+            Temp(308)
+          , 
+            Temp(return register)
+          )
+        )
+      , 
+        null      )
+    , 
+      null    )
+  )
+, 
+  Temp(308)
+)

@@ -1,0 +1,22 @@
+let 
+
+ type any = {any : int}
+ var buffer := getcharr()
+
+function readint(any: any) : int =
+ let var i := 0
+     function isdigit(s : string) : int = 
+		  ord(buffer)>=ord("0") & ord(buffer)<=ord("9")
+     function skipto() =
+       while buffer=" " | buffer="\n"
+         do buffer := getcharr()
+  in skipto();
+     any.any := isdigit(buffer);
+     while isdigit(buffer)
+       do (i := i*10+ord(buffer)-ord("0"); buffer := getcharr());
+     i
+ end
+
+in
+
+end

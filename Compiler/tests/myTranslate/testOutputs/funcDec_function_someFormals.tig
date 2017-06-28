@@ -1,0 +1,43 @@
+foo:
+
+  Seq(
+    Seq(
+      Seq(
+        Move(
+          Temp(45)
+        , 
+          Temp(frame pointer)
+        )
+      , 
+        Seq(
+          Exp(
+            BinOperation(Plus, 
+              Temp(45)
+            , 
+              Const(8)
+            )
+          )
+        , 
+          null        )
+      )
+    , 
+      Seq(
+        null      , 
+        Move(
+          Temp(46)
+        , 
+          Mem(
+            Temp(45)
+          )
+        )
+      )
+    )
+  , 
+    Move(
+      Temp(return register)
+    , 
+      Temp(46)
+    )
+  )
+
+

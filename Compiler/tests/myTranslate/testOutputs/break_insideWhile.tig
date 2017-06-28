@@ -1,0 +1,103 @@
+
+Eseq(
+  Seq(
+    Seq(
+      Seq(
+        Seq(
+          Seq(
+            Seq(
+              null            , 
+              Label(Label218)
+            )
+          , 
+            Seq(
+              Move(
+                Temp(854)
+              , 
+                Const(1)
+              )
+            , 
+              null            )
+          )
+        , 
+          CJump(Equal, 
+            Temp(854)
+          , 
+            Const(0)
+          , Label217, empty,           )
+        )
+      , 
+        Seq(
+          Seq(
+            Seq(
+              Seq(
+                Seq(
+                  Seq(
+                    Seq(
+                      Seq(
+                        Seq(
+                          Move(
+                            Temp(855)
+                          , 
+                            Const(1)
+                          )
+                        , 
+                          null                        )
+                      , 
+                        Seq(
+                          Move(
+                            Temp(856)
+                          , 
+                            Const(1)
+                          )
+                        , 
+                          null                        )
+                      )
+                    , 
+                      Move(
+                        Temp(857)
+                      , 
+                        Temp(855)
+                      )
+                    )
+                  , 
+                    null                  )
+                , 
+                  Move(
+                    Temp(590)
+                  , 
+                    Const(0)
+                  )
+                )
+              , 
+                Exp(
+                  BinOperation(Divide, 
+                    Temp(857)
+                  , 
+                    Temp(856)
+                  )
+                )
+              )
+            , 
+              null            )
+          , 
+            Seq(
+              Jump(
+                Name(Label217)
+              )
+            , 
+              null            )
+          )
+        , 
+          null        )
+      )
+    , 
+      Jump(
+        Name(Label218)
+      )
+    )
+  , 
+    Label(Label217)
+  )
+, 
+  null)

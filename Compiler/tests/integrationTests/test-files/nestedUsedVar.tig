@@ -1,0 +1,5 @@
+let
+	var varName := 1 
+	function f(v:int) : int = varName
+in
+end

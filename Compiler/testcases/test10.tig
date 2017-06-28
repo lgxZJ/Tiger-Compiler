@@ -1,0 +1,11 @@
+let
+	var var1 := 1
+	var var2 := 2
+in
+	assertt ((1 & 0) = 0, "test10.tig", 5);
+	assertt ((1 & 2) = 1, "test10.tig", 6);
+	var1 := (1 & 3);
+	assertt (var1 = 1, "test10.tig", 8);
+	assertt ((1 | 0) = 1, "test10.tig", 9);
+	assertt ((0 & 1 & 2) = 0, "test10.tig", 10)
+end
