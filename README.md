@@ -1,4 +1,4 @@
-A Tiger Compiler
+A Tiger Compiler![build-status-img]
 ----------------
 
 
@@ -57,4 +57,5 @@ First make sure that you have installed **firefox**, because the makefile uses i
 See `Compiler/TODO`.
 
 
-[tiger-book]:	http://www.amazon.com/Modern-Compiler-Implementation-Basic-Techniques/dp/0521583896
+[tiger-book]:		http://www.amazon.com/Modern-Compiler-Implementation-Basic-Techniques/dp/0521583896
+[build-status-img]:	https://travis-ci.org/lgxZJ/Tiger-Compiler.svg?branch=master
