@@ -1,8 +1,8 @@
 language: cpp
 
 install:
-- yum install cunit
-- yum install g++
+- apt-get install cunit
+- apt-get install g++
 
 script:
 - make
