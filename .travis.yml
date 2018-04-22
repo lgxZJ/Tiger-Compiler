@@ -1,0 +1,8 @@
+language: cpp
+
+install:
+	yum install cunit
+	yum install g++
+
+script:
+	make
