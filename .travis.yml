@@ -1,8 +1,8 @@
 language: cpp
 
-install:
-- apt-get install cunit
-- apt-get install g++
+before_install:
+- sudo apt-get install cunit
+- sudo apt-get install g++
 
 script:
 - make
