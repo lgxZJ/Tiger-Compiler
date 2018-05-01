@@ -17,35 +17,34 @@ C_COMPILE_FLAGS := gcc -g -c -std=c99
 COVERAGE_OPTIONS := -fprofile-arcs -ftest-coverage
 COVERAGE_FOLDER := ./Coverage-Report
 
-.RECIPEPREFIX := >
 VPATH := ./AAI
 
 tiger-compiler : $(COVERAGE_FOLDER) $(OBJECTS)
-> g++ -g -coverage -o $(OUT_DIR)/$@ $(OBJECTS) -static -lcppunit
+	g++ -g -coverage -o $(OUT_DIR)/$@ $(OBJECTS) -static -lcppunit
 
 $(OBJECTS) : | $(OUT_DIR)
 
 $(OUT_DIR):
-> mkdir -p $@
+	mkdir -p $@
 
 $(COVERAGE_FOLDER):
-> mkdir -p $@
+	mkdir -p $@
 
 $(OUT_DIR)/%.o : %.cpp
-> $(CXX_COMPILE_FLAGS) -o $@ $<
+	$(CXX_COMPILE_FLAGS) -o $@ $<
 
 $(OUT_DIR)/%.o : %.c
-> $(C_COMPILE_FLAGS) -o $@ $<
+	$(C_COMPILE_FLAGS) -o $@ $<
 
 
 .PHONY : clean retest run show-coverage
 clean:
-> rm -f $(OBJECTS) $(OUT_DIR)/all.out *.gcda *.gcno
+	rm -f $(OBJECTS) $(OUT_DIR)/all.out *.gcda *.gcno
 
 retest:
-> make clean
-> make
-> $(OUT_DIR)/tiger-compiler
+	make clean
+	make
+	$(OUT_DIR)/tiger-compiler
 
 run:
-> $(OUT_DIR)/tiger-compiler
+	$(OUT_DIR)/tiger-compiler
