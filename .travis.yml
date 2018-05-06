@@ -5,6 +5,8 @@ install:
 - ./travis_scripts/install_cunit_ubuntu.sh
 - sudo apt-get install g++
 - sudo apt-get install libcppunit-dev
+- chmod +x ./travis_scripts/install_libc6-dev-i386_ubuntu.sh
+- ./travis_scripts/install_libc6-dev-i386_ubuntu.sh
 
 script:
 - make
