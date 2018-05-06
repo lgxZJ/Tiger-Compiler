@@ -10,8 +10,7 @@ OBJECTS := $(addprefix $(OUT_DIR)/, main.o myRegisterAllocation.o\
                                     myTable.o myEscape.o breakChecker.o forChecker.o\
                                     abstractSyntaxMaker.o frontTester.o breakGetter.o\
                                     lexString.o myReport.o stringEscape.o\
-                                    y.tab.o lex.yy.o\
-				    tiger_rt.o)
+                                    y.tab.o lex.yy.o)
 
 CXX_COMPILE_FLAGS := g++ -g -c -std=c++11
 C_COMPILE_FLAGS := gcc -g -c -std=c99

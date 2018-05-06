@@ -12,6 +12,25 @@ using namespace lgxZJ::RA;
 
 using namespace std;
 
+void CompileTigerRuntime(const char* buildDir)
+{
+    char buf[256];
+
+    sprintf(buf, "gcc -g -o %s/tiger_rt.s ./tiger_rt.c -S -m32", buildDir);
+    if (system(buf) == -1)
+    {
+        printf("compile error : tiger runtime!\n");
+        exit(-1);
+    }
+
+    sprintf(buf, "as -g -o %s/tiger_rt.o %s/tiger_rt.s --32", buildDir, buildDir);
+    if (system(buf) == -1)
+    {
+        printf("compile error : tiger runtime!\n");
+        exit(-1);
+    }
+}
+
 char* ChangeExtensionToAsm(char* sourceFilename)
 {
     char* dotLocation = strstr(sourceFilename, ".tig");
@@ -77,6 +96,8 @@ void LinkToExecutable(char* execFilename, const char* runtimeDir)
 
 int main(int argc, char* argv[])
 {   
+    CompileTigerRuntime("./builds");
+    
     for (int i = 1; i < argc; ++i)
     {
         char * filename = argv[i];
