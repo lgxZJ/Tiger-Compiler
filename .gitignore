@@ -1,11 +1,17 @@
-#	executables
+B#	executables
 **/*.out
+
+#	build files
+Compiler/builds/
+Compiler/testcases/*.s
+Compiler/testcases/*.o
 
 #	back-up files
 **/*~
 
 #	restored files
 **/*.*#
+**/#*#
 
 #	precompiled files
 **/*.gch
