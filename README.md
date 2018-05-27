@@ -11,14 +11,13 @@ For more details, see the **Appendix** section of that book.
 There is a basic release of this compiler under `Compiler` folder. This is a basic release because only the basic functionalities of Tiger is guaranteed.
 
 ### To build the compiler
+1.  `make`.
 
-1.  `cd Compiler`.
-2.  `make`.
-
-Then the generated **`./builds/tiger-compiler`** is just the final compiler you want.
+Then the generated **`./Compiler/builds/tiger-compiler`** is just the final compiler you want.
 
 ### To compile a test file
-1.  `./builds/tiger-compiler ./testcases/testXXX.tig`.
+1.  `cd Compiler`.
+2.  `./builds/tiger-compiler ./testcases/testXXX.tig`.
 
 The generated executable file will be under the `testcases` folder with name `testXXX`.
 
@@ -27,7 +26,6 @@ First make sure that you have installed **firefox**, because the makefile uses i
 
 1.  `cd Compiler/Coverage-Report`.
 2.  `make`.
-
 
 
 ## Folder Categories
@@ -48,10 +46,10 @@ First make sure that you have installed **firefox**, because the makefile uses i
 *	**`LCOV`**,  a graphical front-end for GCC's coverage testing tool gcov.
 *	**`GCC`**, the GNU Compiler Collection.
 *	**`Doxygen`**, a documentation generator.
-*   **`CppUnit`**.
-*   **`32bit and 64bit C libraries`**.
-*   **`GnuMake`**.
-*   **`G++`**.
+* **`CppUnit`**.
+* **`32bit and 64bit C libraries`**.
+* **`GnuMake`**.
+* **`G++`**.
 
 ## Todo
 See `Compiler/TODO`.
