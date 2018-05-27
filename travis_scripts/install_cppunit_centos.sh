@@ -1,7 +1,7 @@
-yum install lbzip2
-wget https://dev-www.libreoffice.org/src/cppunit/cppunit-1.13.0.tar.gz -O cppunit.tar.gz
+wget https://sourceforge.net/projects/cppunit/files/cppunit/1.12.1/cppunit-1.12.1.tar.gz/download -O cppunit.tar.gz
+mkdir cppunit
+tar -zxvf cppunit.tar.gz -C ./cppunit --strip-components=1
 cd cppunit
-./autogen.sh
 ./configure
 make
 make check # optional
