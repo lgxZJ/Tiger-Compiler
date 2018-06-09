@@ -1,5 +1,5 @@
 TN:
-SF:/home/lgxZJ/Desktop/Tiger-Compiler/Compiler/breakChecker.c
+SF:/root/Tiger-Compiler/Compiler/breakChecker.c
 FN:10,enterLoop
 FN:15,leaveLoop
 FN:20,isBreakInsideLoop

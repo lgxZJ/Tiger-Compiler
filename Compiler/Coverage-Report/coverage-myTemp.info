@@ -1,5 +1,5 @@
 TN:
-SF:/home/lgxZJ/Desktop/Tiger-Compiler/Compiler/myTemp.c
+SF:/root/Tiger-Compiler/Compiler/myTemp.c
 FN:15,Temp_getTotalTempCount
 FN:20,Temp_getTotalLabelCount
 FN:26,Temp_isLabelEqual

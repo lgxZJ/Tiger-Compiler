@@ -1,4 +1,10 @@
-sudo yum install gcc-c++
+B0;136;0cB0;136;0cB0;136;0csudo yum install gcc-c++
+
+# used for unit-test coverage
+sudo yum install lcov
+
+# used for unit test of C language
+sudo yum install CUnit-devel
 
 # used for static linking
 sudo yum install libstdc++-static
@@ -8,4 +14,4 @@ chmod u+x ./install_cppunit_centos.sh
 ./install_cppunit_centos.sh
 
 chmod u+x ./install_glic-devel-i686_centos.sh
-./install_glic-devel-i686_centos.sh
+./install_glibc-devel-i686_centos.sh

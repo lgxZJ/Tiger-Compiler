@@ -1,5 +1,5 @@
 TN:
-SF:/home/lgxZJ/Desktop/Tiger-Compiler/Compiler/abstractSyntaxMaker.c
+SF:/root/Tiger-Compiler/Compiler/abstractSyntaxMaker.c
 FN:24,makeMyTyField
 FN:39,makeMyTyFieldList
 FN:51,makeMyTy_

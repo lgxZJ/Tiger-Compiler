@@ -1,5 +1,5 @@
 TN:
-SF:/home/lgxZJ/Desktop/Tiger-Compiler/Compiler/makeMemory.c
+SF:/root/Tiger-Compiler/Compiler/makeMemory.c
 FN:19,getRegisteredTypeArray
 FN:24,getRegisteredTypeNum
 FN:29,getMemoryChain

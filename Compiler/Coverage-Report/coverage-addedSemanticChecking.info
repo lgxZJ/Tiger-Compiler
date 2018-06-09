@@ -1,5 +1,5 @@
 TN:
-SF:/home/lgxZJ/Desktop/Tiger-Compiler/Compiler/mySemantic.c
+SF:/root/Tiger-Compiler/Compiler/mySemantic.c
 FN:41,isExpOneTypeOrIllegal
 FN:62,isExpLegalWithResult
 FN:70,isExpIntWithResult

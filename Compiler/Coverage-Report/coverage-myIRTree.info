@@ -1,5 +1,5 @@
 TN:
-SF:/home/lgxZJ/Desktop/Tiger-Compiler/Compiler/myIRTree.c
+SF:/root/Tiger-Compiler/Compiler/myIRTree.c
 FN:18,IR_makeSeq
 FN:28,IR_makeLabel
 FN:37,IR_makeJump

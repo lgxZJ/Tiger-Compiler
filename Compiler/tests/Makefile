@@ -3,43 +3,75 @@
 MAKE := /bin/make
 
 retest-all:
-	cd myEnvironment && $(MAKE) retest
+	cd myEnvironment && $(MAKE) retest && $(MAKE) show-coverage
 	cd ..
-	cd myTemp && $(MAKE) retest
+	cd myTemp && $(MAKE) retest && $(MAKE) show-coverage
 	cd ..
-	cd mySemantic && $(MAKE) retest
+#       errors when running tests  
+#	cd mySemantic && $(MAKE) retest && $(MAKE) show-coverage
+#	cd ..
+	cd myFrame && $(MAKE) retest && $(MAKE) show-coverage
 	cd ..
-	cd myFrame && $(MAKE) retest
+#	errors when running tests
+#	cd recursiveDecs && $(MAKE) retest && $(MAKE) show-coverage
+#	cd ..
+	cd myTranslate && $(MAKE) retest && $(MAKE) show-coverage
 	cd ..
-	cd recursiveDecs && $(MAKE) retest
+#       errors when generating coverage info  
+#	cd forChecker && $(MAKE) retest && $(MAKE) show-coverage
+#	cd ..
+	cd myEscape && $(MAKE) retest && $(MAKE) show-coverage
 	cd ..
-	cd myTranslate && $(MAKE) retest
+	cd lexString && $(MAKE) retest && $(MAKE) show-coverage
 	cd ..
-	cd forChecker && $(MAKE) retest
+	cd myIRTree && $(MAKE) retest && $(MAKE) show-coverage
 	cd ..
-	cd myEscape && $(MAKE) retest
+	cd addedSemanticChecking && $(MAKE) retest && $(MAKE) show-coverage
 	cd ..
-	cd lexString && $(MAKE) retest
+	cd lValueTreater && $(MAKE) retest && $(MAKE) show-coverage
 	cd ..
-	cd myIRTree/OBJ && $(MAKE) retest
+	cd myComputable && $(MAKE) retest && $(MAKE) show-coverage
 	cd ..
-
-coverage-all:
-	cd myEnvironment && $(MAKE) show-coverage
+	cd myEscape && $(MAKE) retest && $(MAKE) show-coverage
 	cd ..
-	cd myTemp && $(MAKE) show-coverage
+	cd myMovable && $(MAKE) retest && $(MAKE) show-coverage
 	cd ..
-	cd mySemantic && $(MAKE) show-coverage
+	cd typeChecker && $(MAKE) retest && $(MAKE) show-coverage
 	cd ..
-	cd myFrame && $(MAKE) show-coverage
+	cd breakChecker && $(MAKE) retest && $(MAKE) show-coverage
 	cd ..
-	cd recursiveDecs && $(MAKE) show-coverage
+	cd myAbstractSyntax && $(MAKE) retest && $(MAKE) show-coverage
 	cd ..
-	cd myTranslate && $(MKAE) show-coverage
+	cd myControlable && $(MAKE) retest && $(MAKE) show-coverage
 	cd ..
-	cd forChecker && $(MAKE) show-coverage
+	cd myMunch && $(MAKE) retest && $(MAKE) show-coverage
 	cd ..
-	cd myEscape && $(MAKE) show-coverage
+	cd mySymbol && $(MAKE) retest && $(MAKE) show-coverage
 	cd ..
-	cd myEscape && $(MAKE) show-coverage
+	cd typeMaker && $(MAKE) retest && $(MAKE) show-coverage
+	cd ..
+	cd breakGetter && $(MAKE) retest && $(MAKE) show-coverage
+	cd ..
+	cd myCanonical && $(MAKE) retest && $(MAKE) show-coverage
+	cd ..
+	cd myIRTree && $(MAKE) retest && $(MAKE) show-coverage
+	cd ..
+	cd myRegisterAllocation && $(MAKE) retest && $(MAKE) show-coverage
+	cd ..
+	cd myTable && $(MAKE) retest && $(MAKE) show-coverage
+	cd ..
+	cd stringEscape && $(MAKE) retest && $(MAKE) show-coverage
+	cd ..
+	cd lexString && $(MAKE) retest && $(MAKE) show-coverage
+	cd ..
+	cd makeMemory && $(MAKE) retest && $(MAKE) show-coverage
+	cd ..
+	cd myCFGraph && $(MAKE) retest && $(MAKE) show-coverage
+	cd ..
+	cd myError && $(MAKE) retest && $(MAKE) show-coverage
+	cd ..
+#   	errors when generating coverage info
+#	cd myLiveness && $(MAKE) retest && $(MAKE) show-coverage
+#	cd ..
+	cd myReport && $(MAKE) retest && $(MAKE) show-coverage
 	cd ..

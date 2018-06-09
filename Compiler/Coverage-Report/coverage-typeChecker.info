@@ -1,5 +1,5 @@
 TN:
-SF:/home/lgxZJ/Desktop/Tiger-Compiler/Compiler/typeChecker.c
+SF:/root/Tiger-Compiler/Compiler/typeChecker.c
 FN:10,checkType_RecordContainsFields
 FN:30,isTypeEmpty
 FN:32,isTypeInt

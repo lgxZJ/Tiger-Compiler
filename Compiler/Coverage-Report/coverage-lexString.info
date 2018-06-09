@@ -1,5 +1,5 @@
 TN:
-SF:/home/lgxZJ/Desktop/Tiger-Compiler/Compiler/lexString.c
+SF:/root/Tiger-Compiler/Compiler/lexString.c
 FN:22,findStringInChain
 FN:37,getStringChainHead
 FN:42,getStringChainNext

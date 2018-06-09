@@ -1,5 +1,5 @@
 TN:
-SF:/home/lgxZJ/Desktop/Tiger-Compiler/Compiler/myTranslate.c
+SF:/root/Tiger-Compiler/Compiler/myTranslate.c
 FN:38,Trans_makeAccess
 FN:49,Trans_convertAccessFromFrameToLevel
 FN:74,Trans_makeAccessList

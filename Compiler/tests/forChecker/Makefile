@@ -1,4 +1,4 @@
-OUT_DIR := ./bin
+B0;136;0cB0;136;0cOUT_DIR := ./bin
 OBJECTS := $(OUT_DIR)/forChecker.o      $(OUT_DIR)/mySymbol.o\
             $(OUT_DIR)/myTable.o        $(OUT_DIR)/test_forChecker.o\
             $(OUT_DIR)/testHelper.o     $(OUT_DIR)/makeMemory.o
@@ -46,6 +46,5 @@ show-coverage:
 > $(OUT_DIR)/all.out
 > lcov --directory . --capture --output-file $(COVERAGE_REPORT_FOLDER)/coverage-forChecker.info
 > genhtml -f $(COVERAGE_REPORT_FOLDER)/coverage-forChecker.info --output-directory $(COVERAGE_FOLDER)
-> firefox $(COVERAGE_FOLDER)/index.html &
 
 

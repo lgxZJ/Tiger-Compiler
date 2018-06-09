@@ -1,5 +1,5 @@
 TN:
-SF:/usr/include/c++/4.8/bits/basic_string.h
+SF:/usr/include/c++/4.8.2/bits/basic_string.h
 FN:272,_ZNSs12_Alloc_hiderD2Ev
 FNDA:0,_ZNSs12_Alloc_hiderD2Ev
 FNF:1
@@ -8,7 +8,7 @@ DA:272,0
 LF:1
 LH:0
 end_of_record
-SF:/usr/include/c++/4.8/ext/atomicity.h
+SF:/usr/include/c++/4.8.2/ext/atomicity.h
 FN:48,_ZN9__gnu_cxxL18__exchange_and_addEPVii
 FN:65,_ZN9__gnu_cxxL25__exchange_and_add_singleEPii
 FN:78,_ZN9__gnu_cxxL27__exchange_and_add_dispatchEPii
@@ -30,7 +30,7 @@ DA:84,0
 LF:10
 LH:0
 end_of_record
-SF:/usr/include/c++/4.8/ext/new_allocator.h
+SF:/usr/include/c++/4.8.2/ext/new_allocator.h
 FN:79,_ZN9__gnu_cxx13new_allocatorIcEC2Ev
 FN:81,_ZN9__gnu_cxx13new_allocatorIcEC2ERKS1_
 FN:86,_ZN9__gnu_cxx13new_allocatorIcED2Ev
@@ -45,7 +45,7 @@ DA:86,0
 LF:3
 LH:0
 end_of_record
-SF:/usr/include/c++/4.8/x86_64-suse-linux/bits/gthr-default.h
+SF:/usr/include/c++/4.8.2/x86_64-redhat-linux/bits/gthr-default.h
 FN:247,_ZL18__gthread_active_pv
 FNDA:0,_ZL18__gthread_active_pv
 FNF:1
@@ -55,7 +55,7 @@ DA:251,0
 LF:2
 LH:0
 end_of_record
-SF:/home/lgxZJ/Desktop/Tiger-Compiler/Compiler/AAI/myAaiBase.h
+SF:/root/Tiger-Compiler/Compiler/AAI/myAaiBase.h
 FN:39,_ZN5lgxZJ2IS3AAIC2Ev
 FN:59,_ZNK5lgxZJ2IS3AAI11GetDstLabelEv
 FN:60,_ZNK5lgxZJ2IS3AAI11GetDefLabelEv
@@ -79,7 +79,7 @@ DA:99,4
 LF:6
 LH:2
 end_of_record
-SF:/home/lgxZJ/Desktop/Tiger-Compiler/Compiler/AAI/myComputable.cpp
+SF:/root/Tiger-Compiler/Compiler/AAI/myComputable.cpp
 FN:14,_ZN5lgxZJ2IS3AddC2EP7myTemp_S3_
 FN:14,_ZN5lgxZJ2IS3AddC2EP7myTemp_i
 FN:16,_ZNK5lgxZJ2IS3Add8ToStringEv

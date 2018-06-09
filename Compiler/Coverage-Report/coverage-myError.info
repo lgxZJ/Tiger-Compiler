@@ -1,5 +1,5 @@
 TN:
-SF:/home/lgxZJ/Desktop/Tiger-Compiler/Compiler/myError.c
+SF:/root/Tiger-Compiler/Compiler/myError.c
 FN:110,MyError_pushErrorCodeWithMsg
 FN:133,MyError_pushErrorCode
 FN:140,MyError_getErrorCode

@@ -41,4 +41,4 @@ show-coverage:
 	$(OUT_DIR)/all.out
 	lcov --directory . --capture --output-file $(COVERAGE_REPORT_FOLDER)/coverage-breakChecker.info
 	genhtml -f $(COVERAGE_REPORT_FOLDER)/coverage-breakChecker.info --output-directory $(COVERAGE_FOLDER)
-	firefox $(COVERAGE_FOLDER)/index.html &
+

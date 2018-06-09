@@ -1,5 +1,5 @@
 TN:
-SF:/home/lgxZJ/Desktop/Tiger-Compiler/Compiler/myEnvironment.c
+SF:/root/Tiger-Compiler/Compiler/myEnvironment.c
 FN:22,myEnvironment_makeVarEntry
 FN:36,myEnvironment_makeFuncEntry
 FN:53,myEnvironment_isVarEntry

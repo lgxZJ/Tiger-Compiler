@@ -1,5 +1,5 @@
 TN:
-SF:/home/lgxZJ/Desktop/Tiger-Compiler/Compiler/lValueTreater.c
+SF:/root/Tiger-Compiler/Compiler/lValueTreater.c
 FN:17,initTable
 FN:23,treatLValueAsAddress
 FN:31,treatLValueAsContent

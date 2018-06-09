@@ -37,7 +37,7 @@ $(OUT_DIR)/mySemantic.o : mySemantic.c
 
 .PHONY: clean run show-coverage rebuild
 clean:
-> rm $(OBJECTS) $(OUT_DIR)/all.out
+> rm -f $(OBJECTS) $(OUT_DIR)/all.out
 
 run:
 > $(OUT_DIR)/all.out
@@ -47,7 +47,7 @@ show-coverage:
 > $(OUT_DIR)/all.out
 > lcov --directory . --capture --output-file $(COVERAGE_FOLDER)/code-coverage.info
 > genhtml -f $(COVERAGE_FOLDER)/code-coverage.info --output-directory $(COVERAGE_FOLDER)
-> firefox $(COVERAGE_FOLDER)/index.html &
+
 
 retest:
 > make clean

@@ -1,5 +1,5 @@
 TN:
-SF:/home/lgxZJ/Desktop/Tiger-Compiler/Compiler/typeMaker.c
+SF:/root/Tiger-Compiler/Compiler/typeMaker.c
 FN:10,wrapToType_
 FN:31,makeType_Empty
 FN:37,makeType_Int

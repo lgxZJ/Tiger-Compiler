@@ -1,5 +1,5 @@
 TN:
-SF:/home/lgxZJ/Desktop/Tiger-Compiler/Compiler/mySymbol.c
+SF:/root/Tiger-Compiler/Compiler/mySymbol.c
 FN:27,MySymbol_InvalidSymbol
 FN:35,MySymbol_IsSymbolEqual
 FN:45,makeSymbol_

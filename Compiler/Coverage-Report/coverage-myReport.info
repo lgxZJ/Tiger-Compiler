@@ -1,5 +1,5 @@
 TN:
-SF:/home/lgxZJ/Desktop/Tiger-Compiler/Compiler/myReport.c
+SF:/root/Tiger-Compiler/Compiler/myReport.c
 FN:11,resetPos
 FN:17,recordTokenPos
 FN:26,getCurrentPosInfo

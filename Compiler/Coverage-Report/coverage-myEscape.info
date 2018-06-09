@@ -1,5 +1,5 @@
 TN:
-SF:/home/lgxZJ/Desktop/Tiger-Compiler/Compiler/myEscape.c
+SF:/root/Tiger-Compiler/Compiler/myEscape.c
 FN:48,Escape_addVarEntry
 FN:58,Escape_getVarEntry
 FN:67,makeEscapeEntry

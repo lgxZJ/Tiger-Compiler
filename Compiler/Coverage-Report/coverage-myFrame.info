@@ -1,5 +1,5 @@
 TN:
-SF:/home/lgxZJ/Desktop/Tiger-Compiler/Compiler/myFrame_X86.c
+SF:/root/Tiger-Compiler/Compiler/myFrame_X86.c
 FN:49,makeInFrameAccess
 FN:62,makeInRegAccess
 FN:74,Frame_isAccessInFrame

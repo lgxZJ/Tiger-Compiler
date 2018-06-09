@@ -57,4 +57,4 @@ show-coverage:
 > $(OUT_DIR)/all.out
 > lcov --directory . --capture --output-file $(CPVERAGE_REPORT_FOLDER)/coverage-myMovable.info
 > genhtml -f $(CPVERAGE_REPORT_FOLDER)/coverage-myMovable.info --output-directory $(COVERAGE_FOLDER)
-> firefox $(COVERAGE_FOLDER)/index.html &
+

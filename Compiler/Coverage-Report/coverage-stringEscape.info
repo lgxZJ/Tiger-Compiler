@@ -1,5 +1,5 @@
 TN:
-SF:/home/lgxZJ/Desktop/Tiger-Compiler/Compiler/stringEscape.c
+SF:/root/Tiger-Compiler/Compiler/stringEscape.c
 FN:25,translateNormalEscape
 FN:48,translateControlEscape
 FN:78,containThreeOctalNumber

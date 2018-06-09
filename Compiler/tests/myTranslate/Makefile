@@ -9,7 +9,7 @@ COVERAGE_REPORT_FOLDER := ../../Coverage-Report
 .RECIPEPREFIX := >
 VPATH := ../../:../
 
-all.out : $(OBJECTS) | $(OUT_DIR) $(COVERAGE_FOLDER)
+all.out : $(OUT_DIR) $(OBJECTS) $(COVERAGE_FOLDER)
 > gcc -g -lcunit -coverage -o $(OUT_DIR)/all.out $(OBJECTS)
 
 $(OUT_DIR):
@@ -44,4 +44,4 @@ show-coverage:
 > $(OUT_DIR)/all.out
 > lcov --directory . --capture --output-file $(COVERAGE_REPORT_FOLDER)/coverage-myTranslate.info
 > genhtml -f $(COVERAGE_REPORT_FOLDER)/coverage-myTranslate.info --output-directory $(COVERAGE_FOLDER)
-> firefox $(COVERAGE_FOLDER)/index.html &
+

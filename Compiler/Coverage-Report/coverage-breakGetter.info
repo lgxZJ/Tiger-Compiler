@@ -1,5 +1,5 @@
 TN:
-SF:/home/lgxZJ/Desktop/Tiger-Compiler/Compiler/breakGetter.c
+SF:/root/Tiger-Compiler/Compiler/breakGetter.c
 FN:10,pushBreakTarget
 FN:16,popBreakTarget
 FN:22,getBreakTarget
