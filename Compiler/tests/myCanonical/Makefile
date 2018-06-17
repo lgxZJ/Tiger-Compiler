@@ -16,46 +16,45 @@ COVERAGE_OPTIONS := -fprofile-arcs -ftest-coverage
 COVERAGE_FOLDER := ./coverage
 COVERAGE_REPORT_FOLDER := ../../Coverage-Report
 
-.RECIPEPREFIX := >
 VPATH := ../../:../../AAI
 
 all.out : $(COVERAGE_FOLDER) $(OBJECTS)
-> g++ -g -coverage -o $(OUT_DIR)/all.out $(OBJECTS) -static -lcppunit -ldl
+	g++ -g -coverage -o $(OUT_DIR)/all.out $(OBJECTS) -static -lcppunit -ldl
 
 $(OBJECTS) : | $(OUT_DIR)
 
 $(OUT_DIR):
-> mkdir -p $@
+	mkdir -p $@
 
 $(COVERAGE_FOLDER):
-> mkdir -p $@
+	mkdir -p $@
 
 
 $(OUT_DIR)/myCanonical.o : myCanonical.cpp
-> $(CXX_COMPILE_FLAGS) $(COVERAGE_OPTIONS) -o $@ $<
+	$(CXX_COMPILE_FLAGS) $(COVERAGE_OPTIONS) -o $@ $<
 
 $(OUT_DIR)/%.o : %.cpp
-> $(CXX_COMPILE_FLAGS) -o $@ $<
+	$(CXX_COMPILE_FLAGS) -o $@ $<
 
 $(OUT_DIR)/%.o : %.c
-> $(C_COMPILE_FLAGS) -o $@ $<
+	$(C_COMPILE_FLAGS) -o $@ $<
 
 
 .PHONY : clean retest run show-coverage
 clean:
-> rm -f $(OBJECTS) $(OUT_DIR)/all.out *.gcda *.gcno
+	rm -f $(OBJECTS) $(OUT_DIR)/all.out *.gcda *.gcno
 
 retest:
-> make clean
-> make
-> $(OUT_DIR)/all.out
+	make clean
+	make
+	$(OUT_DIR)/all.out
 
 run:
-> $(OUT_DIR)/all.out
+	$(OUT_DIR)/all.out
 
 show-coverage:
-> lcov --directory . --zerocounters
-> $(OUT_DIR)/all.out
-> lcov --directory . --capture --output-file $(COVERAGE_REPORT_FOLDER)/coverage-myCanonical.info
-> genhtml -f $(COVERAGE_REPORT_FOLDER)/coverage-myCanonical.info --output-directory $(COVERAGE_FOLDER)
+	lcov --directory . --zerocounters
+	$(OUT_DIR)/all.out
+	lcov --directory . --capture --output-file $(COVERAGE_REPORT_FOLDER)/coverage-myCanonical.info
+	genhtml -f $(COVERAGE_REPORT_FOLDER)/coverage-myCanonical.info --output-directory $(COVERAGE_FOLDER)
 

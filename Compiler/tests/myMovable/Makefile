@@ -15,46 +15,45 @@ COVERAGE_OPTIONS := -fprofile-arcs -ftest-coverage
 COVERAGE_FOLDER := ./coverage
 CPVERAGE_REPORT_FOLDER := ../../Coverage-Report
 
-.RECIPEPREFIX := >
 VPATH := ../../AAI:../..
 
 all.out : $(COVERAGE_FOLDER) $(OBJECTS)
-> g++ -g -coverage -o $(OUT_DIR)/all.out $(OBJECTS) -lcppunit -ldl
+	g++ -g -coverage -o $(OUT_DIR)/all.out $(OBJECTS) -lcppunit -ldl
 
 $(OBJECTS) : | $(OUT_DIR)
 
 $(OUT_DIR):
-> mkdir -p $@
+	mkdir -p $@
 
 $(COVERAGE_FOLDER):
-> mkdir -p $@
+	mkdir -p $@
 
 
 $(OUT_DIR)/myMovable.o : myMovable.cpp
-> $(COMPILE_FLAGS) $(COVERAGE_OPTIONS) -o $@ $<
+	$(COMPILE_FLAGS) $(COVERAGE_OPTIONS) -o $@ $<
 
 $(OUT_DIR)/%.o : %.cpp
-> $(COMPILE_FLAGS) -o $@ $<
+	$(COMPILE_FLAGS) -o $@ $<
 
 $(OUT_DIR)/%.o : %.c
-> gcc -g -c -std=c99 -o $@ $<
+	gcc -g -c -std=c99 -o $@ $<
 
 
 .PHONY : clean retest run show-coverage
 clean:
-> rm -f $(OBJECTS) $(OUT_DIR)/all.out *.gcda *.gcno
+	rm -f $(OBJECTS) $(OUT_DIR)/all.out *.gcda *.gcno
 
 retest:
-> make clean
-> make
-> $(OUT_DIR)/all.out
+	make clean
+	make
+	$(OUT_DIR)/all.out
 
 run:
-> $(OUT_DIR)/all.out
+	$(OUT_DIR)/all.out
 
 show-coverage:
-> lcov --directory . --zerocounters
-> $(OUT_DIR)/all.out
-> lcov --directory . --capture --output-file $(CPVERAGE_REPORT_FOLDER)/coverage-myMovable.info
-> genhtml -f $(CPVERAGE_REPORT_FOLDER)/coverage-myMovable.info --output-directory $(COVERAGE_FOLDER)
+	lcov --directory . --zerocounters
+	$(OUT_DIR)/all.out
+	lcov --directory . --capture --output-file $(CPVERAGE_REPORT_FOLDER)/coverage-myMovable.info
+	genhtml -f $(CPVERAGE_REPORT_FOLDER)/coverage-myMovable.info --output-directory $(COVERAGE_FOLDER)
 

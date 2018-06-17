@@ -16,40 +16,39 @@ COMPILE_FLAGS := gcc -g -c -std=c99
 ADDITIONAL_LIB := -L/home/lgxZJ/Libraries/CUnit/lib
 ADDITIONAL_INCLUDE := -I/home/lgxZJ/Libraries/CUnit/include
 
-.RECIPEPREFIX := >
 VPATH := ../../:../
 
 all : $(OUT_DIR) $(COVERAGE_FOLDER) $(OBJECTS)
-> gcc -g $(ADDITIONAL_LIB) -lcunit -coverage -o  $(OUT_DIR)/all.out $(OBJECTS)
+	gcc -g $(ADDITIONAL_LIB) -lcunit -coverage -o  $(OUT_DIR)/all.out $(OBJECTS)
 
 $(OUT_DIR):
-> mkdir -p $(OUT_DIR)
+	mkdir -p $(OUT_DIR)
 
 $(COVERAGE_FOLDER):
-> mkdir -p $@
+	mkdir -p $@
 
 # make rules
 $(OUT_DIR)/%.o : %.c
-> $(COMPILE_FLAGS) $(ADDITIONAL_INCLUDE) -o $@ $<
+	$(COMPILE_FLAGS) $(ADDITIONAL_INCLUDE) -o $@ $<
 
 $(OUT_DIR)/mySemantic.o : mySemantic.c
-> $(COMPILE_FLAGS) -fprofile-arcs -ftest-coverage $(ADDITIONAL_INCLUDE) -o $@ $<
+	$(COMPILE_FLAGS) -fprofile-arcs -ftest-coverage $(ADDITIONAL_INCLUDE) -o $@ $<
 
 .PHONY: clean run show-coverage rebuild
 clean:
-> rm -f $(OBJECTS) $(OUT_DIR)/all.out
+	rm -f $(OBJECTS) $(OUT_DIR)/all.out
 
 run:
-> $(OUT_DIR)/all.out
+	$(OUT_DIR)/all.out
 
 show-coverage:
-> lcov --directory . --zerocounters
-> $(OUT_DIR)/all.out
-> lcov --directory . --capture --output-file $(COVERAGE_FOLDER)/code-coverage.info
-> genhtml -f $(COVERAGE_FOLDER)/code-coverage.info --output-directory $(COVERAGE_FOLDER)
+	lcov --directory . --zerocounters
+	$(OUT_DIR)/all.out
+	lcov --directory . --capture --output-file $(COVERAGE_FOLDER)/code-coverage.info
+	genhtml -f $(COVERAGE_FOLDER)/code-coverage.info --output-directory $(COVERAGE_FOLDER)
 
 
 retest:
-> make clean
-> make
-> $(OUT_DIR)/all.out
+	make clean
+	make
+	$(OUT_DIR)/all.out
