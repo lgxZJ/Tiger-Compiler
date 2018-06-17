@@ -1,7 +1,4 @@
 #	to re-test all tests when one changed
-
-MAKE := /bin/make
-
 retest-all:
 	cd myEnvironment && $(MAKE) retest && $(MAKE) show-coverage
 	cd ..
