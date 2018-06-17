@@ -1,6 +1,7 @@
 language: cpp
 
 install:
+- sudo apt-get install lcov
 - chmod +x ./travis_scripts/install_cunit_ubuntu.sh
 - ./travis_scripts/install_cunit_ubuntu.sh
 - sudo apt-get install g++
@@ -10,3 +11,6 @@ install:
 
 script:
 - make
+
+after_success:
+- make run-tests

@@ -1,4 +1,4 @@
-B0;136;0cB0;136;0cB0;136;0csudo yum install gcc-c++
+sudo yum install gcc-c++
 
 # used for unit-test coverage
 sudo yum install lcov

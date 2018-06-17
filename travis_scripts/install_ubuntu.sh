@@ -7,6 +7,7 @@
 #		`cannot execute binary file exec format error`
 #
 ################################################################################################
+apt-get install lcov
 ./travis_scripts/install_cunit_ubuntu.sh
 apt-get install g++ 
 apt-get install libcppunit-dev
