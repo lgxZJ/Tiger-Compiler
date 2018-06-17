@@ -36,5 +36,5 @@ sudo make install
 
 # remove useless files
 cd ..
-rm -rf ./CUnit
-rm -f CUnit.tar.bz2
+sudo rm -rf ./CUnit
+sudo rm -f CUnit.tar.bz2
