@@ -31,8 +31,8 @@ autoconf
 automake --add-missing
 chmod u+x ./configure
 ./configure 
-make
-make install
+sudo make
+sudo make install
 
 # remove useless files
 cd ..
