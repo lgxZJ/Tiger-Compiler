@@ -20,7 +20,7 @@ COVERAGE_REPORT_FOLDER := ../../Coverage-Report
 VPATH := ../../:../
 
 tests.out: $(OUT_DIR) $(COVERAGE_FOLDER) $(OBJECTS)
-	gcc -g -lcunit -coverage -o $(OUT_DIR)/all.out $(OBJECTS)
+	gcc -g -coverage -o $(OUT_DIR)/all.out $(OBJECTS) -lcunit
 
 $(OUT_DIR):
 	mkdir -p $(OUT_DIR)

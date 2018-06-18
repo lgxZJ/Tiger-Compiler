@@ -12,13 +12,11 @@ OBJECTS := $(OUT_DIR)/test_recursiveDecs.o	$(OUT_DIR)/mySemantic.o\
 
 COVERAGE_FOLDER := ./coverage
 COMPILE_FLAGS := gcc -g -c -std=c99
-ADDITIONAL_LIB := -L/home/lgxZJ/Libraries/CUnit/lib
-ADDITIONAL_INCLUDE := -I/home/lgxZJ/Libraries/CUnit/include
 
 VPATH := ../../:../
 
 all : $(OUT_DIR) $(COVERAGE_FOLDER) $(OBJECTS)
-	gcc -g $(ADDITIONAL_LIB) -lcunit -coverage -o $(OUT_DIR)/all.out $(OBJECTS)
+	gcc -g -coverage -o $(OUT_DIR)/all.out $(OBJECTS) -lcunit
 
 $(OUT_DIR):
 	mkdir -p $(OUT_DIR)

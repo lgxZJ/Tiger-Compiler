@@ -22,7 +22,7 @@ COVERAGE_REPORT_FOLDER := ../../Coverage-Report
 VPATH := ../../:../
 
 all : $(OUT_DIR) $(COVERAGE_FOLDER) $(OBJECTS)
-	$(LINK) -lcunit -coverage -o $(OUT_DIR)/all.out $(OBJECTS)
+	$(LINK) -coverage -o $(OUT_DIR)/all.out $(OBJECTS) -lcunit
 
 $(OUT_DIR):
 	mkdir -p $@
