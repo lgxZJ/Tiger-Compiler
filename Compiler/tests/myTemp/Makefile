@@ -45,7 +45,3 @@ show-coverage:
 	$(OUT_DIR)/all.out
 	lcov --directory . --capture --output-file $(COVERAGE_REPORT_FOLDER)/coverage-myTemp.info
 	genhtml -f $(COVERAGE_REPORT_FOLDER)/coverage-myTemp.info --output-directory $(COVERAGE_FOLDER)
-	cd bin
-	coveralls -r ../../../ -b ../
-	cd ..
-
