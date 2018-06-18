@@ -19,4 +19,4 @@ script:
 
 after_success:
 - make run-tests
-- coveralls -r ./Compiler -b ./Compiler/tests/myTemp -e ./Compiler/tests -E \./Compiler/CXX_.+\.h
+- coveralls -r ./Compiler -b ./Compiler/tests/myTemp -e ./Compiler/tests -e ./Compiler/CXX_frontTester.h
