@@ -1,8 +1,8 @@
 language: cpp
 
 before_install:
-- python -m pip install --upgrade pip
-- pip install cpp-coveralls
+- sudo python -m pip install --upgrade pip
+- sudo pip install cpp-coveralls
 
 install:
 - sudo apt-get install lcov
