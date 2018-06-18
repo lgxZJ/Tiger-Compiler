@@ -1,5 +1,6 @@
-A Tiger Compiler  ![build-status-img]
+A Tiger Compiler
 ----------------
+[![Build Status](https://travis-ci.org/lgxZJ/Tiger-Compiler.svg?branch=master)](https://travis-ci.org/lgxZJ/Tiger-Compiler) [![Coverage Status](https://coveralls.io/repos/github/lgxZJ/Tiger-Compiler/badge.svg?branch=master)](https://coveralls.io/github/lgxZJ/Tiger-Compiler?branch=master)
 
 
 ## What is Tiger?
