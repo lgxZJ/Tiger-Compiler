@@ -1,5 +1,8 @@
 language: cpp
 
+before_install:
+- pip install cpp-coveralls
+
 install:
 - sudo apt-get install lcov
 - sudo apt-get install automake
