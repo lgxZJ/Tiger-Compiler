@@ -18,3 +18,4 @@ script:
 
 after_success:
 - make run-tests
+- coveralls -r ./Compiler -b ./Compiler/tests/myTemp
