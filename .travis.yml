@@ -15,7 +15,8 @@ install:
 
 script:
 - make
+- make make-tests
 
 after_success:
 - make run-tests
-- coveralls -r ./Compiler -b ./Compiler/tests/myTemp
+- coveralls -r ./Compiler -b ./Compiler/tests/myTemp -e ./Compiler/tests
