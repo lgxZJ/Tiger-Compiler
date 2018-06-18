@@ -2,6 +2,7 @@ language: cpp
 
 install:
 - sudo apt-get install lcov
+- sudo apt-get install automake
 - chmod +x ./travis_scripts/install_cunit_ubuntu.sh
 - ./travis_scripts/install_cunit_ubuntu.sh
 - sudo apt-get install g++
