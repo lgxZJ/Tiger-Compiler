@@ -17,6 +17,7 @@ fi
 
 # install needed native libraries
 apt-get install libtool
+apt-get install wget
 
 # download CUnit,compile and install it
 wget https://sourceforge.net/projects/cunit/files/latest/download -O CUnit.tar.bz2
