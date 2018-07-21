@@ -104,8 +104,8 @@ clean-tests:
 	cd ..
 	cd breakChecker && $(MAKE) clean
 	cd ..
-	#cd myAbstractSyntax && $(MAKE) clean
-	#cd ..
+	cd myAbstractSyntax && $(MAKE) clean
+	cd ..
 	cd myControlable && $(MAKE) clean
 	cd ..
 	cd myMunch && $(MAKE) clean
@@ -176,8 +176,8 @@ run-tests:
 	cd ..
 	cd breakChecker && $(MAKE) show-coverage
 	cd ..
-	#cd myAbstractSyntax && $(MAKE) show-coverage
-	#cd ..
+	cd myAbstractSyntax && $(MAKE) show-coverage
+	cd ..
 	cd myControlable && $(MAKE) show-coverage
 	cd ..
 	cd myMunch && $(MAKE) show-coverage
