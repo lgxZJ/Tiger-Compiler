@@ -1,4 +1,4 @@
-B0;136;0cB0;136;0cOUT_DIR := ./bin
+OUT_DIR := ./bin
 OBJECTS := $(OUT_DIR)/forChecker.o      $(OUT_DIR)/mySymbol.o\
             $(OUT_DIR)/myTable.o        $(OUT_DIR)/test_forChecker.o\
             $(OUT_DIR)/testHelper.o     $(OUT_DIR)/makeMemory.o

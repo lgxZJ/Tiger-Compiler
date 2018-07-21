@@ -12,9 +12,8 @@ make-tests:
 #	cd ..
 	cd myTranslate && $(MAKE)
 	cd ..
-#       errors when generating coverage info  
-#	cd forChecker && $(MAKE)
-#	cd ..
+	cd forChecker && $(MAKE)
+	cd ..
 	cd myEscape && $(MAKE)
 	cd ..
 	cd lexString && $(MAKE)
@@ -85,9 +84,8 @@ clean-tests:
 #	cd ..
 	cd myTranslate && $(MAKE) clean
 	cd ..
-#       errors when generating coverage info  
-#	cd forChecker && $(MAKE) clean
-#	cd ..
+	cd forChecker && $(MAKE) clean
+	cd ..
 	cd myEscape && $(MAKE) clean
 	cd ..
 	cd lexString && $(MAKE) clean
@@ -159,9 +157,8 @@ run-tests:
 #	cd ..
 	cd myTranslate&& $(MAKE) show-coverage
 	cd ..
-#       errors when generating coverage info  
-#	cd forChecker && $(MAKE) show-coverage
-#	cd ..
+	cd forChecker && $(MAKE) show-coverage
+	cd ..
 	cd myEscape && $(MAKE) show-coverage
 	cd ..
 	cd lexString && $(MAKE) show-coverage
