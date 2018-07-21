@@ -10,7 +10,7 @@
 //  forwards of semantic module
 
 myType typeContainsLValueAux(
-    myType type, myLValueAux aux);
+    myType type, myLValueAux aux, IR_myExp* addressResult);
 
 myTranslationAndType MySemantic_LValueExp_SimpleVar(
     myLValueExp lValueExp);
@@ -128,17 +128,16 @@ bool MySemantic_Dec_Type_Array(
     mySymbol newTypeName, mySymbol arrayTypeName);
 
 bool MySemantic_Dec_Var_ShortForm(
-    myShortFormVar shortFormVar);
+    myShortFormVar shortFormVar, IR_myStatement* resultPtr);
 bool MySemantic_Dec_Var_LongForm(
-    myLongFormVar longFormVar);
+    myLongFormVar longFormVar, IR_myStatement* resultPtr);
 
 bool MySemantic_Dec_Func_Procedure(
     myProcedureDec procedureDec);
 bool MySemantic_Dec_Func_Function(
     myFunctionDec functionDec);
 
-bool MySemantic_Decs(
-    myDecList decs);
+bool MySemantic_Decs(myDecList decs, IR_myStatement *resultPtr);
     
 //////////////
 
@@ -181,5 +180,8 @@ bool MySemantic_Dec_Func_Procedure_TwoPass(
 bool MySemantic_Dec_Func_Function_TwoPass(
     myFunctionDec functionDec);
 
+///////////////////////////////////////////////////////////////////////////////
+//	forwards of breakGettermodule
+#include "../../breakGetter.h"
 
 #endif

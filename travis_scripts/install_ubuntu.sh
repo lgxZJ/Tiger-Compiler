@@ -7,6 +7,8 @@
 #		`cannot execute binary file exec format error`
 #
 ################################################################################################
+apt-get install make
+apt-get install automake
 apt-get install lcov
 ./travis_scripts/install_cunit_ubuntu.sh
 apt-get install g++ 

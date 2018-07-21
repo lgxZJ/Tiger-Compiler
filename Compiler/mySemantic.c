@@ -77,7 +77,7 @@ bool isExpNoReturnWithTrans(myExp exp, IR_myExp* expResultPtr)
     myTranslationAndType temp;
     bool ret = isExpOneTypeOrIllegal(exp, TypeNoReturn, &temp);
 
-    *expResultPtr = temp->translation;
+    if (ret)	*expResultPtr = temp->translation;
     return ret;
 }
 
@@ -1853,7 +1853,7 @@ void processForErrors(bool isLowRangeInt, bool isHighRangeInt, bool isBodyNoRetu
 //  forward declarations
 myType getThenElseResultType(
     bool isThenClauseLegal, bool isElseClauseLegal,
-    myType thenClauseType, myType elseClauseType);
+    myTranslationAndType thenClauseTranslation, myTranslationAndType elseClauseTranslation);
 void processIfThenElseErrors(
     bool isConditionExpInt, bool isThenClauseLegal,
     bool isElseClauseLegal, bool isThenAndElseClauseSameType);
@@ -1886,7 +1886,7 @@ myTranslationAndType MySemantic_IfThenElseExp(myIfThenElseExp ifThenElseExp)
     
     myType resultType = getThenElseResultType(
         isThenClauseLegal, isElseClauseLegal,
-        thenClauseResult->type, elseClauseResult->type);
+        thenClauseResult, elseClauseResult);
     bool isThenAndElseClauseSameType = (resultType != NULL);
 
     if (isConditionExpInt && isThenAndElseClauseSameType)
@@ -1915,12 +1915,12 @@ bool isTwoClausesTypeMatchesOrNil(
 //  otherwise, it returns NULL; 
 myType getThenElseResultType(
     bool isThenClauseLegal, bool isElseClauseLegal,
-    myType thenClauseType, myType elseClauseType)
+    myTranslationAndType thenClauseTranslation, myTranslationAndType elseClauseTranslation)
 {
     if (isThenClauseLegal && isElseClauseLegal)
     {
-        if (isTwoClausesTypeMatchesOrNil(thenClauseType, elseClauseType))
-            return thenClauseType;
+        if (isTwoClausesTypeMatchesOrNil(thenClauseTranslation->type, elseClauseTranslation->type))
+            return thenClauseTranslation->type;
     }
 
     return NULL;

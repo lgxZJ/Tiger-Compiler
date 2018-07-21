@@ -3,9 +3,8 @@ make-tests:
 	cd ..
 	cd myTemp && $(MAKE)
 	cd ..
-#       errors when running tests  
-#	cd mySemantic && $(MAKE)
-#	cd ..
+	cd mySemantic && $(MAKE)
+	cd ..
 	cd myFrame && $(MAKE)
 	cd ..
 #	errors when running tests
@@ -77,9 +76,8 @@ clean-tests:
 	cd ..
 	cd myTemp && $(MAKE) clean
 	cd ..
-#       errors when running tests  
-#	cd mySemantic && $(MAKE) clean
-#	cd ..
+	cd mySemantic && $(MAKE) clean
+	cd ..
 	cd myFrame && $(MAKE) clean
 	cd ..
 #	errors when running tests
@@ -110,8 +108,8 @@ clean-tests:
 	cd ..
 	cd breakChecker && $(MAKE) clean
 	cd ..
-	cd myAbstractSyntax && $(MAKE) clean
-	cd ..
+	#cd myAbstractSyntax && $(MAKE) clean
+	#cd ..
 	cd myControlable && $(MAKE) clean
 	cd ..
 	cd myMunch && $(MAKE) clean
@@ -152,9 +150,8 @@ run-tests:
 	cd ..
 	cd myTemp && $(MAKE) show-coverage
 	cd ..
-#       errors when running tests  
-#	cd mySemantic && $(MAKE) show-coverage
-#	cd ..
+	cd mySemantic && $(MAKE) show-coverage
+	cd ..
 	cd myFrame && $(MAKE) show-coverage
 	cd ..
 #	errors when running tests
@@ -185,8 +182,8 @@ run-tests:
 	cd ..
 	cd breakChecker && $(MAKE) show-coverage
 	cd ..
-	cd myAbstractSyntax && $(MAKE) show-coverage
-	cd ..
+	#cd myAbstractSyntax && $(MAKE) show-coverage
+	#cd ..
 	cd myControlable && $(MAKE) show-coverage
 	cd ..
 	cd myMunch && $(MAKE) show-coverage

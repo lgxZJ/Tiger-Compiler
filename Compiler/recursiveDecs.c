@@ -38,7 +38,8 @@ extern Trans_myLevel MySemantic_getCurLevel(void);
 //  because result pointer names are all the same, so these macros
 //  have no parameters.
 //
-#define ALLOCATE_AND_SET_RESULT_PTR() *resultPtr = IR_makeSeq(NULL, NULL);  \
+#define ALLOCATE_AND_SET_RESULT_PTR()					    \
+	*resultPtr = IR_makeSeq(NULL, NULL);				    \
         IR_myStatement* nextPtr = &(*resultPtr)->u.seq.right;               \
         resultPtr = &(*resultPtr)->u.seq.left;                              \
 
