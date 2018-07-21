@@ -1,4 +1,6 @@
 #include "../../myAbstractSyntax.h"
+#include "../../abstractSyntaxMaker.h"
+
 #include <CUnit/CUnit.h>
 #include <CUnit/Basic.h>
 #include <stdlib.h>
