@@ -27,7 +27,7 @@ bool MySemantic_Dec_Func_Procedure_TwoPass(
 bool MySemantic_Dec_Func_Function_TwoPass(
     myFunctionDec functionDec);
 bool MySemantic_Decs_Recursive(
-    myDecList decs);
+    myDecList decs, IR_myStatement *resultPtr);
 
 //////////////////////////////////////////////////////////////////////
 //                      forwards
@@ -681,7 +681,8 @@ void test_MySemanticDecsRecursive_LegalVars_ReturnTrue(void)
     MySemantic_enterNewLevel(Trans_outermostLevel());
     myDecList varDecs = makeLegalVars();
 
-    bool result = MySemantic_Decs_Recursive(varDecs);
+    IR_myStatement resultPtr;
+    bool result = MySemantic_Decs_Recursive(varDecs, &resultPtr);
 
     CU_ASSERT_EQUAL(result, true); 
 
@@ -696,7 +697,8 @@ void test_MySemanticDecsRecursive_IllegalVars_ReturnFalse(void)
     MySemantic_enterNewLevel(Trans_outermostLevel());
     myDecList varDecs = makeIllegalVars();
 
-    bool result = MySemantic_Decs_Recursive(varDecs);
+    IR_myStatement resultPtr;
+    bool result = MySemantic_Decs_Recursive(varDecs, &resultPtr);
 
     CU_ASSERT_EQUAL(result, false); 
 
@@ -715,8 +717,8 @@ void test_MySemanticDecsRecursive_LegalRecursiveTypes_ReturnTrue(void)
     mySymbol typeNameC = MySymbol_MakeSymbol("C");
     myDecList typeDecs = makeLegalRecursiveNamedDecs(typeNameA, typeNameB, typeNameC);
 
-
-    bool result = MySemantic_Decs_Recursive(typeDecs);
+    IR_myStatement resultPtr;
+    bool result = MySemantic_Decs_Recursive(typeDecs, &resultPtr);
 
     CU_ASSERT_EQUAL(result, true);
 
@@ -738,9 +740,9 @@ void test_MySemanticDecsRecursive_IllegalRecursiveTypes_ReturnFalse(void)
     myDecList typeDecsTwo = makeIllegalRecursiveNamedDecs_Recursive();
 
 
-
-    bool resultOne = MySemantic_Decs_Recursive(typeDecsOne);
-    bool resultTwo = MySemantic_Decs_Recursive(typeDecsTwo);
+    IR_myStatement resultPtr;
+    bool resultOne = MySemantic_Decs_Recursive(typeDecsOne, &resultPtr);
+    bool resultTwo = MySemantic_Decs_Recursive(typeDecsTwo, &resultPtr);
 
     CU_ASSERT_EQUAL(resultOne, false);
     CU_ASSERT_EQUAL(resultTwo, false);
@@ -761,7 +763,8 @@ void test_MySemanticDecsRecursive_LegalRecursiveFuncs_ReturnTrue(void)
     myDecList funcDecs = makeLegalRecursiveFuncDecs(funcNameA, funcNameB, funcNameC);
 
 
-    bool result = MySemantic_Decs_Recursive(funcDecs);
+    IR_myStatement resultPtr;
+    bool result = MySemantic_Decs_Recursive(funcDecs, &resultPtr);
 
     CU_ASSERT_EQUAL(result, true);
 
@@ -781,7 +784,8 @@ void test_MySemanticDecsRecursive_IllegalRecursiveFuncs_ReturnFalse(void)
     myDecList funcDecs = makeIllegalRecursiveFuncDecs();
 
 
-    bool result = MySemantic_Decs_Recursive(funcDecs);
+    IR_myStatement resultPtr;
+    bool result = MySemantic_Decs_Recursive(funcDecs, &resultPtr);
 
     CU_ASSERT_EQUAL(result, false);
 

@@ -6,9 +6,10 @@ OBJECTS := $(OUT_DIR)/test_recursiveDecs.o	$(OUT_DIR)/mySemantic.o\
 	$(OUT_DIR)/myError.o			$(OUT_DIR)/typeChecker.o\
 	$(OUT_DIR)/testHelper.o			$(OUT_DIR)/recursiveDecs.o\
 	$(OUT_DIR)/testFixture.o		$(OUT_DIR)/breakChecker.o\
-	$(OUT_DIR)/myTemp.o				$(OUT_DIR)/myTranslate.o\
+	$(OUT_DIR)/myTemp.o			$(OUT_DIR)/myTranslate.o\
 	$(OUT_DIR)/myFrame_X86.o		$(OUT_DIR)/myEscape.o\
-	$(OUT_DIR)/forChecker.o			
+	$(OUT_DIR)/forChecker.o			$(OUT_DIR)/myIRTree.o\
+	$(OUT_DIR)/breakGetter.o		$(OUT_DIR)/lValueTreater.o
 
 COVERAGE_FOLDER := ./coverage
 COMPILE_FLAGS := gcc -g -c -std=c99

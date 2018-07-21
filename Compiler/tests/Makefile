@@ -7,9 +7,8 @@ make-tests:
 	cd ..
 	cd myFrame && $(MAKE)
 	cd ..
-#	errors when running tests
-#	cd recursiveDecs && $(MAKE)
-#	cd ..
+	cd recursiveDecs && $(MAKE)
+	cd ..
 	cd myTranslate && $(MAKE)
 	cd ..
 	cd forChecker && $(MAKE)
@@ -79,9 +78,8 @@ clean-tests:
 	cd ..
 	cd myFrame && $(MAKE) clean
 	cd ..
-#	errors when running tests
-#	cd recursiveDecs && $(MAKE) clean
-#	cd ..
+	cd recursiveDecs && $(MAKE) clean
+	cd ..
 	cd myTranslate && $(MAKE) clean
 	cd ..
 	cd forChecker && $(MAKE) clean
@@ -152,9 +150,8 @@ run-tests:
 	cd ..
 	cd myFrame && $(MAKE) show-coverage
 	cd ..
-#	errors when running tests
-#	cd recursiveDecs && $(MAKE) show-coverage
-#	cd ..
+	cd recursiveDecs && $(MAKE) show-coverage
+	cd ..
 	cd myTranslate&& $(MAKE) show-coverage
 	cd ..
 	cd forChecker && $(MAKE) show-coverage
