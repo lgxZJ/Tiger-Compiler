@@ -1,6 +1,8 @@
 #ifndef MAKE_MEMORY_H
 #define MAKE_MEMORY_H
 
+extern "C" {
+
 /**
  *	@defgroup MemoryAllocate Memory Allocate.
  */
@@ -232,4 +234,6 @@ MemoryChainPtr getMemoryChain(void);
 
 /**	@}	*/
 
+}
+  
 #endif

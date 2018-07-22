@@ -105,9 +105,8 @@ int outputReport(int tokenNum, int optionalValue, char* optionalText)
 int errorReport (char* errorString)
 {
   return fprintf (stdout, 
-		  "%s\n%s",
+		  "%s\n\tAt source----line:\t%4i\tcolumn:\t%4i\n\tAt text:\t%s\n",
 		  errorString,
-		  "\tAt source----line:\t%4i\tcolumn:\t%4i\n\tAt text:\t%s\n",
 		  g_posInfo.line,
 		  g_posInfo.column,
 		  yytext);

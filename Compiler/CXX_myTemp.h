@@ -1,5 +1,5 @@
-#ifndef MY_TEMP_H
-#define MY_TEMP_H
+#ifndef MY_CXXTEMP_H
+#define MY_CXXTEMP_H
 
 #include "CXX_mySymbol.h"
 
