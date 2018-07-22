@@ -33,9 +33,9 @@ class InterferenceGraphTest : public CppUnit::TestFixture
     public:
             CPPUNIT_TEST_SUITE(InterferenceGraphTest);
 
-            CPPUNIT_TEST(testCtor_ByDefault_InitMembersToZeroSize);
-            CPPUNIT_TEST(testCtor_PassSizeParam_InitNodesAndRegsToThisSize);
-            CPPUNIT_TEST(testCtor_PassSizeParam_InitRegsToRegs);
+  	    CPPUNIT_TEST(testCtor_ByDefault_InitMembersToZeroSize);
+  	    CPPUNIT_TEST(testCtor_PassSizeParam_InitNodesAndRegsToThisSize);
+	    CPPUNIT_TEST(testCtor_PassSizeParam_InitRegsToRegs);
             CPPUNIT_TEST(testetNodeSize_ByDefault_GetSize);
             CPPUNIT_TEST(testGetNodeReg_ByDefault_GetWhatSetted);
             CPPUNIT_TEST(testAddEdge_ByDefault_AddOneEdge);
@@ -226,7 +226,7 @@ class LivenessTest : public CppUnit::TestFixture
             CPPUNIT_TEST(testCtor_FirstCFGraph_GenerateInterferenceGraph);
             CPPUNIT_TEST(testCtor_FirstCFGraph_GenerateMovePairs);
 
-            // CPPUNIT_TEST(testCtor_SecondCFGraph_CalculateIn);
+  	    //CPPUNIT_TEST(testCtor_SecondCFGraph_CalculateIn);
             // CPPUNIT_TEST(testCtor_SecondCFGraph_CalculateOut);
             // CPPUNIT_TEST(testCtor_SecondCFGraph_GenerateInterferenceGraph);
             // CPPUNIT_TEST(testCtor_SecondCFGraph_GenerateMovePairs);
@@ -312,7 +312,7 @@ class LivenessTest : public CppUnit::TestFixture
             ins.push_back(make_shared<Cmp>(regA, 12));
             ins.push_back(make_shared<Jl>(label));
             return CFGraph(ins);
-        }
+	}
 
         //
         //  Make a control flow graph with following instructions:
@@ -340,19 +340,19 @@ class LivenessTest : public CppUnit::TestFixture
         //      ebx --- edx
         //  The move pairs should be:
         //      null
-        // CFGraph makeSecondCFGraph(myTemp regA, myTemp regB)
-        // {
-        //     Instructions ins;
-        //     myLabel label = Temp_newLabel();
+        /*CFGraph makeSecondCFGraph(myTemp regA, myTemp regB)
+        {
+            Instructions ins;
+            myLabel label = Temp_newLabel();
 
-        //     ins.push_back(make_shared<Move>(regA, Move::OperandType::Content, 0));
-        //     ins.push_back(make_shared<IMul>(2));
-        //     ins.push_back(make_shared<Jmp>(label));
-        //     ins.push_back(make_shared<Call>(Temp_newLabel(), nullptr));
-        //     ins.push_back(make_shared<IDiv>(regB));
-        //     ins.push_back(make_shared<Label>(label));
-        //     return CFGraph(ins);
-        // }
+            ins.push_back(make_shared<Move>(regA, Move::OperandType::Content, 0));
+            ins.push_back(make_shared<IMul>(2));
+            ins.push_back(make_shared<Jmp>(label));
+            ins.push_back(make_shared<Call>(Temp_newLabel(), nullptr));
+            ins.push_back(make_shared<IDiv>(regB));
+            ins.push_back(make_shared<Label>(label));
+            return CFGraph(ins);
+	}*/
 
         //
         //  Make a control flow graph with following instructions:
@@ -630,21 +630,21 @@ class LivenessTest : public CppUnit::TestFixture
 
         ///////////////////////////////////////////
 
-        // void testCtor_SecondCFGraph_CalculateIn()
-        // {
-        //     myTemp regA = Frame_EAX(), regB = Frame_EBX();
-        //     Liveness liveness(makeSecondCFGraph(regA, regB));
+        /*void testCtor_SecondCFGraph_CalculateIn()
+        {
+            myTemp regA = Frame_EAX(), regB = Frame_EBX();
+            Liveness liveness(makeSecondCFGraph(regA, regB));
 
-        //     LivenessMock mock(liveness);
-        //     CPPUNIT_ASSERT_EQUAL((size_t)6, mock.GetIn().size());
+            LivenessMock mock(liveness);
+            CPPUNIT_ASSERT_EQUAL((size_t)6, mock.GetIn().size());
 
-        //     CPPUNIT_ASSERT_EQUAL((size_t)0, mock.GetIn().at(0).size());
-        //     AssertOneRegisters_One(mock.GetIn().at(1), regA);
-        //     CPPUNIT_ASSERT_EQUAL((size_t)0, mock.GetIn().at(2).size());
-        //     AssertOneRegisters_One(mock.GetIn().at(3), regB);
-        //     AssertOneRegisters_Two(mock.GetIn().at(4), regA, regB);
-        //     CPPUNIT_ASSERT_EQUAL((size_t)0,  mock.GetIn().at(5).size());
-        // }
+            CPPUNIT_ASSERT_EQUAL((size_t)0, mock.GetIn().at(0).size());
+            AssertOneRegisters_One(mock.GetIn().at(1), regA);
+            CPPUNIT_ASSERT_EQUAL((size_t)0, mock.GetIn().at(2).size());
+            AssertOneRegisters_One(mock.GetIn().at(3), regB);
+            AssertOneRegisters_Two(mock.GetIn().at(4), regA, regB);
+            CPPUNIT_ASSERT_EQUAL((size_t)0,  mock.GetIn().at(5).size());
+	}*/
 
         // void testCtor_SecondCFGraph_CalculateOut()
         // {
@@ -938,7 +938,7 @@ class LivenessTest : public CppUnit::TestFixture
             InterferenceGraph ifGraph =
                 Liveness(makeSeventhCFGraph(regA, regB)).GetInterferenceGraph();
 
-            const DirectedGraph graph = ifGraph.GetDGRef();
+            const DirectedGraph& graph = ifGraph.GetDGRef();
             CPPUNIT_ASSERT_EQUAL(5, ifGraph.GetNodeSize());
             CPPUNIT_ASSERT_EQUAL((size_t)1, graph.GetEdges().size());
             CPPUNIT_ASSERT_EQUAL(true, ifGraph.EdgesContains(regA, regB));
@@ -1010,7 +1010,7 @@ class LivenessTest : public CppUnit::TestFixture
                 Liveness(makeEighthIns(reg142, reg144, reg143, reg145, reg146))
                     .GetInterferenceGraph();
 
-            const DirectedGraph graph = ifGraph.GetDGRef();
+            const DirectedGraph& graph = ifGraph.GetDGRef();
             CPPUNIT_ASSERT_EQUAL(6, ifGraph.GetNodeSize());
             CPPUNIT_ASSERT_EQUAL((size_t)5, graph.GetEdges().size());
             CPPUNIT_ASSERT_EQUAL(true, ifGraph.EdgesContains(reg142, Frame_EBP()));
@@ -1156,15 +1156,15 @@ class LivenessTest : public CppUnit::TestFixture
                                         reg145, reg146))
                     .GetInterferenceGraph();
 
-            const DirectedGraph graph = ifGraph.GetDGRef();
+            const DirectedGraph& graph = ifGraph.GetDGRef();
             CPPUNIT_ASSERT_EQUAL(15, ifGraph.GetNodeSize());
             CPPUNIT_ASSERT_EQUAL((size_t)18, graph.GetEdges().size());
-            CPPUNIT_ASSERT_EQUAL(true, ifGraph.EdgesContains(reg133, reg131));
+	    CPPUNIT_ASSERT_EQUAL(true, ifGraph.EdgesContains(reg133, reg131));
             CPPUNIT_ASSERT_EQUAL(true, ifGraph.EdgesContains(reg137, reg135));
             CPPUNIT_ASSERT_EQUAL(true, ifGraph.EdgesContains(reg144, reg145));
             CPPUNIT_ASSERT_EQUAL(true, ifGraph.EdgesContains(reg145, reg146));
             CPPUNIT_ASSERT_EQUAL(true, ifGraph.EdgesContains(reg143, reg144));
-            //CPPUNIT_ASSERT_EQUAL(true, ifGraph.EdgesContains(reg140, reg141));
+            CPPUNIT_ASSERT_EQUAL(true, ifGraph.EdgesContains(reg140, reg141));
             CPPUNIT_ASSERT_EQUAL(true, ifGraph.EdgesContains(reg139, reg140));
             
             CPPUNIT_ASSERT_EQUAL(true, ifGraph.EdgesContains(reg133, Frame_EBP()));
@@ -1173,7 +1173,7 @@ class LivenessTest : public CppUnit::TestFixture
             CPPUNIT_ASSERT_EQUAL(true, ifGraph.EdgesContains(reg135, Frame_EBP()));
             CPPUNIT_ASSERT_EQUAL(true, ifGraph.EdgesContains(reg144, Frame_EBP()));
             CPPUNIT_ASSERT_EQUAL(true, ifGraph.EdgesContains(reg142, Frame_EBP()));
-            //CPPUNIT_ASSERT_EQUAL(true, ifGraph.EdgesContains(reg141, Frame_EBP()));
+            CPPUNIT_ASSERT_EQUAL(true, ifGraph.EdgesContains(reg141, Frame_EBP()));
             CPPUNIT_ASSERT_EQUAL(true, ifGraph.EdgesContains(reg139, Frame_EBP()));
             CPPUNIT_ASSERT_EQUAL(true, ifGraph.EdgesContains(reg134, Frame_EBP()));
             CPPUNIT_ASSERT_EQUAL(true, ifGraph.EdgesContains(reg138, Frame_EBP()));

@@ -30,6 +30,9 @@ namespace lgxZJ
 
                 //  DO:
                 //      Get inner directed graph reference.
+		/////////////////////////////////////////////////////////////////////////////
+		//  WARNING:
+		//	When assigned to a variable, the receiver must be a reference.
                 DirectedGraph& GetDGRef();
 
                 //  DO:
