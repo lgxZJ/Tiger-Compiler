@@ -63,9 +63,8 @@ make-tests:
 	cd ..
 	cd myError && $(MAKE)
 	cd ..
-#   	errors when generating coverage info
-#	cd myLiveness && $(MAKE)
-#	cd ..
+	cd myLiveness && $(MAKE)
+	cd ..
 	cd myReport && $(MAKE)
 	cd ..
 
@@ -134,9 +133,8 @@ clean-tests:
 	cd ..
 	cd myError && $(MAKE) clean
 	cd ..
-#   	errors when generating coverage info
-#	cd myLiveness && $(MAKE) clean
-#	cd ..
+	cd myLiveness && $(MAKE) clean
+	cd ..
 	cd myReport && $(MAKE) clean
 	cd ..
 
@@ -206,8 +204,7 @@ run-tests:
 	cd ..
 	cd myError && $(MAKE) show-coverage
 	cd ..
-#   	errors when generating coverage info
-#	cd myLiveness && $(MAKE) show-coverage
-#	cd ..
+	cd myLiveness && $(MAKE) show-coverage
+	cd ..
 	cd myReport && $(MAKE) show-coverage
 	cd ..

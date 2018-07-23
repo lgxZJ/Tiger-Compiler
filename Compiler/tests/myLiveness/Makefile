@@ -56,5 +56,5 @@ show-coverage:
 	lcov --directory . --zerocounters
 	$(OUT_DIR)/all.out
 	lcov --directory . --capture --output-file $(COVERAGE_REPORT_FOLDER)/coverage-myLiveness.info
-	genhtml -f $(COVERAGE_REPORT_FOLDER)/myLiveness.info --output-directory $(COVERAGE_FOLDER)
+	genhtml -f $(COVERAGE_REPORT_FOLDER)/coverage-myLiveness.info --output-directory $(COVERAGE_FOLDER)
 
