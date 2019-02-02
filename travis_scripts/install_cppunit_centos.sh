@@ -1,5 +1,5 @@
-sudo yum install wget
-sudo yum install bzip2
+sudo yum -y install wget
+sudo yum -y install bzip2
 
 cppUnitLocations=`whereis libcppunit.a`;
 if [[ $cppUnitLocations = *"libcppunit.a"* ]]; then
