@@ -757,7 +757,7 @@ static myType arrayContainsLValueAux(
     {
         //  next must be record or array type, whose address is got by
         //  fetching its content
-        *addressResult = IR_makeMem(*addressResult);
+        getAddressContent(addressResult);
         return typeContainsLValueAux(
                 type->u.typeArray->type, aux->next, addressResult);
     }

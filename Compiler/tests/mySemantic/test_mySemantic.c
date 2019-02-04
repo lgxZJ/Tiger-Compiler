@@ -89,8 +89,6 @@ void test_GetterAndSetter_GetWhatSetted(void)
 
 void test_typeContainsLValueAux_CheckRecord_ReturnTypeOfOneField(void)
 {
-  /* myTranslate.c 
-   *
     mySymbol symbol1 = MySymbol_MakeSymbol("field1");
     mySymbol symbol2 = MySymbol_MakeSymbol("field2");
     mySymbol symbolRecord = MySymbol_MakeSymbol("recordd");
@@ -106,7 +104,7 @@ void test_typeContainsLValueAux_CheckRecord_ReturnTypeOfOneField(void)
     MySymbol_Enter(MySemantic_getVarAndFuncEnvironment(), symbolRecord, entry);
 
     myLValueAux aux1 = makeMyLValueAux(symbol1, NULL, NULL);
-    IR_myExp addressResult;
+    IR_myExp addressResult = IR_makeESeq(NULL, IR_makeTemp(Temp_newTemp()));
     myType typeReturn1 = typeContainsLValueAux(
         MyEnvironment_getVarType(entry), aux1, &addressResult);
     myLValueAux aux2 = makeMyLValueAux(symbol2, NULL, NULL);
@@ -116,13 +114,10 @@ void test_typeContainsLValueAux_CheckRecord_ReturnTypeOfOneField(void)
     
     CU_ASSERT(typeReturn1->kind == TypeInt);
     CU_ASSERT(typeReturn2->kind == TypeString);
-  */
 }
 
 void test_typeContainsLValueAux_CheckRecord_ReturnTypeOfNestedField(void)
 {
-  /* myTranslate.c
-   *
     mySymbol symbol1 = MySymbol_MakeSymbol("field1");
     mySymbol symbol2 = MySymbol_MakeSymbol("field2");
     mySymbol symbolRecord = MySymbol_MakeSymbol("recordd");
@@ -139,18 +134,15 @@ void test_typeContainsLValueAux_CheckRecord_ReturnTypeOfNestedField(void)
     myLValueAux aux = makeMyLValueAux(symbol1, NULL,
         makeMyLValueAux(symbol2, NULL, NULL));
 
-    IR_myExp addressResult;
+    IR_myExp addressResult = IR_makeESeq(NULL, IR_makeTemp(Temp_newTemp()));
     myType typeReturn = typeContainsLValueAux(
         MyEnvironment_getVarType(entry), aux, &addressResult);
     
     CU_ASSERT(typeReturn->kind == TypeString);
-  */
 }
 
 void test_typeContainsLValueAux_CheckArray_ReturnTypeOfOneField(void)
 {
-  /* myTranslate.c
-   *
     mySymbol symbol = MySymbol_MakeSymbol("field1");
     mySymbol symbolArray = MySymbol_MakeSymbol("recordd");
 
@@ -165,18 +157,15 @@ void test_typeContainsLValueAux_CheckArray_ReturnTypeOfOneField(void)
     myLValueAux aux = makeMyLValueAux(NULL, 
         makeOneExp_Integer(), NULL);
 
-    IR_myExp addressResult;
+    IR_myExp addressResult = IR_makeESeq(NULL, IR_makeTemp(Temp_newTemp()));
     myType typeReturn = typeContainsLValueAux(
         MyEnvironment_getVarType(entry), aux, &addressResult);
     
     CU_ASSERT(typeReturn->kind == TypeInt);
-  */
 }
 
 void test_typeContainsLValueAux_CheckArray_ReturnTypeOfNestedField(void)
 {
-  /* myTranslate.c
-   *
     mySymbol symbolArray = MySymbol_MakeSymbol("recordd");
 
     MySemantic_setVarAndFuncEnvironment(myEnvironment_BaseVarAndFunc());
@@ -192,12 +181,11 @@ void test_typeContainsLValueAux_CheckArray_ReturnTypeOfNestedField(void)
     myLValueAux aux = makeMyLValueAux(NULL, 
         exp, makeMyLValueAux(NULL, exp, NULL));
 
-    IR_myExp addressResult;
+    IR_myExp addressResult = IR_makeESeq(NULL, IR_makeTemp(Temp_newTemp()));
     myType typeReturn = typeContainsLValueAux(
         MyEnvironment_getVarType(entry), aux, &addressResult);
     
     CU_ASSERT(typeReturn->kind == TypeString);
-  */
 }
 
 /////////////////////////////////////////////////////////////////////////////
