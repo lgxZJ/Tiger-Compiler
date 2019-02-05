@@ -204,13 +204,11 @@ void test_MySemanticLValueExpSimpleVar_VarNotDeclared_ReturnSemanticError(void)
 
 void test_MySemanticLValueExpSimpleVar_LegalExp_ReturnTypeOfSimpleVar(void)
 {
-    /*
-     * 	myTranslate.c related, currently not testable, line 428
-     *
     mySymbol symbol = MySymbol_MakeSymbol("bolOne");
     MySemantic_setVarAndFuncEnvironment(myEnvironment_BaseVarAndFunc());
+    MySemantic_enterNewLevel(Trans_outermostLevel());
     myVarAndFuncEntry entry = myEnvironment_makeVarEntry(
-        (Trans_myAccess)NULL,
+	Trans_allocateLocal(MySemantic_getCurrentLevel(), false),
         makeType_Record(NULL));
     MySymbol_Enter(MySemantic_getVarAndFuncEnvironment(), symbol, entry);
 
@@ -221,7 +219,9 @@ void test_MySemanticLValueExpSimpleVar_LegalExp_ReturnTypeOfSimpleVar(void)
         MySemantic_LValueExp_SimpleVar(exp);
 
     CU_ASSERT(isTypeRecord(result->type));
-    */
+
+    // clean up
+    MySemantic_leaveNewLevel();
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -265,17 +265,17 @@ void test_MySemanticLValueExpRecordField_VariableNotRecord_ReturnSemanticError(v
 
 void test_MySemanticLValueExpRecordField_FieldNamesNotMatch_ReturnSemanticError(void)
 {
-    /*  myTranslate.c
-     *
     mySymbol symbolRecord = MySymbol_MakeSymbol("record");
     mySymbol symbolField = MySymbol_MakeSymbol("field");
 
     myTable variableSymbolTable = myEnvironment_BaseVarAndFunc();
     MySemantic_setVarAndFuncEnvironment(myEnvironment_BaseVarAndFunc());
     MySemantic_setTypeEnvironment(myEnvironment_BaseType());
+    MySemantic_enterNewLevel(Trans_outermostLevel());
+    
 
     myVarAndFuncEntry entry = myEnvironment_makeVarEntry(
-        (Trans_myAccess)NULL,
+	Trans_allocateLocal(MySemantic_getCurrentLevel(), false),
         makeType_Record(makeType_TypeFieldList(
             makeType_TypeField(symbolField, makeType_Int()),
             NULL)));
@@ -289,24 +289,25 @@ void test_MySemanticLValueExpRecordField_FieldNamesNotMatch_ReturnSemanticError(
     myTranslationAndType result = MySemantic_LValueExp_RecordField(exp);
 
     CU_ASSERT_EQUAL(result, SEMANTIC_ERROR);
-    */
+
+    // clean up
+    MySemantic_leaveNewLevel();
 }
 
 void test_MySemanticLValueExpRecordField_LegalExp_ReturnTypeOfRecordField(void)
 {
-    /* myTranslate.c
-     *
     mySymbol symbolRecord = MySymbol_MakeSymbol("record");
     mySymbol symbolField = MySymbol_MakeSymbol("field");
 
     MySemantic_setVarAndFuncEnvironment(myEnvironment_BaseVarAndFunc());
     MySemantic_setTypeEnvironment(myEnvironment_BaseType());
+    MySemantic_enterNewLevel(Trans_outermostLevel());
 
     myType innerRecordType = makeType_Record(makeType_TypeFieldList(
         makeType_TypeField(symbolField, makeType_Int()),
         NULL));
     myVarAndFuncEntry entry = myEnvironment_makeVarEntry(
-        (Trans_myAccess)NULL,
+	Trans_allocateLocal(MySemantic_getCurrentLevel(), false),
         makeType_Record(makeType_TypeFieldList(
             makeType_TypeField(symbolField, innerRecordType),
             NULL)));
@@ -320,7 +321,9 @@ void test_MySemanticLValueExpRecordField_LegalExp_ReturnTypeOfRecordField(void)
     myTranslationAndType result = MySemantic_LValueExp_RecordField(exp);
 
     CU_ASSERT(isTypeInt(result->type));
-    */
+
+    // clean up
+    MySemantic_leaveNewLevel();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -360,10 +363,9 @@ void test_MySemanticLValueExpArraySubscript_VarNotArrayType_ReturnSemanticError(
 
 void test_MySemanticLValueExpArraySubscript_SubscriptNotInt_ReturnSemanticError(void)
 {
-    /* myTranslate.c 
-     *
     MySemantic_setVarAndFuncEnvironment(myEnvironment_BaseVarAndFunc());
     MySemantic_setTypeEnvironment(myEnvironment_BaseType());
+    MySemantic_enterNewLevel(Trans_outermostLevel());
 
     mySymbol arrayName = makeOneSymbol();
     myLValueExp lValueExp = makeOneLValueExp_TwoIntArraySubscript(
@@ -371,7 +373,8 @@ void test_MySemanticLValueExpArraySubscript_SubscriptNotInt_ReturnSemanticError(
 
     myType arrayType = makeOneArray_StringArrayArray();
     myVarAndFuncEntry entry = myEnvironment_makeVarEntry(
-        (Trans_myAccess)NULL, arrayType);
+	 Trans_allocateLocal(MySemantic_getCurrentLevel(), false),
+	 arrayType);
     MySymbol_Enter(MySemantic_getVarAndFuncEnvironment(), arrayName, entry);
     MySymbol_Enter(MySemantic_getTypeEnvironment(), arrayName, arrayType);
 
@@ -380,17 +383,19 @@ void test_MySemanticLValueExpArraySubscript_SubscriptNotInt_ReturnSemanticError(
         lValueExp);
 
     CU_ASSERT_EQUAL(result, SEMANTIC_ERROR);
-    */
+
+    // clean up
+    MySemantic_leaveNewLevel();
 }
 
 void test_MySemanticLValueExpArraySubscript_LegalExp_ReturnTypeOfArray(void)
 {
-    /* myTranslate.c
-     *
     MySemantic_setTypeEnvironment(myEnvironment_BaseType());
     MySemantic_setVarAndFuncEnvironment(myEnvironment_BaseVarAndFunc());
+    MySemantic_enterNewLevel(Trans_outermostLevel());
     myVarAndFuncEntry entry = myEnvironment_makeVarEntry(
-        (Trans_myAccess)NULL, makeOneArray_StringArrayArray());
+	Trans_allocateLocal(MySemantic_getCurrentLevel(), false),
+	makeOneArray_StringArrayArray());
 
     mySymbol symbolArray = MySymbol_MakeSymbol("array");
     MySymbol_Enter(MySemantic_getVarAndFuncEnvironment(), symbolArray, entry);
@@ -403,7 +408,9 @@ void test_MySemanticLValueExpArraySubscript_LegalExp_ReturnTypeOfArray(void)
     myTranslationAndType result = MySemantic_LValueExp_ArraySubscript(exp);
 
     CU_ASSERT(isTypeString(result->type));
-    */
+
+    // cleanup
+    MySemantic_leaveNewLevel();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -984,13 +991,14 @@ void test_MySemanticParenthesesExp_BeDefault_ReturnInnerResult(void)
 
 void test_MySemanticSequencingExp_AnyOneIllegal_ReturnSemanticError(void)
 {
-    /* myTranslate.c, line 358
-     *
     MySemantic_setVarAndFuncEnvironment(myEnvironment_BaseVarAndFunc());
     MySemantic_setTypeEnvironment(myEnvironment_BaseType());
+    mySymbol symbol = MySymbol_MakeSymbol("var");
+    MySymbol_Enter(MySemantic_getVarAndFuncEnvironment(), symbol,
+		   myEnvironment_makeVarEntry((Trans_myAccess)NULL, makeType_Int()));
 
     myExp illegalForExp = makeMyExp_For(makeOnePos(),
-        makeMyForExp(MySymbol_MakeSymbol("var"),
+        makeMyForExp(symbol,
             makeOneExp_NoValue(), makeOneExp_NoValue(), makeOneExp_NoValue()));
     
     mySequencingExp illegalOne = makeMySequencingExp(
@@ -1013,7 +1021,6 @@ void test_MySemanticSequencingExp_AnyOneIllegal_ReturnSemanticError(void)
     CU_ASSERT_EQUAL(resultOne, SEMANTIC_ERROR);
     CU_ASSERT_EQUAL(resultTwo, SEMANTIC_ERROR);
     CU_ASSERT_EQUAL(resultThree, SEMANTIC_ERROR);
-    */
 }
 
 void test_MySemanticSequencingExp_LegalExp_ReturnLastExpressionResult(void)
@@ -1047,26 +1054,20 @@ void test_IllegalForExp_ReturnSemanticError(myExp low, myExp high, myExp body);
 
 void test_MySemanticForExp_OnlyLowRangeNotInt_ReturnSemanticError(void)
 {
-    /* myTranslate.c
-     *
     myExp illegalLow = makeOneExp_NoValue();
     myExp legalHigh = makeOneExp_Integer();
     myExp legalBody = makeOneExp_NoValue();
 
     test_IllegalForExp_ReturnSemanticError(illegalLow, legalHigh, legalBody);
-    */
 }
 
 void test_MySemanticForExp_OnlyHighRangeNotInt_ReturnSemanticError(void)
 {
-    /* myTranslate.c
-     *
     myExp legalLow = makeOneExp_Integer();
     myExp illegalHigh = makeOneExp_NoValue();
     myExp legalBody = makeOneExp_NoValue();
 
     test_IllegalForExp_ReturnSemanticError(legalLow, illegalHigh, legalBody);
-    */
 }
 
 void test_MySemanticForExp_OnlybodyNotTypeNoReturn_ReturnSemanticErrort(void)
@@ -1160,7 +1161,10 @@ void test_IllegalForExp_ReturnSemanticError(myExp low, myExp high, myExp body)
     MySemantic_setTypeEnvironment(myEnvironment_BaseType());
     MySemantic_enterNewLevel(Trans_outermostLevel());
 
-    mySymbol forVarName = MySymbol_MakeSymbol("var"); 
+    mySymbol forVarName = MySymbol_MakeSymbol("var");
+    MySymbol_Enter(MySemantic_getVarAndFuncEnvironment(),
+		   forVarName,
+		   myEnvironment_makeVarEntry((Trans_myAccess)NULL, makeType_Int()));
     myForExp forExp = makeMyForExp(forVarName, low, high, body);
 
     myTranslationAndType result =
@@ -1482,7 +1486,7 @@ void test_MySemanticAssignmentExp_OnlyLeftOperandIllegal_ReturnSemanticError(voi
 
 void test_MySemanticAssignmentExp_OnlyRightOperandIllegal_ReturnSemanticError(void)
 {
-  /* myTranslate.c 492
+  /* myTranslate.c
    *
     MySemantic_setVarAndFuncEnvironment(myEnvironment_BaseVarAndFunc());
     MySemantic_setTypeEnvironment(myEnvironment_BaseType());
