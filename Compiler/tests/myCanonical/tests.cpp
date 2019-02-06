@@ -39,8 +39,6 @@ class CanonicalTest: public CppUnit::TestFixture
                 "testToBlocks", &CanonicalTest::testToBlocks_OneBlockstatementsEndWithJumpable_AddEpilogueBlock));
             suiteOfTests->addTest(new CppUnit::TestCaller<CanonicalTest>(
                 "testToBlocks", &CanonicalTest::testToBlocks_NonFalseLabelCJumpBlocks_FillThatCJump));
-            suiteOfTests->addTest(new CppUnit::TestCaller<CanonicalTest>(
-                "testToBlocks", &CanonicalTest::testToBlocks_NeitherCJumpLabelFollows_RewriteCJump));
 
             suiteOfTests->addTest(new CppUnit::TestCaller<CanonicalTest>(
                 "testTrace", &CanonicalTest::testTrace_OneControlFlowBlocks_SequenceNotChange));
@@ -206,18 +204,6 @@ class CanonicalTest: public CppUnit::TestFixture
             CPPUNIT_ASSERT_EQUAL((size_t)4, result.size());
             CPPUNIT_ASSERT_EQUAL(IR_myStatement_::IR_Label, result.at(1).front()->kind);
             CPPUNIT_ASSERT_EQUAL(result.at(1).front()->u.label, result.at(0).back()->u.cjump.falseLabel);
-        }
-
-        void testToBlocks_NeitherCJumpLabelFollows_RewriteCJump()
-        {
-            Statements statements = makeCJumpWithNeitherLabelFollows();
-
-            Blocks result = Canonical::ToBlocks(statements);
-
-            CPPUNIT_ASSERT_EQUAL((size_t)6, result.size());
-            CPPUNIT_ASSERT_EQUAL(
-                result.front().back()->u.cjump.falseLabel,
-                result.at(1).front()->u.label);
         }
 
         /////////////////////////////////////////////////////////////////////////////////
