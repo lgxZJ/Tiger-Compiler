@@ -1486,56 +1486,58 @@ void test_MySemanticAssignmentExp_OnlyLeftOperandIllegal_ReturnSemanticError(voi
 
 void test_MySemanticAssignmentExp_OnlyRightOperandIllegal_ReturnSemanticError(void)
 {
-  /* myTranslate.c
-   *
     MySemantic_setVarAndFuncEnvironment(myEnvironment_BaseVarAndFunc());
     MySemantic_setTypeEnvironment(myEnvironment_BaseType());
+    MySemantic_enterNewLevel(Trans_outermostLevel());
 
     myLValueExp legalLeftOperand =
         makeOneLegalLValueExp_SimpleVar_Int();
     myExp illegalRightOperand = makeOneIllegalExp_Integer();
 
     test_IllegalAssignmentExp_ReturnSemanticError(
-        legalLeftOperand, illegalRightOperand);    
-  */
+        legalLeftOperand, illegalRightOperand);
+
+    //  clean up
+    MySemantic_leaveNewLevel();
 }
 
 void test_MySemanticAssignmentExp_OperandsTypeNotMatch_ReturnSemanticError(void)
 {
-  /* myTranslate.c
-   *
     MySemantic_setVarAndFuncEnvironment(myEnvironment_BaseVarAndFunc());
     MySemantic_setTypeEnvironment(myEnvironment_BaseType());
+    MySemantic_enterNewLevel(Trans_outermostLevel());
     myLValueExp intLeftOperand =
         makeOneLegalLValueExp_SimpleVar_Int(); 
     myExp stringRightOperand = makeOneExp_String();
 
     test_IllegalAssignmentExp_ReturnSemanticError(
         intLeftOperand, stringRightOperand);
-  */
+
+    //  clean up
+    MySemantic_leaveNewLevel();
 }
 
 void test_MySemanticAssignmentExp_RightOperandTypeNoReturn_ReturnSemanticError(void)
 {
-  /* myTranslate.c
-   *
     MySemantic_setVarAndFuncEnvironment(myEnvironment_BaseVarAndFunc());
     MySemantic_setTypeEnvironment(myEnvironment_BaseType());
+    MySemantic_enterNewLevel(Trans_outermostLevel());
     myLValueExp intLeftOperand =
         makeOneLegalLValueExp_SimpleVar_Int(); 
     myExp breakExp = makeOneExp_NoValue();
 
     test_IllegalAssignmentExp_ReturnSemanticError(
         intLeftOperand, breakExp);
-  */
+
+    //  clean up
+    MySemantic_leaveNewLevel();
 }
 
 void test_MySemanticAssignmentExp_LegalExp_ReturnNoReturnType(void)
 {
-  /* myTranslate.c
-   *
     MySemantic_setVarAndFuncEnvironment(myEnvironment_BaseVarAndFunc());
     MySemantic_setTypeEnvironment(myEnvironment_BaseType());
+    MySemantic_enterNewLevel(Trans_outermostLevel());
     myAssignmentExp assignmentExp =
         makeMyAssignmentExp(
             makeOneLegalLValueExp_SimpleVar_Int(),
@@ -1545,28 +1547,28 @@ void test_MySemanticAssignmentExp_LegalExp_ReturnNoReturnType(void)
         assignmentExp);
 
     CU_ASSERT(isTypeNoReturn(result->type));
-  */
+
+    //  clean up
+    MySemantic_leaveNewLevel();
 }
 
 void test_MySemanticAssignmentExp_LeftRecordRightNil_Succeed(void)
 {
-  /* myTranslate.c
-   *
     MySemantic_setVarAndFuncEnvironment(myEnvironment_BaseVarAndFunc());
     MySemantic_setTypeEnvironment(myEnvironment_BaseType());
+    MySemantic_enterNewLevel(Trans_outermostLevel());
     myAssignmentExp assignmentExp =
         makeMyAssignmentExp(
-            makeOneLegalLValueExp_Record(
-                makeAndAddOneType_NoFieldRecord(
-                    makeOneSymbol())),    
+	    makeOneLegalLValueExp_Record(makeAndAddOneType_NoFieldRecord(makeOneSymbol())),
             makeOneExp_Nil());
 
 
-    myTranslationAndType result = MySemantic_AssignmentExp(
-        assignmentExp);
+    myTranslationAndType result = MySemantic_AssignmentExp(assignmentExp);
 
     CU_ASSERT(result != SEMANTIC_ERROR);
-  */
+
+    //  clean up
+    MySemantic_leaveNewLevel();
 }
 
 //  a parameterized test

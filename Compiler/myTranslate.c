@@ -419,6 +419,7 @@ IR_myExp Trans_decAssignment(Trans_myAccess varAccess, IR_myExp varBodyResult)
 IR_myExp Trans_LValueExp_simpleVar(myLValueExp lValueExp)
 {
     Trans_myAccess varAccess = getVarAccessFromName(lValueExp->id);
+    assert(varAccess != NULL);
 
     if (Frame_isAccessInFrame(varAccess->access))
     {

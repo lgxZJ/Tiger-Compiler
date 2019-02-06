@@ -95,7 +95,7 @@ myLValueExp makeOneLegalLValueExp_SimpleVar_Int(void)
         MySemantic_getVarAndFuncEnvironment(),
         variableName,
         myEnvironment_makeVarEntry(
-            (Trans_myAccess)NULL,
+            Trans_allocateLocal(MySemantic_getCurrentLevel(), false),
             makeType_Int()));
 
     return makeMyLValue(makeOnePos(), variableName, NULL);
@@ -108,7 +108,7 @@ myLValueExp makeOneLegalLValueExp_Record(myType recordType)
         MySemantic_getVarAndFuncEnvironment(),
         variableName,
         myEnvironment_makeVarEntry(
-            (Trans_myAccess)NULL,recordType));
+            Trans_allocateLocal(MySemantic_getCurrentLevel(), false), recordType));
 
     return makeMyLValue(makeOnePos(), variableName, NULL);
 }
