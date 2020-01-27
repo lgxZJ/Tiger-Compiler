@@ -237,6 +237,9 @@ myDec makeMyDec_(myPos pos, enum myDecKind kind, void* member)
 		one->u.varDec = (myVarDec)member;	break;
 	case FuncDec:
 		one->u.funcDec = (myFuncDec)member;	break;
+
+	default:
+	        assert("unsupported kind of myDecKind" && false);
 	}
 	
 	return one;
