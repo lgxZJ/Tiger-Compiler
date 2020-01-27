@@ -63,7 +63,7 @@ typedef struct myTypeNamed_{
 }*  myTypeNamed;
 
 
-typedef struct myType_
+struct myType_
 {
     enum TypeKind 
     { 
@@ -82,7 +82,7 @@ typedef struct myType_
         myTypeNamed     typeNamed;
     }u;
 
-}* myType;
+};
 
 typedef struct myTypeList_{
     myType              head;

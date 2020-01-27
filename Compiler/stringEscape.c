@@ -179,16 +179,16 @@ char* translateEscape(char* str)
 				   	g_translate_memory_type);
 
     //	`pos` of result string
-    for (unsigned i = 0, pos = 0; i < string_length; )
+    for (int i = 0, pos = 0; i < string_length; )
     {
 		unsigned escaped_num = 0;
-		if (escaped_num = translateNormalEscape(str, &i, string_length, result, &pos))
+		if ((escaped_num = translateNormalEscape(str, &i, string_length, result, &pos)))
 	    	i += escaped_num;
-		else if (escaped_num = translateControlEscape(str, &i, string_length, result, &pos))
+		else if ((escaped_num = translateControlEscape(str, &i, string_length, result, &pos)))
 	    	i += escaped_num;
-		else if (escaped_num = translateOctalEscape(str, &i, string_length, result, &pos))
+		else if ((escaped_num = translateOctalEscape(str, &i, string_length, result, &pos)))
 	    	i += escaped_num;
-		else if (escaped_num = translateMultiline(str, &i, string_length, result, &pos))
+		else if ((escaped_num = translateMultiline(str, &i, string_length, result, &pos)))
 	    	i += escaped_num;
 		else
 		{

@@ -56,7 +56,7 @@
 
 //-----------------------myString typedef-------------------------//
 
-typedef char*	myString; 
+//typedef char*	myString; 
 
  //--------------------myPos typedef------------------------//
 
@@ -566,14 +566,13 @@ struct	myExp_
 		myBreakExp			breakExp;
 	}u;
 };
-typedef	struct myExp_*	myExp;
 
 
-typedef	struct	myExpList_
+struct	myExpList_
 {
 	myExp		exp;
 	myExpList	next;
-}*	myExpList;
+};
 
 /**	@endcond	*/
 

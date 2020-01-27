@@ -14,7 +14,8 @@
   myExp		g_AbstractSyntaxTree;
   
   extern int yylex();//	prototype for lex scanning
-
+  extern void yyerror(const char* s);
+  
 %}
 
 %union	{

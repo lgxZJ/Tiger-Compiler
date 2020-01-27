@@ -28,35 +28,12 @@ typedef enum
     IR_UGreaterThan, IR_UGreaterEqual 
 }       IR_RelOperator;
 
-
-//  forwards
-typedef struct IR_myExp_* IR_myExp;
-
-//
-//  ADT for basic statements
-//
-typedef struct IR_myStatement_
-{
-    enum 
-    {
-        IR_Seq, IR_Label, IR_Jump, IR_CJump, IR_Move, IR_Exp
-    }       kind;
-
-    union
-    {
-        struct { struct IR_myStatement_* left, *right; } seq;
-        myLabel label;
-        struct { IR_myExp exp; myLabelList jumpLabels; } jump;
-        struct { IR_RelOperator op; IR_myExp left, right; 
-                 myLabel trueLabel, falseLabel; } cjump;
-        struct { IR_myExp dst, src; } move;
-        IR_myExp exp;
-    }       u;
-}*  IR_myStatement;
-
 // 
 //  ADT for expressions
 //
+struct IR_myStatement_;
+typedef struct IR_myStatement_* IR_myStatement;
+
 typedef struct IR_myExp_
 {
     enum 
@@ -77,6 +54,27 @@ typedef struct IR_myExp_
     } u;
 }*  IR_myExp;
 
+//
+//  ADT for basic statements(IR_myStatement is defined by forward declarations, here we only need struct definitions)
+//
+struct IR_myStatement_
+{
+    enum 
+    {
+        IR_Seq, IR_Label, IR_Jump, IR_CJump, IR_Move, IR_Exp
+    }       kind;
+
+    union
+    {
+        struct { struct IR_myStatement_* left, *right; } seq;
+        myLabel label;
+        struct { IR_myExp exp; myLabelList jumpLabels; } jump;
+        struct { IR_RelOperator op; IR_myExp left, right; 
+                 myLabel trueLabel, falseLabel; } cjump;
+        struct { IR_myExp dst, src; } move;
+        IR_myExp exp;
+    }       u;
+};
 
 typedef struct IR_myStatementList_
 {
