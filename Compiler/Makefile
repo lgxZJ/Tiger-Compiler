@@ -36,6 +36,19 @@ $(OUT_DIR)/%.o : %.cpp
 $(OUT_DIR)/%.o : %.c
 	$(C_COMPILE_FLAGS) -o $@ $<
 
+# special rules to generate the lexer and parser
+y.tab.c : myTiger.y
+	yacc -d -v myTiger.y
+
+y.tab.h : y.tab.c
+	echo "y.tab.h are created with y.tab.c\n"
+
+myTiger.o: lex.yy.c myTokens.h myReport.h
+	$(C_COMPILE_FLAGS) -o myTiger.o lex.yy.c
+
+lex.yy.c: myTiger.lex
+	lex myTiger.lex
+# end
 
 .PHONY : clean retest run show-coverage
 clean:
