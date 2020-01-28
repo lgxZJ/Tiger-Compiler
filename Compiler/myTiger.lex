@@ -9,6 +9,7 @@
 #include <stdio.h>	//	for fileno()
 
 bool g_errorDetected = false;
+int fileno(FILE *stream);  // it's a bad practise but seems the only way to deal with it
 
 %}
 
