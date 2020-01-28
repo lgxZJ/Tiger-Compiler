@@ -19,10 +19,10 @@ COVERAGE_FOLDER := ./Coverage-Report
 
 VPATH := ./AAI
 
-tiger-compiler : $(COVERAGE_FOLDER) $(YACC) $(LEX) $(OBJECTS)
+tiger-compiler : $(COVERAGE_FOLDER) $(OBJECTS)
 	g++ -g -coverage -o $(OUT_DIR)/$@ $(OBJECTS) -static -lcppunit
 
-$(OBJECTS) : | $(OUT_DIR)
+$(OBJECTS) : $(YACC) $(LEX)
 
 $(OUT_DIR):
 	mkdir -p $@
@@ -30,12 +30,13 @@ $(OUT_DIR):
 $(COVERAGE_FOLDER):
 	mkdir -p $@
 
-$(LEX): myTiger.lex
+$(LEX): $(OUT_DIR)
 	lex myTiger.lex
-	$(C_COMPILE_FLAGS) -o myTiger.o lex.yy.c
+	$(C_COMPILE_FLAGS) -o $(OUT_DIR)/lex.yy.o lex.yy.c
 
-$(YACC): myTiger.y
+$(YACC): $(OUT_DIR)
 	yacc -d -v myTiger.y
+	$(C_COMPILE_FLAGS) -o $(OUT_DIR)/y.tab.o y.tab.c
 
 $(OUT_DIR)/%.o : %.cpp
 	$(CXX_COMPILE_FLAGS) -o $@ $<
