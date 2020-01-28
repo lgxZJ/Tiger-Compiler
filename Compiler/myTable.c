@@ -1,6 +1,7 @@
 #include "myTable.h"
 #include <assert.h>
 #include <string.h>
+#include <inttypes.h>
 
 //-----------------------------typedefs---------------------------------//
 
@@ -28,7 +29,7 @@ static int hashFunc_MyTable(void* const key)
 { 
     //	if key is a null-pointer, return -1 for failure.
     if (key == (void*)NULL)		return -1;
-    else						return ((unsigned)key) % TAB_SIZE;
+    else						return ((uintptr_t)key) % TAB_SIZE;
 }
 
 /*	
