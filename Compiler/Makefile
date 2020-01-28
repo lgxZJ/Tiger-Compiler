@@ -19,7 +19,7 @@ COVERAGE_FOLDER := ./Coverage-Report
 
 VPATH := ./AAI
 
-tiger-compiler : $(COVERAGE_FOLDER) $(OBJECTS)
+tiger-compiler : $(COVERAGE_FOLDER) $(YACC) $(LEX) $(OBJECTS)
 	g++ -g -coverage -o $(OUT_DIR)/$@ $(OBJECTS) -static -lcppunit
 
 $(OBJECTS) : | $(OUT_DIR)
@@ -30,25 +30,18 @@ $(OUT_DIR):
 $(COVERAGE_FOLDER):
 	mkdir -p $@
 
+$(LEX): myTiger.lex
+	lex myTiger.lex
+	$(C_COMPILE_FLAGS) -o myTiger.o lex.yy.c
+
+$(YACC): myTiger.y
+	yacc -d -v myTiger.y
+
 $(OUT_DIR)/%.o : %.cpp
 	$(CXX_COMPILE_FLAGS) -o $@ $<
 
 $(OUT_DIR)/%.o : %.c
 	$(C_COMPILE_FLAGS) -o $@ $<
-
-# special rules to generate the lexer and parser
-y.tab.c : myTiger.y
-	yacc -d -v myTiger.y
-
-y.tab.h : y.tab.c
-	echo "y.tab.h are created with y.tab.c\n"
-
-myTiger.o: lex.yy.c myTokens.h myReport.h
-	$(C_COMPILE_FLAGS) -o myTiger.o lex.yy.c
-
-lex.yy.c: myTiger.lex
-	lex myTiger.lex
-# end
 
 .PHONY : clean retest run show-coverage
 clean:
