@@ -1,5 +1,5 @@
-2.  remove same det and src move instructions
-3.  merge.tig and queens.tig core dump
-4.  redundent string definition
-5.  myCanonical unit test failure
-6.  test broken due to tricks used in C unit tests(myLiveness and mySemantic, recursiveDecs)
+2.  remove same det and src move instructions[enhancement]
+3.  merge.tig and queens.tig core dump[fatal]
+4.  redundent string definition[enhancement]
+5.  myCanonical unit test failure[fatal]
+6.  test broken due to tricks used in C unit tests(myLiveness and mySemantic, recursiveDecs)[important]
