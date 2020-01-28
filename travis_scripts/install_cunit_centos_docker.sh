@@ -41,10 +41,25 @@ rm -f CUnit.tar.bz2
 
 # add additional lib path to a ld lib-load ENV variables
 if [ -z "${LD_LIBRARY_PATH}" ]
-then
-    cat "export LD_LIBRARY_PATH=/usr/local/lib" >> ~/.bashrc
+then 
+
+cat >> ~/.bashrc <<EOF
+
+export LD_LIBRARY_PATH=/usr/local/lib 
+
+EOF
+
 else
-    cat "export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:/usr/local/lib" >> ~/.bashrc
+    
+cat >> ~/.bashrc <<EOF 
+
+export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:/usr/local/lib 
+
+EOF
+ 
 fi
 
-source ~/.bashrc
+echo ######################################################################
+echo ############ execute following commands to make it effect ############
+echo ############            source ~/.bashrc                  ############
+echo ######################################################################
