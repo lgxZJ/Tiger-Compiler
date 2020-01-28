@@ -16,7 +16,7 @@ then
 fi
 
 # install needed native libraries
-sudo yum install libtool install wget
+sudo yum install libtool wget
 
 # download CUnit,compile and install it
 wget https://sourceforge.net/projects/cunit/files/latest/download -O CUnit.tar.bz2
