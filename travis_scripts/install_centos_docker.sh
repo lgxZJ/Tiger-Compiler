@@ -20,5 +20,5 @@ chmod u+x ./travis_scripts/install_glibc-devel-i686_centos_docker.sh
 ./travis_scripts/install_glibc-devel-i686_centos_docker.sh
 
 yum -y install libtool
-chmod u+x ./travis_scripts/install_cunit_ubuntu_docker.sh
-./travis_scripts/install_cunit_ubuntu_docker.sh
+chmod u+x ./travis_scripts/install_cunit_centos_docker.sh
+./travis_scripts/install_cunit_centos_docker.sh
