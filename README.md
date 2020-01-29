@@ -3,27 +3,32 @@ A Tiger Compiler
 [![Build Status](https://travis-ci.org/lgxZJ/Tiger-Compiler.svg?branch=master)](https://travis-ci.org/lgxZJ/Tiger-Compiler) [![Coverage Status](https://coveralls.io/repos/github/lgxZJ/Tiger-Compiler/badge.svg?branch=master)](https://coveralls.io/github/lgxZJ/Tiger-Compiler?branch=master)
 
 
-## What is Tiger?
+## The Tiger Language
 Written by **Andrew W.Appel**, the author of [***Tiger Book***][tiger-book], the Tiger language is a small language with nested functions, records values with implicit pointers, arraya, integer and string variables, and a few simple structured control constructs.
 
 For more details, see the **Appendix** section of that book.
 
-## Basic Release
-There is a basic release of this compiler under `Compiler` folder. This is a basic release because only the basic functionalities of Tiger is guaranteed.
+## Prerequisites
+### CentOS
+1.  ./travis_scripts/install_centos.sh
 
-### To build the compiler
-1.  `make`.
+### CentOS Docker
+1.  ./travis_scripts/install_centos_docker.sh
 
-Then the generated **`./Compiler/builds/tiger-compiler`** is just the final compiler you want.
+## Build
+1.  cd Compiler
+2.  `make`.
 
-### To compile a test file
+Then the generated compiler will be hosted in `builds` folder named **tiger**.
+
+## Compiler Usage
 1.  `cd Compiler`.
 2.  `./builds/tiger-compiler ./testcases/testXXX.tig`.
 
 The generated executable file will be under the `testcases` folder with name `testXXX`.
 
-### To see the unit-test coverage result
-First make sure that you have installed **firefox**, because the makefile uses it.
+## Unit Test Coverage
+First make sure that you have installed a browser such as **firefox**, the commands followed will try to open the results via it.
 
 1.  `cd Compiler/Coverage-Report`.
 2.  `make`.
@@ -38,19 +43,6 @@ First make sure that you have installed **firefox**, because the makefile uses i
 *	`bin` : Folders containing object files.
 *	`coverage` : Folders containing code coverage reports.
 *	`example` : Folders containing examples.
-
-
-## Project Needed
-*	**`Lex`**, a computer program that generates lexical analyzers.
-*	**`Yacc`**, a LALR parser generator.
-*	**`CUnit`**, a unit test framework for C.
-*	**`LCOV`**,  a graphical front-end for GCC's coverage testing tool gcov.
-*	**`GCC`**, the GNU Compiler Collection.
-*	**`Doxygen`**, a documentation generator.
-* **`CppUnit`**.
-* **`32bit and 64bit C libraries`**.
-* **`GnuMake`**.
-* **`G++`**.
 
 ## Todo
 See `Compiler/TODO`.
