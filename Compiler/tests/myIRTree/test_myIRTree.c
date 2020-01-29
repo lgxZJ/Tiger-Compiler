@@ -306,7 +306,7 @@ void test_IRDivideExp_BinOperationExp_DivideRightAndRecombineWithLeft(void)
 void test_IRDivideExp_CallExp_ExtractArgs(void)
 {
     IR_myExp exp = IR_makeCall(
-        IR_makeName((myLabel)12),
+	"not-used-name",
         IR_makeExpList(IR_makeESeq(IR_makeMove(NULL, NULL), IR_makeConst(1)),
             IR_makeExpList(IR_makeESeq(IR_makeLabel((myLabel)NULL), IR_makeConst(2)), NULL)));
     
