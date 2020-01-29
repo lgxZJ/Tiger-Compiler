@@ -2,7 +2,7 @@
 #include "CUnit/CUnit.h"
 #include "CUnit/Basic.h"
 #include <stdlib.h>
-
+#include <inttypes.h>
 
 #include <assert.h>
 
@@ -56,8 +56,8 @@ void outputReport_ShouldWorkRight(void)
 	CU_ASSERT((outputReport(0, 0, "valid") == -1) && (outputReport(-1, 0, "valid") == -1));
 	CU_ASSERT((outputReport(47, 0, "valid") > 0) && (outputReport(48, 0, "valid") == -1));
 	//	test invalid optional value
-	CU_ASSERT((outputReport(1, (int)"invalid", "valid") > 0) &&
-		  (outputReport(44, (int)"valid", "valid") > 0));
+	CU_ASSERT((outputReport(1, (uintptr_t)"invalid", "valid") > 0) &&
+		  (outputReport(44, (uintptr_t)"valid", "valid") > 0));
 	//	test invalid optional text
 	CU_ASSERT(outputReport(1, 0, NULL) > 0);	
 }
