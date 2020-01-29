@@ -9,26 +9,32 @@ Written by **Andrew W.Appel**, the author of [***Tiger Book***][tiger-book], the
 For more details, see the **Appendix** section of that book.
 
 ## Prerequisites
+Assumed you are in the root folder.
+
 ### CentOS
-1.  ./travis_scripts/install_centos.sh
+1.  `./travis_scripts/install_centos.sh`
 
 ### CentOS Docker
-1.  ./travis_scripts/install_centos_docker.sh
+1.  `./travis_scripts/install_centos_docker.sh`
 
 ## Build
-1.  cd Compiler
-2.  `make`.
+1.  `cd Compiler`
+2.  `make`
 
 Then the generated compiler will be hosted in `builds` folder named **tiger**.
 
 ## Compiler Usage
-1.  `cd Compiler`.
-2.  `./builds/tiger-compiler ./testcases/testXXX.tig`.
+1.  `cd Compiler`
+2.  `./builds/tiger-compiler ./testcases/testXXX.tig`
 
 The generated executable file will be under the `testcases` folder with name `testXXX`.
 
-## Unit Test Coverage
-First make sure that you have installed a browser such as **firefox**, the commands followed will try to open the results via it.
+## Unit Test
+### Module Status
+![Module-Status](https://i.loli.net/2020/01/29/SKU6dyPMsgNFqa5.png)
+
+### Module Coverage 
+First make sure that you have installed a browser such as **firefox**, the commands following will try to open the results via it.
 
 1.  `cd Compiler/Coverage-Report`.
 2.  `make`.
