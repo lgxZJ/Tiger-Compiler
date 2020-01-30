@@ -29,6 +29,9 @@ Then the generated compiler will be hosted in `builds` folder named **tiger**.
 
 The generated executable file will be under the `testcases` folder with name `testXXX`.
 
+## Debug with STL
+I'll make this a prerequisite which is going to be included in the above shell scripts. At this time you can setup all necessary stuffs using instructions at this site http://sourceware.org/gdb/wiki/STLSupport.
+
 ## Unit Test
 ### Module Status
 ![Module-Status](https://i.loli.net/2020/01/29/SKU6dyPMsgNFqa5.png)
