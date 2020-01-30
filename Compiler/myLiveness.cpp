@@ -4,6 +4,7 @@
 #include <cassert>
 #include <algorithm>
 #include <iterator>
+#include <iostream>
 
 using namespace std;
 using namespace lgxZJ::IS;
@@ -63,8 +64,15 @@ namespace lgxZJ
 
         int InterferenceGraph::GetRegNode(myTemp reg) const
         {
+	  std::cout << "---   checking reg " << reg << " in register node maps : " << &cfGraph->GetRegisterNodeMapRef() << std::endl;
+	  cfGraph->PrintRegisterMaps();
+
             assert (reg != nullptr);
-            return cfGraph->GetRegisterNodeMapRef().at(reg);
+            int node = cfGraph->GetRegisterNodeMapRef().at(reg);
+
+	    std::cout << "---   done reg checking " << reg << " in register node maps : " << &cfGraph->GetRegisterNodeMapRef() << std::endl;
+
+	    return node;
         }
 
         //////////////////////////////////////////////////////////////////////////

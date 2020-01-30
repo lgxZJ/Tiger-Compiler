@@ -1,6 +1,7 @@
 #include "myCFGraph.h"
 
 #include <cassert>
+#include <iostream>
 
 using namespace std;
 using namespace lgxZJ::IS;
@@ -81,7 +82,18 @@ namespace lgxZJ
                     if ( regNodeMaps.find( oneReg ) == regNodeMaps.end() )
                         regNodeMaps[oneReg] = nodeNum++;
             }
+
+	    std::cout << "---Registering Reg:" <<  &regNodeMaps << "---" << std::endl;
+	    PrintRegisterMaps();
         }
+
+      void CFGraph::PrintRegisterMaps() const {
+	std::cout << "---Printing Node Map---" << std::endl;
+	for (auto it = regNodeMaps.begin(); it != regNodeMaps.end(); ++it) {
+	  std::cout << "    " << it->first << std::endl;
+	}
+	std::cout << "---    End    ---" << std::endl;
+      }
 
         //////////////////////////////////////////////////////
 

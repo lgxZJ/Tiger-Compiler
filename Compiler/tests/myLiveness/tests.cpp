@@ -33,17 +33,17 @@ class InterferenceGraphTest : public CppUnit::TestFixture
     public:
             CPPUNIT_TEST_SUITE(InterferenceGraphTest);
 
-  	    CPPUNIT_TEST(testCtor_ByDefault_InitMembersToZeroSize);
-  	    CPPUNIT_TEST(testCtor_PassSizeParam_InitNodesAndRegsToThisSize);
-	    CPPUNIT_TEST(testCtor_PassSizeParam_InitRegsToRegs);
-            CPPUNIT_TEST(testetNodeSize_ByDefault_GetSize);
-            CPPUNIT_TEST(testGetNodeReg_ByDefault_GetWhatSetted);
-            CPPUNIT_TEST(testAddEdge_ByDefault_AddOneEdge);
-            CPPUNIT_TEST(testAddEdge_ReverseEdge_NotAdd);
-            CPPUNIT_TEST(testAddEdge_SameEdge_NotAdd);
-            CPPUNIT_TEST(testAddEdgeRegisters_ByDefault_AlsoSetNode);
-            CPPUNIT_TEST(testEdgesContains_PassNotContainedEdge_ReturnFalse);
-            CPPUNIT_TEST(testEdgesContains_PassContainedEdge_ReturnTrue);
+  //  	    CPPUNIT_TEST(testCtor_ByDefault_InitMembersToZeroSize);
+  //	    CPPUNIT_TEST(testCtor_PassSizeParam_InitNodesAndRegsToThisSize);
+  //	    CPPUNIT_TEST(testCtor_PassSizeParam_InitRegsToRegs);
+  //        CPPUNIT_TEST(testetNodeSize_ByDefault_GetSize);
+  //        CPPUNIT_TEST(testGetNodeReg_ByDefault_GetWhatSetted);
+  //        CPPUNIT_TEST(testAddEdge_ByDefault_AddOneEdge);
+  //        CPPUNIT_TEST(testAddEdge_ReverseEdge_NotAdd);
+  //          CPPUNIT_TEST(testAddEdge_SameEdge_NotAdd);
+  //        CPPUNIT_TEST(testAddEdgeRegisters_ByDefault_AlsoSetNode);
+  //        CPPUNIT_TEST(testEdgesContains_PassNotContainedEdge_ReturnFalse);
+  //        CPPUNIT_TEST(testEdgesContains_PassContainedEdge_ReturnTrue);
 
             CPPUNIT_TEST_SUITE_END();
 
@@ -219,50 +219,51 @@ class LivenessMock : public Liveness
 class LivenessTest : public CppUnit::TestFixture
 {
     public:
-            CPPUNIT_TEST_SUITE(LivenessTest);
+           CPPUNIT_TEST_SUITE(LivenessTest);
 
-            CPPUNIT_TEST(testCtor_FirstCFGraph_CalculateIn);
-            CPPUNIT_TEST(testCtor_FirstCFGraph_CalculateOut);
-            CPPUNIT_TEST(testCtor_FirstCFGraph_GenerateInterferenceGraph);
-            CPPUNIT_TEST(testCtor_FirstCFGraph_GenerateMovePairs);
+  //           CPPUNIT_TEST(testCtor_FirstCFGraph_CalculateIn);
+  //       CPPUNIT_TEST(testCtor_FirstCFGraph_CalculateOut);
+  //       CPPUNIT_TEST(testCtor_FirstCFGraph_GenerateInterferenceGraph);
+  //       CPPUNIT_TEST(testCtor_FirstCFGraph_GenerateMovePairs);
 
+  //todo: test this also
   	    //CPPUNIT_TEST(testCtor_SecondCFGraph_CalculateIn);
             // CPPUNIT_TEST(testCtor_SecondCFGraph_CalculateOut);
             // CPPUNIT_TEST(testCtor_SecondCFGraph_GenerateInterferenceGraph);
             // CPPUNIT_TEST(testCtor_SecondCFGraph_GenerateMovePairs);
 
-            CPPUNIT_TEST(testCtor_ThirdCFGraph_GenerateInterferenceGraph);
-            CPPUNIT_TEST(testCtor_ThirdCFGraph_GenerateMovePairs);
+  //       CPPUNIT_TEST(testCtor_ThirdCFGraph_GenerateInterferenceGraph);
+  //       CPPUNIT_TEST(testCtor_ThirdCFGraph_GenerateMovePairs);
 
-            CPPUNIT_TEST(testCtor_FourthCFGraph_CalculateIn);
-            CPPUNIT_TEST(testCtor_FourthCFGraph_CalculateOut);
-            CPPUNIT_TEST(testCtor_FourthCFGraph_GenerateInterferenceGraph);
-            CPPUNIT_TEST(testCtor_FourthCFGraph_GenerateMovePairs);
+  //       CPPUNIT_TEST(testCtor_FourthCFGraph_CalculateIn);
+  //       CPPUNIT_TEST(testCtor_FourthCFGraph_CalculateOut);
+  //       CPPUNIT_TEST(testCtor_FourthCFGraph_GenerateInterferenceGraph);
+  //       CPPUNIT_TEST(testCtor_FourthCFGraph_GenerateMovePairs);
 
-            CPPUNIT_TEST(testCtor_FifthCFGraph_CalculateOut);
-            CPPUNIT_TEST(testCtor_FifthCFGraph_CalculateIn);
-            CPPUNIT_TEST(testCtor_FifthCFGraph_GenerateInterferenceGraph);
-            CPPUNIT_TEST(testCtor_FifthCFGraph_GenerateMovePairs);
+  //       CPPUNIT_TEST(testCtor_FifthCFGraph_CalculateOut);
+  //       CPPUNIT_TEST(testCtor_FifthCFGraph_CalculateIn);
+  //       CPPUNIT_TEST(testCtor_FifthCFGraph_GenerateInterferenceGraph);
+  //       CPPUNIT_TEST(testCtor_FifthCFGraph_GenerateMovePairs);
 
-            CPPUNIT_TEST(testCtor_SixthCGraph_CalculateOut);
-            CPPUNIT_TEST(testCtor_SixthCFGraph_CalculateIn);
-            CPPUNIT_TEST(testCtor_SixthCFGraph_GenerateInterferenceGraph);
-            CPPUNIT_TEST(testCtor_SixthCFGraph_GenerateMovePairs);
+  //       CPPUNIT_TEST(testCtor_SixthCGraph_CalculateOut);
+  //       CPPUNIT_TEST(testCtor_SixthCFGraph_CalculateIn);
+  //       CPPUNIT_TEST(testCtor_SixthCFGraph_GenerateInterferenceGraph);
+  //       CPPUNIT_TEST(testCtor_SixthCFGraph_GenerateMovePairs);
 
-            CPPUNIT_TEST(testCtor_SeventhCGraph_CalculateOut);
-            CPPUNIT_TEST(testCtor_SeventhCGraph_CalculateIn);
-            CPPUNIT_TEST(testCtor_SeventhCFGraph_GenerateInterferenceGraph);
-            CPPUNIT_TEST(testCtor_SeventhCFGraph_GenerateMovePairs);
+  //       CPPUNIT_TEST(testCtor_SeventhCGraph_CalculateOut);
+  //       CPPUNIT_TEST(testCtor_SeventhCGraph_CalculateIn);
+  //       CPPUNIT_TEST(testCtor_SeventhCFGraph_GenerateInterferenceGraph);
+  //       CPPUNIT_TEST(testCtor_SeventhCFGraph_GenerateMovePairs);
 
-            CPPUNIT_TEST(testCtor_EighthCGraph_CalculateOut);
-            CPPUNIT_TEST(testCtor_EighthCGraph_CalculateIn);
-            CPPUNIT_TEST(testCtor_EighthCFGraph_GenerateInterferenceGraph);
-            CPPUNIT_TEST(testCtor_EightCFGraph_GenerateMovePairs);
+  //       CPPUNIT_TEST(testCtor_EighthCGraph_CalculateOut);
+  //       CPPUNIT_TEST(testCtor_EighthCGraph_CalculateIn);
+  //       CPPUNIT_TEST(testCtor_EighthCFGraph_GenerateInterferenceGraph);
+  //       CPPUNIT_TEST(testCtor_EightCFGraph_GenerateMovePairs);
 
-            CPPUNIT_TEST(testCtor_NinthCGraph_CalculateOut);
-            CPPUNIT_TEST(testCtor_NinthCGraph_CalculateIn);
-            CPPUNIT_TEST(testCtor_NinthCGraph_CalculateInterferenceGraph);
-            CPPUNIT_TEST(testCtor_NinthCFGraph_GenerateMovePairs);
+           CPPUNIT_TEST(testCtor_NinthCGraph_CalculateOut);
+           CPPUNIT_TEST(testCtor_NinthCGraph_CalculateIn);
+           CPPUNIT_TEST(testCtor_NinthCGraph_CalculateInterferenceGraph);
+           CPPUNIT_TEST(testCtor_NinthCFGraph_GenerateMovePairs);
 
             CPPUNIT_TEST_SUITE_END();
 
@@ -1149,12 +1150,12 @@ class LivenessTest : public CppUnit::TestFixture
             myTemp reg145 = Temp_newTemp();
             myTemp reg146 = Temp_newTemp();
 
-            InterferenceGraph ifGraph =
-                Liveness(makeNinthIns(  reg131, reg133, reg134, reg137,
-                                        reg135, reg138, reg139, reg140,
-                                        reg141, reg142, reg144, reg143, 
-                                        reg145, reg146))
-                    .GetInterferenceGraph();
+	    InterferenceGraph ifGraph =
+	      Liveness(makeNinthIns(  reg131, reg133, reg134, reg137,
+				      reg135, reg138, reg139, reg140,
+				      reg141, reg142, reg144, reg143, 
+				      reg145, reg146))
+	      .GetInterferenceGraph();
 
             const DirectedGraph& graph = ifGraph.GetDGRef();
             CPPUNIT_ASSERT_EQUAL(15, ifGraph.GetNodeSize());

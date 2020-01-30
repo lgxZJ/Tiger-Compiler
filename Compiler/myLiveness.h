@@ -28,6 +28,8 @@ namespace lgxZJ
             public:
                 explicit InterferenceGraph(const CFGraph* cfRef);
 
+		const CFGraph GetCfGraph() { return this.cfGraph; }
+
                 //  DO:
                 //      Get inner directed graph reference.
 		/////////////////////////////////////////////////////////////////////////////

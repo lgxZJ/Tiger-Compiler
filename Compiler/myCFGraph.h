@@ -66,6 +66,8 @@ namespace lgxZJ
                 //      If the given node is invalid, it throws a runtime error.
                 std::shared_ptr<IS::AAI> GetNodeIns(Node node) const;
 
+		void PrintRegisterMaps() const;
+
             private:
                 int GetLabelIndex(myLabel label);
                 void SetNodeUse(Node node, IS::Registers regs);
