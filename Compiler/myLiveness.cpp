@@ -16,12 +16,12 @@ namespace lgxZJ
         //                          InterferenceGraph
         //////////////////////////////////////////////////////////////////////////
 
-        InterferenceGraph::InterferenceGraph(const CFGraph* cfGraph)
-            :   graph(cfGraph->GetRegisterNodeMapRef().size()),
-                registers(cfGraph->GetRegisterNodeMapRef().size()),
+        InterferenceGraph::InterferenceGraph(CFGraph cfGraph)
+            :   graph(cfGraph.GetRegisterNodeMapRef().size()),
+                registers(cfGraph.GetRegisterNodeMapRef().size()),
                 cfGraph(cfGraph)
         {
-            for (auto oneMap : cfGraph->GetRegisterNodeMapRef())
+            for (auto oneMap : cfGraph.GetRegisterNodeMapRef())
                 registers.at(oneMap.second) = oneMap.first;
         }
 
@@ -64,7 +64,7 @@ namespace lgxZJ
         int InterferenceGraph::GetRegNode(myTemp reg) const
         {
             assert (reg != nullptr);
-            return cfGraph->GetRegisterNodeMapRef().at(reg);
+            return cfGraph.GetRegisterNodeMapRef().at(reg);
         }
 
         //////////////////////////////////////////////////////////////////////////
@@ -122,10 +122,10 @@ namespace lgxZJ
         //                              Liveness
         /////////////////////////////////////////////////////////////////////////
 
-        Liveness::Liveness(const CFGraph& oneCFGraph)
+        Liveness::Liveness(CFGraph oneCFGraph)
             :   cfGraph(oneCFGraph),
                 movePairs(),
-                interferenceGraph(&cfGraph)
+                interferenceGraph(cfGraph)
         {
             DoLiveness();
             GenerateInterferenceGraph();

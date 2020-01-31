@@ -21,7 +21,7 @@ namespace lgxZJ
 
         RegisterAllocation::RegisterAllocation(
             Instructions instructions, Trans_myLevel level, unsigned regNum)
-         : cfGraph(instructions), interferenceGraph(&cfGraph), regNum(regNum)
+         : cfGraph(instructions), interferenceGraph(cfGraph), regNum(regNum)
         {
             this->level = level;
             RealWork(instructions);

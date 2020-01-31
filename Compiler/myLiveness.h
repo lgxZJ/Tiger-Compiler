@@ -23,10 +23,10 @@ namespace lgxZJ
             protected:
                 DirectedGraph   graph;
                 IS::Registers   registers;
-                const CFGraph*  cfGraph;
+                CFGraph  cfGraph;
             
             public:
-                explicit InterferenceGraph(const CFGraph* cfRef);
+                explicit InterferenceGraph(CFGraph cfRef);
 
                 //  DO:
                 //      Get inner directed graph reference.
@@ -94,13 +94,13 @@ namespace lgxZJ
             protected:
                 RegistersSet        in;
                 RegistersSet        out;
-                const CFGraph&      cfGraph;
+                CFGraph       cfGraph;
 
                 MovePairs           movePairs;
                 InterferenceGraph   interferenceGraph;
 
             public:
-                explicit Liveness(const CFGraph& cfGraph);
+                explicit Liveness(CFGraph cfGraph);
 
                 //  DO:
                 //      Get the constructed interference graph.

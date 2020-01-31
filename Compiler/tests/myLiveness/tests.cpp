@@ -53,7 +53,7 @@ class InterferenceGraphTest : public CppUnit::TestFixture
         void testCtor_ByDefault_InitMembersToZeroSize()
         {
             CFGraph cfGraph(Instructions{});
-            InterferenceGraph graph(&cfGraph);
+            InterferenceGraph graph(cfGraph);
 
             InterferenceGraphMock mock(graph);
             CPPUNIT_ASSERT_EQUAL((size_t)0, graph.GetDGRef().GetNodes().size());
@@ -70,7 +70,7 @@ class InterferenceGraphTest : public CppUnit::TestFixture
                 make_shared<Move>(Temp_newTemp(), Temp_newTemp()),
                 make_shared<Move>(Temp_newTemp(), Temp_newTemp()),
             });
-            InterferenceGraph graph(&cfGraph);
+            InterferenceGraph graph(cfGraph);
 
             InterferenceGraphMock mock(graph);
             CPPUNIT_ASSERT_EQUAL((size_t)initSize, graph.GetDGRef().GetNodes().size());
@@ -87,7 +87,7 @@ class InterferenceGraphTest : public CppUnit::TestFixture
                 make_shared<Move>(Temp_newTemp(), Temp_newTemp()),
                 make_shared<Move>(Temp_newTemp(), Temp_newTemp()),
             });
-            InterferenceGraph graph(&cfGraph);
+            InterferenceGraph graph(cfGraph);
 
             InterferenceGraphMock mock(graph);
             for (int i = 0; i < initSize; ++i)
@@ -102,7 +102,7 @@ class InterferenceGraphTest : public CppUnit::TestFixture
                 make_shared<Move>(Temp_newTemp(), Temp_newTemp()),
                 make_shared<Move>(Temp_newTemp(), Temp_newTemp()),
             });
-            InterferenceGraph graph(&cfGraph);
+            InterferenceGraph graph(cfGraph);
 
             CPPUNIT_ASSERT_EQUAL(initSize, (unsigned)graph.GetNodeSize());
         }
@@ -111,7 +111,7 @@ class InterferenceGraphTest : public CppUnit::TestFixture
         {
             CFGraph cfGraph(Instructions{
                 make_shared<Move>(Temp_newTemp(), Temp_newTemp()), });
-            InterferenceGraph graph(&cfGraph);
+            InterferenceGraph graph(cfGraph);
             myTemp reg = Temp_newTemp();
             graph.SetNodeReg(0, reg);
 
@@ -126,7 +126,7 @@ class InterferenceGraphTest : public CppUnit::TestFixture
                 make_shared<Move>(Temp_newTemp(), Temp_newTemp()),
                 make_shared<Move>(Temp_newTemp(), Move::OperandType::Content, 0),
             });
-            InterferenceGraph graph(&cfGraph);
+            InterferenceGraph graph(cfGraph);
 
             graph.AddEdge(0,1);
             graph.AddEdge(1,2);
@@ -144,7 +144,7 @@ class InterferenceGraphTest : public CppUnit::TestFixture
                 make_shared<Move>(Temp_newTemp(), Temp_newTemp()),
                 make_shared<Move>(Temp_newTemp(), Move::OperandType::Content, 0),
             });
-            InterferenceGraph graph(&cfGraph);
+            InterferenceGraph graph(cfGraph);
 
             graph.AddEdge(0,1);
             graph.AddEdge(1,0);
@@ -158,7 +158,7 @@ class InterferenceGraphTest : public CppUnit::TestFixture
                 make_shared<Move>(Temp_newTemp(), Temp_newTemp()),
                 make_shared<Move>(Temp_newTemp(), Move::OperandType::Content, 0),
             });
-            InterferenceGraph graph(&cfGraph);
+            InterferenceGraph graph(cfGraph);
 
             graph.AddEdge(0,1);
             graph.AddEdge(0,1);
@@ -170,7 +170,7 @@ class InterferenceGraphTest : public CppUnit::TestFixture
         {
             myTemp regOne = Temp_newTemp(), regTwo = Temp_newTemp();
             CFGraph cfGraph(Instructions{make_shared<Move>(regOne, regTwo)});
-            InterferenceGraph graph(&cfGraph);
+            InterferenceGraph graph(cfGraph);
 
             graph.AddEdge(regOne, regTwo);
 
@@ -185,7 +185,7 @@ class InterferenceGraphTest : public CppUnit::TestFixture
                 make_shared<Move>(regOne, regTwo),
                 make_shared<Move>(regThree, Move::OperandType::Content, 0),
             });
-            InterferenceGraph graph(&cfGraph);
+            InterferenceGraph graph(cfGraph);
 
             graph.AddEdge(0,1);
 
@@ -196,7 +196,7 @@ class InterferenceGraphTest : public CppUnit::TestFixture
         {
             myTemp regOne = Temp_newTemp(), regTwo = Temp_newTemp();
             CFGraph cfGraph(Instructions{make_shared<Move>(regOne, regTwo)});
-            InterferenceGraph graph(&cfGraph);
+            InterferenceGraph graph(cfGraph);
 
             graph.AddEdge(regOne,regTwo);
 
