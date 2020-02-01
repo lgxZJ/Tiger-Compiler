@@ -29,8 +29,13 @@ Then the generated compiler will be hosted in `builds` folder named **tiger**.
 
 The generated executable file will be under the `testcases` folder with name `testXXX`.
 
-## Debug with STL
+## Debug
+### Debug with STL
 I'll make this a prerequisite which is going to be included in the above shell scripts. At this time you can setup all necessary stuffs using instructions at this site http://sourceware.org/gdb/wiki/STLSupport.
+
+### Debug in Docker
+Lanuch your docker with following options added `--privileged  --cap-add=SYS_PTRACE`.
+
 
 ## Unit Test
 ### Module Status
