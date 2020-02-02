@@ -1,5 +1,10 @@
-2.  remove same det and src move instructions[enhancement]
-3.  merge.tig and queens.tig core dump[fatal]
-4.  redundent string definition[enhancement]
-5.  myCanonical unit test failure[fatal]
-6.  test broken due to tricks used in C unit tests(myLiveness and mySemantic, recursiveDecs)[important]
+Fatal:
+	1.two testcases not passed: merge.tig, queens.tig. The possible reason is WRONG address calculation
+	of OUTER scope variables. When calculating outer scope variable addresses, currently we get the address
+	by adding total local variable memory sizes(including a static link variable, formal variables and local
+	variables) with the current base pointer (namely ebp) in current frame.If multi frames were involved, 
+	the above step is repeated until the frame is matched with the one of the variable. 
+Enhancements:
+	1.  remove same det and src move instructions
+	2.  redundent string definition
+	3.  test broken due to tricks used in C unit tests(myLiveness and mySemantic, recursiveDecs, myCanonical)
