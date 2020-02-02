@@ -1,5 +1,5 @@
 Fatal:
-	1.two testcases not passed: merge.tig, queens.tig. The possible reason is WRONG address calculation
+	1.  two testcases not passed: merge.tig, queens.tig. The possible reason is WRONG address calculation
 	of OUTER scope variables. When calculating outer scope variable addresses, currently we get the address
 	by adding total local variable memory sizes(including a static link variable, formal variables and local
 	variables) with the current base pointer (namely ebp) in current frame.If multi frames were involved, 
