@@ -47,17 +47,6 @@ First make sure that you have installed a browser such as **firefox**, the comma
 1.  `cd Compiler/Coverage-Report`.
 2.  `make`.
 
-
-## Folder Categories
-*	`Compiler` : The real project folder, every file in this folder is sorted into different categories.
-*	`Chapter xxx` : Each folder named with convention corresponding to one chapter in tiger book.
-*	`doc` : The documentation folder.
-*	`testcases` : Folders containing source files written in tiger language, which is intended for tests.
-*	`tests` or `xxx_Test` : Folders containing unit tests.
-*	`bin` : Folders containing object files.
-*	`coverage` : Folders containing code coverage reports.
-*	`example` : Folders containing examples.
-
 ## Todo
 See `Compiler/TODO`.
 
