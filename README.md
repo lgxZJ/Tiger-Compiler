@@ -48,7 +48,7 @@ First make sure that you have installed a browser such as **firefox**, the comma
 2.  `make`.
 
 ## Todo
-See `Compiler/TODO`.
+See [Compiler/TODO](Compiler/TODO).
 
 
 [tiger-book]:		http://www.amazon.com/Modern-Compiler-Implementation-Basic-Techniques/dp/0521583896
